@@ -5,14 +5,30 @@ Swift-numerics provides a set of modules that support numerical computing in Swi
 These modules fall broadly in two categories:
 - API that is too specialized to go into the standard library, but which is sufficiently
 general to be centralized in a single common package.
-- API that is under active development toward future inclusion in the swift-preview
-package or the standard library itself.
+- API that is under active development toward future inclusion in the standard library
+itself.
 There is, of course, some overlap between these two categories, and API that begins 
 in the first category may migrate towards the second as it matures.
 
 There are two initial modules that we are seeding the package with, and plans for further
 extension in the next few months. Proposals for modifications and additional content are
 welcome, some discussion of that process will appear in this document as well.
+
+## Process
+Swift-numerics does not use the swift-evolution process. We use github issues and
+pull requests for development. At present, none of the modules in swift-numerics are
+binary stable, but some of them will be declared stable as their design stabilizes.
+
+New modules should be proposed by raising an issue, so that they can be discussed
+before significant effort is sunk into developing them. Draft PRs containing sketches 
+of such modules are encouraged to facilitate discussion and cooperative implementation.
+
+Once a general model is accepted for a new module, development should be done
+on a feature branch until the module has enough functionality to be useful and has
+suitable test coverage. At that point, a PR should be put up against master for community
+review.
+
+For minor changes, simply posting a PR against master is appropriate.
 
 ## Initial Modules
 1. [ElementaryFunctions](#elfcn)
@@ -69,21 +85,42 @@ public struct Complex<RealType> where RealType: Real {
 ```
 This module provides approximate feature parity and memory layout compatibility with C,
 Fortran, and C++ complex types (although the importer cannot map the types for you,
-buffers may be reinterpreted to shim API defined in other languages). 
+buffers may be reinterpreted to shim API defined in other languages).
+
+The usual arithmetic operators are provided for Complex numbers, as well as
+multiplication and division of real-by-complex and conversion to and from polar
+coordinates and many useful properties, plus conformances to the obvious usual
+protocols: `Equatable`, `Hashable`, `Codable` (if the underlying `RealType` is),
+`Numeric` (and hence `AdditiveArithmetic`).
+
+Further details may be found in the [`Complex` module](Sources/Complex/README.md).
 
 ### Dependencies:
 - The `ElementaryFunctions` module.
 
 ## Future expansion
-1. [Large Integers](#bignum)
-2. [Shaped Arrays](#shapedArray)
-3. [Decimal Floating-point](#decimal)
-4. [3D Geometry](#geometry)
+1. [Approximate Equality](#approx)
+2. [Large Integers](#bignum)
+3. [Shaped Arrays](#shapedArray)
+4. [Decimal Floating-point](#decimal)
+5. [3D Geometry](#geometry)
+
+<a name="approx">
+
+## Approximate Equality
 
 <a name="bignum">
 
+## Large Integers
+
 <a name="shapedArray">
+
+## Shaped Arrays
 
 <a name="decimal">
 
+## Decimal Floating-point
+
 <a name="geometry">
+
+## 3D Geometry
