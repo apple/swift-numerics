@@ -7,18 +7,17 @@ import PackageDescription
 let package = Package(
   name: "swift-numerics",
   products: [
-    .library(name: "NumericsShims", targets: ["NumericsShims"]),
-    .library(name: "ElementaryFunctions", targets: ["ElementaryFunctions"]),
     .library(name: "Complex", targets: ["Complex"]),
+    .library(name: "ElementaryFunctions", targets: ["ElementaryFunctions"]),
   ],
   dependencies: [
   ],
   targets: [
-    .target(name: "NumericsShims", dependencies: []),
-    .target(name: "ElementaryFunctions", dependencies: ["NumericsShims"]),
     .target(name: "Complex", dependencies: ["ElementaryFunctions"]),
+    .target(name: "ElementaryFunctions", dependencies: ["NumericsShims"]),
+    .target(name: "NumericsShims", dependencies: []),
     
-    .testTarget(name: "ElementaryFunctionTests", dependencies: ["ElementaryFunctions"]),
     .testTarget(name: "ComplexTests", dependencies: ["Complex"]),
+    .testTarget(name: "ElementaryFunctionTests", dependencies: ["ElementaryFunctions"]),
   ]
 )
