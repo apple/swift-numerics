@@ -95,6 +95,8 @@ protocols: `Equatable`, `Hashable`, `Codable` (if the underlying `RealType` is),
 
 Further details may be found in the [`Complex` module](Sources/Complex/README.md).
 
+Additional work: https://github.com/apple/swift-numerics/issues/2
+
 ### Dependencies:
 - The `ElementaryFunctions` module.
 
@@ -103,24 +105,30 @@ Further details may be found in the [`Complex` module](Sources/Complex/README.md
 2. [Large Integers](#bignum)
 3. [Shaped Arrays](#shapedArray)
 4. [Decimal Floating-point](#decimal)
-5. [3D Geometry](#geometry)
+5. [Float16](#fp16)
 
 <a name="approx">
 
 ## Approximate Equality
+https://github.com/apple/swift-numerics/issues/3
 
 <a name="bignum">
 
 ## Large Integers
+https://github.com/apple/swift-numerics/issues/4
+https://github.com/apple/swift-numerics/issues/5
 
 <a name="shapedArray">
 
 ## Shaped Arrays
+https://github.com/apple/swift-numerics/issues/6
 
 <a name="decimal">
 
 ## Decimal Floating-point
+https://github.com/apple/swift-numerics/issues/7
 
-<a name="geometry">
+<a name="fp16">
 
-## 3D Geometry
+## Float16
+https://github.com/apple/swift-numerics/issues/8
