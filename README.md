@@ -15,20 +15,26 @@ extension in the next few months. Proposals for modifications and additional con
 welcome, some discussion of that process will appear in this document as well.
 
 ## Process
-Swift-numerics does not use the swift-evolution process. We use github issues and
-pull requests for development. At present, none of the modules in swift-numerics are
-binary stable, but some of them will be declared stable as their design stabilizes.
+Swift-numerics uses github issues to track bugs and features and pull requests for
+development.
 
-New modules should be proposed by raising an issue, so that they can be discussed
-before significant effort is sunk into developing them. Draft PRs containing sketches 
-of such modules are encouraged to facilitate discussion and cooperative implementation.
+To propose a new module:
+1. Raise an issue with the [new module] tag.
+2. Raise a PR with an implementation sketch.
+3. Iterate on the design, working with the community.
+4. Once there is consensus on the basic design, we'll create a feature branch on which
+further cooperative work can continue.
+5. Once the basic design has stabilized and is functional enough to be generally useful,
+raise a PR to merge the feature onto master.
 
-Once a general model is accepted for a new module, development should be done
-on a feature branch until the module has enough functionality to be useful and has
-suitable test coverage. At that point, a PR should be put up against master for community
-review.
+To propose a new feature for an existing module:
+1. Raise an issue with the [enhancement] tag.
+2. Raise a PR with an implementation sketch.
+3. Iterate on the design, working with the community.
+4. Once you establish consensus that the change is wanted, we will merge it to master.
 
-For minor changes, simply posting a PR against master is appropriate.
+To fix a bug, or make smaller improvements:
+1. Raise a PR with your change. Be sure to add test coverage for whatever changes you are making.
 
 ## Initial Modules
 1. [ElementaryFunctions](#elfcn)
