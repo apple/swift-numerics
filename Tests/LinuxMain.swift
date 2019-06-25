@@ -1,8 +1,10 @@
 import XCTest
+
 import ComplexTests
 import ElementaryFunctionTests
 
 var tests = [XCTestCaseEntry]()
-tests += ComplexTests.allTests()
-tests += ElementaryFunctionTests.allTests()
+tests += ComplexTests.__allTests()
+tests += ElementaryFunctionTests.__allTests()
+
 XCTMain(tests)
