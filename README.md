@@ -36,6 +36,13 @@ To propose a new feature for an existing module:
 To fix a bug, or make smaller improvements:
 1. Raise a PR with your change. Be sure to add test coverage for whatever changes you are making.
 
+Note that swift-numerics changes are not expected to go through swift-evolution. For 
+some modules, swift-numerics may act as a staging area for the standard library, but in
+those cases, the expectation is that swift-evolution review will take place at the point
+that the module is proposed for inclusion. It's good to keep that process in mind, however,
+and document *why* you're making the decisions that you are, so that we can refer to
+those rationales when a module comes up for swift-evolution.
+
 ## Initial Modules
 1. [ElementaryFunctions](#elfcn)
 2. [Complex](#complex)
