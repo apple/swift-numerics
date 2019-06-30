@@ -18,7 +18,9 @@ RawSignificand: FixedWidthInteger, Exponent: FixedWidthInteger { }
 
 extension Float: FixedWidthBinaryFloatingPoint { }
 extension Double: FixedWidthBinaryFloatingPoint { }
+#if os(macOS)
 extension Float80: FixedWidthBinaryFloatingPoint { }
+#endif
 
 func mapProduct<T, R>(_ a: [T], _ b: [T], _ f: (T,T) -> R) -> [R] {
   return a.flatMap { a in b.map { b in f(a,b) } }
@@ -106,7 +108,7 @@ final class ComplexTests: XCTestCase {
   ]
 }
 
-#if !os(macOS)
+#if !(os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
 public func allTests() -> [XCTestCaseEntry] {
   return [
     testCase(ComplexTests.allTests),

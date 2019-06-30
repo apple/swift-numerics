@@ -119,7 +119,7 @@ final class ElementaryFunctionTests: XCTestCase {
   #endif
 }
 
-#if !os(macOS)
+#if !(os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
 public func allTests() -> [XCTestCaseEntry] {
   return [
     testCase(ComplexTests.allTests),
