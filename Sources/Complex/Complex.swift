@@ -43,13 +43,13 @@ public struct Complex<RealType> where RealType: Real {
   /// The real part of this complex value if it is a finite number, or `nan` if it is not.
   public var real: RealType {
     @inlinable
-    get { return isFinite ? x : .nan }
+    get { isFinite ? x : .nan }
   }
   
   /// The imaginary part of this complex value if it is a finite number, or `nan` if it is not.
   public var imag: RealType {
     @inlinable
-    get { return isFinite ? y : .nan }
+    get { isFinite ? y : .nan }
   }
 }
 
@@ -152,7 +152,7 @@ extension Complex: CustomStringConvertible {
 
 extension Complex: CustomDebugStringConvertible where RealType: CustomDebugStringConvertible {
   public var debugDescription: String {
-    return "Complex<\(RealType.self)>(\(x.debugDescription), \(y.debugDescription))"
+    "Complex<\(RealType.self)>(\(x.debugDescription), \(y.debugDescription))"
   }
 }
 
@@ -160,30 +160,36 @@ extension Complex: CustomDebugStringConvertible where RealType: CustomDebugStrin
 extension Complex {
   @inlinable
   public static var zero: Complex {
-    return Complex(0, 0)
+    Complex(0, 0)
   }
   
   @inlinable
   public static var one: Complex {
-    return Complex(1, 0)
+    Complex(1, 0)
   }
   
   /// The imaginary unit.
+  ///
+  /// See also:
+  /// -
+  /// - .zero
+  /// - .one
+  /// - .infinity
   @inlinable
   public static var i: Complex {
-    return Complex(0, 1)
+    Complex(0, 1)
   }
   
   /// A value representing the point at infinity.
   @inlinable
   public static var infinity: Complex {
-    return Complex(.infinity, 0)
+    Complex(.infinity, 0)
   }
   
   /// The complex conjugate of this value.
   @inlinable
   public var conjugate: Complex {
-    return Complex(x, -y)
+    Complex(x, -y)
   }
   
   /// The squared magnitude `(real*real + imag*imag)`.
@@ -198,7 +204,7 @@ extension Complex {
   /// - `.magnitude`
   @inlinable
   public var unsafeMagnitudeSquared: RealType {
-    return x*x + y*y
+    x*x + y*y
   }
   
   /// True if this value is finite.
@@ -212,7 +218,7 @@ extension Complex {
   /// - `.isZero`
   @inlinable
   public var isFinite: Bool {
-    return x.isFinite && y.isFinite
+    x.isFinite && y.isFinite
   }
   
   /// True if this value is normal.
@@ -228,7 +234,7 @@ extension Complex {
   /// - `.isZero`
   @inlinable
   public var isNormal: Bool {
-    return isFinite && (x.isNormal || y.isNormal)
+    isFinite && (x.isNormal || y.isNormal)
   }
   
   /// True if this value is subnormal.
@@ -243,7 +249,7 @@ extension Complex {
   /// - `.isZero` 
   @inlinable
   public var isSubnormal: Bool {
-    return isFinite && !isNormal && !isZero
+    isFinite && !isNormal && !isZero
   }
   
   /// True if this value is zero.
@@ -257,7 +263,7 @@ extension Complex {
   /// - `.isSubnormal`
   @inlinable
   public var isZero: Bool {
-    return x == 0 && y == 0
+    x == 0 && y == 0
   }
 }
 
@@ -331,7 +337,7 @@ extension Complex {
   /// - `.phase`
   /// - `init(r:θ:)`
   public var polar: (magnitude: RealType, phase: RealType) {
-    return (magnitude, phase)
+    (magnitude, phase)
   }
   
   /// Constructs a complex value from polar coordinates.

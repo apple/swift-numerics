@@ -95,8 +95,23 @@ extension Complex: Numeric {
     let zNorm = z / zScale
     let wNorm = w / wScale
     let rNorm = zNorm * wNorm.conjugate / wNorm.unsafeMagnitudeSquared
-    if zScale >= wScale { return rNorm / wScale * zScale }
-    return rNorm * zScale / wScale
+    // At this point, the result is (rNorm * zScale)/wScale computed without
+    // undue overflow or underflow. We know that rNorm is close to unity,
+    // so the question is simply what order in which to do this computation
+    // to avoid spurious overflow or underflow. There are three options to
+    // choose from:
+    //
+    // - rNorm * (zScale / wScale)
+    // - (rNorm * zScale) / wScale
+    // - (rNorm / wScale) * zScale
+    //
+    // The simplest case is when zScale / wScale is normal:
+    if (zScale / wScale).isNormal { return rNorm * (zScale / wScale) }
+    // Otherwise, we need to compute either rNorm * zScale or rNorm / wScale
+    // first. Choose the first if the first scaling behaves well, otherwise
+    // choose the other one.
+    if (rNorm * zScale).isNormal { return rNorm * zScale / wScale }
+    return (rNorm / wScale) * zScale
   }
   
   public static func *=(z: inout Complex, w: Complex) {

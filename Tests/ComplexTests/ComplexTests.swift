@@ -13,98 +13,45 @@
 import XCTest
 import Complex
 
-protocol FixedWidthBinaryFloatingPoint: BinaryFloatingPoint, Real where
-RawSignificand: FixedWidthInteger, Exponent: FixedWidthInteger { }
-
-extension Float: FixedWidthBinaryFloatingPoint { }
-extension Double: FixedWidthBinaryFloatingPoint { }
-#if os(macOS)
-extension Float80: FixedWidthBinaryFloatingPoint { }
-#endif
-
-func mapProduct<T, R>(_ a: [T], _ b: [T], _ f: (T,T) -> R) -> [R] {
-  return a.flatMap { a in b.map { b in f(a,b) } }
-}
-
-func testAllPairs<C>(_ values: C, _ test: (C.Element, C.Element) -> Void)
-where C: Collection {
-  for i in values.indices {
-    var j = values.startIndex
-    while j != i {
-      test(values[i], values[j])
-      values.formIndex(after: &j)
-    }
-  }
-}
-
 final class ComplexTests: XCTestCase {
   
-  func zeros<RealType>(_ type: RealType.Type) -> [Complex<RealType>] {
-    let reals: [RealType] = [0, -0]
-    return mapProduct(reals, reals, Complex.init)
+  // Double-precision test cases from Baudin & Smith's "A Robust Complex Division in Scilab".
+  func testDivide_BaudinSmith() {
+    XCTAssertEqual(Complex(1,1)/Complex(1, 0x1p1023),
+                   Complex(0x1p-1023, -0x1p-1023))
+    XCTAssertEqual(Complex(1,1)/Complex(0x1p-1023, 0x1p-1023),
+                   Complex(0x1p1023))
+    XCTAssertEqual(Complex(0x1p1023, 0x1p1023)/Complex(1,1),
+                   Complex(0x1.0p1023))
+    XCTAssertEqual(Complex(0x1p-347, 0x1p-54)/Complex(0x1p-1037, 0x1p-1058),
+                   Complex(3.8981256045591133e289, 8.174961907852353577e295))
+    XCTAssertEqual(Complex(0x1p-1074, 0x1p-1074)/Complex(0x1p-1073, 0x1p-1074),
+                   Complex(0.6, 0.2))
+    XCTAssertEqual(Complex(0x1p1015, 0x1p-989)/Complex(0x1p1023, 0x1p1023),
+                   Complex(0.001953125, -0.001953125))
+    XCTAssertEqual(Complex(0x1p-622, 0x1p-1071)/Complex(0x1p-343, 0x1p-798),
+                   Complex(1.02951151789360578e-84, 6.97145987515076231e-220))
   }
   
-  func subnormals<RealType>(_ type: RealType.Type) -> [Complex<RealType>]
-  where RealType: FixedWidthBinaryFloatingPoint {
-    let exponents = stride(from: RealType.leastNonzeroMagnitude.exponent,
-                           to: RealType.leastNormalMagnitude.exponent, by: 1)
-    let reals = exponents.map {
-      RealType(sign: Bool.random() ? .plus : .minus,
-               exponent: $0,
-               significand: RealType.random(in: 1 ..< 2))
+  func testDivide_BaudinSmithApprox() {
+    // Policy: we deliberately do not try to get these cases from Baudin and
+    // Smith "right"; instead we simply want an answer that's as accurate
+    // (in the complex norm) as can be expected. We don't care what happens
+    // to the tiny component of the result.
+    func closeEnough(_ a: Complex<Double>, _ b: Complex<Double>) -> Bool {
+      return (a - b).magnitude < max(a.magnitude, b.magnitude) * 0x1p-50
     }
-    print(reals)
-    return mapProduct(reals, reals, Complex.init)
+    XCTAssert(closeEnough(Complex(0x1p1023, 0x1p-1023)/Complex(0x1p677, 0x1p-677),
+                          Complex(0x1p346, -0x1p-1008)))
+    XCTAssert(closeEnough(Complex(0x1p1020, 0x1p-844)/Complex(0x1p656, 0x1p-780),
+                          Complex(0x1p364, -0x1p-1072)))
+    XCTAssert(closeEnough(Complex(0x1p-71, 0x1p1021)/Complex(0x1p1001, 0x1p-323),
+                          Complex(0x1p-1072, 0x1p20)))
   }
-  
-  func normals<RealType>(_ type: RealType.Type) -> [Complex<RealType>]
-  where RealType: FixedWidthBinaryFloatingPoint {
-    let exponentRange = RealType.leastNormalMagnitude.exponent ... RealType.greatestFiniteMagnitude.exponent
-    let reals = (0..<100).map { _ in
-      RealType(sign: Bool.random() ? .minus : .plus,
-               exponent: RealType.Exponent.random(in: exponentRange),
-               significand: RealType.random(in: 1 ..< 2))
-    }
-    return mapProduct(reals, reals, Complex.init)
-  }
-  
-  func nonFinites<RealType>(_ type: RealType.Type) -> [Complex<RealType>] {
-    let reals: [RealType] = [-.nan, -.infinity, .infinity, .nan]
-    return mapProduct(reals, reals, Complex.init)
-  }
-  
-  func testEquality<RealType>(_ type: RealType.Type)
-  where RealType: FixedWidthBinaryFloatingPoint {
-    let zeros = self.zeros(type)
-    let subnormals = self.subnormals(type)
-    let normals = self.normals(type)
-    let nonFinites = self.nonFinites(type)
-    // We test both == and != on these to detect failures if someone tries
-    // to be clever and customize != and breaks it.
-    // All zeros and infinites are equal to each other
-    testAllPairs(zeros) {
-      if !($0 == $1) { XCTFail("\($0) == \($1) was false, but should be true.") }
-      if $0 != $1 { XCTFail("\($0) != \($1) was true, but should be false.") }
-    }
-    testAllPairs(nonFinites) {
-      if !($0 == $1) { XCTFail("\($0) == \($1) was false, but should be true.") }
-      if $0 != $1 { XCTFail("\($0) != \($1) was true, but should be false.") }
-    }
-    // By construction, the subnormals and normals should be unequal
-    testAllPairs(subnormals + normals) {
-      if !($0 != $1) { XCTFail("\($0) != \($1) was false, but should be true.") }
-      if $0 == $1 { XCTFail("\($0) == \($1) was true, but should be false.") }
-    }
-  }
-  
-  func testEquality() {
-    testEquality(Float.self)
-    testEquality(Double.self)
-  }
-  
+    
   static var allTests = [
-  //  ("testInits", testInits),
-    ("testEquality", testEquality),
+    ("testDivide_BaudinSmith", testDivide_BaudinSmith),
+    ("testDivide_BaudinSmithApprox", testDivide_BaudinSmithApprox),
   ]
 }
 
