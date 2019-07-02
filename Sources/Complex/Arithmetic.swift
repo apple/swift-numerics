@@ -10,7 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-// MARK: - Vector space structure
+// MARK: - Additive structure
 extension Complex: AdditiveArithmetic {
   @_transparent
   public static func +(z: Complex, w: Complex) -> Complex {
@@ -23,16 +23,6 @@ extension Complex: AdditiveArithmetic {
   }
   
   @_transparent
-  public static func *(z: Complex, a: RealType) -> Complex {
-    return Complex(z.x*a, z.y*a)
-  }
-  
-  @_transparent
-  public static func /(z: Complex, a: RealType) -> Complex {
-    return Complex(z.x/a, z.y/a)
-  }
-  
-  @_transparent
   public static func +=(z: inout Complex, w: Complex) {
     z = z + w
   }
@@ -41,31 +31,53 @@ extension Complex: AdditiveArithmetic {
   public static func -=(z: inout Complex, w: Complex) {
     z = z - w
   }
-  
-  @_transparent
-  public static func *(a: RealType, z: Complex) -> Complex {
-    return z*a
+}
+
+// MARK: - Vector space structure
+//
+// Policy: deliberately not using the * and / operators for these at the
+// moment, because then there's an ambiguity in expressions like 2*z; is
+// that Complex(2) * z or is it RealType(2) * z? This is especially
+// problematic in type inference: suppose we have:
+//
+//   let a: RealType = 1
+//   let b = 2*a
+//
+// what is the type of b? If we don't have a type context, it's ambiguous.
+// If we have a Complex type context, then b will be inferred to have type
+// Complex! Obviously, that doesn't help anyone.
+//
+// TODO: figure out if there's some way to avoid these surprising results
+// and turn these into operators if/when we have it.
+//
+// TODO: in the meantime, bikeshed the names. We could just use multiplied
+// and divided, for example.
+extension Complex {
+  @inline(__always) @usableFromInline
+  internal func scaled(by a: RealType) -> Complex {
+    Complex(x*a, y*a)
   }
   
-  @_transparent
-  public static func *=(z: inout Complex, a: RealType) {
-    z = a * z
+  @inline(__always) @usableFromInline
+  internal mutating func scale(by a: RealType) {
+    x *= a
+    y *= a
   }
   
-  @_transparent
-  public static func /=(z: inout Complex, a: RealType) {
-    z = z / a
+  @inline(__always) @usableFromInline
+  internal func unscaled(by a: RealType) -> Complex {
+    Complex(x/a, y/a)
+  }
+  
+  @inline(__always) @usableFromInline
+  internal mutating func unscale(by a: RealType) {
+    x /= a
+    y /= a
   }
 }
 
 // MARK: - Multiplicative structure
 extension Complex: Numeric {
-  public typealias IntegerLiteralType = Int
-  
-  public init(integerLiteral value: Int) {
-    self.init(RealType(value))
-  }
-  
   @inlinable
   public static func *(z: Complex, w: Complex) -> Complex {
     return Complex(z.x*w.x - z.y*w.y, z.x*w.y + z.y*w.x)
@@ -75,16 +87,19 @@ extension Complex: Numeric {
   public static func /(z: Complex, w: Complex) -> Complex {
     // Try the naive expression z/w = z*conj(w) / |w|^2; if the result is
     // normal, then everything was fine, and we can simply return the result.
-    let naive = z * (w.conjugate / w.unsafeMagnitudeSquared)
+    let naive = z * w.conjugate.unscaled(by: w.unsafeMagnitudeSquared)
     guard naive.isNormal else { return carefulDivide(z, w) }
     return naive
   }
   
   @inlinable
-  public static func /(a: RealType, w: Complex) -> Complex {
-    let naive = a * w.conjugate / w.unsafeMagnitudeSquared
-    guard naive.isNormal else { return carefulDivide(Complex(a), w) }
-    return naive
+  public static func *=(z: inout Complex, w: Complex) {
+    z = z * w
+  }
+  
+  @inlinable
+  public static func /=(z: inout Complex, w: Complex) {
+    z = z / w
   }
   
   @usableFromInline
@@ -92,34 +107,31 @@ extension Complex: Numeric {
     if z.isZero || !w.isFinite { return .zero }
     let zScale = max(abs(z.x), abs(z.y))
     let wScale = max(abs(w.x), abs(w.y))
-    let zNorm = z / zScale
-    let wNorm = w / wScale
-    let rNorm = zNorm * wNorm.conjugate / wNorm.unsafeMagnitudeSquared
-    // At this point, the result is (rNorm * zScale)/wScale computed without
-    // undue overflow or underflow. We know that rNorm is close to unity,
-    // so the question is simply what order in which to do this computation
-    // to avoid spurious overflow or underflow. There are three options to
-    // choose from:
+    let zNorm = z.unscaled(by: zScale)
+    let wNorm = w.unscaled(by: wScale)
+    let r = (zNorm * wNorm.conjugate).unscaled(by: wNorm.unsafeMagnitudeSquared)
+    let rScale = max(abs(r.x), abs(r.y))
+    // At this point, the result is (r * zScale)/wScale computed without
+    // undue overflow or underflow. We know that r is close to unity, so
+    // the question is simply what order in which to do this computation
+    // to avoid spurious overflow or underflow. There are three options
+    // to choose from:
     //
-    // - rNorm * (zScale / wScale)
-    // - (rNorm * zScale) / wScale
-    // - (rNorm / wScale) * zScale
+    // - r * (zScale / wScale)
+    // - (r * zScale) / wScale
+    // - (r / wScale) * zScale
     //
     // The simplest case is when zScale / wScale is normal:
-    if (zScale / wScale).isNormal { return rNorm * (zScale / wScale) }
+    if (zScale / wScale).isNormal {
+      return r.scaled(by: zScale / wScale)
+    }
     // Otherwise, we need to compute either rNorm * zScale or rNorm / wScale
     // first. Choose the first if the first scaling behaves well, otherwise
     // choose the other one.
-    if (rNorm * zScale).isNormal { return rNorm * zScale / wScale }
-    return (rNorm / wScale) * zScale
-  }
-  
-  public static func *=(z: inout Complex, w: Complex) {
-    z = z * w
-  }
-  
-  public static func /=(z: inout Complex, w: Complex) {
-    z = z / w
+    if (rScale * zScale).isNormal {
+      return r.scaled(by: zScale).unscaled(by: wScale)
+    }
+    return r.unscaled(by: wScale).scaled(by: zScale)
   }
   
   /// A normalized complex number with the same phase as this value.
@@ -128,9 +140,13 @@ extension Complex: Numeric {
   /// `nil` is returned.
   public var normalized: Complex? {
     let norm = magnitude
-    if magnitude.isNormal { return self / norm }
-    if isZero || !isFinite { return nil }
-    let large = RealType.maximumMagnitude(x, y)
-    return (self/large).normalized
+    if magnitude.isNormal {
+      return self.unscaled(by: norm)
+    }
+    if isZero || !isFinite {
+      return nil
+    }
+    let scale = RealType.maximumMagnitude(abs(x), abs(y))
+    return self.unscaled(by: scale).normalized
   }
 }

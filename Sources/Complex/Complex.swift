@@ -80,6 +80,13 @@ extension Complex {
     guard let real = RealType(exactly: real) else { return nil }
     self.init(real, 0)
   }
+  
+  public typealias IntegerLiteralType = Int
+  
+  @inlinable
+  public init(integerLiteral value: Int) {
+    self.init(RealType(value))
+  }
 }
 
 extension Complex where RealType: BinaryFloatingPoint {
