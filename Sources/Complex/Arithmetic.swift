@@ -73,7 +73,7 @@ extension Complex: Numeric {
   public static func /(z: Complex, w: Complex) -> Complex {
     // Try the naive expression z/w = z*conj(w) / |w|^2; if the result is
     // normal, then everything was fine, and we can simply return the result.
-    let naive = z * w.conjugate.divided(by: w.unsafeMagnitudeSquared)
+    let naive = z * w.conjugate.divided(by: w.unsafeLengthSquared)
     guard naive.isNormal else { return carefulDivide(z, w) }
     return naive
   }
@@ -91,12 +91,12 @@ extension Complex: Numeric {
   @usableFromInline
   internal static func carefulDivide(_ z: Complex, _ w: Complex) -> Complex {
     if z.isZero || !w.isFinite { return .zero }
-    let zScale = max(abs(z.x), abs(z.y))
-    let wScale = max(abs(w.x), abs(w.y))
+    let zScale = z.magnitude
+    let wScale = w.magnitude
     let zNorm = z.divided(by: zScale)
     let wNorm = w.divided(by: wScale)
-    let r = (zNorm * wNorm.conjugate).divided(by: wNorm.unsafeMagnitudeSquared)
-    let rScale = max(abs(r.x), abs(r.y))
+    let r = (zNorm * wNorm.conjugate).divided(by: wNorm.unsafeLengthSquared)
+    let rScale = r.magnitude
     // At this point, the result is (r * zScale)/wScale computed without
     // undue overflow or underflow. We know that r is close to unity, so
     // the question is simply what order in which to do this computation
@@ -125,14 +125,12 @@ extension Complex: Numeric {
   /// If such a value cannot be produced (because the phase of zero and infinity is undefined),
   /// `nil` is returned.
   public var normalized: Complex? {
-    let norm = magnitude
-    if magnitude.isNormal {
-      return self.divided(by: norm)
+    if length.isNormal {
+      return self.divided(by: length)
     }
     if isZero || !isFinite {
       return nil
     }
-    let scale = RealType.maximumMagnitude(abs(x), abs(y))
-    return self.divided(by: scale).normalized
+    return self.divided(by: magnitude).normalized
   }
 }

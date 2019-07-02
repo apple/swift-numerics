@@ -199,21 +199,6 @@ extension Complex {
     Complex(x, -y)
   }
   
-  /// The squared magnitude `(real*real + imag*imag)`.
-  ///
-  /// This property is more efficient to compute than `magnitude`, but is prone to overflow or underflow;
-  /// for finite values that are not well-scaled, `unsafeMagnitudeSquared` is often either zero or
-  /// infinity, even when `magnitude` is a finite number. Use this property only when you are certain that
-  /// this value is well-scaled.
-  ///
-  /// See also:
-  /// -
-  /// - `.magnitude`
-  @inlinable
-  public var unsafeMagnitudeSquared: RealType {
-    x*x + y*y
-  }
-  
   /// True if this value is finite.
   ///
   /// A complex value is finite if neither component is an infinity or nan.
@@ -272,43 +257,86 @@ extension Complex {
   public var isZero: Bool {
     x == 0 && y == 0
   }
+  
+  /// The ∞-norm of the value (`max(abs(real), abs(imag))`).
+  ///
+  /// If you need the euclidean norm (a.k.a. 2-norm) use the `length` or `unsafeLengthSquared`
+  /// properties instead.
+  ///
+  /// Edge cases:
+  /// -
+  /// If a complex value is not finite, `.magnitude` is `infinity`.
+  ///
+  /// See also:
+  /// -
+  /// - `.length`
+  /// - `.unsafeLengthSquared`
+  @inlinable
+  public var magnitude: RealType {
+    guard isFinite else { return .infinity }
+    return max(abs(x), abs(y))
+  }
 }
 
 // MARK: - Operations for working with polar form
 extension Complex {
-  /// The magnitude `sqrt(real*real + imag*imag)`.
+  
+  /// The euclidean norm (a.k.a. 2-norm, `sqrt(real*real + imag*imag)`).
   ///
   /// This property takes care to avoid spurious over- or underflow in this computation. For example:
   ///
   ///     let x: Float = 3.0e+20
   ///     let x: Float = 4.0e+20
   ///     let naive = sqrt(x*x + y*y) // +Inf
-  ///     let careful = Complex(x, y).magnitude // 5.0e+20
+  ///     let careful = Complex(x, y).length // 5.0e+20
   ///
-  /// Note that it *is* still possible for this property to overflow, because the magnitude can be as much
+  /// Note that it *is* still possible for this property to overflow, because the length can be as much
   /// as sqrt(2) times larger than either component, and thus may not be representable in the real type.
+  ///
+  /// For most use cases, you can use the cheaper `.magnitude` property (which computes the
+  /// ∞-norm) instead, which always produces a representable result.
   ///
   /// Edge cases:
   /// -
-  /// If a complex value is not finite, its magnitude is `infinity`.
+  /// If a complex value is not finite, its `.length` is `infinity`.
   ///
   /// See also:
   /// -
-  /// - `.unsafeMagnitudeSquared`
+  /// - `.magnitude`
+  /// - `.unsafeLengthSquared`
   /// - `.phase`
   /// - `.polar`
   /// - `init(r:θ:)`
   @inlinable
-  public var magnitude: RealType {
-    let naive = unsafeMagnitudeSquared
-    guard naive.isNormal else { return carefulMagnitude }
+  public var length: RealType {
+    let naive = unsafeLengthSquared
+    guard naive.isNormal else { return carefulLength }
     return .sqrt(naive)
   }
   
   @usableFromInline
-  internal var carefulMagnitude: RealType {
+  internal var carefulLength: RealType {
     guard isFinite else { return .infinity }
     return .hypot(x, y)
+  }
+  
+  /// The squared length `(real*real + imag*imag)`.
+  ///
+  /// This property is more efficient to compute than `length`, but is prone to overflow or underflow;
+  /// for finite values that are not well-scaled, `unsafeLengthSquared` is often either zero or
+  /// infinity, even when `length` is a finite number. Use this property only when you are certain that
+  /// this value is well-scaled.
+  ///
+  /// For many cases, `.magnitude` can be used instead, which is also cheap to compute and always
+  /// returns a representable value.
+  ///
+  /// See also:
+  /// -
+  /// - `.length`
+  /// - `.magnitude`
+  @inlinable
+  public var unsafeLengthSquared: RealType {
+    x*x + y*y
   }
   
   /// The phase (angle, or "argument").
@@ -322,7 +350,7 @@ extension Complex {
   ///
   /// See also:
   /// -
-  /// - `.magnitude`
+  /// - `.length`
   /// - `.polar`
   /// - `init(r:θ:)`
   @inlinable
@@ -331,42 +359,42 @@ extension Complex {
     return .atan2(y: y, x: x)
   }
   
-  /// The magnitude and phase (or polar coordinates) of this value.
+  /// The length and phase (or polar coordinates) of this value.
   ///
   /// Edge cases:
   /// -
   /// If the complex value is zero or non-finite, phase is `.nan`. If the complex value is non-finite,
-  /// the magnitude is `.infinity`.
+  /// the length is `.infinity`.
   ///
   /// See also:
   /// -
-  /// - `.magnitude`
+  /// - `.length`
   /// - `.phase`
   /// - `init(r:θ:)`
-  public var polar: (magnitude: RealType, phase: RealType) {
-    (magnitude, phase)
+  public var polar: (length: RealType, phase: RealType) {
+    (length, phase)
   }
   
   /// Constructs a complex value from polar coordinates.
   ///
   /// Edge cases:
   /// -
-  /// If the phase is non-finite, but magnitude is finite, this initializer fails and returns nil. In all other cases,
+  /// If the phase is non-finite, but length is finite, this initializer fails and returns nil. In all other cases,
   /// a non-nil value is constructed.
   ///
   /// See also:
   /// -
-  /// - `.magnitude`
+  /// - `.length`
   /// - `.phase`
   /// - `.polar`
-  public init?(magnitude: RealType, phase: RealType) {
+  public init?(length: RealType, phase: RealType) {
     guard phase.isFinite else {
       // There's no way to make sense of finite magnitude and non-finite phase.
-      if magnitude.isFinite { return nil }
+      if length.isFinite { return nil }
       // r is infinite so phase doesn't matter.
       self = .infinity
       return
     }
-    self.init(magnitude * .cos(phase), magnitude * .sin(phase))
+    self.init(length * .cos(phase), length * .sin(phase))
   }
 }
