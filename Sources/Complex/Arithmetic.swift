@@ -49,30 +49,16 @@ extension Complex: AdditiveArithmetic {
 //
 // TODO: figure out if there's some way to avoid these surprising results
 // and turn these into operators if/when we have it.
-//
-// TODO: in the meantime, bikeshed the names. We could just use multiplied
-// and divided, for example.
+// (https://github.com/apple/swift-numerics/issues/12)
 extension Complex {
   @inline(__always) @usableFromInline
-  internal func scaled(by a: RealType) -> Complex {
+  internal func multiplied(by a: RealType) -> Complex {
     Complex(x*a, y*a)
   }
   
   @inline(__always) @usableFromInline
-  internal mutating func scale(by a: RealType) {
-    x *= a
-    y *= a
-  }
-  
-  @inline(__always) @usableFromInline
-  internal func unscaled(by a: RealType) -> Complex {
+  internal func divided(by a: RealType) -> Complex {
     Complex(x/a, y/a)
-  }
-  
-  @inline(__always) @usableFromInline
-  internal mutating func unscale(by a: RealType) {
-    x /= a
-    y /= a
   }
 }
 
@@ -87,7 +73,7 @@ extension Complex: Numeric {
   public static func /(z: Complex, w: Complex) -> Complex {
     // Try the naive expression z/w = z*conj(w) / |w|^2; if the result is
     // normal, then everything was fine, and we can simply return the result.
-    let naive = z * w.conjugate.unscaled(by: w.unsafeMagnitudeSquared)
+    let naive = z * w.conjugate.divided(by: w.unsafeMagnitudeSquared)
     guard naive.isNormal else { return carefulDivide(z, w) }
     return naive
   }
@@ -107,9 +93,9 @@ extension Complex: Numeric {
     if z.isZero || !w.isFinite { return .zero }
     let zScale = max(abs(z.x), abs(z.y))
     let wScale = max(abs(w.x), abs(w.y))
-    let zNorm = z.unscaled(by: zScale)
-    let wNorm = w.unscaled(by: wScale)
-    let r = (zNorm * wNorm.conjugate).unscaled(by: wNorm.unsafeMagnitudeSquared)
+    let zNorm = z.divided(by: zScale)
+    let wNorm = w.divided(by: wScale)
+    let r = (zNorm * wNorm.conjugate).divided(by: wNorm.unsafeMagnitudeSquared)
     let rScale = max(abs(r.x), abs(r.y))
     // At this point, the result is (r * zScale)/wScale computed without
     // undue overflow or underflow. We know that r is close to unity, so
@@ -123,15 +109,15 @@ extension Complex: Numeric {
     //
     // The simplest case is when zScale / wScale is normal:
     if (zScale / wScale).isNormal {
-      return r.scaled(by: zScale / wScale)
+      return r.multiplied(by: zScale / wScale)
     }
     // Otherwise, we need to compute either rNorm * zScale or rNorm / wScale
     // first. Choose the first if the first scaling behaves well, otherwise
     // choose the other one.
     if (rScale * zScale).isNormal {
-      return r.scaled(by: zScale).unscaled(by: wScale)
+      return r.multiplied(by: zScale).divided(by: wScale)
     }
-    return r.unscaled(by: wScale).scaled(by: zScale)
+    return r.divided(by: wScale).multiplied(by: zScale)
   }
   
   /// A normalized complex number with the same phase as this value.
@@ -141,12 +127,12 @@ extension Complex: Numeric {
   public var normalized: Complex? {
     let norm = magnitude
     if magnitude.isNormal {
-      return self.unscaled(by: norm)
+      return self.divided(by: norm)
     }
     if isZero || !isFinite {
       return nil
     }
     let scale = RealType.maximumMagnitude(abs(x), abs(y))
-    return self.unscaled(by: scale).normalized
+    return self.divided(by: scale).normalized
   }
 }
