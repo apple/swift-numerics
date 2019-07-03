@@ -50,8 +50,8 @@ To fix a bug, or make smaller improvements:
 1. Raise a PR with your change. Be sure to add test coverage for whatever changes you are making.
 
 ## Modules
-1. [ElementaryFunctions](Sources/ElementaryFunctions/README.md).
-2. [Complex](Sources/Complex/README.md).
+1. [ElementaryFunctions](Sources/ElementaryFunctions/README.md)
+2. [Complex](Sources/Complex/README.md)
 
 ## Future expansion directions
 1. [Approximate Equality](https://github.com/apple/swift-numerics/issues/3)
