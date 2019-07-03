@@ -23,8 +23,7 @@ some of the compiler limitations that this feature ran into *before* it lands in
 library (avoiding unnecessary source churn for projects that use these features), while also
 making it available *now*, including back-deployment to older Apple OS targets.
 
-Further details can be found in the [SE-0246 proposal document][SE-0246] and in the
-[`ElementaryFunctions` module](Sources/ElementaryFunctions/README.md).
+Further details can be found in the [SE-0246 proposal document][SE-0246].
 
 [SE-0246]: https://github.com/apple/swift-evolution/blob/master/proposals/0246-mathable.md
 
