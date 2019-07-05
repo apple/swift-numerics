@@ -53,7 +53,7 @@ To fix a bug, or make smaller improvements:
 1. [ElementaryFunctions](Sources/ElementaryFunctions/README.md)
 2. [Complex](Sources/Complex/README.md)
 
-## Future expansion directions
+## Future expansion
 1. [Approximate Equality](https://github.com/apple/swift-numerics/issues/3)
 2. [Large Fixed-Width Integers](https://github.com/apple/swift-numerics/issues/4)
 3. [Arbitrary-Precision Integers](https://github.com/apple/swift-numerics/issues/5)

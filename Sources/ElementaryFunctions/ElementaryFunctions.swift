@@ -1,4 +1,4 @@
-//===--- Protocols.swift --------------------------------------*- swift -*-===//
+//===--- ElementaryFunctions.swift ----------------------------*- swift -*-===//
 //
 // This source file is part of the Swift.org open source project
 //
@@ -25,9 +25,17 @@
 /// let y = Float.sin(x) // 0.84147096
 /// ```
 ///
-/// Additional operations, such as `atan2(y:x:)`, `hypot(_:_:)` and some
-/// special functions, are provided on the RealFunctions protocol, which refines
-/// ElementaryFunctions.
+/// There are three broad families of functions defined by `ElementaryFunctions`:
+/// - Exponential, trigonometric, and hyperbolic functions:
+///   `exp`, `expm1`, `cos`, `sin`, `tan`, `cosh`, `sinh`, and `tanh`.
+/// - Logarithmic, inverse trigonometric, and inverse hyperbolic functions:
+///   `log`, `log1p`, `acos`, `asin`, `atan`, `acosh`, `asinh`, and `atanh`.
+/// - Power and root functions:
+///   `pow`, `sqrt`, and `root`.
+///
+/// There is a second protocol, `RealFunctions`, which refines `ElementaryFunctions`
+/// and includes additional operations which are more commonly used specifically with real
+/// number types.
 ///
 /// See Also:
 /// -

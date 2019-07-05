@@ -14,4 +14,7 @@
 // it swiftpm won't build anything, and then the shims are not available for
 // the modules that need them.
 
+// If any shims are added that are not pure header inlines, whatever runtime
+// support they require can be added to this file.
+
 #include "NumericsShims.h"

@@ -45,7 +45,7 @@ extension Float: Real {
   @_transparent public static func erfc(_ x: Float) -> Float { return swift_erfcf(x) }
   @_transparent public static func exp2(_ x: Float) -> Float { return swift_exp2f(x) }
   #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-  @_silgen_name("__exp10f") @_transparent public static func exp10(_ x: Float) -> Float
+  @_silgen_name("__exp10f") public static func exp10(_ x: Float) -> Float
   #endif
   @_transparent public static func hypot(_ x: Float, _ y: Float) -> Float { return swift_hypotf(x, y) }
   @_transparent public static func gamma(_ x: Float) -> Float { return swift_gammaf(x) }
@@ -89,7 +89,7 @@ extension Double: Real {
   @_transparent public static func erfc(_ x: Double) -> Double { return swift_erfc(x) }
   @_transparent public static func exp2(_ x: Double) -> Double { return swift_exp2(x) }
   #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-  @_silgen_name("__exp10") @_transparent public static func exp10(_ x: Double) -> Double
+  @_silgen_name("__exp10") public static func exp10(_ x: Double) -> Double
   #endif
   @_transparent public static func hypot(_ x: Double, _ y: Double) -> Double { return swift_hypot(x, y) }
   @_transparent public static func gamma(_ x: Double) -> Double { return swift_gamma(x) }
