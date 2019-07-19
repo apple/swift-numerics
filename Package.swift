@@ -23,8 +23,7 @@ let package = Package(
   ],
   targets: [
     .target(name: "Complex", dependencies: ["ElementaryFunctions"]),
-    .target(name: "ElementaryFunctions", dependencies: ["NumericsShims"]),
-    .target(name: "NumericsShims", dependencies: []),
+    .target(name: "ElementaryFunctions", dependencies: []),
     
     .testTarget(name: "ComplexTests", dependencies: ["Complex"]),
     .testTarget(name: "ElementaryFunctionTests", dependencies: ["ElementaryFunctions"]),
