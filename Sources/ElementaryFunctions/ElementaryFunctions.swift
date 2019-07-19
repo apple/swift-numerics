@@ -29,7 +29,7 @@
 /// - Exponential, trigonometric, and hyperbolic functions:
 ///   `exp`, `expm1`, `cos`, `sin`, `tan`, `cosh`, `sinh`, and `tanh`.
 /// - Logarithmic, inverse trigonometric, and inverse hyperbolic functions:
-///   `log`, `log1p`, `acos`, `asin`, `atan`, `acosh`, `asinh`, and `atanh`.
+///   `log`, `logp1`, `acos`, `asin`, `atan`, `acosh`, `asinh`, and `atanh`.
 /// - Power and root functions:
 ///   `pow`, `sqrt`, and `root`.
 ///
@@ -174,7 +174,7 @@ public protocol ElementaryFunctions {
   ///
   /// See also:
   /// -
-  /// - `log1p()`
+  /// - `logp1()`
   /// - `log2()` (for types conforming to `RealFunctions`)
   /// - `log10()` (for types conforming to `RealFunctions`)
   ///
@@ -188,7 +188,7 @@ public protocol ElementaryFunctions {
   /// - `log()`
   /// - `log2()` (for types conforming to `RealFunctions`)
   /// - `log10()` (for types conforming to `RealFunctions`)
-  static func log1p(_ x: Self) -> Self
+  static func logp1(_ x: Self) -> Self
   
   /// The [inverse hyperbolic cosine][wiki] of `x`.
   /// ```
@@ -374,7 +374,7 @@ public protocol RealFunctions: ElementaryFunctions {
   /// -
   /// - `exp2()`
   /// - `log()`
-  /// - `log1p()`
+  /// - `logp1()`
   /// - `log10()`
   static func log2(_ x: Self) -> Self
   
@@ -384,7 +384,7 @@ public protocol RealFunctions: ElementaryFunctions {
   /// -
   /// - `exp10()`
   /// - `log()`
-  /// - `log1p()`
+  /// - `logp1()`
   /// - `log2()`
   static func log10(_ x: Self) -> Self
   
