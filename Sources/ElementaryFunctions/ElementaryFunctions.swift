@@ -27,9 +27,9 @@
 ///
 /// There are three broad families of functions defined by `ElementaryFunctions`:
 /// - Exponential, trigonometric, and hyperbolic functions:
-///   `exp`, `expm1`, `cos`, `sin`, `tan`, `cosh`, `sinh`, and `tanh`.
+///   `exp`, `expMinusOne`, `cos`, `sin`, `tan`, `cosh`, `sinh`, and `tanh`.
 /// - Logarithmic, inverse trigonometric, and inverse hyperbolic functions:
-///   `log`, `logp1`, `acos`, `asin`, `atan`, `acosh`, `asinh`, and `atanh`.
+///   `log`, `log(onePlus:)`, `acos`, `asin`, `atan`, `acosh`, `asinh`, and `atanh`.
 /// - Power and root functions:
 ///   `pow`, `sqrt`, and `root`.
 ///
@@ -47,7 +47,7 @@ public protocol ElementaryFunctions {
   ///
   /// See also:
   /// -
-  /// - `expm1()`
+  /// - `expMinusOne()`
   /// - `exp2()` (for types conforming to `RealFunctions`)
   /// - `exp10()` (for types conforming to `RealFunctions`)
   ///
@@ -57,15 +57,15 @@ public protocol ElementaryFunctions {
   /// exp(x) - 1, computed in such a way as to maintain accuracy for small x.
   ///
   /// When `x` is close to zero, the expression `.exp(x) - 1` suffers from catastrophic
-  /// cancellation and the result will not have full accuracy. The `.expm1(x)` function gives
+  /// cancellation and the result will not have full accuracy. The `.expMinusOne(x)` function gives
   /// you a means to address this problem.
   ///
   /// As an example, consider the expression `(x + 1)*exp(x) - 1`.  When `x` is smaller
   /// than `.ulpOfOne`, this expression evaluates to `0.0`, when it should actually round to
   /// `2*x`. We can get a full-accuracy result by using the following instead:
   /// ```
-  /// let expm1x = .expm1(x)
-  /// return x*(expm1x + 1) + expm1x
+  /// let t = .expMinusOne(x)
+  /// return x*(t+1) + t       // x*exp(x) + (exp(x)-1) = (x+1)*exp(x) - 1
   /// ```
   /// This re-written expression delivers an accurate result for all values of `x`, not just for
   /// small values.
@@ -75,7 +75,7 @@ public protocol ElementaryFunctions {
   /// - `exp()`
   /// - `exp2()` (for types conforming to `RealFunctions`)
   /// - `exp10()` (for types conforming to `RealFunctions`)
-  static func expm1(_ x: Self) -> Self
+  static func expMinusOne(_ x: Self) -> Self
   
   /// The [hyperbolic cosine][wiki] of `x`.
   /// ```
@@ -174,7 +174,7 @@ public protocol ElementaryFunctions {
   ///
   /// See also:
   /// -
-  /// - `logp1()`
+  /// - `log(onePlus:)`
   /// - `log2()` (for types conforming to `RealFunctions`)
   /// - `log10()` (for types conforming to `RealFunctions`)
   ///
@@ -188,7 +188,7 @@ public protocol ElementaryFunctions {
   /// - `log()`
   /// - `log2()` (for types conforming to `RealFunctions`)
   /// - `log10()` (for types conforming to `RealFunctions`)
-  static func logp1(_ x: Self) -> Self
+  static func log(onePlus x: Self) -> Self
   
   /// The [inverse hyperbolic cosine][wiki] of `x`.
   /// ```
@@ -340,7 +340,7 @@ public protocol RealFunctions: ElementaryFunctions {
   /// See also:
   /// -
   /// - `exp()`
-  /// - `expm1()`
+  /// - `expMinusOne()`
   /// - `exp10()`
   /// - `log2()`
   /// - `pow()`
@@ -351,7 +351,7 @@ public protocol RealFunctions: ElementaryFunctions {
   /// See also:
   /// -
   /// - `exp()`
-  /// - `expm1()`
+  /// - `expMinusOne()`
   /// - `exp2()`
   /// - `log10()`
   /// - `pow()`
@@ -374,7 +374,7 @@ public protocol RealFunctions: ElementaryFunctions {
   /// -
   /// - `exp2()`
   /// - `log()`
-  /// - `logp1()`
+  /// - `log(onePlus:)`
   /// - `log10()`
   static func log2(_ x: Self) -> Self
   
@@ -384,7 +384,7 @@ public protocol RealFunctions: ElementaryFunctions {
   /// -
   /// - `exp10()`
   /// - `log()`
-  /// - `logp1()`
+  /// - `log(onePlus:)`
   /// - `log2()`
   static func log10(_ x: Self) -> Self
   
