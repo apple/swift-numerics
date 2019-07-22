@@ -23,7 +23,7 @@
 /// components infinite or nan, we simply treat all such values as a single
 /// equivalence class. This simplifies defining multiplication and division
 /// considerably, with almost no loss in expressive power.
-@_fixed_layout
+@frozen
 public struct Complex<RealType> where RealType: Real {
   /// The real part of this complex value.
   @usableFromInline
