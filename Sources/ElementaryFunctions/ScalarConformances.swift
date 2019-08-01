@@ -24,7 +24,7 @@ extension Float: Real {
   @_silgen_name("asinhf") public static func asinh(_ x: Float) -> Float
   @_silgen_name("atanhf") public static func atanh(_ x: Float) -> Float
   @_silgen_name("expf") public static func exp(_ x: Float) -> Float
-  @_silgen_name("expMinusOnef") public static func expMinusOne(_ x: Float) -> Float
+  @_silgen_name("expm1f") public static func expMinusOne(_ x: Float) -> Float
   @_silgen_name("logf") public static func log(_ x: Float) -> Float
   @_silgen_name("log1pf") public static func log(onePlus x: Float) -> Float
   @_silgen_name("erff") public static func erf(_ x: Float) -> Float
@@ -86,7 +86,7 @@ extension Double: Real {
   @_silgen_name("asinh") public static func asinh(_ x: Double) -> Double
   @_silgen_name("atanh") public static func atanh(_ x: Double) -> Double
   @_silgen_name("exp") public static func exp(_ x: Double) -> Double
-  @_silgen_name("expMinusOne") public static func expMinusOne(_ x: Double) -> Double
+  @_silgen_name("expm1") public static func expMinusOne(_ x: Double) -> Double
   @_silgen_name("log") public static func log(_ x: Double) -> Double
   @_silgen_name("log1p") public static func log(onePlus x: Double) -> Double
   @_silgen_name("erf") public static func erf(_ x: Double) -> Double
@@ -149,7 +149,7 @@ extension Float80: Real {
   @_silgen_name("asinhl") public static func asinh(_ x: Float80) -> Float80
   @_silgen_name("atanhl") public static func atanh(_ x: Float80) -> Float80
   @_silgen_name("expl") public static func exp(_ x: Float80) -> Float80
-  @_silgen_name("expMinusOnel") public static func expMinusOne(_ x: Float80) -> Float80
+  @_silgen_name("expm1l") public static func expMinusOne(_ x: Float80) -> Float80
   @_silgen_name("logl") public static func log(_ x: Float80) -> Float80
   @_silgen_name("log1pl") public static func log(onePlus x: Float80) -> Float80
   @_silgen_name("erfl") public static func erf(_ x: Float80) -> Float80
