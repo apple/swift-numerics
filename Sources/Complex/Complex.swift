@@ -10,166 +10,103 @@
 //
 //===----------------------------------------------------------------------===//
 
-@_exported import ElementaryFunctions
+import ElementaryFunctions
 
 /// A complex number represented by real and imaginary parts.
 ///
 /// TODO: introductory text on complex numbers
 ///
 /// Implementation notes:
+/// -
+/// This type does not provide heterogeneous real/complex arithmetic,
+/// not even the natural vector-space operations like real * complex.
+/// There are two reasons for this choice: first, Swift broadly avoids
+/// mixed-type arithmetic when the operation can be adequately expressed
+/// by a conversion and homogeneous arithmetic. Second, with the current
+/// typechecker rules, it would lead to undesirable ambiguity in common
+/// expressions (see README.md for more details).
 ///
-/// Unlike C _Complex and C++ std::complex<> types, which attempt to define
-/// meaningful fine-grained semantics for complex values with one or both
-/// components infinite or nan, we simply treat all such values as a single
-/// equivalence class. This simplifies defining multiplication and division
-/// considerably, with almost no loss in expressive power.
+/// Unlike C's `_Complex` and C++'s `std::complex<>` types, we do not
+/// attempt to make meaningful semantic distinctions between different
+/// representations of infinity or NaN. Any Complex value with at least
+/// one non-finite component is simply "non-finite". In as much as
+/// possible, we use the semantics of the point at infinity on the
+/// Riemann sphere for such values. This approach simplifies the number of
+/// edge cases that need to be considered for multiplication, division, and
+/// the elementary functions considerably.
+///
+/// `.magnitude` does not return the Euclidean norm; it uses the "infinity
+/// norm" (`max(|real|,|imaginary|)`) instead. There are two reasons for this
+/// choice: first, it's simply faster to compute on most hardware. Second,
+/// there exist values for which the Euclidean norm cannot be represented
+/// (consider a number with `.real` and `.imaginary` both equal to
+/// `RealType.greatestFiniteMagnitude`; the Euclidean norm would be
+/// `.sqrt(2) * .greatestFiniteMagnitude`, which overflows). Using
+/// the infinity norm avoids this problem entirely without significant
+/// downsides. You can access the Euclidean norm using the `length`
+/// property.
 @frozen
 public struct Complex<RealType> where RealType: Real {
-  /// The real part of this complex value.
+  //  A note on the `x` and `y` properties
+  //
+  //  `x` and `y` are the names we use for the raw storage of the real and
+  //  imaginary components of our complex number. We also provide public
+  //  `.real` and `.imaginary` properties, which wrap this storage and
+  //  fixup the semantics for non-finite values.
+  
+  /// The real component of the value.
   @usableFromInline
   internal var x: RealType
   
-  /// The imaginary part of this complex value.
+  /// The imaginary part of the value.
   @usableFromInline
   internal var y: RealType
   
   /// A complex number constructed by specifying the real and imaginary parts.
   @inlinable
-  public init(_ real: RealType, _ imag: RealType) {
+  public init(_ real: RealType, _ imaginary: RealType) {
     x = real
-    y = imag
-  }
-  
-  /// The real part of this complex value if it is a finite number, or `nan` if it is not.
-  public var real: RealType {
-    @inlinable
-    get { isFinite ? x : .nan }
-  }
-  
-  /// The imaginary part of this complex value if it is a finite number, or `nan` if it is not.
-  public var imag: RealType {
-    @inlinable
-    get { isFinite ? y : .nan }
-  }
-}
-
-// MARK: - Additional Initializers
-extension Complex {
-  /// The complex number with specified real part and zero imaginary part.
-  @inlinable
-  public init(_ real: RealType) {
-    self.init(real, 0)
-  }
-  
-  /// The complex number with specified imaginary part and zero real part.
-  @inlinable
-  public init(imag: RealType) {
-    self.init(0, imag)
-  }
-  
-  /// The complex number with specified real part and zero imaginary part.
-  @inlinable
-  public init<Other: BinaryInteger>(_ real: Other) {
-    self.init(RealType(real), 0)
-  }
-  
-  /// The complex number with specified real part and zero imaginary part,
-  /// if it can be constructed without rounding.
-  @inlinable
-  public init?<Other: BinaryInteger>(exactly real: Other) {
-    guard let real = RealType(exactly: real) else { return nil }
-    self.init(real, 0)
-  }
-  
-  public typealias IntegerLiteralType = Int
-  
-  @inlinable
-  public init(integerLiteral value: Int) {
-    self.init(RealType(value))
-  }
-}
-
-extension Complex where RealType: BinaryFloatingPoint {
-  /// `other` rounded to the nearest representable value of this type.
-  @inlinable
-  public init<Other: BinaryFloatingPoint>(_ other: Complex<Other>) {
-    self.init(RealType(other.x), RealType(other.y))
-  }
-  
-  /// `other`, if it can be represented exactly in this type; otherwise `nil`.
-  @inlinable
-  public init?<Other: BinaryFloatingPoint>(exactly other: Complex<Other>) {
-    guard let real = RealType(exactly: other.x),
-          let imag = RealType(exactly: other.y) else { return nil }
-    self.init(real, imag)
-  }
-}
-
-// MARK: - Conformance to Hashable and Equatable
-//
-// The Complex type identifies all non-finite points (waving hands slightly,
-// we identify all NaNs and infinites as the point at infinity on the Riemann
-// sphere).
-extension Complex: Hashable {
-  @inlinable
-  public static func ==(a: Complex, b: Complex) -> Bool {
-    // Identify all numbers with either component non-finite as a single
-    // "point at infinity".
-    guard a.isFinite || b.isFinite else { return true }
-    // For finite numbers, equality is defined componentwise. Cases where
-    // only one of a or b is infinite fall through to here as well, but this
-    // expression correctly returns false for them so we don't need to handle
-    // them explicitly.
-    return a.x == b.x && a.y == b.y
-  }
-  
-  @inlinable
-  public func hash(into hasher: inout Hasher) {
-    // There are two equivalence classes to which we owe special attention:
-    // All zeros should hash to the same value, regardless of sign, and all
-    // non-finite numbers should hash to the same value, regardless of
-    // representation. The correct behavior for zero falls out for free from
-    // the hash behavior of floating-point, but we need to use a
-    // representative member for any non-finite values.
-    if isFinite {
-      hasher.combine(x)
-      hasher.combine(y)
-    } else {
-      hasher.combine(RealType.infinity)
-    }
-  }
-}
-
-// MARK: - Conformance to Codable
-// The synthesized conformance works correction for this protocol, unlike
-// Hashable and Equatable; all we need to do is specify that we conform.
-// FloatingPoint does not refine Codable, so this is a conditional conformance.
-extension Complex: Codable where RealType: Codable {
-}
-
-// MARK: - Formatting
-extension Complex: CustomStringConvertible {
-  public var description: String {
-    guard isFinite else {
-      return "inf"
-    }
-    return "(\(x), \(y))"
-  }
-}
-
-extension Complex: CustomDebugStringConvertible where RealType: CustomDebugStringConvertible {
-  public var debugDescription: String {
-    "Complex<\(RealType.self)>(\(x.debugDescription), \(y.debugDescription))"
+    y = imaginary
   }
 }
 
 // MARK: - Basic properties
 extension Complex {
+  /// The real part of this complex value.
+  ///
+  /// If `z` is not finite, `z.real` is `.nan`.
+  public var real: RealType {
+    @inlinable
+    get { isFinite ? x : .nan }
+  }
+  
+  /// The imaginary part of this complex value.
+  ///
+  /// If `z` is not finite, `z.imaginary` is `.nan`.
+  public var imaginary: RealType {
+    @inlinable
+    get { isFinite ? y : .nan }
+  }
+  
+  /// The additive identity, with real and imaginary parts both zero.
+  ///
+  /// See also:
+  /// -
+  /// - .one
+  /// - .i
+  /// - .infinity
   @inlinable
   public static var zero: Complex {
     Complex(0, 0)
   }
   
+  /// The multiplicative identity, with real part one and imaginary part zero.
+  ///
+  /// See also:
+  /// -
+  /// - .zero
+  /// - .i
+  /// - .infinity
   @inlinable
   public static var one: Complex {
     Complex(1, 0)
@@ -187,7 +124,13 @@ extension Complex {
     Complex(0, 1)
   }
   
-  /// A value representing the point at infinity.
+  /// The point at infinity.
+  ///
+  /// See also:
+  /// -
+  /// - .zero
+  /// - .one
+  /// - .i
   @inlinable
   public static var infinity: Complex {
     Complex(.infinity, 0)
@@ -238,7 +181,7 @@ extension Complex {
   /// -
   /// - `.isFinite`
   /// - `.isNormal`
-  /// - `.isZero` 
+  /// - `.isZero`
   @inlinable
   public var isSubnormal: Bool {
     isFinite && !isNormal && !isZero
@@ -258,14 +201,16 @@ extension Complex {
     x == 0 && y == 0
   }
   
-  /// The ∞-norm of the value (`max(abs(real), abs(imag))`).
+  /// The ∞-norm of the value (`max(abs(real), abs(imaginary))`).
   ///
   /// If you need the euclidean norm (a.k.a. 2-norm) use the `length` or `unsafeLengthSquared`
   /// properties instead.
   ///
   /// Edge cases:
   /// -
-  /// If a complex value is not finite, `.magnitude` is `infinity`.
+  /// - If `z` is not finite, `z.magnitude` is `.infinity`.
+  /// - If `z` is zero, `z.magnitude` is `0`.
+  /// - Otherwise, `z.magnitude` is finite and non-zero.
   ///
   /// See also:
   /// -
@@ -278,23 +223,141 @@ extension Complex {
   }
 }
 
+// MARK: - Additional Initializers
+extension Complex {
+  /// The complex number with specified real part and zero imaginary part.
+  ///
+  /// Equivalent to `Complex(real, 0)`.
+  @inlinable
+  public init(_ real: RealType) {
+    self.init(real, 0)
+  }
+  
+  /// The complex number with specified imaginary part and zero real part.
+  ///
+  /// Equivalent to `Complex(0, imaginary)`.
+  @inlinable
+  public init(imaginary: RealType) {
+    self.init(0, imaginary)
+  }
+  
+  /// The complex number with specified real part and zero imaginary part.
+  ///
+  /// Equivalent to `Complex(RealType(real), 0)`.
+  @inlinable
+  public init<Other: BinaryInteger>(_ real: Other) {
+    self.init(RealType(real), 0)
+  }
+  
+  /// The complex number with specified real part and zero imaginary part,
+  /// if it can be constructed without rounding.
+  @inlinable
+  public init?<Other: BinaryInteger>(exactly real: Other) {
+    guard let real = RealType(exactly: real) else { return nil }
+    self.init(real, 0)
+  }
+  
+  public typealias IntegerLiteralType = Int
+  
+  @inlinable
+  public init(integerLiteral value: Int) {
+    self.init(RealType(value))
+  }
+}
+
+extension Complex where RealType: BinaryFloatingPoint {
+  /// `other` rounded to the nearest representable value of this type.
+  @inlinable
+  public init<Other: BinaryFloatingPoint>(_ other: Complex<Other>) {
+    self.init(RealType(other.x), RealType(other.y))
+  }
+  
+  /// `other`, if it can be represented exactly in this type; otherwise `nil`.
+  @inlinable
+  public init?<Other: BinaryFloatingPoint>(exactly other: Complex<Other>) {
+    guard let x = RealType(exactly: other.x),
+          let y = RealType(exactly: other.y) else { return nil }
+    self.init(x, y)
+  }
+}
+
+// MARK: - Conformance to Hashable and Equatable
+//
+// The Complex type identifies all non-finite points (waving hands slightly,
+// we identify all NaNs and infinites as the point at infinity on the Riemann
+// sphere).
+extension Complex: Hashable {
+  @inlinable
+  public static func ==(a: Complex, b: Complex) -> Bool {
+    // Identify all numbers with either component non-finite as a single
+    // "point at infinity".
+    guard a.isFinite || b.isFinite else { return true }
+    // For finite numbers, equality is defined componentwise. Cases where
+    // only one of a or b is infinite fall through to here as well, but this
+    // expression correctly returns false for them so we don't need to handle
+    // them explicitly.
+    return a.x == b.x && a.y == b.y
+  }
+  
+  @inlinable
+  public func hash(into hasher: inout Hasher) {
+    // There are two equivalence classes to which we owe special attention:
+    // All zeros should hash to the same value, regardless of sign, and all
+    // non-finite numbers should hash to the same value, regardless of
+    // representation. The correct behavior for zero falls out for free from
+    // the hash behavior of floating-point, but we need to use a
+    // representative member for any non-finite values.
+    if isFinite {
+      hasher.combine(x)
+      hasher.combine(y)
+    } else {
+      hasher.combine(RealType.infinity)
+    }
+  }
+}
+
+// MARK: - Conformance to Codable
+// The synthesized conformance works correction for this protocol, unlike
+// Hashable and Equatable; all we need to do is specify that we conform.
+// FloatingPoint does not refine Codable, so this is a conditional conformance.
+extension Complex: Codable where RealType: Codable { }
+
+// MARK: - Formating
+extension Complex: CustomStringConvertible {
+  public var description: String {
+    guard isFinite else {
+      return "inf"
+    }
+    return "(\(x), \(y))"
+  }
+}
+
+extension Complex: CustomDebugStringConvertible where RealType: CustomDebugStringConvertible {
+  public var debugDescription: String {
+    "Complex<\(RealType.self)>(\(x.debugDescription), \(y.debugDescription))"
+  }
+}
+
 // MARK: - Operations for working with polar form
 extension Complex {
   
-  /// The euclidean norm (a.k.a. 2-norm, `sqrt(real*real + imag*imag)`).
+  /// The euclidean norm (a.k.a. 2-norm, `sqrt(real*real + imaginary*imaginary)`).
   ///
-  /// This property takes care to avoid spurious over- or underflow in this computation. For example:
+  /// This property takes care to avoid spurious over- or underflow in
+  /// this computation. For example:
   ///
   ///     let x: Float = 3.0e+20
   ///     let x: Float = 4.0e+20
   ///     let naive = sqrt(x*x + y*y) // +Inf
   ///     let careful = Complex(x, y).length // 5.0e+20
   ///
-  /// Note that it *is* still possible for this property to overflow, because the length can be as much
-  /// as sqrt(2) times larger than either component, and thus may not be representable in the real type.
+  /// Note that it *is* still possible for this property to overflow,
+  /// because the length can be as much as sqrt(2) times larger than
+  /// either component, and thus may not be representable in the real type.
   ///
-  /// For most use cases, you can use the cheaper `.magnitude` property (which computes the
-  /// ∞-norm) instead, which always produces a representable result.
+  /// For most use cases, you can use the cheaper `.magnitude`
+  /// property (which computes the ∞-norm) instead, which always produces
+  /// a representable result.
   ///
   /// Edge cases:
   /// -
@@ -314,21 +377,26 @@ extension Complex {
     return .sqrt(naive)
   }
   
+  //  Internal implementation detail of `length`, moving slow path off
+  //  of the inline function. Note that even `carefulLength` can overflow
+  //  for finite inputs, but only when the result is outside the range
+  //  of representable values.
   @usableFromInline
   internal var carefulLength: RealType {
     guard isFinite else { return .infinity }
     return .hypot(x, y)
   }
   
-  /// The squared length `(real*real + imag*imag)`.
+  /// The squared length `(real*real + imaginary*imaginary)`.
   ///
-  /// This property is more efficient to compute than `length`, but is prone to overflow or underflow;
-  /// for finite values that are not well-scaled, `unsafeLengthSquared` is often either zero or
-  /// infinity, even when `length` is a finite number. Use this property only when you are certain that
-  /// this value is well-scaled.
+  /// This property is more efficient to compute than `length`, but is
+  /// highly prone to overflow or underflow; for finite values that are
+  /// not well-scaled, `unsafeLengthSquared` is often either zero or
+  /// infinity, even when `length` is a finite number. Use this property
+  /// only when you are certain that this value is well-scaled.
   ///
-  /// For many cases, `.magnitude` can be used instead, which is also cheap to compute and always
-  /// returns a representable value.
+  /// For many cases, `.magnitude` can be used instead, which is similarly
+  /// cheap to compute and always returns a representable value.
   ///
   /// See also:
   /// -
@@ -341,8 +409,9 @@ extension Complex {
   
   /// The phase (angle, or "argument").
   ///
-  /// Returns the angle (measured above the real axis) in radians. If the complex value is zero
-  /// or infinity, the phase is not defined, and `nan` is returned.
+  /// Returns the angle (measured above the real axis) in radians. If
+  /// the complex value is zero or infinity, the phase is not defined,
+  /// and `nan` is returned.
   ///
   /// Edge cases:
   /// -
@@ -363,8 +432,8 @@ extension Complex {
   ///
   /// Edge cases:
   /// -
-  /// If the complex value is zero or non-finite, phase is `.nan`. If the complex value is non-finite,
-  /// the length is `.infinity`.
+  /// If the complex value is zero or non-finite, phase is `.nan`.
+  /// If the complex value is non-finite, length is `.infinity`.
   ///
   /// See also:
   /// -
@@ -379,8 +448,8 @@ extension Complex {
   ///
   /// Edge cases:
   /// -
-  /// If the phase is non-finite, but length is finite, this initializer fails and returns nil. In all other cases,
-  /// a non-nil value is constructed.
+  /// If the phase is non-finite, but length is finite, this initializer
+  /// fails and returns nil. In all other cases, a non-nil value is constructed.
   ///
   /// See also:
   /// -

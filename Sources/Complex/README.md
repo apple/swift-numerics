@@ -12,7 +12,7 @@ buffers may be reinterpreted to shim API defined in other languages).
 The usual arithmetic operators are provided for Complex numbers, as well as
 conversion to and from polar coordinates and many useful properties, plus
 conformances to the obvious usual protocols: `Equatable`, `Hashable`, `Codable`
-(if the underlying `RealType` is), and `Numeric` (hence `AdditiveArithmetic`).
+(if the underlying `RealType` is), and `Numeric` (hence also `AdditiveArithmetic`).
 
 ### Dependencies:
 - The `ElementaryFunctions` module.
@@ -54,18 +54,17 @@ This is occasionally useful, but it also results in a lot of extra work. The swi
 `(x, ±inf)`, `(nan, y)` and `(x, nan)` are all considered to be encodings of a single
 exceptional value with infinite magnitude and undefined phase.
 
-Because the phase is undefined, the `.real` and `.imag` properties return `.nan` 
-
-This decision may be revisited once users gain some experience working with the type
-to make sure that it's a tradeoff that we're happy with, but early experiments show that
-it greatly simplifies the implementation of some operations without significant tradeoffs
-in usability.
+Because the phase is undefined, the `real` and `imaginary` properties return `.nan`
+for non-finite values. This decision might be revisited once users gain some experience
+working with the type to make sure that it's a tradeoff that we're happy with, but early
+experiments show that it greatly simplifies the implementation of some operations
+without significant tradeoffs in usability.
 
 ### The magnitude property
 The `Numeric` protocol requires a `.magnitude` property, but (deliberately) does not
 fully specify the semantics. The most obvious choice would be to use the Euclidean
-norm (`sqrt(real*real + imag*imag)`). However, in practice there are good reasons
-to use something else instead:
+norm (`sqrt(real*real + imaginary*imaginary)`). However, in practice there are
+good reasons to use something else instead:
 
 - The two-norm requires special care to avoid spurious overflow/underflow, but the
 naive expressions for the 1-norm or ∞-norm are always correct.
@@ -80,3 +79,21 @@ cheaper-to-compute norms.
 The 2-norm still needs to be available, of course, because sometimes you need it.
 Presently, this functionality is accessed via the `.length` and `.unsafeLengthSquared`
 properties, but I expect that we will end up iterating on this aspect of the design.
+
+### Accuracy of division and multiplication
+This library attempts to provide robust division and multiplication operations, with
+small relative error in a complex norm. It is a non-goal to deliver small componentwise
+errors. See `testDivide_BaudinSmithApprox` for examples of cases where we have
+tiny relative error but large error in one of the result components considered in isolation.
+This is the right tradeoff for a general-purpose library because it allows us to use the
+naive formulas for multiplication and division (which are fast), and do a simple check to
+see if we need to re-do the computation more carefully to avoid spurious overflow or
+underflow.
+
+Implementing the method of Baudin and Smith (or any other method that delivers
+similarly small componentwise error) would unduly slow down the common case for
+relatively little benefit--componentwise error bounds are rarely necessary when
+working over the complex numbers.
+
+That said, a PR that implements multiplication and division *functions* with tight
+componentwise error bounds would be a welcome addition to the library.
