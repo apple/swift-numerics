@@ -1,7 +1,7 @@
-# Swift-Numerics
+# Swift Numerics
   
 ## Introduction
-Swift-numerics provides a set of modules that support numerical computing in Swift.
+Swift Numerics provides a set of modules that support numerical computing in Swift.
 These modules fall broadly in two categories:
 
 - API that is too specialized to go into the standard library, but which is sufficiently
@@ -12,24 +12,34 @@ standard library.
 There is some overlap between these two categories, and API that begins in the first
 category may migrate to the second as it matures and new uses are discovered.
 
-Swift-numerics modules are fine-grained; if a user needs support for Complex numbers,
-they can import the Complex module without pulling in a module for linear algebra as well.
+Swift Numerics modules are fine-grained; if a user needs support for Complex numbers,
+they can import the Complex module without pulling in a module for linear algebra as
+well. However, there is also a top-level `Numerics` module that simply re-exports all of
+the public modules of the library.
 
-Swift-numerics modules have minimal dependencies on other projects. It assumes only
-the availability of the Swift and C standard libraries, and the runtime support provided
-by compiler-rt. Future expansion may assume the availability of other standard
-interfaces such as BLAS and LAPACK, but modules with more specialized
-dependencies probably belong in a separate package.
+Swift Numerics modules have minimal dependencies on other projects. The current
+modules assume only the availability of the Swift and C standard libraries, and the
+runtime support provided by compiler-rt. Future expansion may assume the availability
+of other standard interfaces such as BLAS and LAPACK, but modules with more
+specialized dependencies (or dependencies that are not available on all platforms
+supported by Swift) belong in a separate package.
 
 ## Process
-Swift-numerics changes are not expected to go through swift-evolution. For some
-modules, swift-numerics may act as a staging area for the standard library, but in
-those cases, the expectation is that swift-evolution review will take place at the point
-that the module is proposed for inclusion. It's good to keep that process in mind, 
-however, and document *why* you're making the decisions that you are, so that
-reviewers can refer to those rationales when a module comes up for swift-evolution.
+Swift Numerics is a standalone library separate from the core Swift project. In practice
+it will act as a staging ground for some APIs that may eventually be incorporated into
+the Swift Standard Library, and when that happens such changes will be proposed
+to the Swift Standard Library using the established evolution process of the Swift
+project.
 
-Swift-numerics uses github issues to track bugs and features, and pull requests for
+It's practice to keep this process in mind, and document *why* you're making the
+decisions that you are, so that reviewers can refer to those rationales if a module
+comes up for Swift Evolution in the future.
+
+Because our intention is to make it possible to adopt Swift Numerics modules in the
+standard library at some future point, Swift Numerics uses the same license and 
+contribution guidelines as the Swift project.
+
+Swift Numerics uses github issues to track bugs and features, and pull requests for
 development.
 
 To propose a new module:
@@ -47,7 +57,11 @@ To propose a new feature for an existing module:
 it can be merged.
 
 To fix a bug, or make smaller improvements:
-1. Raise a PR with your change. Be sure to add test coverage for whatever changes you are making.
+1. Raise a PR with your change. Be sure to add test coverage for whatever changes
+you are making.
+
+Questions about how to use Swift Numerics modules, or issues that are not clearly
+bugs can be discussed in the "Swift Numerics" section of the Swift forums.
 
 ## Modules
 1. [ElementaryFunctions](Sources/ElementaryFunctions/README.md)
@@ -58,5 +72,5 @@ To fix a bug, or make smaller improvements:
 2. [Large Fixed-Width Integers](https://github.com/apple/swift-numerics/issues/4)
 3. [Arbitrary-Precision Integers](https://github.com/apple/swift-numerics/issues/5)
 4. [Shaped Arrays](https://github.com/apple/swift-numerics/issues/6)
-4. [Decimal Floating-point](https://github.com/apple/swift-numerics/issues/7)
-5. [Float16](https://github.com/apple/swift-numerics/issues/8)
+5. [Decimal Floating-point](https://github.com/apple/swift-numerics/issues/7)
+6. [Float16](https://github.com/apple/swift-numerics/issues/8)

@@ -1,12 +1,11 @@
 //===--- Arithmetic.swift -------------------------------------*- swift -*-===//
 //
-// This source file is part of the Swift.org open source project
+// This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift project authors
+// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
-// See https://swift.org/CONTRIBUTORS.txt for the list of Swift project authors
 //
 //===----------------------------------------------------------------------===//
 
@@ -74,7 +73,7 @@ extension Complex: Numeric {
     // Try the naive expression z/w = z*conj(w) / |w|^2; if the result is
     // normal, then everything was fine, and we can simply return the result.
     let naive = z * w.conjugate.divided(by: w.unsafeLengthSquared)
-    guard naive.isNormal else { return carefulDivide(z, w) }
+    guard naive.isNormal else { return rescaledDivide(z, w) }
     return naive
   }
   
@@ -89,7 +88,7 @@ extension Complex: Numeric {
   }
   
   @usableFromInline
-  internal static func carefulDivide(_ z: Complex, _ w: Complex) -> Complex {
+  internal static func rescaledDivide(_ z: Complex, _ w: Complex) -> Complex {
     if z.isZero || !w.isFinite { return .zero }
     let zScale = z.magnitude
     let wScale = w.magnitude
