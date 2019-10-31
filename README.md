@@ -12,10 +12,21 @@ standard library.
 There is some overlap between these two categories, and API that begins in the first
 category may migrate to the second as it matures and new uses are discovered.
 
-Swift Numerics modules are fine-grained; if a user needs support for Complex numbers,
-they can import the Complex module without pulling in a module for linear algebra as
-well. However, there is also a top-level `Numerics` module that simply re-exports all of
-the public modules of the library.
+Swift Numerics modules are fine-grained; if you need support for Complex numbers,
+you can import the Complex module without pulling in everything else in the library as
+well:
+```
+import Complex
+
+let z = Complex<Double>.i
+```
+However, there is also a top-level `Numerics` module that simply re-exports the complete
+public interface of swift-numerics:
+```
+import Numerics
+
+// All swift-numerics API is now available
+```
 
 Swift Numerics modules have minimal dependencies on other projects. The current
 modules assume only the availability of the Swift and C standard libraries, and the

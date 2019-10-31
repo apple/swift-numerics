@@ -387,13 +387,34 @@ public protocol RealFunctions: ElementaryFunctions {
   /// - `log2()`
   static func log10(_ x: Self) -> Self
   
+#if !os(Windows)
   /// The logarithm of the absolute value of the gamma function, log(|Γ(x)|).
+  ///
+  /// Not available on Windows targets.
   ///
   /// See also:
   /// -
   /// - `gamma()`
   /// - `signGamma()`
   static func logGamma(_ x: Self) -> Self
+  
+  /// The sign of the gamma function, Γ(x).
+  ///
+  /// For `x >= 0`, `signGamma(x)` is `.plus`. For negative `x`, `signGamma(x)` is `.plus`
+  /// when `x` is an integer, and otherwise it is `.minus` whenver `trunc(x)` is even, and `.plus`
+  /// when `trunc(x)` is odd.
+  ///
+  /// This function is used together with `logGamma`, which computes the logarithm of the
+  /// absolute value of Γ(x), to recover the sign information.
+  ///
+  /// Not available on Windows targets.
+  ///
+  /// See also:
+  /// -
+  /// - `gamma()`
+  /// - `logGamma()`
+  static func signGamma(_ x: Self) -> FloatingPointSign
+#endif
 }
 
 /// A type that models the real numbers.

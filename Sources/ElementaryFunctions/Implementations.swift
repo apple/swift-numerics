@@ -28,19 +28,7 @@ extension Real {
     return Self(signOf: x, magnitudeOf: pow(x.magnitude, 1/Self(n)))
   }
   
-  /// The sign of the gamma function, Γ(x).
-  ///
-  /// For `x >= 0`, `signGamma(x)` is `.plus`. For negative `x`, `signGamma(x)` is `.plus`
-  /// when `x` is an integer, and otherwise it is `.minus` whenver `trunc(x)` is even, and `.plus`
-  /// when `trunc(x)` is odd.
-  ///
-  /// This function is mainly used together with `logGamma`, which computes the logarithm of the
-  /// absolute value of Γ(x), to recover the sign information.
-  ///
-  /// See also:
-  /// -
-  /// - `gamma()`
-  /// - `logGamma()`
+  #if !os(Windows)
   public static func signGamma(_ x: Self) -> FloatingPointSign {
     // Gamma is strictly positive for x >= 0.
     if x >= 0 { return .plus }
@@ -74,6 +62,7 @@ extension Real {
       return self.addingProduct(-2, half.rounded(.towardZero)) == 0
     }
   }
+  #endif
   
   @_transparent
   public static func sqrt(_ x: Self) -> Self {
