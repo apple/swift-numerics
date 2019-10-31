@@ -11,46 +11,160 @@
 
 import XCTest
 import Complex
+import ElementaryFunctions
+
+// TODO: improve this to be a general-purpose complex comparison with tolerance
+func relativeError<T>(_ a: Complex<T>, _ b: Complex<T>) -> T {
+  if a == b { return 0 }
+  let scale = max(a.magnitude, b.magnitude, T.leastNormalMagnitude).ulp
+  return (a - b).magnitude / scale
+}
+
+func closeEnough<T: Real>(_ a: T, _ b: T, ulps allowed: T) -> Bool {
+  let scale = max(a.magnitude, b.magnitude, T.leastNormalMagnitude).ulp
+  return (a - b).magnitude <= allowed * scale
+}
+
+func checkMultiply<T>(
+  _ a: Complex<T>, _ b: Complex<T>, expected: Complex<T>, ulps allowed: T
+) -> Bool {
+  let observed = a*b
+  let rel = relativeError(observed, expected)
+  if rel > allowed {
+    print("Over-large error in \(a)*\(b)")
+    print("Expected: \(expected)\nObserved: \(observed)")
+    print("Relative error was \(rel) (tolerance: \(allowed).")
+    return true
+  }
+  return false
+}
+
+func checkDivide<T>(
+  _ a: Complex<T>, _ b: Complex<T>, expected: Complex<T>, ulps allowed: T
+) -> Bool {
+  let observed = a/b
+  let rel = relativeError(observed, expected)
+  if rel > allowed {
+    print("Over-large error in \(a)/\(b)")
+    print("Expected: \(expected)\nObserved: \(observed)")
+    print("Relative error was \(rel) (tolerance: \(allowed).")
+    return true
+  }
+  return false
+}
 
 final class ComplexTests: XCTestCase {
   
-  // Double-precision test cases from Baudin & Smith's "A Robust Complex Division in Scilab".
-  func testDivide_BaudinSmith() {
-    XCTAssertEqual(Complex(1,1)/Complex(1, 0x1p1023),
-                   Complex(0x1p-1023, -0x1p-1023))
-    XCTAssertEqual(Complex(1,1)/Complex(0x1p-1023, 0x1p-1023),
-                   Complex(0x1p1023))
-    XCTAssertEqual(Complex(0x1p1023, 0x1p1023)/Complex(1,1),
-                   Complex(0x1.0p1023))
-    XCTAssertEqual(Complex(0x1p-347, 0x1p-54)/Complex(0x1p-1037, 0x1p-1058),
-                   Complex(3.8981256045591133e289, 8.174961907852353577e295))
-    XCTAssertEqual(Complex(0x1p-1074, 0x1p-1074)/Complex(0x1p-1073, 0x1p-1074),
-                   Complex(0.6, 0.2))
-    XCTAssertEqual(Complex(0x1p1015, 0x1p-989)/Complex(0x1p1023, 0x1p1023),
-                   Complex(0.001953125, -0.001953125))
-    XCTAssertEqual(Complex(0x1p-622, 0x1p-1071)/Complex(0x1p-343, 0x1p-798),
-                   Complex(1.02951151789360578e-84, 6.97145987515076231e-220))
+  struct Polar<T: Real> {
+    let length: T
+    let phase: T
   }
   
-  func testDivide_BaudinSmithApprox() {
-    // Policy: we deliberately do not try to get these cases from Baudin and
-    // Smith "right"; instead we simply want an answer that's as accurate
-    // (in the complex norm) as can be expected. We don't care what happens
-    // to the tiny component of the result.
-    func closeEnough(_ a: Complex<Double>, _ b: Complex<Double>) -> Bool {
-      return (a - b).magnitude < max(a.magnitude, b.magnitude) * 0x1p-50
+  func testPolar<T>(_ type: T.Type)
+  where T: BinaryFloatingPoint, T: Real,
+        T.Exponent: FixedWidthInteger, T.RawSignificand: FixedWidthInteger {
+    let exponentRange =
+      (T.leastNormalMagnitude.exponent + T.Exponent(T.significandBitCount)) ...
+        T.greatestFiniteMagnitude.exponent
+    let inputs = (0..<100).map { _ in
+      Polar(length: T(
+        sign: .plus,
+        exponent: T.Exponent.random(in: exponentRange),
+        significand: T.random(in: 1 ..< 2)
+      ), phase: T.random(in: -.pi ... .pi))
     }
-    XCTAssert(closeEnough(Complex(0x1p1023, 0x1p-1023)/Complex(0x1p677, 0x1p-677),
-                          Complex(0x1p346, -0x1p-1008)))
-    XCTAssert(closeEnough(Complex(0x1p1020, 0x1p-844)/Complex(0x1p656, 0x1p-780),
-                          Complex(0x1p364, -0x1p-1072)))
-    XCTAssert(closeEnough(Complex(0x1p-71, 0x1p1021)/Complex(0x1p1001, 0x1p-323),
-                          Complex(0x1p-1072, 0x1p20)))
+    for p in inputs {
+      // first test that each value can round-trip between rectangular and
+      // polar coordinates with reasonable accuracy. We'll probably need to
+      // relax this for some platforms (currently we're using the default
+      // RNG, which means we don't get the same sequence of values each time;
+      // this is good--more test coverage!--and bad, because without tight
+      // bounds on every platform's libm, we can't get tight bounds on the
+      // accuracy of these operations, so we need to relax them gradually).
+      let z = Complex(length: p.length, phase: p.phase)!
+      if !closeEnough(z.length, p.length, ulps: 16) {
+        print("p = \(p)\nz = \(z)\nz.length = \(z.length)")
+        XCTFail()
+      }
+      if !closeEnough(z.phase, p.phase, ulps: 16) {
+        print("p = \(p)\nz = \(z)\nz.phase = \(z.phase)")
+        XCTFail()
+      }
+      // if length*length is normal, it should be unsafeLengthSquared, up
+      // to small error.
+      if (p.length*p.length).isNormal {
+        if !closeEnough(z.unsafeLengthSquared, p.length*p.length, ulps: 16) {
+          print("p = \(p)\nz = \(z)\nz.unsafeLengthSquared = \(z.unsafeLengthSquared)")
+          XCTFail()
+        }
+      }
+      // Now test multiplication and division using the polar inputs:
+      for q in inputs {
+        let w = Complex(length: q.length, phase: q.phase)!
+        let product = Complex(length: p.length * q.length, phase: p.phase + q.phase)!
+        if checkMultiply(z, w, expected: product, ulps: 16) { XCTFail() }
+        let quotient = Complex(length: p.length / q.length, phase: p.phase - q.phase)!
+        if checkDivide(z, w, expected: quotient, ulps: 16) { XCTFail() }
+      }
+    }
+  }
+  
+  func testPolar() {
+    testPolar(Float.self)
+    testPolar(Double.self)
+    testPolar(Float80.self)
+  }
+  
+  func testBaudinSmith() {
+    // A struct representing a test case from Baudin & Smith's
+    // "A Robust Complex Division in Scilab".
+    //
+    // Their paper tests only a/b == c. These are also interesting cases for
+    // testing a/c == b and a == b*c, so we run all three of those.
+    // Additionally, B&S expect these all to be exactly equal, but that's only
+    // true for a division operation satisfying a (perhaps) unrealistically
+    // high precision requirement (see discussion in Arithmetic.swift).
+    struct BaudinSmithCase {
+      let a: Complex<Double>
+      let b: Complex<Double>
+      let c: Complex<Double>
+      let allowSmallError: Bool
+      init(_ a: Complex<Double>, _ b: Complex<Double>, _ c: Complex<Double>, allowSmallError: Bool = false) {
+        self.a = a
+        self.b = b
+        self.c = c
+        self.allowSmallError = allowSmallError
+      }
+    }
+    // The ten test cases from Baudin & Smith's paper. These only apply to
+    // Double.
+    let vectors: [BaudinSmithCase] = [
+      BaudinSmithCase(Complex(1,1), Complex(1, 0x1p1023), Complex(0x1p-1023, -0x1p-1023)),
+      BaudinSmithCase(Complex(1,1), Complex(0x1p-1023, 0x1p-1023), Complex(0x1p1023)),
+      BaudinSmithCase(Complex(0x1p1023, 0x1p-1023), Complex(0x1p677, 0x1p-677),
+                      Complex(0x1p346, -0x1p-1008)),
+      BaudinSmithCase(Complex(0x1p1023, 0x1p1023), Complex(1, 1), Complex(0x1p1023)),
+      BaudinSmithCase(Complex(0x1p1020, 0x1p-844), Complex(0x1p656, 0x1p-780),
+                      Complex(0x1p364, -0x1p-1072)),
+      BaudinSmithCase(Complex(0x1p-71, 0x1p1021), Complex(0x1p1001, 0x1p-323),
+                      Complex(0x1p-1072, 0x1p20)),
+      BaudinSmithCase(Complex(0x1p-347, 0x1p-54), Complex(0x1p-1037, 0x1p-1058),
+                      Complex(3.8981256045591133e289, 8.174961907852353577e295)),
+      BaudinSmithCase(Complex(0x1p-1074, 0x1p-1074), Complex(0x1p-1073, 0x1p-1074), Complex(0.6, 0.2)),
+      BaudinSmithCase(Complex(0x1p1015, 0x1p-989), Complex(0x1p1023, 0x1p1023), Complex(0.001953125, -0.001953125)),
+      BaudinSmithCase(Complex(0x1p-622, 0x1p-1071), Complex(0x1p-343, 0x1p-798),
+                      Complex(1.02951151789360578e-84, 6.97145987515076231e-220)),
+    ]
+    for test in vectors {
+      if checkDivide(test.a, test.b, expected: test.c, ulps: 0.5) { XCTFail() }
+      if checkDivide(test.a, test.c, expected: test.b, ulps: 1.0) { XCTFail() }
+      if checkMultiply(test.b, test.c, expected: test.a, ulps: 1.0) { XCTFail() }
+    }
   }
     
   static var allTests = [
-    ("testDivide_BaudinSmith", testDivide_BaudinSmith),
-    ("testDivide_BaudinSmithApprox", testDivide_BaudinSmithApprox),
+    ("testPolar", testPolar),
+    ("testBaudinSmith", testBaudinSmith),
   ]
 }
 

@@ -220,6 +220,28 @@ extension Complex {
     guard isFinite else { return .infinity }
     return max(abs(x), abs(y))
   }
+  
+  /// A "canonical" representation of the value.
+  ///
+  /// For normal complex numbers with a RealType conforming to
+  /// BinaryFloatingPoint (the common case), the result is simply this value
+  /// unmodified. For zeros, the result has the representation (+0, +0). For
+  /// infinite values, the result has the representation (+inf, +0).
+  ///
+  /// If the RealType admits non-canonical representations, the x and y
+  /// components are canonicalized in the result.
+  ///
+  /// This is mainly useful for interoperation with other languages, where
+  /// you may want to reduce each equivalence class to a single representative
+  /// before passing across langauge boundaries, but it may also be useful
+  /// for some serialization tasks. It's also a useful implementation detail for
+  /// some primitive operations.
+  @inlinable
+  public var canonicalized: Self {
+    if isZero { return .zero }
+    if isFinite { return self.multiplied(by: 1) }
+    return .infinity
+  }
 }
 
 // MARK: - Additional Initializers
