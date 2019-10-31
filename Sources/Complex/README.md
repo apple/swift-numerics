@@ -48,7 +48,7 @@ This is a show-stopper for heterogeneous arithmetic operators in the short term.
 
 ### Infinity and nan
 C and C++ attempt to define precise semantics that interpret the sign of infinity and zero.
-This is occasionally useful, but it also results in a lot of extra work. The swift-numerics
+This is occasionally useful, but it also results in a lot of extra work. The Swift Numerics
 `Complex` type does not assign any semantic meaning to the sign of zero and infinity;
 `(±0,±0)`, are all considered to be encodings of the value zero. Similarly, `(±inf, y)`,
 `(x, ±inf)`, `(nan, y)` and `(x, nan)` are all considered to be encodings of a single
