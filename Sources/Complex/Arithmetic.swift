@@ -70,11 +70,12 @@ extension Complex: Numeric {
   
   @inlinable
   public static func /(z: Complex, w: Complex) -> Complex {
-    // Try the naive expression z/w = z*conj(w) / |w|^2; if the result is
-    // normal, then everything was fine, and we can simply return the result.
-    let naive = z * w.conjugate.divided(by: w.unsafeLengthSquared)
-    guard naive.isNormal else { return rescaledDivide(z, w) }
-    return naive
+    // Try the naive expression z/w = z*conj(w) / |w|^2; if we can compute
+    // this without over/underflow, everything is fine and the result is
+    // correct. If not, we have to rescale and do the computation carefully.
+    let lengthSquared = w.unsafeLengthSquared
+    guard lengthSquared.isNormal else { return rescaledDivide(z, w) }
+    return z * (w.conjugate.divided(by: lengthSquared))
   }
   
   @inlinable
@@ -95,7 +96,6 @@ extension Complex: Numeric {
     let zNorm = z.divided(by: zScale)
     let wNorm = w.divided(by: wScale)
     let r = (zNorm * wNorm.conjugate).divided(by: wNorm.unsafeLengthSquared)
-    let rScale = r.magnitude
     // At this point, the result is (r * zScale)/wScale computed without
     // undue overflow or underflow. We know that r is close to unity, so
     // the question is simply what order in which to do this computation
@@ -113,7 +113,7 @@ extension Complex: Numeric {
     // Otherwise, we need to compute either rNorm * zScale or rNorm / wScale
     // first. Choose the first if the first scaling behaves well, otherwise
     // choose the other one.
-    if (rScale * zScale).isNormal {
+    if (r.magnitude * zScale).isNormal {
       return r.multiplied(by: zScale).divided(by: wScale)
     }
     return r.divided(by: wScale).multiplied(by: zScale)
