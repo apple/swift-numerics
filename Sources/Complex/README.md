@@ -19,24 +19,24 @@ It is tempting to define real-complex arithmetic operators, because we use them 
 They are not provided by the Complex module for two reasons:
 - Swift generally avoids heterogenous arithmetic operators
 - They lead to counter-intuitive behavior of type inference.
-For a concrete example of the second point, suppose that heterogeneous arithmetic operators existed, and consider the following snippet:
-```swift
-let a: RealType = 1
-let b = 2*a
-```
-what is the type of `b`?
+  For a concrete example of the second point, suppose that heterogeneous arithmetic operators existed, and consider the following snippet:
+  ```swift
+  let a: RealType = 1
+  let b = 2*a
+  ```
+  what is the type of `b`?
 
-If there is no type context, `b` is ambiguous; `2*a` could be interpreted as `Complex(2)*a` or as `RealType(2)*a`.
-That's annoying on its own. However, suppose that we're in a `Complex` type context:
-```swift
-extension Complex {
-  static func doSomething() {
-    let a: RealType = 1
-    let b = 2*a // type is inferred as Complex 🤪
+  If there is no type context, `b` is ambiguous; `2*a` could be interpreted as `Complex(2)*a` or as `RealType(2)*a`.
+  That's annoying on its own. However, suppose that we're in a `Complex` type context:
+  ```swift
+  extension Complex {
+    static func doSomething() {
+      let a: RealType = 1
+      let b = 2*a // type is inferred as Complex 🤪
+    }
   }
-}
-```
-This is a show-stopper for heterogeneous arithmetic operators in the short term.
+  ```
+  This is a show-stopper for heterogeneous arithmetic operators in the short term.
 
 ### Infinity and nan
 C and C++ attempt to define precise semantics that interpret the sign of infinity and zero.
