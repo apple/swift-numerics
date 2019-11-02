@@ -54,15 +54,15 @@ public struct Complex<RealType> where RealType: Real {
   //  fixup the semantics for non-finite values.
   
   /// The real component of the value.
-  @usableFromInline
+  @usableFromInline @inline(__always)
   internal var x: RealType
   
   /// The imaginary part of the value.
-  @usableFromInline
+  @usableFromInline @inline(__always)
   internal var y: RealType
   
   /// A complex number constructed by specifying the real and imaginary parts.
-  @inlinable
+  @_transparent
   public init(_ real: RealType, _ imaginary: RealType) {
     x = real
     y = imaginary
@@ -75,7 +75,7 @@ extension Complex {
   ///
   /// If `z` is not finite, `z.real` is `.nan`.
   public var real: RealType {
-    @inlinable
+    @_transparent
     get { isFinite ? x : .nan }
   }
   
@@ -83,7 +83,7 @@ extension Complex {
   ///
   /// If `z` is not finite, `z.imaginary` is `.nan`.
   public var imaginary: RealType {
-    @inlinable
+    @_transparent
     get { isFinite ? y : .nan }
   }
   
@@ -94,7 +94,7 @@ extension Complex {
   /// - .one
   /// - .i
   /// - .infinity
-  @inlinable
+  @_transparent
   public static var zero: Complex {
     Complex(0, 0)
   }
@@ -106,7 +106,7 @@ extension Complex {
   /// - .zero
   /// - .i
   /// - .infinity
-  @inlinable
+  @_transparent
   public static var one: Complex {
     Complex(1, 0)
   }
@@ -118,7 +118,7 @@ extension Complex {
   /// - .zero
   /// - .one
   /// - .infinity
-  @inlinable
+  @_transparent
   public static var i: Complex {
     Complex(0, 1)
   }
@@ -130,13 +130,13 @@ extension Complex {
   /// - .zero
   /// - .one
   /// - .i
-  @inlinable
+  @_transparent
   public static var infinity: Complex {
     Complex(.infinity, 0)
   }
   
   /// The complex conjugate of this value.
-  @inlinable
+  @_transparent
   public var conjugate: Complex {
     Complex(x, -y)
   }
@@ -150,7 +150,7 @@ extension Complex {
   /// - `.isNormal`
   /// - `.isSubnormal`
   /// - `.isZero`
-  @inlinable
+  @_transparent
   public var isFinite: Bool {
     x.isFinite && y.isFinite
   }
@@ -166,7 +166,7 @@ extension Complex {
   /// - `.isFinite`
   /// - `.isSubnormal`
   /// - `.isZero`
-  @inlinable
+  @_transparent
   public var isNormal: Bool {
     isFinite && (x.isNormal || y.isNormal)
   }
@@ -181,7 +181,7 @@ extension Complex {
   /// - `.isFinite`
   /// - `.isNormal`
   /// - `.isZero`
-  @inlinable
+  @_transparent
   public var isSubnormal: Bool {
     isFinite && !isNormal && !isZero
   }
@@ -195,7 +195,7 @@ extension Complex {
   /// - `.isFinite`
   /// - `.isNormal`
   /// - `.isSubnormal`
-  @inlinable
+  @_transparent
   public var isZero: Bool {
     x == 0 && y == 0
   }
@@ -215,7 +215,7 @@ extension Complex {
   /// -
   /// - `.length`
   /// - `.unsafeLengthSquared`
-  @inlinable
+  @_transparent
   public var magnitude: RealType {
     guard isFinite else { return .infinity }
     return max(abs(x), abs(y))
@@ -236,7 +236,7 @@ extension Complex {
   /// before passing across langauge boundaries, but it may also be useful
   /// for some serialization tasks. It's also a useful implementation detail for
   /// some primitive operations.
-  @inlinable
+  @_transparent
   public var canonicalized: Self {
     if isZero { return .zero }
     if isFinite { return self.multiplied(by: 1) }
@@ -308,7 +308,7 @@ extension Complex where RealType: BinaryFloatingPoint {
 // we identify all NaNs and infinites as the point at infinity on the Riemann
 // sphere).
 extension Complex: Hashable {
-  @inlinable
+  @_transparent
   public static func ==(a: Complex, b: Complex) -> Bool {
     // Identify all numbers with either component non-finite as a single
     // "point at infinity".
@@ -320,7 +320,7 @@ extension Complex: Hashable {
     return a.x == b.x && a.y == b.y
   }
   
-  @inlinable
+  @_transparent
   public func hash(into hasher: inout Hasher) {
     // There are two equivalence classes to which we owe special attention:
     // All zeros should hash to the same value, regardless of sign, and all
@@ -391,7 +391,7 @@ extension Complex {
   /// - `.phase`
   /// - `.polar`
   /// - `init(r:θ:)`
-  @inlinable
+  @_transparent
   public var length: RealType {
     let naive = unsafeLengthSquared
     guard naive.isNormal else { return carefulLength }
@@ -423,7 +423,7 @@ extension Complex {
   /// -
   /// - `.length`
   /// - `.magnitude`
-  @inlinable
+  @_transparent
   public var unsafeLengthSquared: RealType {
     x*x + y*y
   }
