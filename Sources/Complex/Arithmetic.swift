@@ -30,6 +30,11 @@ extension Complex: AdditiveArithmetic {
   public static func -=(z: inout Complex, w: Complex) {
     z = z - w
   }
+  
+  @_transparent
+  public static prefix func -(z: Complex) -> Complex {
+    return Complex(-z.x, -z.y)
+  }
 }
 
 // MARK: - Vector space structure
@@ -50,12 +55,12 @@ extension Complex: AdditiveArithmetic {
 // and turn these into operators if/when we have it.
 // (https://github.com/apple/swift-numerics/issues/12)
 extension Complex {
-  @inline(__always) @usableFromInline
+  @usableFromInline @_transparent
   internal func multiplied(by a: RealType) -> Complex {
     Complex(x*a, y*a)
   }
   
-  @inline(__always) @usableFromInline
+  @usableFromInline @_transparent
   internal func divided(by a: RealType) -> Complex {
     Complex(x/a, y/a)
   }
@@ -63,12 +68,12 @@ extension Complex {
 
 // MARK: - Multiplicative structure
 extension Complex: Numeric {
-  @inlinable
+  @_transparent
   public static func *(z: Complex, w: Complex) -> Complex {
     return Complex(z.x*w.x - z.y*w.y, z.x*w.y + z.y*w.x)
   }
   
-  @inlinable
+  @_transparent
   public static func /(z: Complex, w: Complex) -> Complex {
     // Try the naive expression z/w = z*conj(w) / |w|^2; if we can compute
     // this without over/underflow, everything is fine and the result is
@@ -78,12 +83,12 @@ extension Complex: Numeric {
     return z * (w.conjugate.divided(by: lengthSquared))
   }
   
-  @inlinable
+  @_transparent
   public static func *=(z: inout Complex, w: Complex) {
     z = z * w
   }
   
-  @inlinable
+  @_transparent
   public static func /=(z: inout Complex, w: Complex) {
     z = z / w
   }
@@ -123,6 +128,7 @@ extension Complex: Numeric {
   ///
   /// If such a value cannot be produced (because the phase of zero and infinity is undefined),
   /// `nil` is returned.
+  @inlinable
   public var normalized: Complex? {
     if length.isNormal {
       return self.divided(by: length)
@@ -131,5 +137,31 @@ extension Complex: Numeric {
       return nil
     }
     return self.divided(by: magnitude).normalized
+  }
+  
+  /// The reciprocal of this value, if it can be computed without undue overflow or underflow.
+  ///
+  /// If z.reciprocal is non-nil, you can safely replace division by z with multiplcation by this value. It is
+  /// not advantageous to do this for an isolated division, but if you are dividing many values by a single
+  /// denominator, this will often be a significant performance win.
+  ///
+  /// Typical use looks like this:
+  /// ```
+  /// func divide<T: Real>(data: [Complex<T>], by divisor: Complex<T>) -> [Complex<T>] {
+  ///   // If divisor is well-scaled, use multiply by reciprocal.
+  ///   if let recip = divisor.reciprocal {
+  ///     return data.map { $0 * recip }
+  ///   }
+  ///   // Fallback on using division.
+  ///   return data.map { $0 / divisor }
+  /// }
+  /// ```
+  @inlinable
+  public var reciprocal: Complex? {
+    let recip = 1/self
+    if recip.isNormal || isZero || !isFinite {
+      return recip
+    }
+    return nil
   }
 }

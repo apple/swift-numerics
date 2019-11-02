@@ -1,4 +1,4 @@
-//===--- ComplexTests.swift -----------------------------------*- swift -*-===//
+//===--- ArithmeticTests.swift --------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -53,7 +53,7 @@ func checkDivide<T>(
   return false
 }
 
-final class ComplexTests: XCTestCase {
+final class ArithmeticTests: XCTestCase {
   
   struct Polar<T: Real> {
     let length: T
@@ -98,6 +98,20 @@ final class ComplexTests: XCTestCase {
           XCTFail()
         }
       }
+      // Test reciprocal and normalized:
+      let r = Complex(length: 1/p.length, phase: -p.phase)!
+      if r.isNormal {
+        if relativeError(r, z.reciprocal!) > 16 {
+          print("p = \(p)\nz = \(z)\nz.reciprocal = \(r)")
+          XCTFail()
+        }
+      } else { XCTAssertNil(z.reciprocal) }
+      let n = Complex(length: 1, phase: p.phase)!
+      if relativeError(n, z.normalized!) > 16 {
+        print("p = \(p)\nz = \(z)\nz.normalized = \(n)")
+        XCTFail()
+      }
+      
       // Now test multiplication and division using the polar inputs:
       for q in inputs {
         let w = Complex(length: q.length, phase: q.phase)!
@@ -112,7 +126,9 @@ final class ComplexTests: XCTestCase {
   func testPolar() {
     testPolar(Float.self)
     testPolar(Double.self)
+    #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
     testPolar(Float80.self)
+    #endif
   }
   
   func testBaudinSmith() {
@@ -161,17 +177,4 @@ final class ComplexTests: XCTestCase {
       if checkMultiply(test.b, test.c, expected: test.a, ulps: 1.0) { XCTFail() }
     }
   }
-    
-  static var allTests = [
-    ("testPolar", testPolar),
-    ("testBaudinSmith", testBaudinSmith),
-  ]
 }
-
-#if !(os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
-public func allTests() -> [XCTestCaseEntry] {
-  return [
-    testCase(ComplexTests.allTests),
-  ]
-}
-#endif
