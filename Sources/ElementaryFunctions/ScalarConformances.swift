@@ -91,7 +91,22 @@ extension Double: Real {
   #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
   @_transparent public static func exp10(_ x: Double) -> Double { return libm_exp10(x) }
   #endif
-  @_transparent public static func hypot(_ x: Double, _ y: Double) -> Double { return libm_hypot(x, y) }
+  #if os(macOS) && arch(x86_64)
+  // Workaround for macOS bug (<rdar://problem/56844150>) where hypot can
+  // overflow for values very close to the overflow boundary of the naive
+  // algorithm. Since this is only for macOS, we can just unconditionally
+  // use Float80, which makes the implementation trivial.
+  public static func hypot(_ x: Double, _ y: Double) -> Double {
+    if x.isInfinite || y.isInfinite { return .infinity }
+    let x80 = Float80(x)
+    let y80 = Float80(y)
+    return Double(Float80.sqrt(x80*x80 + y80*y80))
+  }
+  #else
+  @_transparent public static func hypot(_ x: Double, _ y: Double) -> Double {
+    return libm_hypot(x, y)
+  }
+  #endif
   @_transparent public static func gamma(_ x: Double) -> Double { return libm_tgamma(x) }
   @_transparent public static func log2(_ x: Double) -> Double { return libm_log2(x) }
   @_transparent public static func log10(_ x: Double) -> Double { return libm_log10(x) }

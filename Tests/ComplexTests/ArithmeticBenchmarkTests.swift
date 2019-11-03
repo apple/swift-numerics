@@ -26,12 +26,12 @@ extension Complex where RealType == Double {
   }
 }
 
-let wellScaledDoubles: [Complex<Double>] = (0 ..< 1000).map { _ in
+let wellScaledDoubles: [Complex<Double>] = (0 ..< 1024).map { _ in
   Complex(length: Double.random(in: 0.5 ..< 2.0),
           phase: Double.random(in: -.pi ..< .pi))!
 }
 
-let poorlyScaledDoubles: [Complex<Double>] = (0 ..< 1000).map { _ in
+let poorlyScaledDoubles: [Complex<Double>] = (0 ..< 1024).map { _ in
   Complex(
     length: Double(sign: .plus,
                    exponent: .random(in: -970 ... 1023),
@@ -42,7 +42,7 @@ let poorlyScaledDoubles: [Complex<Double>] = (0 ..< 1000).map { _ in
 
 final class ArithmeticBenchmarkTests: XCTestCase {
   
-  func testDivision() {
+  func testDivisionByConstant() {
     let divisor = wellScaledDoubles[0]
     var sum = Complex<Double>.zero
     measure {
@@ -64,7 +64,7 @@ final class ArithmeticBenchmarkTests: XCTestCase {
     print(sum)
   }
   
-  func testDivisionC() {
+  func testDivisionByConstantC() {
     let divisor = wellScaledDoubles[0].ctype
     var sum = Complex<Double>.zero
     measure {
@@ -101,24 +101,50 @@ final class ArithmeticBenchmarkTests: XCTestCase {
     print(sum)
   }
   
-  func testDivisionPoorScaling() {
-    let divisor = poorlyScaledDoubles[0]
+  func testDivision() {
     var sum = Complex<Double>.zero
     measure {
       for _ in 0 ..< 100 {
-        sum = poorlyScaledDoubles.reduce(into: sum) { $0 += $1 / divisor }
+        for i in 0 ..< 1024 {
+          sum += wellScaledDoubles[i] / wellScaledDoubles[(i - 1) & 1023]
+        }
+      }
+    }
+    print(sum)
+  }
+  
+  func testDivisionC() {
+    var sum = Complex<Double>.zero
+    measure {
+      for _ in 0 ..< 100 {
+        for i in 0 ..< 1024 {
+          sum += Complex(libm_cdiv(wellScaledDoubles[i].ctype,
+                                   wellScaledDoubles[(i - 1) & 1023].ctype))
+        }
+      }
+    }
+    print(sum)
+  }
+  
+  func testDivisionPoorScaling() {
+    var sum = Complex<Double>.zero
+    measure {
+      for _ in 0 ..< 100 {
+        for i in 0 ..< 1024 {
+          sum += poorlyScaledDoubles[i] / poorlyScaledDoubles[(i - 1) & 1023]
+        }
       }
     }
     print(sum)
   }
   
   func testDivisionPoorScalingC() {
-    let divisor = poorlyScaledDoubles[0].ctype
     var sum = Complex<Double>.zero
     measure {
       for _ in 0 ..< 100 {
-        sum = poorlyScaledDoubles.reduce(into: sum) {
-          $0 += Complex(libm_cdiv($1.ctype, divisor))
+        for i in 0 ..< 1024 {
+          sum += Complex(libm_cdiv(poorlyScaledDoubles[i].ctype,
+                                   poorlyScaledDoubles[(i - 1) & 1023].ctype))
         }
       }
     }
