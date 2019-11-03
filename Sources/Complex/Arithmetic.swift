@@ -94,8 +94,12 @@ extension Complex: Numeric {
   }
   
   @usableFromInline
+  @_specialize(where RealType == Float)
+  @_specialize(where RealType == Double)
   internal static func rescaledDivide(_ z: Complex, _ w: Complex) -> Complex {
     if z.isZero || !w.isFinite { return .zero }
+    // TODO: detect when RealType is Float and just promote to Double, then
+    // use the naive algorithm.
     let zScale = z.magnitude
     let wScale = w.magnitude
     let zNorm = z.divided(by: zScale)
