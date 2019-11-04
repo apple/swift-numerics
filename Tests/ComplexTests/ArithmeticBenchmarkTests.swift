@@ -42,11 +42,13 @@ let poorlyScaledDoubles: [Complex<Double>] = (0 ..< 1024).map { _ in
 
 final class ArithmeticBenchmarkTests: XCTestCase {
   
+  let iters = 1000
+  
   func testDivisionByConstant() {
     let divisor = wellScaledDoubles[0]
     var sum = Complex<Double>.zero
     measure {
-      for _ in 0 ..< 100 {
+      for _ in 0 ..< iters {
         sum = wellScaledDoubles.reduce(into: sum) { $0 += $1 / divisor }
       }
     }
@@ -57,7 +59,7 @@ final class ArithmeticBenchmarkTests: XCTestCase {
     let recip = wellScaledDoubles[0].reciprocal!
     var sum = Complex<Double>.zero
     measure {
-      for _ in 0 ..< 100 {
+      for _ in 0 ..< iters {
         sum = wellScaledDoubles.reduce(into: sum) { $0 += $1 * recip }
       }
     }
@@ -68,7 +70,7 @@ final class ArithmeticBenchmarkTests: XCTestCase {
     let divisor = wellScaledDoubles[0].ctype
     var sum = Complex<Double>.zero
     measure {
-      for _ in 0 ..< 100 {
+      for _ in 0 ..< iters {
         sum = wellScaledDoubles.reduce(into: sum) {
           $0 += Complex(libm_cdiv($1.ctype, divisor))
         }
@@ -81,7 +83,7 @@ final class ArithmeticBenchmarkTests: XCTestCase {
     let multiplicand = wellScaledDoubles[0]
     var sum = Complex<Double>.zero
     measure {
-      for _ in 0 ..< 100 {
+      for _ in 0 ..< iters {
         sum = wellScaledDoubles.reduce(into: sum) { $0 += $1 * multiplicand }
       }
     }
@@ -92,7 +94,7 @@ final class ArithmeticBenchmarkTests: XCTestCase {
     let multiplicand = wellScaledDoubles[0].ctype
     var sum = Complex<Double>.zero
     measure {
-      for _ in 0 ..< 100 {
+      for _ in 0 ..< iters {
         sum = wellScaledDoubles.reduce(into: sum) {
           $0 += Complex(libm_cmul($1.ctype, multiplicand))
         }
@@ -104,9 +106,9 @@ final class ArithmeticBenchmarkTests: XCTestCase {
   func testDivision() {
     var sum = Complex<Double>.zero
     measure {
-      for _ in 0 ..< 100 {
+      for o in 0 ..< iters {
         for i in 0 ..< 1024 {
-          sum += wellScaledDoubles[i] / wellScaledDoubles[(i - 1) & 1023]
+          sum += wellScaledDoubles[i] / wellScaledDoubles[(i &- o) & 1023]
         }
       }
     }
@@ -116,10 +118,10 @@ final class ArithmeticBenchmarkTests: XCTestCase {
   func testDivisionC() {
     var sum = Complex<Double>.zero
     measure {
-      for _ in 0 ..< 100 {
+      for o in 0 ..< iters {
         for i in 0 ..< 1024 {
           sum += Complex(libm_cdiv(wellScaledDoubles[i].ctype,
-                                   wellScaledDoubles[(i - 1) & 1023].ctype))
+                                   wellScaledDoubles[(i &- o) & 1023].ctype))
         }
       }
     }
@@ -129,9 +131,9 @@ final class ArithmeticBenchmarkTests: XCTestCase {
   func testDivisionPoorScaling() {
     var sum = Complex<Double>.zero
     measure {
-      for _ in 0 ..< 100 {
+      for o in 0 ..< iters {
         for i in 0 ..< 1024 {
-          sum += poorlyScaledDoubles[i] / poorlyScaledDoubles[(i - 1) & 1023]
+          sum += poorlyScaledDoubles[i] / poorlyScaledDoubles[(i &- o) & 1023]
         }
       }
     }
@@ -141,10 +143,10 @@ final class ArithmeticBenchmarkTests: XCTestCase {
   func testDivisionPoorScalingC() {
     var sum = Complex<Double>.zero
     measure {
-      for _ in 0 ..< 100 {
+      for o in 0 ..< iters {
         for i in 0 ..< 1024 {
           sum += Complex(libm_cdiv(poorlyScaledDoubles[i].ctype,
-                                   poorlyScaledDoubles[(i - 1) & 1023].ctype))
+                                   poorlyScaledDoubles[(i &- o) & 1023].ctype))
         }
       }
     }
@@ -152,23 +154,24 @@ final class ArithmeticBenchmarkTests: XCTestCase {
   }
   
   func testMultiplicationPoorScaling() {
-    let multiplicand = poorlyScaledDoubles[0]
     var sum = Complex<Double>.zero
     measure {
-      for _ in 0 ..< 100 {
-        sum = poorlyScaledDoubles.reduce(into: sum) { $0 += $1 * multiplicand }
+      for o in 0 ..< iters {
+        for i in 0 ..< 1024 {
+          sum += poorlyScaledDoubles[i] * poorlyScaledDoubles[(i &- o) & 1023]
+        }
       }
     }
     print(sum)
   }
   
   func testMultiplicationPoorScalingC() {
-    let multiplicand = poorlyScaledDoubles[0].ctype
     var sum = Complex<Double>.zero
     measure {
-      for _ in 0 ..< 100 {
-        sum = poorlyScaledDoubles.reduce(into: sum) {
-          $0 += Complex(libm_cmul($1.ctype, multiplicand))
+      for o in 0 ..< iters {
+        for i in 0 ..< 1024 {
+          sum += Complex(libm_cmul(poorlyScaledDoubles[i].ctype,
+                                   poorlyScaledDoubles[(i &- o) & 1023].ctype))
         }
       }
     }
