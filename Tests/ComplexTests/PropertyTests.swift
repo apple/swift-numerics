@@ -11,7 +11,7 @@
 
 import XCTest
 import Complex
-import ElementaryFunctions
+import Real
 
 final class PropertyTests: XCTestCase {
   

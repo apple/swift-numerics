@@ -11,7 +11,7 @@
 
 import XCTest
 import Complex
-import ElementaryFunctions
+import Real
 
 // TODO: improve this to be a general-purpose complex comparison with tolerance
 func relativeError<T>(_ a: Complex<T>, _ b: Complex<T>) -> T {
