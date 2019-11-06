@@ -1,4 +1,4 @@
-//===--- Implementations.swift --------------------------------*- swift -*-===//
+//===--- Real.swift -------------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -8,6 +8,26 @@
 // See https://swift.org/LICENSE.txt for license information
 //
 //===----------------------------------------------------------------------===//
+
+/// A type that models the real numbers.
+///
+/// Types conforming to this protocol provide the arithmetic and utility operations defined by
+/// the `FloatingPoint` protocol, and provide all of the math functions defined by the
+/// `ElementaryFunctions` and `RealFunctions` protocols. This protocol does not
+/// add any additional conformances itself, but is very useful as a protocol against which to
+/// write generic code. For example, we can naturally write a generic version of the a sigmoid
+/// function:
+/// ```
+/// func sigmoid<T: Real>(_ x: T) -> T {
+///   return 1/(1 + .exp(-x))
+/// }
+/// ```
+/// See Also:
+/// -
+/// - `ElementaryFunctions`
+/// - `RealFunctions`
+public protocol Real: FloatingPoint, RealFunctions {
+}
 
 //  While `Real` does not provide any additional customization points,
 //  it does allow us to default the implementation of a few operations,

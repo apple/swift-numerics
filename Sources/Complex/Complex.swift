@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import ElementaryFunctions
+import Real
 
 /// A complex number represented by real and imaginary parts.
 ///

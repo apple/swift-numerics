@@ -16,18 +16,18 @@ let package = Package(
   name: "swift-numerics",
   products: [
     .library(name: "Complex", targets: ["Complex"]),
-    .library(name: "ElementaryFunctions", targets: ["ElementaryFunctions"]),
     .library(name: "Numerics", targets: ["Numerics"]),
+    .library(name: "Real", targets: ["Real"]),
   ],
   dependencies: [
   ],
   targets: [
-    .target(name: "Complex", dependencies: ["ElementaryFunctions"]),
-    .target(name: "ElementaryFunctions", dependencies: ["NumericsShims"]),
-    .target(name: "Numerics", dependencies: ["Complex", "ElementaryFunctions"]),
+    .target(name: "Complex", dependencies: ["Real"]),
+    .target(name: "Numerics", dependencies: ["Complex", "Real"]),
     .target(name: "NumericsShims", dependencies: []),
+    .target(name: "Real", dependencies: ["NumericsShims"]),
     
-    .testTarget(name: "ComplexTests", dependencies: ["Complex"]),
-    .testTarget(name: "ElementaryFunctionTests", dependencies: ["ElementaryFunctions"]),
+    .testTarget(name: "ComplexTests", dependencies: ["Complex", "NumericsShims"]),
+    .testTarget(name: "RealTests", dependencies: ["Real"]),
   ]
 )

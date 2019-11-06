@@ -32,13 +32,18 @@
 /// - Power and root functions:
 ///   `pow`, `sqrt`, and `root`.
 ///
-/// There is a second protocol, `RealFunctions`, which refines `ElementaryFunctions`
-/// and includes additional operations which are more commonly used specifically with real
-/// number types.
+/// There are two other protocols that you are more likely to want to use directly:
+///
+/// `RealFunctions` refines `ElementaryFunctions` and includes
+/// additional functions specific to real number types.
+///
+/// `Real` conforms to `RealFunctions` and `FloatingPoint`, and is the
+/// protocol that you will want to use most often for generic code.
 ///
 /// See Also:
 /// -
 /// - `RealFunctions`
+/// - `Real`
 ///
 /// [elfn]: http://en.wikipedia.org/wiki/Elementary_function
 public protocol ElementaryFunctions {
@@ -310,125 +315,4 @@ public protocol ElementaryFunctions {
   /// - `sqrt()`
   ///
   static func root(_ x: Self, _ n: Int) -> Self
-}
-
-public protocol RealFunctions: ElementaryFunctions {
-  /// `atan(y/x)`, with sign selected according to the quadrant of `(x, y)`.
-  ///
-  /// See also:
-  /// -
-  /// - `atan()`
-  static func atan2(y: Self, x: Self) -> Self
-  
-  /// The error function evaluated at `x`.
-  ///
-  /// See also:
-  /// -
-  /// - `erfc()`
-  static func erf(_ x: Self) -> Self
-  
-  /// The complimentary error function evaluated at `x`.
-  ///
-  /// See also:
-  /// -
-  /// - `erf()`
-  static func erfc(_ x: Self) -> Self
-  
-  /// 2^x
-  ///
-  /// See also:
-  /// -
-  /// - `exp()`
-  /// - `expMinusOne()`
-  /// - `exp10()`
-  /// - `log2()`
-  /// - `pow()`
-  static func exp2(_ x: Self) -> Self
-  
-  /// 10^x
-  ///
-  /// See also:
-  /// -
-  /// - `exp()`
-  /// - `expMinusOne()`
-  /// - `exp2()`
-  /// - `log10()`
-  /// - `pow()`
-  static func exp10(_ x: Self) -> Self
-  
-  /// `sqrt(x*x + y*y)`, computed in a manner that avoids spurious overflow or underflow.
-  static func hypot(_ x: Self, _ y: Self) -> Self
-  
-  /// The gamma function Γ(x).
-  ///
-  /// See also:
-  /// -
-  /// - `logGamma()`
-  /// - `signGamma()`
-  static func gamma(_ x: Self) -> Self
-  
-  /// The base-2 logarithm of `x`.
-  ///
-  /// See also:
-  /// -
-  /// - `exp2()`
-  /// - `log()`
-  /// - `log(onePlus:)`
-  /// - `log10()`
-  static func log2(_ x: Self) -> Self
-  
-  /// The base-10 logarithm of `x`.
-  ///
-  /// See also:
-  /// -
-  /// - `exp10()`
-  /// - `log()`
-  /// - `log(onePlus:)`
-  /// - `log2()`
-  static func log10(_ x: Self) -> Self
-  
-#if !os(Windows)
-  /// The logarithm of the absolute value of the gamma function, log(|Γ(x)|).
-  ///
-  /// Not available on Windows targets.
-  ///
-  /// See also:
-  /// -
-  /// - `gamma()`
-  /// - `signGamma()`
-  static func logGamma(_ x: Self) -> Self
-  
-  /// The sign of the gamma function, Γ(x).
-  ///
-  /// For `x >= 0`, `signGamma(x)` is `.plus`. For negative `x`, `signGamma(x)` is `.plus`
-  /// when `x` is an integer, and otherwise it is `.minus` whenver `trunc(x)` is even, and `.plus`
-  /// when `trunc(x)` is odd.
-  ///
-  /// This function is used together with `logGamma`, which computes the logarithm of the
-  /// absolute value of Γ(x), to recover the sign information.
-  ///
-  /// Not available on Windows targets.
-  ///
-  /// See also:
-  /// -
-  /// - `gamma()`
-  /// - `logGamma()`
-  static func signGamma(_ x: Self) -> FloatingPointSign
-#endif
-}
-
-/// A type that models the real numbers.
-///
-/// Types conforming to this protocol provide the arithmetic and utility operations defined by
-/// the `FloatingPoint` protocol, and provide all of the math functions defined by the
-/// `ElementaryFunctions` and `RealFunctions` protocols. This protocol does not
-/// add any additional conformances itself, but is very useful as a protocol against which to
-/// write generic code. For example, we can naturally write a generic version of the a sigmoid
-/// function:
-/// ```
-/// func sigmoid<T: Real>(_ x: T) -> T {
-///   return 1/(1 + .exp(-x))
-/// }
-/// ```
-public protocol Real: FloatingPoint, RealFunctions {
 }

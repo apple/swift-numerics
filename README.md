@@ -51,7 +51,7 @@ To fix a bug, or make smaller improvements:
 Questions about how to use Swift Numerics modules, or issues that are not clearly bugs can be discussed in the "Swift Numerics" section of the Swift forums.
 
 ## Modules
-1. [Elementary Functions](Sources/ElementaryFunctions/README.md)
+1. [Real](Sources/Real/README.md)
 2. [Complex](Sources/Complex/README.md)
 
 ## Future expansion

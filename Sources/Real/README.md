@@ -1,4 +1,4 @@
-# Elementary Functions
+# Real
 
 This module implements [SE-0246].
 It is implemented in Swift Numerics to work around difficulties that blocked adding these operations to the standard library for 5.1:
@@ -11,9 +11,9 @@ It is implemented in Swift Numerics to work around difficulties that blocked add
 
 Placing this module in Swift Numerics first gives the community a chance to address some of the compiler limitations that this feature ran into *before* it lands in the standard library (avoiding unnecessary source churn for projects that use these features), while also making it available *now*, including back-deployment to older Apple OS targets.
 
-## Using Elementary Functions
+## Using Real
 
-First, either import `ElementaryFunctions` directly or import the `Numerics` umbrella module.
+First, either import `Real` directly or import the `Numerics` umbrella module.
 This makes all the elementary  functions available on `Float`, `Double`, and--on platforms that support it--`Float80`:
 ```
 import Numerics
