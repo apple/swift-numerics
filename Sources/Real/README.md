@@ -1,43 +1,12 @@
 # Real
 
-This module implements [SE-0246].
-It is implemented in Swift Numerics to work around difficulties that blocked adding these operations to the standard library for 5.1:
+[SE-0246] proposed an API for "basic math functions" that would make operations like sine and logarithm available in generic contexts.
+It was accepted, but because of limitations in the compiler, the API could not be added to the standard library in a source-stable manner.
+The `Real` [module][Real] provides that API as a separate module so that you can use it right away to get access to the improved API for these operations in your projects.
 
-- Swift does not yet have a way to back-deploy protocol conformances; this prevents making this useful feature available on older Apple OS targets.
-- The lack of means to back-deploy prevents obsoleting the existing concrete math functions defined in the Darwin (Apple platforms), Glibc (Linux), and MSVCRT (Windows) modules.
-- There is an outstanding bug with name resolution, which causes the new static functions (`Float.sin`) to shadow the existing free functions (`sin(_ x: Float) -> Float`) even in contexts where static functions are not allowed, leading to a number of spurious errors.
-  See https://github.com/apple/swift/pull/25316 for discussion of how this might be addressed in the future
-- There are some typechecker performance regressions (partially resulting from the issues described above).
-
-Placing this module in Swift Numerics first gives the community a chance to address some of the compiler limitations that this feature ran into *before* it lands in the standard library (avoiding unnecessary source churn for projects that use these features), while also making it available *now*, including back-deployment to older Apple OS targets.
-
-## Using Real
-
-First, either import `Real` directly or import the `Numerics` umbrella module.
-This makes all the elementary  functions available on `Float`, `Double`, and--on platforms that support it--`Float80`:
-```
-import Numerics
-
-func sigmoid(_ x: Double) -> Double {
-  1 / (1 + Double.exp(-x))
-}
-```
-As always, in many contexts we can elide the explicit type on the static method, which yields a more fluent alternative style:
-```
-func sigmoid(_ x: Double) -> Double {
-  1 / (1 + .exp(-x))
-}
-```
-When writing generic code, you will most often want to use the `Real` protocol, which implies conformance to `ElementaryFunctions`, `RealFunctions`, and `FloatingPoint`:
-```
-func sigmoid<T: Real>(_ x: T) -> T {
-  1 / (1 + .exp(-x))
-}
-```
 ## Protocols and Methods
 
-Types conforming to `ElementaryFunctions`  provide the following static methods:
-
+The module defines three protocols. The most general is `ElementaryFunctions`, which makes the following functions available:
 - Exponential functions: `exp`, `expMinusOne`
 - Logarithmic functions: `log`, `log(onePlus:)`
 - Trigonometric functions: `cos`, `sin`, `tan`
@@ -46,21 +15,52 @@ Types conforming to `ElementaryFunctions`  provide the following static methods:
 - Inverse hyperbolic functions: `acosh`, `asinh`, `atanh`
 - Power and root functions: `pow`, `sqrt`, `root`
 
-The protocol `RealFunctions` refines `ElementaryFunctions`, and adds the following static methods, which either only make sense for real types, or are unusually difficult to implement well for arbitrary types:
-
+The `RealFunctions` protocol refines `ElementaryFunctions`, and adds operations that are difficult to define or implement over fields more general than the real numbers:
 - `atan2(y:x:)`, which computes `atan(y/x)` with sign chosen by the quadrant of the point `(x,y)` in the Cartesian plane.
 - `hypot`, which computes `sqrt(x*x + y*y)` without intermediate overflow or underflow.
 - `erf` and `erfc`, the [error function][ErrorFunction] and its complement.
 - Exponential functions: `exp2` and `exp10`
 - Logarithmetic functions: `log2` and `log10`
 - Gamma functions: `gamma`, `logGamma`, and `signGamma`, which evaluate the [gamma function][GammaFunction], its logarithm, and its sign.
-  Note that the Windows runtime does not implement the  `lgamma_r` or `lgamma` C functions, so `logGamma` and `signGamma` are not available when targeting Windows.
 
-The protocol `Real` further refines `RealFunctions`, adding conformance to `FloatingPoint` and no additional operations.
-This is the protocol that you will want to use most often while writing generic code; it provides a good set of useful operations without being overly restrictive.
-In particular, algorithms written against `Real` will work with `Float`, `Double` and `Float80`.
+The protocol that you will use most often is `Real`, which describes a floating-point type equipped with the full set of basic math functions.
+This is a great protocol to use in writing generic code, because it has all the basics that you need to implement most numeric functions.
 
-Further details can be found in the [SE-0246 proposal document][SE-0246].
+## Using Real
+
+First, either import `Real` directly or import the `Numerics` umbrella module.
+
+Suppose we were experimenting with some basic machine learning, and needed a generic [sigmoid function][Sigmoid] activation function:
+
+```swift
+import Numerics
+
+func sigmoid<T: Real>(_ x: T) -> T {
+  1 / (1 + .exp(-x))
+}
+```
+
+Or suppose we were implementing a DFT, and wanted to precompute weights for the transform; DFT weights are roots of unity:
+
+```swift
+import Numerics
+
+extension Real {
+  // The real and imaginary parts of e^{-2πik/n}
+  static func dftWeight(k: Int, n: Int) -> (r: Self, i: Self) {
+    precondition(0 <= k && k < n, "k is out of range")
+    guard let N = Self(exactly: n) else {
+      preconditionFailure("n cannot be represented exactly.")
+    }
+    let theta = -2 * .pi * (Self(k) / N)
+    return (r: .cos(theta), i: .sin(theta))
+  }
+}
+```
+
+This gives us an implementation that works for `Float`, `Double`, and `Float80` if the target supports it.
+When new basic floating-point types are added to Swift, like `Float16` or `Float128`, it will work for them as well.
+Not having this protocol is a significant missing feature for numerical computing in Swift, and I'm really looking forward to seeing what people do with it.
 
 ### Dependencies:
 - The C standard math library (`libm`) via the `NumericShims` target.
