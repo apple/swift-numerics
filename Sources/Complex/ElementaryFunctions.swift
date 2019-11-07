@@ -10,10 +10,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-import ElementaryFunctions
+import Real
 
 extension Complex: ElementaryFunctions {
-  
   // MARK: - exp-like functions
   /// Checks if x is bounded away overflowing exp(x).
   ///
@@ -39,15 +38,15 @@ extension Complex: ElementaryFunctions {
   internal static func expNearOverflow(_ z: Complex) -> Complex {
     let xm1 = z.x - 1
     let y = z.y
-    let r = Complex(.cos(y), .sin(y)).scaled(by: .exp(1))
-    return r.scaled(by: .exp(xm1))
+    let r = Complex(.cos(y), .sin(y)).multiplied(by: .exp(1))
+    return r.multiplied(by: .exp(xm1))
   }
   
   // exp(x + iy) = exp(x)(cos(y) + i sin(y))
   @inlinable
   public static func exp(_ z: Complex) -> Complex {
     guard expIsSafe(z.x) else { return expNearOverflow(z) }
-    return Complex(.cos(z.y), .sin(z.y)).scaled(by: .exp(z.x))
+    return Complex(.cos(z.y), .sin(z.y)).multiplied(by: .exp(z.x))
   }
   
   // exp(x + iy) - 1 = (exp(x) cos(y) - 1) + i exp(x) sin(y)
@@ -61,11 +60,11 @@ extension Complex: ElementaryFunctions {
   // This reduces the problem to computing cos(y) - 1 accurately, which
   // we can do as -2*sin(y/2)^2.
   @inlinable
-  public static func expm1(_ z: Complex) -> Complex {
+  public static func expMinusOne(_ z: Complex) -> Complex {
     // If exp(z) is close to the overflow boundary, we don't need to
     // worry about the m1 part; we're just computing exp(z).
     guard expIsSafe(z.x) else { return expNearOverflow(z) }
-    let expm1x = RealType.expm1(z.x)
+    let expm1x = RealType.expMinusOne(z.x)
     let expx = 1 + expm1x
     let sinyo2 = RealType.sin(z.y/2)
     let cosm1y = -2*sinyo2*sinyo2
@@ -111,11 +110,11 @@ extension Complex: ElementaryFunctions {
     // We're in the tiny range where z is finite but z.magnitude
     // overflows. Scale down, compute the log, add scale factor.
     let scale: RealType = .maximum(abs(z.x), abs(z.y))
-    let w = z.unscaled(by: scale)
-    return Complex(.log(scale) + .log(w.unsafeMagnitudeSquared)/2, z.phase)
+    let w = z.divided(by: scale)
+    return Complex(.log(scale) + .log(w.unsafeLengthSquared)/2, z.phase)
   }
   
-  public static func log1p(_ z: Complex) -> Complex {
+  public static func log(onePlus z: Complex) -> Complex {
     fatalError()
   }
   
@@ -157,12 +156,12 @@ extension Complex: ElementaryFunctions {
     // TODO: this implementation is not quite correct, because n may be
     // rounded in conversion to RealType. This only effects very extreme
     // cases, so we'll leave it alone for now.
-    return exp(log(z).scaled(by: RealType(n)))
+    return exp(log(z).multiplied(by: RealType(n)))
   }
   
   public static func sqrt(_ z: Complex) -> Complex {
-    let magnitudeSquared = z.unsafeMagnitudeSquared
-    if magnitudeSquared.isNormal {
+    let lengthSquared = z.unsafeLengthSquared
+    if lengthSquared.isNormal {
       // If |z|^2 doesn't overflow, then define u and v by:
       //
       //    u = sqrt((|z|+|x|)/2)
@@ -170,7 +169,7 @@ extension Complex: ElementaryFunctions {
       //
       // If x is positive, the result is just w = (u, v). If x is negative,
       // the result is (|v|, copysign(u, y)) instead.
-      let norm = RealType.sqrt(magnitudeSquared)
+      let norm = RealType.sqrt(lengthSquared)
       let u = RealType.sqrt((norm + abs(z.x))/2)
       let v: RealType = z.y / (2*u)
       if z.x.sign == .plus {
@@ -185,7 +184,7 @@ extension Complex: ElementaryFunctions {
     // z is finite but badly-scaled. Rescale and replay by factoring out
     // the larger of x and y.
     let scale = RealType.maximum(abs(z.x), abs(z.y))
-    return Complex.sqrt(z.unscaled(by: scale)).scaled(by: .sqrt(scale))
+    return Complex.sqrt(z.divided(by: scale)).multiplied(by: .sqrt(scale))
   }
   
   public static func root(_ z: Complex, _ n: Int) -> Complex {
@@ -193,6 +192,6 @@ extension Complex: ElementaryFunctions {
     // TODO: this implementation is not quite correct, because n may be
     // rounded in conversion to RealType. This only effects very extreme
     // cases, so we'll leave it alone for now.
-    return exp(log(z).unscaled(by: RealType(n)))
+    return exp(log(z).divided(by: RealType(n)))
   }
 }
