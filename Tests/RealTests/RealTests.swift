@@ -42,6 +42,19 @@ func sanityCheck<T>(_ expected: TestLiteralType, _ actual: T,
             file: file, line: line)
 }
 
+internal extension ActivationFunctions where Self: BinaryFloatingPoint {
+  static func activationFunctionsTests() {
+    sanityCheck(1.1863995522992575361931268186727044683, Self.relu(1.1863995522992575361931268186727044683))
+    sanityCheck(0, Self.relu(-1.1863995522992575361931268186727044683))
+    sanityCheck(1.1863995522992575361931268186727044683, Self.relu(1.1863995522992575361931268186727044683))
+    sanityCheck(0, Self.relu(-1.1863995522992575361931268186727044683))
+    sanityCheck(0.99995380082587093497, Self.sigmoid(9.9825024357892791009427857298719857298))
+    sanityCheck(0.77085108320250968005, Self.sigmoid(1.2131231234123514252123412345123512351))
+    sanityCheck(0.22914891679749031995, Self.sigmoid(-1.2131231234123514252123412345123512351))
+    sanityCheck(0.0068101855230795781172, Self.sigmoid(-4.9825024357892791009427857298719857298))
+  }
+}
+
 internal extension ElementaryFunctions where Self: BinaryFloatingPoint {
   static func elementaryFunctionTests() {
     sanityCheck(1.1863995522992575361931268186727044683, Self.acos(0.375))
@@ -89,11 +102,13 @@ internal extension Real where Self: BinaryFloatingPoint {
 final class ElementaryFunctionTests: XCTestCase {
   
   func testFloat() {
+    Float.activationFunctionsTests()
     Float.elementaryFunctionTests()
     Float.realFunctionTests()
   }
   
   func testDouble() {
+    Double.activationFunctionsTests()
     Double.elementaryFunctionTests()
     Double.realFunctionTests()
   }
@@ -101,8 +116,46 @@ final class ElementaryFunctionTests: XCTestCase {
   
   #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
+    Float80.activationFunctionsTests()
     Float80.elementaryFunctionTests()
     Float80.realFunctionTests()
+  }
+  
+  static var allTests = [
+    ("testFloat", testFloat),
+    ("testDouble", testDouble),
+    ("testFloat80", testFloat80),
+  ]
+  #else
+  static var allTests = [
+    ("testFloat", testFloat),
+    ("testDouble", testDouble),
+  ]
+  #endif
+}
+
+#if !(os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
+public func allTests() -> [XCTestCaseEntry] {
+  return [
+    testCase(ComplexTests.allTests),
+  ]
+}
+#endif
+
+final class ActivationFunctionTests: XCTestCase {
+  
+  func testFloat() {
+    Float.activationFunctionsTests()
+  }
+  
+  func testDouble() {
+    Double.activationFunctionsTests()
+  }
+  
+  
+  #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+  func testFloat80() {
+    Float80.activationFunctionsTests()
   }
   
   static var allTests = [
