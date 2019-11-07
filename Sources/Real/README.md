@@ -6,7 +6,7 @@ The `Real` [module][Real] provides that API as a separate module so that you can
 
 ## Protocols and Methods
 
-The module defines three protocols. The most general is `ElementaryFunctions`, which makes the following functions available:
+The module defines four protocols. The most general is `ElementaryFunctions`, which makes the following functions available:
 - Exponential functions: `exp`, `expMinusOne`
 - Logarithmic functions: `log`, `log(onePlus:)`
 - Trigonometric functions: `cos`, `sin`, `tan`
@@ -15,7 +15,10 @@ The module defines three protocols. The most general is `ElementaryFunctions`, w
 - Inverse hyperbolic functions: `acosh`, `asinh`, `atanh`
 - Power and root functions: `pow`, `sqrt`, `root`
 
-The `RealFunctions` protocol refines `ElementaryFunctions`, and adds operations that are difficult to define or implement over fields more general than the real numbers:
+The `ActivationFunctions` is yet a very little protocol now, only two functions available:
+- `relu` and `sigmoid`
+
+The `RealFunctions` protocol refines `ElementaryFunctions` and `ActivationFunctions`, adds operations that are difficult to define or implement over fields more general than the real numbers:
 - `atan2(y:x:)`, which computes `atan(y/x)` with sign chosen by the quadrant of the point `(x,y)` in the Cartesian plane.
 - `hypot`, which computes `sqrt(x*x + y*y)` without intermediate overflow or underflow.
 - `erf` and `erfc`, the [error function][ErrorFunction] and its complement.
