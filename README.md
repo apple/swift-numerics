@@ -10,13 +10,13 @@ These modules fall broadly in two categories:
 There is some overlap between these two categories, and API that begins in the first category may migrate to the second as it matures and new uses are discovered.
 
 Swift Numerics modules are fine-grained; if you need support for Complex numbers, you can import the Complex module without pulling in everything else in the library as well:
-```
+```swift
 import Complex
 
 let z = Complex<Double>.i
 ```
 However, there is also a top-level `Numerics` module that simply re-exports the complete public interface of swift-numerics:
-```
+```swift
 import Numerics
 
 // All swift-numerics API is now available
