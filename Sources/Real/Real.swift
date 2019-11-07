@@ -88,4 +88,14 @@ extension Real {
   public static func sqrt(_ x: Self) -> Self {
     return x.squareRoot()
   }
+    
+  @_transparent
+  public static func relu(_ x: Self) -> Self {
+    return max(0, x)
+  }
+
+  @_transparent
+  public static func sigmoid(_ x: Self) -> Self {
+    return Self(1) / (Self(1) + exp(-x))
+  }
 }

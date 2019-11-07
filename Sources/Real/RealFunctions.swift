@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-public protocol RealFunctions: ElementaryFunctions {
+public protocol RealFunctions: ElementaryFunctions, ActivationFunctions {
   /// `atan(y/x)`, with sign selected according to the quadrant of `(x, y)`.
   ///
   /// See also:
