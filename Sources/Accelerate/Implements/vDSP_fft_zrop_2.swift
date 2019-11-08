@@ -25,15 +25,22 @@
 
 @inlinable
 @inline(__always)
-func vDSP_fft_zrop_2<T: FloatingPoint>(_ input: UnsafePointer<T>, _ in_stride: Int, _ _real: UnsafeMutablePointer<T>, _ _imag: UnsafeMutablePointer<T>) {
+func vDSP_fft_zrop_forward_2<T: FloatingPoint>(_ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>) {
     
-    var input = input
+    let a = in_real.pointee
+    let b = in_imag.pointee
     
-    let a = input.pointee
-    input += in_stride
+    out_real.pointee = a + b
+    out_imag.pointee = a - b
+}
+
+@inlinable
+@inline(__always)
+func vDSP_fft_zrop_inverse_2<T: FloatingPoint>(_ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>) {
     
-    let b = input.pointee
+    let a = in_real.pointee
+    let b = in_imag.pointee
     
-    _real.pointee = a + b
-    _imag.pointee = a - b
+    out_real.pointee = a + b
+    out_imag.pointee = a - b
 }

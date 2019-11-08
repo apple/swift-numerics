@@ -13,27 +13,27 @@ import Real
 
 @inlinable
 @inline(__always)
-func vDSP_fft_zop_imp_2<T: Real>(_ real: UnsafePointer<T>, _ imag: UnsafePointer<T>, _ in_stride: Int, _ _real: UnsafeMutablePointer<T>, _ _imag: UnsafeMutablePointer<T>, _ out_stride: Int) {
+func vDSP_fft_zop_imp_2<T: Real>(_ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int) {
     
-    var real = real
-    var imag = imag
-    var _real = _real
-    var _imag = _imag
+    var in_real = in_real
+    var in_imag = in_imag
+    var out_real = out_real
+    var out_imag = out_imag
     
-    let a = real.pointee
-    let b = imag.pointee
-    real += in_stride
-    imag += in_stride
+    let a = in_real.pointee
+    let b = in_imag.pointee
+    in_real += in_stride
+    in_imag += in_stride
     
-    let c = real.pointee
-    let d = imag.pointee
+    let c = in_real.pointee
+    let d = in_imag.pointee
     
-    _real.pointee = a + c
-    _imag.pointee = b + d
-    _real += out_stride
-    _imag += out_stride
+    out_real.pointee = a + c
+    out_imag.pointee = b + d
+    out_real += out_stride
+    out_imag += out_stride
     
-    _real.pointee = a - c
-    _imag.pointee = b - d
+    out_real.pointee = a - c
+    out_imag.pointee = b - d
     
 }

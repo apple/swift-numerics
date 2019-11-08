@@ -13,50 +13,50 @@ import Real
 
 @inlinable
 @inline(__always)
-func vDSP_fft_zop_imp_8<T: BinaryFloatingPoint>(_ real: UnsafePointer<T>, _ imag: UnsafePointer<T>, _ in_stride: Int, _ _real: UnsafeMutablePointer<T>, _ _imag: UnsafeMutablePointer<T>, _ out_stride: Int) {
+func vDSP_fft_zop_imp_8<T: BinaryFloatingPoint>(_ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int) {
     
-    var real = real
-    var imag = imag
-    var _real = _real
-    var _imag = _imag
+    var in_real = in_real
+    var in_imag = in_imag
+    var out_real = out_real
+    var out_imag = out_imag
     
-    let a1 = real.pointee
-    let a2 = imag.pointee
-    real += in_stride
-    imag += in_stride
+    let a1 = in_real.pointee
+    let a2 = in_imag.pointee
+    in_real += in_stride
+    in_imag += in_stride
     
-    let e1 = real.pointee
-    let e2 = imag.pointee
-    real += in_stride
-    imag += in_stride
+    let e1 = in_real.pointee
+    let e2 = in_imag.pointee
+    in_real += in_stride
+    in_imag += in_stride
     
-    let c1 = real.pointee
-    let c2 = imag.pointee
-    real += in_stride
-    imag += in_stride
+    let c1 = in_real.pointee
+    let c2 = in_imag.pointee
+    in_real += in_stride
+    in_imag += in_stride
     
-    let g1 = real.pointee
-    let g2 = imag.pointee
-    real += in_stride
-    imag += in_stride
+    let g1 = in_real.pointee
+    let g2 = in_imag.pointee
+    in_real += in_stride
+    in_imag += in_stride
     
-    let b1 = real.pointee
-    let b2 = imag.pointee
-    real += in_stride
-    imag += in_stride
+    let b1 = in_real.pointee
+    let b2 = in_imag.pointee
+    in_real += in_stride
+    in_imag += in_stride
     
-    let f1 = real.pointee
-    let f2 = imag.pointee
-    real += in_stride
-    imag += in_stride
+    let f1 = in_real.pointee
+    let f2 = in_imag.pointee
+    in_real += in_stride
+    in_imag += in_stride
     
-    let d1 = real.pointee
-    let d2 = imag.pointee
-    real += in_stride
-    imag += in_stride
+    let d1 = in_real.pointee
+    let d2 = in_imag.pointee
+    in_real += in_stride
+    in_imag += in_stride
     
-    let h1 = real.pointee
-    let h2 = imag.pointee
+    let h1 = in_real.pointee
+    let h2 = in_imag.pointee
     
     let a3 = a1 + b1
     let a4 = a2 + b2
@@ -99,41 +99,41 @@ func vDSP_fft_zop_imp_8<T: BinaryFloatingPoint>(_ real: UnsafePointer<T>, _ imag
     let k = M_SQRT1_2 * (h5 - h6)
     let l = M_SQRT1_2 * (h6 + h5)
     
-    _real.pointee = a5 + e5
-    _imag.pointee = a6 + e6
-    _real += out_stride
-    _imag += out_stride
+    out_real.pointee = a5 + e5
+    out_imag.pointee = a6 + e6
+    out_real += out_stride
+    out_imag += out_stride
     
-    _real.pointee = b5 + i
-    _imag.pointee = b6 + j
-    _real += out_stride
-    _imag += out_stride
+    out_real.pointee = b5 + i
+    out_imag.pointee = b6 + j
+    out_real += out_stride
+    out_imag += out_stride
     
-    _real.pointee = c5 + g6
-    _imag.pointee = c6 - g5
-    _real += out_stride
-    _imag += out_stride
+    out_real.pointee = c5 + g6
+    out_imag.pointee = c6 - g5
+    out_real += out_stride
+    out_imag += out_stride
     
-    _real.pointee = d5 - k
-    _imag.pointee = d6 - l
-    _real += out_stride
-    _imag += out_stride
+    out_real.pointee = d5 - k
+    out_imag.pointee = d6 - l
+    out_real += out_stride
+    out_imag += out_stride
     
-    _real.pointee = a5 - e5
-    _imag.pointee = a6 - e6
-    _real += out_stride
-    _imag += out_stride
+    out_real.pointee = a5 - e5
+    out_imag.pointee = a6 - e6
+    out_real += out_stride
+    out_imag += out_stride
     
-    _real.pointee = b5 - i
-    _imag.pointee = b6 - j
-    _real += out_stride
-    _imag += out_stride
+    out_real.pointee = b5 - i
+    out_imag.pointee = b6 - j
+    out_real += out_stride
+    out_imag += out_stride
     
-    _real.pointee = c5 - g6
-    _imag.pointee = c6 + g5
-    _real += out_stride
-    _imag += out_stride
+    out_real.pointee = c5 - g6
+    out_imag.pointee = c6 + g5
+    out_real += out_stride
+    out_imag += out_stride
     
-    _real.pointee = d5 + k
-    _imag.pointee = d6 + l
+    out_real.pointee = d5 + k
+    out_imag.pointee = d6 + l
 }

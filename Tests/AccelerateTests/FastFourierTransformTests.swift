@@ -58,7 +58,10 @@ final class FastFourierTransformTests: XCTestCase {
         var out_real: [Double] = Array(repeating: 0, count: 1)
         var out_imag: [Double] = Array(repeating: 0, count: 1)
         
-        vDSP_fft_zrop(1, in_real, 1, &out_real, &out_imag, 1)
+        in_real.withUnsafeBufferPointer { _in_real in
+            guard let in_real = _in_real.baseAddress else { return }
+            vDSP_fft_zrop(1, in_real, in_real + 1, 2, &out_real, &out_imag, 1, .forward)
+        }
         
         var check = _FDFT(zip(in_real, in_imag).map(Complex.init))
         
@@ -115,7 +118,10 @@ final class FastFourierTransformTests: XCTestCase {
         var out_real: [Double] = Array(repeating: 0, count: 2)
         var out_imag: [Double] = Array(repeating: 0, count: 2)
         
-        vDSP_fft_zrop(2, in_real, 1, &out_real, &out_imag, 1)
+        in_real.withUnsafeBufferPointer { _in_real in
+            guard let in_real = _in_real.baseAddress else { return }
+            vDSP_fft_zrop(2, in_real, in_real + 1, 2, &out_real, &out_imag, 1, .forward)
+        }
         
         var check = _FDFT(zip(in_real, in_imag).map(Complex.init))
         
@@ -172,7 +178,10 @@ final class FastFourierTransformTests: XCTestCase {
         var out_real: [Double] = Array(repeating: 0, count: 4)
         var out_imag: [Double] = Array(repeating: 0, count: 4)
         
-        vDSP_fft_zrop(3, in_real, 1, &out_real, &out_imag, 1)
+        in_real.withUnsafeBufferPointer { _in_real in
+            guard let in_real = _in_real.baseAddress else { return }
+            vDSP_fft_zrop(3, in_real, in_real + 1, 2, &out_real, &out_imag, 1, .forward)
+        }
         
         var check = _FDFT(zip(in_real, in_imag).map(Complex.init))
         
@@ -229,7 +238,10 @@ final class FastFourierTransformTests: XCTestCase {
         var out_real: [Double] = Array(repeating: 0, count: 8)
         var out_imag: [Double] = Array(repeating: 0, count: 8)
         
-        vDSP_fft_zrop(4, in_real, 1, &out_real, &out_imag, 1)
+        in_real.withUnsafeBufferPointer { _in_real in
+            guard let in_real = _in_real.baseAddress else { return }
+            vDSP_fft_zrop(4, in_real, in_real + 1, 2, &out_real, &out_imag, 1, .forward)
+        }
         
         var check = _FDFT(zip(in_real, in_imag).map(Complex.init))
         
