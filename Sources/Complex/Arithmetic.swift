@@ -30,11 +30,6 @@ extension Complex: AdditiveArithmetic {
   public static func -=(z: inout Complex, w: Complex) {
     z = z - w
   }
-  
-  @_transparent
-  public static prefix func -(z: Complex) -> Complex {
-    return Complex(-z.x, -z.y)
-  }
 }
 
 // MARK: - Vector space structure
@@ -167,3 +162,5 @@ extension Complex: Numeric {
     return nil
   }
 }
+
+extension Complex: SignedNumeric {}
