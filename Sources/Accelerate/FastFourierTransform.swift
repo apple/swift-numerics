@@ -285,8 +285,15 @@ func vDSP_fft_zrip_inverse_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ re
 @_transparent
 public func vDSP_fft_zop<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int, _ direction: FFTDirection) {
     switch direction {
-    case .forward: vDSP_fft_zop_imp(log2N, in_real, in_imag, in_stride, out_real, out_imag, out_stride)
-    case .inverse: vDSP_fft_zop_imp(log2N, in_imag, in_real, in_stride, out_imag, out_real, out_stride)
+    case .forward:
+        
+        // perform the forward transform.
+        vDSP_fft_zop_imp(log2N, in_real, in_imag, in_stride, out_real, out_imag, out_stride)
+        
+    case .inverse:
+        
+        // we can perform the inverse transform by swapping the real and imaginary.
+        vDSP_fft_zop_imp(log2N, in_imag, in_real, in_stride, out_imag, out_real, out_stride)
     }
 }
 
@@ -373,8 +380,15 @@ func vDSP_fft_zop_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: Un
 @_transparent
 public func vDSP_fft_zip<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int, _ direction: FFTDirection) {
     switch direction {
-    case .forward: vDSP_fft_zip_imp(log2N, real, imag, stride)
-    case .inverse: vDSP_fft_zip_imp(log2N, imag, real, stride)
+    case .forward:
+        
+        // perform the forward transform.
+        vDSP_fft_zip_imp(log2N, real, imag, stride)
+        
+    case .inverse:
+        
+        // we can perform the inverse transform by swapping the real and imaginary.
+        vDSP_fft_zip_imp(log2N, imag, real, stride)
     }
 }
 
