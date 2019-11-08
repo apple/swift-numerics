@@ -18,15 +18,15 @@ public enum FFTDirection {
     case inverse
 }
 
-/// Performs a Real to Complex out-of-place discrete fourier transform. This function only result/required the first half of frequency domain.
+/// Performs a Real to Complex out-of-place discrete fourier transform. This function requires/results the first half of frequency domain only.
 ///
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.
-///   - in_real: For the forward transform, this is the even part of elements of real input vector. For the inverse transform, this is the real part of complex input vector.
-///   - in_imag: For the forward transform, this is the odd part of elements of real input vector. For the inverse transform, this is the imaginary part of complex input vector.
+///   - in_real: The even part of elements of real input vector when performing forward transform. Otherwise, this is the real part of complex input vector.
+///   - in_imag: The odd part of elements of real input vector when performing forward transform. Otherwise, this is the imaginary part of complex input vector.
 ///   - in_stride: Stride between elements in `in_real` and `in_imag`.
-///   - out_real: For the forward transform, this is the real part of complex output vector. For the inverse transform, this is the even part of elements of real output vector.
-///   - out_imag: For the forward transform, this is the imaginary part of complex output vector. For the inverse transform, this is the odd part of elements of real output vector.
+///   - out_real: The real part of complex output vector when performing forward transform. Otherwise, this is the even part of elements of real output vector.
+///   - out_imag: The imaginary part of complex output vector when performing forward transform. Otherwise, this is the odd part of elements of real output vector.
 ///   - out_stride: Stride between elements in `out_real` and `out_imag`.
 ///   - direction: Forward or inverse directional.
 @inlinable
@@ -207,12 +207,20 @@ func vDSP_fft_zrop_inverse_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in
     }
 }
 
-/// Performs a Real to Complex out-of-place discrete fourier transform. This function only result/required the first half of frequency domain.
+/// Performs a Real to Complex out-of-place discrete fourier transform. This function requires/results the first half of frequency domain only.
 ///
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.
 ///   - real:
+///     - For input:
+///       The even part of elements of real input vector when performing forward transform. Otherwise, this is the real part of complex input vector.
+///     - For output:
+///       The real part of complex output vector when performing forward transform. Otherwise, this is the even part of elements of real output vector.
 ///   - imag:
+///     - For input:
+///       The odd part of elements of real input vector when performing forward transform. Otherwise, this is the imaginary part of complex input vector.
+///     - For output:
+///       The imaginary part of complex output vector when performing forward transform. Otherwise, this is the odd part of elements of real output vector.
 ///   - stride: Stride between elements in `real` and `imag`.
 ///   - direction: Forward or inverse directional.
 @inlinable
@@ -251,6 +259,19 @@ func vDSP_fft_zrip_inverse_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ re
 }
 
 /// Performs a Complex to Complex out-of-place discrete fourier transform.
+///
+/// This function behaves the same as the following
+///
+/// ```swift
+/// let _2_PI = direction == .forward ? -2 * .pi : -2 * .pi
+///
+/// for i in 0..<n {
+///     for j in 0..<n {
+///         let twiddle = Complex(length: 1, phase: _2_PI * T(i * j) / T(n))!
+///         output[i] += input[j] * twiddle
+///     }
+/// }
+/// ```
 ///
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.
@@ -329,6 +350,19 @@ func vDSP_fft_zop_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: Un
 }
 
 /// Performs a Complex to Complex in-place discrete fourier transform.
+///
+/// This function behaves the same as the following
+///
+/// ```swift
+/// let _2_PI = direction == .forward ? -2 * .pi : -2 * .pi
+///
+/// for i in 0..<n {
+///     for j in 0..<n {
+///         let twiddle = Complex(length: 1, phase: _2_PI * T(i * j) / T(n))!
+///         output[i] += input[j] * twiddle
+///     }
+/// }
+/// ```
 ///
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.
