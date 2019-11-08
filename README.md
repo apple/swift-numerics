@@ -2,7 +2,7 @@
   
 ## Introduction
 Swift Numerics provides a set of modules that support numerical computing in Swift.
-These modules fall broadly in two categories:
+These modules fall broadly into two categories:
 
 - API that is too specialized to go into the standard library, but which is sufficiently general to be centralized in a single common package.
 - API that is under active development toward possible future inclusion in the standard library.
@@ -23,16 +23,16 @@ import Numerics
 ```
 
 Swift Numerics modules have minimal dependencies on other projects.
-The current modules assume only the availability of the Swift and C standard libraries, and the runtime support provided by compiler-rt.
-Future expansion may assume the availability of other standard interfaces such as BLAS and LAPACK, but modules with more specialized dependencies (or dependencies that are not available on all platforms supported by Swift) belong in a separate package.
+The current modules assume only the availability of the Swift and C standard libraries and the runtime support provided by compiler-rt.
+Future expansion may assume the availability of other standard interfaces such as [BLAS (Basic Linear Algebra Subprograms)](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) and [LAPACK (Linear Algebra Package)](https://en.wikipedia.org/wiki/LAPACK), but modules with more specialized dependencies (or dependencies that are not available on all platforms supported by Swift) belong in a separate package.
 
-Because our intention is to make it possible to adopt Swift Numerics modules in the standard library at some future point, Swift Numerics uses the same license and contribution guidelines as the Swift project.
+Because we intend to make it possible to adopt Swift Numerics modules in the standard library at some future point, Swift Numerics uses the same license and contribution guidelines as the Swift project.
 
 ## Process
 Swift Numerics is a standalone library separate from the core Swift project.
-In practice it will act as a staging ground for some APIs that may eventually be incorporated into the Swift Standard Library, and when that happens such changes will be proposed to the Swift Standard Library using the established evolution process of the Swift project.
+In practice, it will act as a staging ground for some APIs that may eventually be incorporated into the Swift Standard Library, and when that happens such changes will be proposed to the Swift Standard Library using the established evolution process of the Swift project.
 
-Swift Numerics uses github issues to track bugs and features, and pull requests for development.
+Swift Numerics uses GitHub issues to track bugs and features. We use pull requests for development.
 
 To propose a new module:
 1. Raise an issue with the [new module] tag.
@@ -42,13 +42,13 @@ To propose a new module:
 
 To propose a new feature for an existing module:
 1. Raise an issue with the [enhancement] tag.
-2. Raise a PR with an implementation, and discuss the implementation there.
-3. Once there is consensus that the new feature is desirable and the design is suitable, it can be merged.
+2. Raise a PR with your implementation, and discuss the implementation there.
+3. Once there is a consensus that the new feature is desirable and the design is suitable, it can be merged.
 
 To fix a bug, or make smaller improvements:
 1. Raise a PR with your change. Be sure to add test coverage for whatever changes you are making.
 
-Questions about how to use Swift Numerics modules, or issues that are not clearly bugs can be discussed in the "Swift Numerics" section of the Swift forums.
+Questions about how to use Swift Numerics modules, or issues that are not clearly bugs can be discussed in the ["Swift Numerics" section of the Swift forums.](https://forums.swift.org/c/related-projects/swift-numerics)
 
 ## Modules
 1. [Real](Sources/Real/README.md)
