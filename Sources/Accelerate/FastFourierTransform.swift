@@ -18,16 +18,17 @@ public enum FFTDirection {
     case inverse
 }
 
-/// Performs a Real to Complex out-of-place discrete fourier transform. This function only output the first half of frequency domain.
+/// Performs a Real to Complex out-of-place discrete fourier transform. This function only result/required the first half of frequency domain.
 ///
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.
-///   - in_real: Real part of complex input vector.
-///   - in_imag: Imaginary part of complex input vector.
+///   - in_real: For the forward transform, this is the odd part of elements of real input vector. For the inverse transform, this is the real part of complex input vector.
+///   - in_imag: For the forward transform, this is the even part of elements of real input vector. For the inverse transform, this is the imaginary part of complex input vector.
 ///   - in_stride: Stride between elements in `in_real` and `in_imag`.
-///   - out_real: Real part of complex output vector.
-///   - out_imag: Imaginary part of complex output vector.
+///   - out_real: For the forward transform, this is the real part of complex output vector. For the inverse transform, this is the odd part of elements of real output vector.
+///   - out_imag: For the forward transform, this is the imaginary part of complex output vector. For the inverse transform, this is the even part of elements of real output vector.
 ///   - out_stride: Stride between elements in `out_real` and `out_imag`.
+///   - direction: Forward or inverse directional.
 @inlinable
 @inline(__always)
 public func vDSP_fft_zrop<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int, _ direction: FFTDirection) {
@@ -282,12 +283,9 @@ func vDSP_fft_zop_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: Un
 ///
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.
-///   - in_real: Real part of complex input vector.
-///   - in_imag: Imaginary part of complex input vector.
-///   - in_stride: Stride between elements in `in_real` and `in_imag`.
-///   - out_real: Real part of complex output vector.
-///   - out_imag: Imaginary part of complex output vector.
-///   - out_stride: Stride between elements in `out_real` and `out_imag`.
+///   - real: Real part of complex output vector.
+///   - imag: Imaginary part of complex output vector.
+///   - stride: Stride between elements in `real` and `imag`.
 ///   - direction: Forward or inverse directional.
 @_transparent
 public func vDSP_fft_zip<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int, _ direction: FFTDirection) {
