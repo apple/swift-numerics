@@ -29,6 +29,7 @@ let package = Package(
     .target(name: "Real", dependencies: ["NumericsShims"]),
     .target(name: "Accelerate", dependencies: ["Numerics"]),
     
+    .testTarget(name: "AccelerateTests", dependencies: ["Accelerate", "Complex", "NumericsShims"]),
     .testTarget(name: "ComplexTests", dependencies: ["Complex", "NumericsShims"]),
     .testTarget(name: "RealTests", dependencies: ["Real"]),
   ]
