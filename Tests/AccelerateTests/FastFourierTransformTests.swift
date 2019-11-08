@@ -50,7 +50,7 @@ final class FastFourierTransformTests: XCTestCase {
     
     let accuracy = 0.00000001
     
-    func testFFTZrop() {
+    func testFFTZropForward() {
         
         for log2N in 1...4 {
             
@@ -78,7 +78,7 @@ final class FastFourierTransformTests: XCTestCase {
         }
     }
     
-    func testFFTZrip() {
+    func testFFTZripForward() {
         
         for log2N in 1...4 {
             
@@ -99,6 +99,54 @@ final class FastFourierTransformTests: XCTestCase {
             for i in 0..<length / 2 {
                 XCTAssertEqual(check[i].real, real[i], accuracy: accuracy)
                 XCTAssertEqual(check[i].imaginary, imag[i], accuracy: accuracy)
+            }
+        }
+    }
+    
+    func testFFTZropInverse() {
+        
+        for log2N in 1...4 {
+            
+            let length = 1 << log2N
+            
+            var real: [Double] = (1...length / 2).map { Double($0 * 2 - 1) }
+            var imag: [Double] = (1...length / 2).map { Double($0 * 2) }
+            
+            let check_even = real
+            let check_odd = imag
+            
+            vDSP_fft_zrip(log2N, &real, &imag, 1, .forward)
+            
+            var out_real: [Double] = Array(repeating: 0, count: length / 2)
+            var out_imag: [Double] = Array(repeating: 0, count: length / 2)
+            
+            vDSP_fft_zrop(log2N, real, imag, 1, &out_real, &out_imag, 1, .inverse)
+            
+            for i in 0..<length / 2 {
+                XCTAssertEqual(check_even[i], out_real[i] / Double(length), accuracy: accuracy)
+                XCTAssertEqual(check_odd[i], out_imag[i] / Double(length), accuracy: accuracy)
+            }
+        }
+    }
+    
+    func testFFTZripInverse() {
+        
+        for log2N in 1...4 {
+            
+            let length = 1 << log2N
+            
+            var real: [Double] = (1...length / 2).map { Double($0 * 2 - 1) }
+            var imag: [Double] = (1...length / 2).map { Double($0 * 2) }
+            
+            let check_even = real
+            let check_odd = imag
+            
+            vDSP_fft_zrip(log2N, &real, &imag, 1, .forward)
+            vDSP_fft_zrip(log2N, &real, &imag, 1, .inverse)
+            
+            for i in 0..<length / 2 {
+                XCTAssertEqual(check_even[i], real[i] / Double(length), accuracy: accuracy)
+                XCTAssertEqual(check_odd[i], imag[i] / Double(length), accuracy: accuracy)
             }
         }
     }
