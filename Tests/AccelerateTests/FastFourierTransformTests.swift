@@ -50,6 +50,27 @@ final class FastFourierTransformTests: XCTestCase {
     
     let accuracy = 0.00000001
     
+    func test_vDSP_fft_zrop() {
+        
+        let in_real: [Double] = [1, 2, 3, 4, 5, 6, 7, 8]
+        let in_imag: [Double] = [0, 0, 0, 0, 0, 0, 0, 0]
+        
+        var out_real: [Double] = Array(repeating: 0, count: 8)
+        var out_imag: [Double] = Array(repeating: 0, count: 8)
+        
+        vDSP_fft_zrop(3, in_real, 1, &out_real, &out_imag, 1)
+        
+        var check = _FDFT(zip(in_real, in_imag).map(Complex.init))
+        
+        // we only have half length of frequency domain
+        check[0] = Complex(check[0].real, check[4].real)
+        
+        for i in 0..<4 {
+            XCTAssertEqual(check[i].real, out_real[i], accuracy: accuracy)
+            XCTAssertEqual(check[i].imaginary, out_imag[i], accuracy: accuracy)
+        }
+    }
+    
     func test_vDSP_fft_zop_forward() {
         
         let in_real: [Double] = [1, 2, 3, 4, 5, 6, 7, 8]

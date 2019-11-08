@@ -18,7 +18,94 @@ public enum FFTDirection {
     case inverse
 }
 
-/// Performs an out-of-place discrete fourier transform.
+/// Performs a Real to Complex out-of-place discrete fourier transform. This function only output the first half of frequency domain.
+///
+/// - parameters:
+///   - log2N: The base 2 exponent of the number of elements to process.
+///   - input: Real input vector.
+///   - in_stride: Stride between elements in `input`.
+///   - out_real: Real part of complex output vector.
+///   - out_imag: Imaginary part of complex output vector.
+///   - out_stride: Stride between elements in `out_real` and `out_imag`.
+@inlinable
+@inline(__always)
+public func vDSP_fft_zrop<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ input: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int) {
+    
+    switch log2N {
+        
+    case 0:
+        out_real.pointee = input.pointee
+        out_imag.pointee = 0
+        
+    case 1:
+        vDSP_fft_zrop_2(input, in_stride, out_real, out_imag)
+    case 2:
+        vDSP_fft_zrop_4(input, in_stride, out_real, out_imag, out_stride)
+    case 3:
+        vDSP_fft_zrop_8(input, in_stride, out_real, out_imag, out_stride)
+        
+    default:
+        let length = 1 << log2N
+        let half = length >> 1
+        let fourth = length >> 2
+        
+        vDSP_fft_zop_imp(log2N - 1, input, input + in_stride, in_stride << 1, out_real, out_imag, out_stride)
+        
+        // http://www.katjaas.nl/realFFT/realFFT2.html
+        
+        let _stride = half * out_stride
+        var op_r = out_real
+        var op_i = out_imag
+        var oph_r = out_real + _stride
+        var oph_i = out_imag + _stride
+        
+        let tr = op_r.pointee
+        let ti = op_i.pointee
+        op_r.pointee = tr + ti
+        op_i.pointee = tr - ti
+        
+        let opf_i = out_imag + fourth * out_stride
+        opf_i.pointee = -opf_i.pointee
+        
+        let angle = -T.pi / T(half)
+        let _cos = T.cos(angle)
+        let _sin = T.sin(angle)
+        var _cos1 = _cos
+        var _sin1 = _sin
+        for _ in 1..<fourth {
+            
+            op_r += out_stride
+            op_i += out_stride
+            oph_r -= out_stride
+            oph_i -= out_stride
+            
+            let or = op_r.pointee
+            let oi = op_i.pointee
+            let ohr = oph_r.pointee
+            let ohi = oph_i.pointee
+            
+            let evenreal = or + ohr
+            let evenim = oi - ohi
+            let oddreal = oi + ohi
+            let oddim = ohr - or
+            
+            let _r = oddreal * _cos1 - oddim * _sin1
+            let _i = oddreal * _sin1 + oddim * _cos1
+            
+            op_r.pointee = 0.5 * (evenreal + _r)
+            op_i.pointee = 0.5 * (_i + evenim)
+            oph_r.pointee = 0.5 * (evenreal - _r)
+            oph_i.pointee = 0.5 * (_i - evenim)
+            
+            let _c1 = _cos * _cos1 - _sin * _sin1
+            let _s1 = _cos * _sin1 + _sin * _cos1
+            _cos1 = _c1
+            _sin1 = _s1
+        }
+    }
+}
+
+/// Performs a Complex to Complex out-of-place discrete fourier transform.
 ///
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.
