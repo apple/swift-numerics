@@ -50,7 +50,7 @@ final class FastFourierTransformTests: XCTestCase {
     
     let accuracy = 0.00000001
     
-    func test_vDSP_fft_zrop() {
+    func testFFTZrop() {
         
         for log2N in 1...4 {
             
@@ -78,7 +78,7 @@ final class FastFourierTransformTests: XCTestCase {
         }
     }
     
-    func test_vDSP_fft_zrip() {
+    func testFFTZrip() {
         
         for log2N in 1...4 {
             
@@ -103,7 +103,7 @@ final class FastFourierTransformTests: XCTestCase {
         }
     }
     
-    func test_vDSP_fft_zop_forward() {
+    func testFFTZopForward() {
         
         for log2N in 1...4 {
             
@@ -126,7 +126,7 @@ final class FastFourierTransformTests: XCTestCase {
         }
     }
     
-    func test_vDSP_fft_zop_inverse() {
+    func testFFTZopInverse() {
         
         for log2N in 1...4 {
             
@@ -149,7 +149,7 @@ final class FastFourierTransformTests: XCTestCase {
         }
     }
     
-    func test_vDSP_fft_zip_forward() {
+    func testFFTZipForward() {
         
         for log2N in 1...4 {
             
@@ -169,7 +169,7 @@ final class FastFourierTransformTests: XCTestCase {
         }
     }
     
-    func test_vDSP_fft_zip_inverse() {
+    func testFFTZipInverse() {
         
         for log2N in 1...4 {
             
