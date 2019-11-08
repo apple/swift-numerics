@@ -64,7 +64,7 @@ final class FastFourierTransformTests: XCTestCase {
             var out_real: [Double] = Array(repeating: 0, count: length / 2)
             var out_imag: [Double] = Array(repeating: 0, count: length / 2)
             
-            vDSP_fft_zrop(log2N, in_even, in_odd, 2, &out_real, &out_imag, 1, .forward)
+            vDSP_fft_zrop(log2N, in_even, in_odd, 1, &out_real, &out_imag, 1, .forward)
             
             var check = _FDFT(zip(input, Array(repeating: 0, count: length)).map(Complex.init))
             
