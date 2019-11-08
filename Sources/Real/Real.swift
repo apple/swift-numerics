@@ -33,7 +33,7 @@ public protocol Real: FloatingPoint, RealFunctions {
 //  it does allow us to default the implementation of a few operations,
 //  and also provides `signGamma`.
 extension Real {
-  // Most math libraries do not provide exp10, so we need a default impl.
+  // Most math libraries do not provide exp10, so we need a default implementation.
   @_transparent
   public static func exp10(_ x: Self) -> Self {
     return pow(10, x)

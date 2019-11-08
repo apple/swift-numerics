@@ -143,7 +143,7 @@ extension Complex: Numeric {
   
   /// The reciprocal of this value, if it can be computed without undue overflow or underflow.
   ///
-  /// If z.reciprocal is non-nil, you can safely replace division by z with multiplcation by this value. It is
+  /// If z.reciprocal is non-nil, you can safely replace division by z with multiplication by this value. It is
   /// not advantageous to do this for an isolated division, but if you are dividing many values by a single
   /// denominator, this will often be a significant performance win.
   ///

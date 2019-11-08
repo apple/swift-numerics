@@ -98,7 +98,7 @@ public protocol RealFunctions: ElementaryFunctions {
   /// The sign of the gamma function, Γ(x).
   ///
   /// For `x >= 0`, `signGamma(x)` is `.plus`. For negative `x`, `signGamma(x)` is `.plus`
-  /// when `x` is an integer, and otherwise it is `.minus` whenver `trunc(x)` is even, and `.plus`
+  /// when `x` is an integer, and otherwise it is `.minus` whenever `trunc(x)` is even, and `.plus`
   /// when `trunc(x)` is odd.
   ///
   /// This function is used together with `logGamma`, which computes the logarithm of the
