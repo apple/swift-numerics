@@ -77,6 +77,9 @@ extension Complex {
   public var real: RealType {
     @_transparent
     get { isFinite ? x : .nan }
+
+    @_transparent
+    set { x = newValue }
   }
   
   /// The imaginary part of this complex value.
@@ -85,6 +88,9 @@ extension Complex {
   public var imaginary: RealType {
     @_transparent
     get { isFinite ? y : .nan }
+
+    @_transparent
+    set { y = newValue }
   }
   
   /// The additive identity, with real and imaginary parts both zero.
