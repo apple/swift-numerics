@@ -181,5 +181,7 @@ final class ArithmeticTests: XCTestCase {
   func testDivisionByZero() {
     XCTAssertFalse((Complex(0, 0) / Complex(0, 0)).isFinite)
     XCTAssertFalse((Complex(1, 1) / Complex(0, 0)).isFinite)
+    XCTAssertFalse((Complex.infinity / Complex(0, 0)).isFinite)
+    XCTAssertFalse((Complex.i / Complex(0, 0)).isFinite)
   }
 }
