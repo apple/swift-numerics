@@ -177,4 +177,9 @@ final class ArithmeticTests: XCTestCase {
       if checkMultiply(test.b, test.c, expected: test.a, ulps: 1.0) { XCTFail() }
     }
   }
+
+  func testDivisionByZero() {
+    XCTAssertFalse((Complex(0, 0) / Complex(0, 0)).isFinite)
+    XCTAssertFalse((Complex(1, 1) / Complex(0, 0)).isFinite)
+  }
 }
