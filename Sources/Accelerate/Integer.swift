@@ -1,4 +1,4 @@
-//===--- bit_reverse.swift ----------------------------------------*- swift -*-===//
+//===--- Integer.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -13,7 +13,7 @@ extension FixedWidthInteger {
     
     @inlinable
     @inline(__always)
-    var bit_reverse: Self {
+    public var bit_reverse: Self {
         
         var m1: Self = 0
         for _ in 0..<Self.bitWidth >> 3 {
@@ -41,4 +41,19 @@ extension FixedWidthInteger {
         
         return u2 | v2
     }
+}
+
+extension BinaryInteger {
+    
+    @inlinable
+    @inline(__always)
+    public var isPower2 : Bool {
+        return 0 < self && self & (self - 1) == 0
+    }
+}
+
+@inlinable
+@inline(__always)
+func log2<T: FixedWidthInteger>(_ x: T) -> T {
+    return x == 0 ? 0 : T(T.bitWidth - x.leadingZeroBitCount - 1)
 }
