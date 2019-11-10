@@ -43,7 +43,7 @@ extension Real {
   public static func root(_ x: Self, _ n: Int) -> Self {
     guard x >= 0 || n % 2 != 0 else { return .nan }
     // TODO: this implementation is not quite correct, because n may be
-    // rounded in conversion to Self. This only effects very extreme cases,
+    // rounded in conversion to Self. This only affects very extreme cases,
     // so we'll leave it alone for now.
     return Self(signOf: x, magnitudeOf: pow(x.magnitude, 1/Self(n)))
   }
