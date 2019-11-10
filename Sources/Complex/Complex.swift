@@ -347,7 +347,8 @@ extension Complex: Hashable {
 // The synthesized conformance works correction for this protocol, unlike
 // Hashable and Equatable; all we need to do is specify that we conform.
 // FloatingPoint does not refine Codable, so this is a conditional conformance.
-extension Complex: Codable where RealType: Codable { }
+extension Complex: Encodable where RealType: Encodable { }
+extension Complex: Decodable where RealType: Decodable { }
 
 // MARK: - Formatting
 extension Complex: CustomStringConvertible {
@@ -359,9 +360,9 @@ extension Complex: CustomStringConvertible {
   }
 }
 
-extension Complex: CustomDebugStringConvertible where RealType: CustomDebugStringConvertible {
+extension Complex: CustomDebugStringConvertible {
   public var debugDescription: String {
-    "Complex<\(RealType.self)>(\(x.debugDescription), \(y.debugDescription))"
+    "Complex<\(RealType.self)>(\(String(reflecting: x)), \(String(reflecting: y)))"
   }
 }
 
