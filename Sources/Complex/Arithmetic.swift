@@ -30,11 +30,6 @@ extension Complex: AdditiveArithmetic {
   public static func -=(z: inout Complex, w: Complex) {
     z = z - w
   }
-  
-  @_transparent
-  public static prefix func -(z: Complex) -> Complex {
-    return Complex(-z.x, -z.y)
-  }
 }
 
 // MARK: - Vector space structure
@@ -95,6 +90,7 @@ extension Complex: Numeric {
   
   @usableFromInline @_alwaysEmitIntoClient @inline(never)
   internal static func rescaledDivide(_ z: Complex, _ w: Complex) -> Complex {
+    if w.isZero { return .infinity }
     if z.isZero || !w.isFinite { return .zero }
     // TODO: detect when RealType is Float and just promote to Double, then
     // use the naive algorithm.
@@ -143,7 +139,7 @@ extension Complex: Numeric {
   
   /// The reciprocal of this value, if it can be computed without undue overflow or underflow.
   ///
-  /// If z.reciprocal is non-nil, you can safely replace division by z with multiplcation by this value. It is
+  /// If z.reciprocal is non-nil, you can safely replace division by z with multiplication by this value. It is
   /// not advantageous to do this for an isolated division, but if you are dividing many values by a single
   /// denominator, this will often be a significant performance win.
   ///
@@ -167,3 +163,5 @@ extension Complex: Numeric {
     return nil
   }
 }
+
+extension Complex: SignedNumeric {}

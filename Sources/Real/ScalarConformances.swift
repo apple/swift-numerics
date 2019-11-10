@@ -15,6 +15,7 @@
 // and the Swift platform module are both imported (<rdar://problem/53821031>).
 import NumericsShims
 
+// MARK: Float + Real
 extension Float: Real {
   @_transparent public static func cos(_ x: Float) -> Float { return libm_cosf(x) }
   @_transparent public static func sin(_ x: Float) -> Float { return libm_sinf(x) }
@@ -68,6 +69,7 @@ extension Float: Real {
   #endif
 }
 
+// MARK: Double + Real
 extension Double: Real {
   @_transparent public static func cos(_ x: Double) -> Double { return libm_cos(x) }
   @_transparent public static func sin(_ x: Double) -> Double { return libm_sin(x) }
@@ -136,6 +138,7 @@ extension Double: Real {
   #endif
 }
 
+// MARK: Float80 + Real
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
 extension Float80: Real {
   @_transparent public static func cos(_ x: Float80) -> Float80 { return libm_cosl(x) }

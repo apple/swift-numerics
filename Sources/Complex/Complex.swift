@@ -77,6 +77,9 @@ extension Complex {
   public var real: RealType {
     @_transparent
     get { isFinite ? x : .nan }
+
+    @_transparent
+    set { x = newValue }
   }
   
   /// The imaginary part of this complex value.
@@ -85,6 +88,9 @@ extension Complex {
   public var imaginary: RealType {
     @_transparent
     get { isFinite ? y : .nan }
+
+    @_transparent
+    set { y = newValue }
   }
   
   /// The additive identity, with real and imaginary parts both zero.
@@ -174,7 +180,7 @@ extension Complex {
   /// True if this value is subnormal.
   ///
   /// A complex number is subnormal if it is finite, not normal, and not zero. When the result of a
-  /// computation is subnormal, underflow has occured and the result generally does not have full
+  /// computation is subnormal, underflow has occurred and the result generally does not have full
   /// precision.
   /// See also:
   /// -
@@ -233,7 +239,7 @@ extension Complex {
   ///
   /// This is mainly useful for interoperation with other languages, where
   /// you may want to reduce each equivalence class to a single representative
-  /// before passing across langauge boundaries, but it may also be useful
+  /// before passing across language boundaries, but it may also be useful
   /// for some serialization tasks. It's also a useful implementation detail for
   /// some primitive operations.
   @_transparent
@@ -343,7 +349,7 @@ extension Complex: Hashable {
 // FloatingPoint does not refine Codable, so this is a conditional conformance.
 extension Complex: Codable where RealType: Codable { }
 
-// MARK: - Formating
+// MARK: - Formatting
 extension Complex: CustomStringConvertible {
   public var description: String {
     guard isFinite else {
