@@ -24,12 +24,12 @@ let package = Package(
   ],
   targets: [
     .target(name: "Complex", dependencies: ["Real"]),
-    .target(name: "Numerics", dependencies: ["Complex", "Real"]),
+    .target(name: "Numerics", dependencies: ["Complex", "Real", "Accelerate"]),
     .target(name: "NumericsShims", dependencies: []),
     .target(name: "Real", dependencies: ["NumericsShims"]),
-    .target(name: "Accelerate", dependencies: ["Numerics"]),
+    .target(name: "Accelerate", dependencies: ["Complex", "Real"]),
     
-    .testTarget(name: "AccelerateTests", dependencies: ["Accelerate", "Complex", "NumericsShims"]),
+    .testTarget(name: "AccelerateTests", dependencies: ["Accelerate", "Complex"]),
     .testTarget(name: "ComplexTests", dependencies: ["Complex", "NumericsShims"]),
     .testTarget(name: "RealTests", dependencies: ["Real"]),
   ]

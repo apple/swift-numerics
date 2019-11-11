@@ -9,7 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Numerics
+import Real
+import Complex
 
 public enum FastFourier {
     
