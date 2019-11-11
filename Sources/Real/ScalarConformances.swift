@@ -14,6 +14,9 @@
 // However, at present if we do that we get a compiler crash when this module
 // and the Swift platform module are both imported (<rdar://problem/53821031>).
 import NumericsShims
+#if canImport(Darwin)
+import Darwin
+#endif
 
 // MARK: Float + Real
 extension Float: Real {
@@ -55,6 +58,21 @@ extension Float: Real {
     // so we'll leave it alone for now; however, it gets the sign wrong if
     // it rounds an odd number to an even number, so we should fix it soon.
     return libm_powf(x, Float(n))
+  }
+  
+  @_transparent public static func root(_ x: Self, _ n: Int) -> Self {
+    guard x >= 0 || n % 2 != 0 else { return .nan }
+    // TODO: this implementation is not quite correct, because n may be
+    // rounded in conversion to Self. This only affects very extreme cases,
+    // so we'll leave it alone for now.
+    
+    #if canImport(Darwin)
+    if n == 3 {
+      return cbrt(x)
+    }
+    #endif
+    
+    return Self(signOf: x, magnitudeOf: pow(x.magnitude, 1/Self(n)))
   }
   
   @_transparent public static func atan2(y: Float, x: Float) -> Float {
@@ -126,6 +144,21 @@ extension Double: Real {
     return libm_pow(x, Double(n))
   }
   
+  @_transparent public static func root(_ x: Self, _ n: Int) -> Self {
+    guard x >= 0 || n % 2 != 0 else { return .nan }
+    // TODO: this implementation is not quite correct, because n may be
+    // rounded in conversion to Self. This only affects very extreme cases,
+    // so we'll leave it alone for now.
+    
+    #if canImport(Darwin)
+    if n == 3 {
+      return cbrt(x)
+    }
+    #endif
+    
+    return Self(signOf: x, magnitudeOf: pow(x.magnitude, 1/Self(n)))
+  }
+  
   @_transparent public static func atan2(y: Double, x: Double) -> Double {
     return libm_atan2(y, x)
   }
@@ -176,6 +209,21 @@ extension Float80: Real {
     // so we'll leave it alone for now; however, it gets the sign wrong if
     // it rounds an odd number to an even number, so we should fix it soon.
     return libm_powl(x, Float80(n))
+  }
+  
+  @_transparent public static func root(_ x: Self, _ n: Int) -> Self {
+    guard x >= 0 || n % 2 != 0 else { return .nan }
+    // TODO: this implementation is not quite correct, because n may be
+    // rounded in conversion to Self. This only affects very extreme cases,
+    // so we'll leave it alone for now.
+    
+    #if canImport(Darwin)
+    if n == 3 {
+      return cbrt(x)
+    }
+    #endif
+    
+    return Self(signOf: x, magnitudeOf: pow(x.magnitude, 1/Self(n)))
   }
   
   @_transparent public static func atan2(y: Float80, x: Float80) -> Float80 {
