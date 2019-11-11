@@ -46,7 +46,7 @@
 /// - `Real`
 ///
 /// [elfn]: http://en.wikipedia.org/wiki/Elementary_function
-public protocol ElementaryFunctions {
+public protocol ElementaryFunctions: AdditiveArithmetic {
   /// The [exponential function][wiki] e^x whose base `e` is the base of the natural logarithm.
   ///
   /// See also:
