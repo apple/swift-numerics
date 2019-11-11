@@ -243,4 +243,36 @@ final class FastFourierTransformTests: XCTestCase {
         }
     }
     
+    func testTypedFastFourier1() {
+        
+        let length = 1 << 8
+        
+        let input = (0..<length).map { _ in Complex(Double.random(in: -1...1), Double.random(in: -1...1)) }
+        
+        let output = FastFourier.transform(input, direction: .forward)
+        
+        let check = _FDFT(input)
+        
+        for i in 0..<length {
+            XCTAssertEqual(check[i].real, output[i].real, accuracy: accuracy)
+            XCTAssertEqual(check[i].imaginary, output[i].imaginary, accuracy: accuracy)
+        }
+    }
+    
+    func testTypedFastFourier2() {
+        
+        let length = 1 << 8
+        
+        let in_real: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
+        let in_imag: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
+        
+        let (out_real, out_imag) = FastFourier.transform(in_real, in_imag, direction: .forward)
+        
+        let check = _FDFT(zip(in_real, in_imag).map(Complex.init))
+        
+        for i in 0..<length {
+            XCTAssertEqual(check[i].real, out_real[i], accuracy: accuracy)
+            XCTAssertEqual(check[i].imaginary, out_imag[i], accuracy: accuracy)
+        }
+    }
 }
