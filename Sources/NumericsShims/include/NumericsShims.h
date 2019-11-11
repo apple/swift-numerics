@@ -81,6 +81,10 @@ HEADER_SHIM float libm_powf(float x, float y) {
   return __builtin_powf(x, y);
 }
 
+HEADER_SHIM float libm_cbrtf(float x) {
+  return __builtin_cbrtf(x);
+}
+
 HEADER_SHIM float libm_atan2f(float y, float x) {
   return __builtin_atan2f(y, x);
 }
@@ -204,6 +208,10 @@ HEADER_SHIM double libm_pow(double x, double y) {
   return __builtin_pow(x, y);
 }
 
+HEADER_SHIM double libm_cbrt(double x) {
+  return __builtin_cbrt(x);
+}
+
 HEADER_SHIM double libm_atan2(double y, double x) {
   return __builtin_atan2(y, x);
 }
@@ -320,6 +328,10 @@ HEADER_SHIM long double libm_log1pl(long double x) {
 
 HEADER_SHIM long double libm_powl(long double x, long double y) {
   return __builtin_powl(x, y);
+}
+
+HEADER_SHIM long double libm_cbrtl(long double x) {
+  return __builtin_cbrtl(x);
 }
 
 HEADER_SHIM long double libm_atan2l(long double y, long double x) {

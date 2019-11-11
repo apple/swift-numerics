@@ -57,6 +57,16 @@ extension Float: Real {
     return libm_powf(x, Float(n))
   }
   
+  @_transparent public static func root(_ x: Float, _ n: Int) -> Float {
+    guard x >= 0 || n % 2 != 0 else { return .nan }
+    // Workaround the issue mentioned below for the specific case of n = 3
+    // where we can fallback on cbrt.
+    if n == 3 { return libm_cbrtf(x) }
+    // TODO: this implementation is not quite correct, because either n or
+    // 1/n may be not be representable as Float.
+    return Float(signOf: x, magnitudeOf: libm_powf(x.magnitude, 1/Float(n)))
+  }
+  
   @_transparent public static func atan2(y: Float, x: Float) -> Float {
     return libm_atan2f(y, x)
   }
@@ -126,6 +136,16 @@ extension Double: Real {
     return libm_pow(x, Double(n))
   }
   
+  @_transparent public static func root(_ x: Double, _ n: Int) -> Double {
+    guard x >= 0 || n % 2 != 0 else { return .nan }
+    // Workaround the issue mentioned below for the specific case of n = 3
+    // where we can fallback on cbrt.
+    if n == 3 { return libm_cbrt(x) }
+    // TODO: this implementation is not quite correct, because either n or
+    // 1/n may be not be representable as Double.
+    return Double(signOf: x, magnitudeOf: libm_pow(x.magnitude, 1/Double(n)))
+  }
+  
   @_transparent public static func atan2(y: Double, x: Double) -> Double {
     return libm_atan2(y, x)
   }
@@ -176,6 +196,16 @@ extension Float80: Real {
     // so we'll leave it alone for now; however, it gets the sign wrong if
     // it rounds an odd number to an even number, so we should fix it soon.
     return libm_powl(x, Float80(n))
+  }
+  
+  @_transparent public static func root(_ x: Float80, _ n: Int) -> Float80 {
+    guard x >= 0 || n % 2 != 0 else { return .nan }
+    // Workaround the issue mentioned below for the specific case of n = 3
+    // where we can fallback on cbrt.
+    if n == 3 { return libm_cbrtl(x) }
+    // TODO: this implementation is not quite correct, because either n or
+    // 1/n may be not be representable as Float80.
+    return Float80(signOf: x, magnitudeOf: libm_powl(x.magnitude, 1/Float80(n)))
   }
   
   @_transparent public static func atan2(y: Float80, x: Float80) -> Float80 {
