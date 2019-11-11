@@ -32,6 +32,9 @@
 /// - Power and root functions:
 ///   `pow`, `sqrt`, and `root`.
 ///
+/// `ElementaryFunctions` conformance implies `AdditiveArithmetic`, so addition
+/// and subtraction and the `.zero` property are also available.
+///
 /// There are two other protocols that you are more likely to want to use directly:
 ///
 /// `RealFunctions` refines `ElementaryFunctions` and includes

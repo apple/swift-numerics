@@ -15,6 +15,8 @@ The module defines three protocols. The most general is `ElementaryFunctions`, w
 - Inverse hyperbolic functions: `acosh`, `asinh`, `atanh`
 - Power and root functions: `pow`, `sqrt`, `root`
 
+`ElementaryFunctions` refines `AdditiveArithmetic`, and so also provides addition, subtraction, and the `.zero` property.
+
 The `RealFunctions` protocol refines `ElementaryFunctions`, and adds operations that are difficult to define or implement over fields more general than the real numbers:
 - `atan2(y:x:)`, which computes `atan(y/x)` with sign chosen by the quadrant of the point `(x,y)` in the Cartesian plane.
 - `hypot`, which computes `sqrt(x*x + y*y)` without intermediate overflow or underflow.
