@@ -1,25 +1,12 @@
-import XCTest
+//===--- LinuxMain.swift --------------------------------------*- swift -*-===//
+//
+// This source file is part of the Swift Numerics open source project
+//
+// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Licensed under Apache License v2.0 with Runtime Library Exception
+//
+// See https://swift.org/LICENSE.txt for license information
+//
+//===----------------------------------------------------------------------===//
 
-@testable import ComplexTests
-@testable import RealTests
-
-XCTMain([
-    testCase(ArithmeticBenchmarkTests.testDivisionByConstant),
-    testCase(ArithmeticBenchmarkTests.testReciprocal),
-    testCase(ArithmeticBenchmarkTests.testDivisionByConstantC),
-    testCase(ArithmeticBenchmarkTests.testMultiplication),
-    testCase(ArithmeticBenchmarkTests.testMultiplicationC),
-    testCase(ArithmeticBenchmarkTests.testDivision),
-    testCase(ArithmeticBenchmarkTests.testDivisionC),
-    testCase(ArithmeticBenchmarkTests.testDivisionPoorScaling),
-    testCase(ArithmeticBenchmarkTests.testDivisionPoorScalingC),
-    testCase(ArithmeticBenchmarkTests.testMultiplicationPoorScaling),
-    testCase(ArithmeticBenchmarkTests.testMultiplicationPoorScalingC),
-    testCase(PropertyTests.testProperties),
-    testCase(PropertyTests.testEquatableHashable),
-    testCase(ArithmeticTests.testPolar),
-    testCase(ArithmeticTests.testBaudinSmith),
-    testCase(RealTests.testFloat),
-    testCase(RealTests.testDouble),
-    testCase(RealTests.testFloat80)
-])
+fatalError("Use --enable-test-discovery to run Swift Numerics tests on Linux.")
