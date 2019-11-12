@@ -105,24 +105,5 @@ final class ElementaryFunctionTests: XCTestCase {
     Float80.elementaryFunctionTests()
     Float80.realFunctionTests()
   }
-  
-  static var allTests = [
-    ("testFloat", testFloat),
-    ("testDouble", testDouble),
-    ("testFloat80", testFloat80),
-  ]
-  #else
-  static var allTests = [
-    ("testFloat", testFloat),
-    ("testDouble", testDouble),
-  ]
   #endif
 }
-
-#if !(os(macOS) || os(iOS) || os(watchOS) || os(tvOS))
-public func allTests() -> [XCTestCaseEntry] {
-  return [
-    testCase(ComplexTests.allTests),
-  ]
-}
-#endif
