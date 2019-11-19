@@ -2,7 +2,7 @@
 
 [SE-0246] proposed an API for "basic math functions" that would make operations like sine and logarithm available in generic contexts.
 It was accepted, but because of limitations in the compiler, the API could not be added to the standard library in a source-stable manner.
-The `Real` [module][Real] provides that API as a separate module so that you can use it right away to get access to the improved API for these operations in your projects.
+The `Real` module provides that API as a separate module so that you can use it right away to get access to the improved API for these operations in your projects.
 
 ## Protocols and Methods
 
@@ -14,6 +14,8 @@ The module defines three protocols. The most general is `ElementaryFunctions`, w
 - Hyperbolic functions: `cosh`, `sinh`, `tanh`
 - Inverse hyperbolic functions: `acosh`, `asinh`, `atanh`
 - Power and root functions: `pow`, `sqrt`, `root`
+
+`ElementaryFunctions` refines `AdditiveArithmetic`, and so also provides addition, subtraction, and the `.zero` property.
 
 The `RealFunctions` protocol refines `ElementaryFunctions`, and adds operations that are difficult to define or implement over fields more general than the real numbers:
 - `atan2(y:x:)`, which computes `atan(y/x)` with sign chosen by the quadrant of the point `(x,y)` in the Cartesian plane.
