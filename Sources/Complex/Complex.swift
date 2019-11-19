@@ -472,26 +472,39 @@ extension Complex {
     (length, phase)
   }
   
-  /// Constructs a complex value from polar coordinates.
+  /// A complex value specified with  polar coordinates.
   ///
   /// Edge cases:
   /// -
-  /// If the phase is non-finite, but length is finite, this initializer
-  /// fails and returns nil. In all other cases, a non-nil value is constructed.
+  /// - Negative lengths are interpreted as reflecting the point through the origin, i.e.:
+  ///   ```
+  ///   Complex(length: -r, phase: θ) == -Complex(length: r, phase: θ)
+  ///   ```
+  /// - For any `θ`, even `.infinity` or `.nan`:
+  ///   ```
+  ///   Complex(length: .zero, phase: θ) == .zero
+  ///   ```
+  /// - For any `θ`, even `.infinity` or `.nan`:
+  ///   ```
+  ///   Complex(length: .infinity, phase: θ) == .infinity
+  ///   ```
+  /// - Otherwise, `θ` must be finite, or a precondition failure occurs.
   ///
   /// See also:
   /// -
   /// - `.length`
   /// - `.phase`
   /// - `.polar`
-  public init?(length: RealType, phase: RealType) {
-    guard phase.isFinite else {
-      // There's no way to make sense of finite magnitude and non-finite phase.
-      if length.isFinite { return nil }
-      // r is infinite so phase doesn't matter.
-      self = .infinity
-      return
+  @inlinable
+  public init(length: RealType, phase: RealType) {
+    if phase.isFinite {
+      self = Complex(.cos(phase), .sin(phase)).multiplied(by: length)
+    } else {
+      precondition(
+        length == 0 || length == .infinity,
+        "Either phase must be finite, or length must be zero or infinity."
+      )
+      self = Complex(length)
     }
-    self.init(length * .cos(phase), length * .sin(phase))
   }
 }
