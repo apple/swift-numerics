@@ -67,12 +67,15 @@ final class ArithmeticTests: XCTestCase {
     // In order to support round-tripping from rectangular to polar coordinate
     // systems, as a special case phase can be non-finite when length is
     // either zero or infinity.
-    XCTAssertEqual(Complex<T>(length: .zero, phase:  .infinity), .zero)
-    XCTAssertEqual(Complex<T>(length: .zero, phase: -.infinity), .zero)
-    XCTAssertEqual(Complex<T>(length: .zero, phase:  .nan     ), .zero)
-    XCTAssertEqual(Complex<T>(length: .infinity, phase:  .infinity), .infinity)
-    XCTAssertEqual(Complex<T>(length: .infinity, phase: -.infinity), .infinity)
-    XCTAssertEqual(Complex<T>(length: .infinity, phase:  .nan     ), .infinity)
+    XCTAssertEqual(Complex<T>(length: .zero, phase: .infinity), .zero)
+    XCTAssertEqual(Complex<T>(length: .zero, phase:-.infinity), .zero)
+    XCTAssertEqual(Complex<T>(length: .zero, phase: .nan     ), .zero)
+    XCTAssertEqual(Complex<T>(length: .infinity, phase: .infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length: .infinity, phase:-.infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length: .infinity, phase: .nan     ), .infinity)
+    XCTAssertEqual(Complex<T>(length:-.infinity, phase: .infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length:-.infinity, phase:-.infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length:-.infinity, phase: .nan     ), .infinity)
           
     let exponentRange =
       (T.leastNormalMagnitude.exponent + T.Exponent(T.significandBitCount)) ...
@@ -108,11 +111,11 @@ final class ArithmeticTests: XCTestCase {
         XCTFail()
       }
       XCTAssertEqual(w, -z)
-      // if length*length is normal, it should be unsafeLengthSquared, up
+      // if length*length is normal, it should be lengthSquared, up
       // to small error.
       if (p.length*p.length).isNormal {
-        if !closeEnough(z.unsafeLengthSquared, p.length*p.length, ulps: 16) {
-          print("p = \(p)\nz = \(z)\nz.unsafeLengthSquared = \(z.unsafeLengthSquared)")
+        if !closeEnough(z.lengthSquared, p.length*p.length, ulps: 16) {
+          print("p = \(p)\nz = \(z)\nz.lengthSquared = \(z.lengthSquared)")
           XCTFail()
         }
       }
