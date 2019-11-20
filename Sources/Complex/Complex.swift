@@ -472,7 +472,7 @@ extension Complex {
     (length, phase)
   }
   
-  /// A complex value specified with  polar coordinates.
+  /// Creates a complex value specified with polar coordinates.
   ///
   /// Edge cases:
   /// -
