@@ -208,7 +208,7 @@ extension Complex {
   
   /// The ∞-norm of the value (`max(abs(real), abs(imaginary))`).
   ///
-  /// If you need the euclidean norm (a.k.a. 2-norm) use the `length` or `unsafeLengthSquared`
+  /// If you need the euclidean norm (a.k.a. 2-norm) use the `length` or `lengthSquared`
   /// properties instead.
   ///
   /// Edge cases:
@@ -220,7 +220,7 @@ extension Complex {
   /// See also:
   /// -
   /// - `.length`
-  /// - `.unsafeLengthSquared`
+  /// - `.lengthSquared`
   @_transparent
   public var magnitude: RealType {
     guard isFinite else { return .infinity }
@@ -394,13 +394,13 @@ extension Complex {
   /// See also:
   /// -
   /// - `.magnitude`
-  /// - `.unsafeLengthSquared`
+  /// - `.lengthSquared`
   /// - `.phase`
   /// - `.polar`
   /// - `init(r:θ:)`
   @_transparent
   public var length: RealType {
-    let naive = unsafeLengthSquared
+    let naive = lengthSquared
     guard naive.isNormal else { return carefulLength }
     return .sqrt(naive)
   }
@@ -419,7 +419,7 @@ extension Complex {
   ///
   /// This property is more efficient to compute than `length`, but is
   /// highly prone to overflow or underflow; for finite values that are
-  /// not well-scaled, `unsafeLengthSquared` is often either zero or
+  /// not well-scaled, `lengthSquared` is often either zero or
   /// infinity, even when `length` is a finite number. Use this property
   /// only when you are certain that this value is well-scaled.
   ///
@@ -431,9 +431,12 @@ extension Complex {
   /// - `.length`
   /// - `.magnitude`
   @_transparent
-  public var unsafeLengthSquared: RealType {
+  public var lengthSquared: RealType {
     x*x + y*y
   }
+  
+  @available(*, unavailable, renamed: "lengthSquared")
+  public var unsafeLengthSquared: RealType { lengthSquared }
   
   /// The phase (angle, or "argument").
   ///
@@ -484,9 +487,9 @@ extension Complex {
   ///   ```
   ///   Complex(length: .zero, phase: θ) == .zero
   ///   ```
-  /// - For any `θ`, even `.infinity` or `.nan`:
+  /// - For any `θ`, even `.infinity` or `.nan`, if `r` is infinite then:
   ///   ```
-  ///   Complex(length: .infinity, phase: θ) == .infinity
+  ///   Complex(length: r, phase: θ) == .infinity
   ///   ```
   /// - Otherwise, `θ` must be finite, or a precondition failure occurs.
   ///
@@ -501,8 +504,8 @@ extension Complex {
       self = Complex(.cos(phase), .sin(phase)).multiplied(by: length)
     } else {
       precondition(
-        length == 0 || length == .infinity,
-        "Either phase must be finite, or length must be zero or infinity."
+        length.isZero || length.isInfinite,
+        "Either phase must be finite, or length must be zero or infinite."
       )
       self = Complex(length)
     }

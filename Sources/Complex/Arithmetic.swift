@@ -73,9 +73,9 @@ extension Complex: Numeric {
     // Try the naive expression z/w = z*conj(w) / |w|^2; if we can compute
     // this without over/underflow, everything is fine and the result is
     // correct. If not, we have to rescale and do the computation carefully.
-    let lengthSquared = w.unsafeLengthSquared
-    guard lengthSquared.isNormal else { return rescaledDivide(z, w) }
-    return z * (w.conjugate.divided(by: lengthSquared))
+    let lenSq = w.lengthSquared
+    guard lenSq.isNormal else { return rescaledDivide(z, w) }
+    return z * (w.conjugate.divided(by: lenSq))
   }
   
   @_transparent
@@ -98,7 +98,7 @@ extension Complex: Numeric {
     let wScale = w.magnitude
     let zNorm = z.divided(by: zScale)
     let wNorm = w.divided(by: wScale)
-    let r = (zNorm * wNorm.conjugate).divided(by: wNorm.unsafeLengthSquared)
+    let r = (zNorm * wNorm.conjugate).divided(by: wNorm.lengthSquared)
     // At this point, the result is (r * zScale)/wScale computed without
     // undue overflow or underflow. We know that r is close to unity, so
     // the question is simply what order in which to do this computation
