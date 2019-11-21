@@ -133,58 +133,6 @@ internal extension Real where Self: BinaryFloatingPoint {
   }
 }
 
-/*
-extension Real {
-  static func cosPiTests() {
-    // Trivial edge cases:
-    XCTAssertTrue(Self.cos(piTimes: .nan).isNaN)
-    XCTAssertTrue(Self.cos(piTimes:  .infinity).isNaN)
-    XCTAssertTrue(Self.cos(piTimes: -.infinity).isNaN)
-    // Test boundaries of the "always 1" region:
-    let huge = Self.greatestFiniteMagnitude
-    let radix = Self(Self.radix)
-    let large = 1/Self.ulpOfOne
-    XCTAssertEqual(Self.cos(piTimes:  huge), 1)
-    XCTAssertEqual(Self.cos(piTimes: -huge), 1)
-    XCTAssertEqual(Self.cos(piTimes:  huge.nextDown), 1)
-    XCTAssertEqual(Self.cos(piTimes: -huge.nextDown), 1)
-    XCTAssertEqual(Self.cos(piTimes:  radix*(large + 1)), 1)
-    XCTAssertEqual(Self.cos(piTimes: -radix*(large + 1)), 1)
-    XCTAssertEqual(Self.cos(piTimes:  radix*large), 1)
-    XCTAssertEqual(Self.cos(piTimes: -radix*large), 1)
-    // Test values in the integer and half-integer region:
-    XCTAssertEqual(Self.cos(piTimes:  radix*large - 1), -1)
-    XCTAssertEqual(Self.cos(piTimes: -radix*large + 1), -1)
-    XCTAssertEqual(Self.cos(piTimes:  radix*large - 2), 1)
-    XCTAssertEqual(Self.cos(piTimes: -radix*large + 2), 1)
-    XCTAssertEqual(Self.cos(piTimes:  large + 2), 1)
-    XCTAssertEqual(Self.cos(piTimes: -large - 2), 1)
-    XCTAssertEqual(Self.cos(piTimes:  large + 1), -1)
-    XCTAssertEqual(Self.cos(piTimes: -large - 1), -1)
-    XCTAssertEqual(Self.cos(piTimes:  large), 1)
-    XCTAssertEqual(Self.cos(piTimes: -large), 1)
-    XCTAssertTrue(Self.cos(piTimes:  large - 1/2).isPositiveZero)
-    XCTAssertTrue(Self.cos(piTimes: -large + 1/2).isPositiveZero)
-    XCTAssertEqual(Self.cos(piTimes:  large - 1), -1)
-    XCTAssertEqual(Self.cos(piTimes: -large + 1), -1)
-    XCTAssertTrue(Self.cos(piTimes:  large - 3/2).isPositiveZero)
-    XCTAssertTrue(Self.cos(piTimes: -large + 3/2).isPositiveZero)
-    XCTAssertEqual(Self.cos(piTimes:  large - 2), 1)
-    XCTAssertEqual(Self.cos(piTimes: -large + 2), 1)
-    // Test quarter-integers at the upper boundary:
-    XCTAssertEqual(Self.cos(piTimes:  large/2), 1)
-    XCTAssertEqual(Self.cos(piTimes: -large/2), 1)
-//    sanityCheck(.sqrt(2), Self.cos(piTimes: large/2 - 1/4), ulps: 3)
-    
-    
-    XCTAssertEqual(Self.cos(piTimes:  large/2 - 1/4), 1)
-    XCTAssertEqual(Self.cos(piTimes: -large/2 + 1/4), 1)
-    XCTAssertTrue(Self.cos(piTimes:  large/2 - 1/2).isPositiveZero)
-    XCTAssertTrue(Self.cos(piTimes: -large/2 + 1/2).isPositiveZero)
-  }
-}
-*/
-
 final class ElementaryFunctionChecks: XCTestCase {
   
   #if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
