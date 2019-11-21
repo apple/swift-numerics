@@ -1,4 +1,4 @@
-//===--- ElementaryFunctionCheck.swift ------------------------*- swift -*-===//
+//===--- ElementaryFunctionChecks.swift -----------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -133,6 +133,7 @@ internal extension Real where Self: BinaryFloatingPoint {
   }
 }
 
+/*
 extension Real {
   static func cosPiTests() {
     // Trivial edge cases:
@@ -182,8 +183,9 @@ extension Real {
     XCTAssertTrue(Self.cos(piTimes: -large/2 + 1/2).isPositiveZero)
   }
 }
+*/
 
-final class ElementaryFunctionCheck: XCTestCase {
+final class ElementaryFunctionChecks: XCTestCase {
   
   #if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
   func testFloat16() {

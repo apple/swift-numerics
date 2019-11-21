@@ -109,6 +109,21 @@ extension Float: Real {
   
   #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
   @_transparent
+  public static func cos(piTimes x: Float) -> Float {
+    libm_cospif(x)
+  }
+  
+  @_transparent
+  public static func sin(piTimes x: Float) -> Float {
+    libm_sinpif(x)
+  }
+  
+  @_transparent
+  public static func tan(piTimes x: Float) -> Float {
+    libm_tanpif(x)
+  }
+  
+  @_transparent
   public static func exp10(_ x: Float) -> Float {
     libm_exp10f(x)
   }
