@@ -18,7 +18,7 @@ func _FDFT<T>(_ input: [T]) -> [Complex<T>] {
     
     let n = input.count
     
-    let source = zip(input, Array(repeating: 0, count: n)).map(Complex.init)
+    let source = zip(input, Array(repeating: 0, count: n)).map { Complex($0, $1) }
     
     var result = _FDFT(source)
     
@@ -38,7 +38,7 @@ func _FDFT<T>(_ input: [Complex<T>]) -> [Complex<T>] {
     
     for i in 0..<n {
         for j in 0..<n {
-            let twiddle = Complex(length: 1, phase: -2 * .pi * T(i * j) / T(n))!
+            let twiddle = Complex(length: 1, phase: -2 * .pi * T(i * j) / T(n))
             result[i] += input[j] * twiddle
         }
     }
@@ -54,7 +54,7 @@ func _IDFT<T>(_ input: [Complex<T>]) -> [Complex<T>] {
     
     for i in 0..<n {
         for j in 0..<n {
-            let twiddle = Complex(length: 1, phase: 2 * .pi * T(i * j) / T(n))!
+            let twiddle = Complex(length: 1, phase: 2 * .pi * T(i * j) / T(n))
             result[i] += input[j] * twiddle
         }
     }
@@ -171,7 +171,7 @@ final class FastFourierTransformTests: XCTestCase {
             
             vDSP_fft_zop(log2N, in_real, in_imag, 1, &out_real, &out_imag, 1, .forward)
             
-            let check = _FDFT(zip(in_real, in_imag).map(Complex.init))
+            let check = _FDFT(zip(in_real, in_imag).map { Complex($0, $1) })
             
             for i in 0..<length {
                 XCTAssertEqual(check[i].real, out_real[i], accuracy: accuracy)
@@ -194,7 +194,7 @@ final class FastFourierTransformTests: XCTestCase {
             
             vDSP_fft_zop(log2N, in_real, in_imag, 1, &out_real, &out_imag, 1, .inverse)
             
-            let check = _IDFT(zip(in_real, in_imag).map(Complex.init))
+            let check = _IDFT(zip(in_real, in_imag).map { Complex($0, $1) })
             
             for i in 0..<length {
                 XCTAssertEqual(check[i].real, out_real[i], accuracy: accuracy)
@@ -212,7 +212,7 @@ final class FastFourierTransformTests: XCTestCase {
             var real: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
             var imag: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
             
-            let check = _FDFT(zip(real, imag).map(Complex.init))
+            let check = _FDFT(zip(real, imag).map { Complex($0, $1) })
             
             vDSP_fft_zip(log2N, &real, &imag, 1, .forward)
             
@@ -232,7 +232,7 @@ final class FastFourierTransformTests: XCTestCase {
             var real: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
             var imag: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
             
-            let check = _IDFT(zip(real, imag).map(Complex.init))
+            let check = _IDFT(zip(real, imag).map { Complex($0, $1) })
             
             vDSP_fft_zip(log2N, &real, &imag, 1, .inverse)
             
@@ -268,7 +268,7 @@ final class FastFourierTransformTests: XCTestCase {
         
         let (out_real, out_imag) = FastFourier.transform(in_real, in_imag, direction: .forward)
         
-        let check = _FDFT(zip(in_real, in_imag).map(Complex.init))
+        let check = _FDFT(zip(in_real, in_imag).map { Complex($0, $1) })
         
         for i in 0..<length {
             XCTAssertEqual(check[i].real, out_real[i], accuracy: accuracy)
