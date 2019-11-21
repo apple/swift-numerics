@@ -1,4 +1,4 @@
-//===--- vDSP_fft_zip.swift ----------------------------------------*- swift -*-===//
+//===--- _fft_zip.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -33,33 +33,33 @@ import Real
 ///   - stride: Stride between elements in `real` and `imag`.
 ///   - direction: Forward or inverse directional.
 @_transparent
-public func vDSP_fft_zip<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int, _ direction: FastFourier.Direction) {
+public func _fft_zip<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int, _ direction: FastFourier.Direction) {
     switch direction {
     case .forward:
         
         // perform the forward transform.
-        vDSP_fft_zip_imp(log2N, real, imag, stride)
+        _fft_zip_imp(log2N, real, imag, stride)
         
     case .inverse:
         
         // we can perform the inverse transform by swapping the real and imaginary.
-        vDSP_fft_zip_imp(log2N, imag, real, stride)
+        _fft_zip_imp(log2N, imag, real, stride)
     }
 }
 
 @inlinable
-func vDSP_fft_zip_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
+func _fft_zip_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
     
     switch log2N {
         
     case 0: break
         
     case 1:
-        vDSP_fft_zop_imp_2(real, imag, stride, real, imag, stride)
+        _fft_zop_imp_2(real, imag, stride, real, imag, stride)
     case 2:
-        vDSP_fft_zop_imp_4(real, imag, stride, real, imag, stride)
+        _fft_zop_imp_4(real, imag, stride, real, imag, stride)
     case 3:
-        vDSP_fft_zop_imp_8(real, imag, stride, real, imag, stride)
+        _fft_zop_imp_8(real, imag, stride, real, imag, stride)
         
     default:
         let count = 1 << log2N
@@ -79,13 +79,13 @@ func vDSP_fft_zip_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: Unsaf
             }
         }
         
-        vDSP_fft_zip_reordered_imp(log2N, real, imag, stride)
+        _fft_zip_reordered_imp(log2N, real, imag, stride)
     }
 }
 
 @inlinable
 @inline(__always)
-func vDSP_fft_zip_reordered_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
+func _fft_zip_reordered_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
     
     let count = 1 << log2N
     
@@ -94,7 +94,7 @@ func vDSP_fft_zip_reordered_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ r
         var _i = imag
         let m_stride = stride << 3
         for _ in Swift.stride(from: 0, to: count, by: 8) {
-            vDSP_fft_zop_reordered_imp_8(_r, _i, stride)
+            _fft_zop_reordered_imp_8(_r, _i, stride)
             _r += m_stride
             _i += m_stride
         }

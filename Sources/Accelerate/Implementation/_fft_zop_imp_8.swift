@@ -1,4 +1,4 @@
-//===--- vDSP_fft_zop_imp_8.swift ----------------------------------------*- swift -*-===//
+//===--- _fft_zop_imp_8.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -13,7 +13,7 @@ import Real
 
 @inlinable
 @inline(__always)
-func vDSP_fft_zop_imp_8<T: BinaryFloatingPoint>(_ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int) {
+func _fft_zop_imp_8<T: BinaryFloatingPoint>(_ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int) {
     
     var in_real = in_real
     var in_imag = in_imag
@@ -140,7 +140,7 @@ func vDSP_fft_zop_imp_8<T: BinaryFloatingPoint>(_ in_real: UnsafePointer<T>, _ i
 
 @inlinable
 @inline(__always)
-func vDSP_fft_zop_reordered_imp_8<T: BinaryFloatingPoint>(_ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
+func _fft_zop_reordered_imp_8<T: BinaryFloatingPoint>(_ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
     
     var in_real = real
     var in_imag = imag

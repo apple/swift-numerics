@@ -1,4 +1,4 @@
-//===--- vDSP_fft_zrip.swift ----------------------------------------*- swift -*-===//
+//===--- _fft_zrip.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -29,35 +29,35 @@ import Real
 ///   - direction: Forward or inverse directional.
 @inlinable
 @inline(__always)
-public func vDSP_fft_zrip<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int, _ direction: FastFourier.Direction) {
+public func _fft_zrip<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int, _ direction: FastFourier.Direction) {
     switch direction {
-    case .forward: vDSP_fft_zrip_forward_imp(log2N, real, imag, stride)
-    case .inverse: vDSP_fft_zrip_inverse_imp(log2N, real, imag, stride)
+    case .forward: _fft_zrip_forward_imp(log2N, real, imag, stride)
+    case .inverse: _fft_zrip_inverse_imp(log2N, real, imag, stride)
     }
 }
 
 @inlinable
 @inline(__always)
-func vDSP_fft_zrip_forward_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
+func _fft_zrip_forward_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
     
     switch log2N {
         
     case 0: break
         
     case 1:
-        vDSP_fft_zrop_forward_2(real, imag, real, imag)
+        _fft_zrop_forward_2(real, imag, real, imag)
     case 2:
-        vDSP_fft_zrop_forward_4(real, imag, stride, real, imag, stride)
+        _fft_zrop_forward_4(real, imag, stride, real, imag, stride)
     case 3:
-        vDSP_fft_zrop_forward_8(real, imag, stride, real, imag, stride)
+        _fft_zrop_forward_8(real, imag, stride, real, imag, stride)
         
     default:
-        vDSP_fft_zip_imp(log2N - 1, real, imag, stride)
-        vDSP_fft_zrop_forward_twiddling_imp(log2N, real, imag, stride)
+        _fft_zip_imp(log2N - 1, real, imag, stride)
+        _fft_zrop_forward_twiddling_imp(log2N, real, imag, stride)
     }
 }
 @inlinable
 @inline(__always)
-func vDSP_fft_zrip_inverse_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
-    vDSP_fft_zrop_inverse_imp(log2N, real, imag, stride, real, imag, stride)
+func _fft_zrip_inverse_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
+    _fft_zrop_inverse_imp(log2N, real, imag, stride, real, imag, stride)
 }

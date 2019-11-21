@@ -1,4 +1,4 @@
-//===--- vDSP_fft_zrop_2.swift ----------------------------------------*- swift -*-===//
+//===--- _fft_zrop_2.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -11,7 +11,7 @@
 
 @inlinable
 @inline(__always)
-func vDSP_fft_zrop_forward_2<T: FloatingPoint>(_ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>) {
+func _fft_zrop_forward_2<T: FloatingPoint>(_ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>) {
     
     let a = in_real.pointee
     let b = in_imag.pointee
@@ -22,7 +22,7 @@ func vDSP_fft_zrop_forward_2<T: FloatingPoint>(_ in_real: UnsafePointer<T>, _ in
 
 @inlinable
 @inline(__always)
-func vDSP_fft_zrop_inverse_2<T: FloatingPoint>(_ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>) {
+func _fft_zrop_inverse_2<T: FloatingPoint>(_ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>) {
     
     let a = in_real.pointee
     let b = in_imag.pointee

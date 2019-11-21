@@ -40,7 +40,7 @@ extension FastFourier {
             
             guard let buffer = vector.baseAddress else { return }
             
-            vDSP_fft_zip(log2(count), buffer, buffer + 1, 2, direction)
+            _fft_zip(log2(count), buffer, buffer + 1, 2, direction)
             
             } }
         
@@ -73,7 +73,7 @@ extension FastFourier {
                 
                 guard let imaginary = imaginary.baseAddress else { return }
                 
-                vDSP_fft_zip(log2(count), real, imaginary, 1, direction)
+                _fft_zip(log2(count), real, imaginary, 1, direction)
                 
             }
         }
