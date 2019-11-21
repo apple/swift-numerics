@@ -28,7 +28,7 @@ extension Complex where RealType == Double {
 
 let wellScaledDoubles: [Complex<Double>] = (0 ..< 1024).map { _ in
   Complex(length: Double.random(in: 0.5 ..< 2.0),
-          phase: Double.random(in: -.pi ..< .pi))!
+          phase: Double.random(in: -.pi ..< .pi))
 }
 
 let poorlyScaledDoubles: [Complex<Double>] = (0 ..< 1024).map { _ in
@@ -37,7 +37,7 @@ let poorlyScaledDoubles: [Complex<Double>] = (0 ..< 1024).map { _ in
                    exponent: .random(in: -970 ... 1023),
                    significand: .random(in: 1 ..< 2)),
     phase: Double.random(in: -.pi ..< .pi)
-  )!
+  )
 }
 
 final class ArithmeticBenchmarkTests: XCTestCase {

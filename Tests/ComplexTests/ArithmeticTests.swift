@@ -63,6 +63,20 @@ final class ArithmeticTests: XCTestCase {
   func testPolar<T>(_ type: T.Type)
   where T: BinaryFloatingPoint, T: Real,
         T.Exponent: FixedWidthInteger, T.RawSignificand: FixedWidthInteger {
+    
+    // In order to support round-tripping from rectangular to polar coordinate
+    // systems, as a special case phase can be non-finite when length is
+    // either zero or infinity.
+    XCTAssertEqual(Complex<T>(length: .zero, phase: .infinity), .zero)
+    XCTAssertEqual(Complex<T>(length: .zero, phase:-.infinity), .zero)
+    XCTAssertEqual(Complex<T>(length: .zero, phase: .nan     ), .zero)
+    XCTAssertEqual(Complex<T>(length: .infinity, phase: .infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length: .infinity, phase:-.infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length: .infinity, phase: .nan     ), .infinity)
+    XCTAssertEqual(Complex<T>(length:-.infinity, phase: .infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length:-.infinity, phase:-.infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length:-.infinity, phase: .nan     ), .infinity)
+          
     let exponentRange =
       (T.leastNormalMagnitude.exponent + T.Exponent(T.significandBitCount)) ...
         T.greatestFiniteMagnitude.exponent
@@ -81,7 +95,7 @@ final class ArithmeticTests: XCTestCase {
       // this is good--more test coverage!--and bad, because without tight
       // bounds on every platform's libm, we can't get tight bounds on the
       // accuracy of these operations, so we need to relax them gradually).
-      let z = Complex(length: p.length, phase: p.phase)!
+      let z = Complex(length: p.length, phase: p.phase)
       if !closeEnough(z.length, p.length, ulps: 16) {
         print("p = \(p)\nz = \(z)\nz.length = \(z.length)")
         XCTFail()
@@ -90,23 +104,30 @@ final class ArithmeticTests: XCTestCase {
         print("p = \(p)\nz = \(z)\nz.phase = \(z.phase)")
         XCTFail()
       }
-      // if length*length is normal, it should be unsafeLengthSquared, up
+      // Complex(length: -r, phase: θ) = -Complex(length: r, phase: θ).
+      let w = Complex(length: -p.length, phase: p.phase)
+      if w != -z {
+        print("p = \(p)\nw = \(w)\nz = \(z)")
+        XCTFail()
+      }
+      XCTAssertEqual(w, -z)
+      // if length*length is normal, it should be lengthSquared, up
       // to small error.
       if (p.length*p.length).isNormal {
-        if !closeEnough(z.unsafeLengthSquared, p.length*p.length, ulps: 16) {
-          print("p = \(p)\nz = \(z)\nz.unsafeLengthSquared = \(z.unsafeLengthSquared)")
+        if !closeEnough(z.lengthSquared, p.length*p.length, ulps: 16) {
+          print("p = \(p)\nz = \(z)\nz.lengthSquared = \(z.lengthSquared)")
           XCTFail()
         }
       }
       // Test reciprocal and normalized:
-      let r = Complex(length: 1/p.length, phase: -p.phase)!
+      let r = Complex(length: 1/p.length, phase: -p.phase)
       if r.isNormal {
         if relativeError(r, z.reciprocal!) > 16 {
           print("p = \(p)\nz = \(z)\nz.reciprocal = \(r)")
           XCTFail()
         }
       } else { XCTAssertNil(z.reciprocal) }
-      let n = Complex(length: 1, phase: p.phase)!
+      let n = Complex(length: 1, phase: p.phase)
       if relativeError(n, z.normalized!) > 16 {
         print("p = \(p)\nz = \(z)\nz.normalized = \(n)")
         XCTFail()
@@ -114,10 +135,10 @@ final class ArithmeticTests: XCTestCase {
       
       // Now test multiplication and division using the polar inputs:
       for q in inputs {
-        let w = Complex(length: q.length, phase: q.phase)!
-        let product = Complex(length: p.length * q.length, phase: p.phase + q.phase)!
+        let w = Complex(length: q.length, phase: q.phase)
+        let product = Complex(length: p.length * q.length, phase: p.phase + q.phase)
         if checkMultiply(z, w, expected: product, ulps: 16) { XCTFail() }
-        let quotient = Complex(length: p.length / q.length, phase: p.phase - q.phase)!
+        let quotient = Complex(length: p.length / q.length, phase: p.phase - q.phase)
         if checkDivide(z, w, expected: quotient, ulps: 16) { XCTFail() }
       }
     }
