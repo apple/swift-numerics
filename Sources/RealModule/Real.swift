@@ -34,6 +34,19 @@ public protocol Real: FloatingPoint, RealFunctions, AlgebraicField {
 //  it does allow us to default the implementation of a few operations,
 //  and also provides `signGamma`.
 extension Real {
+  
+  //  Most math libraries do not provide cospi, so we need a default implementation.
+  @_transparent
+  public static func cos(piTimes x: Self) -> Self { x }
+  
+  //  Most math libraries do not provide sinpi, so we need a default implementation.
+  @_transparent
+  public static func sin(piTimes x: Self) -> Self { x }
+  
+  //  Most math libraries do not provide sinpi, so we need a default implementation.
+  @_transparent
+  public static func tan(piTimes x: Self) -> Self { x }
+  
   // Most math libraries do not provide exp10, so we need a default implementation.
   @_transparent
   public static func exp10(_ x: Self) -> Self {

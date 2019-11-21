@@ -17,6 +17,55 @@ public protocol RealFunctions: ElementaryFunctions {
   /// - `atan()`
   static func atan2(y: Self, x: Self) -> Self
   
+  /// `cos(πx)`
+  ///
+  /// Computes the cosine of π times `x`.
+  ///
+  /// Edge cases:
+  /// -
+  /// - If `x` is an even integer, `cos(piTimes: x)` is `1.0`.
+  ///   In particular, the result is `1.0` for all sufficiently large `x`.
+  /// - If `x` is `n/2` for some odd integer `n`, then `cos(piTimes: x)` is `+0.0`.
+  /// - If `x` is not finite, `cos(piTimes: x)` is `.nan`.
+  ///
+  /// See also:
+  /// - 
+  /// - `sin(piTimes:)`
+  /// - `tan(piTimes:)`
+  /// - `cos()`
+  static func cos(piTimes x: Self) -> Self
+  
+  /// `sin(πx)`
+  ///
+  /// Computes the sine of π times `x`.
+  ///
+  /// Edge cases:
+  /// -
+  /// - If `x` is a positive integer, `sin(piTimes: x)` is `+0.0`.
+  ///   In particular, the result is `+0.0` for all sufficiently large `x`.
+  /// - If `x` is not finite, `sin(piTimes: x)` is `.nan`.
+  ///
+  /// See also:
+  /// -
+  /// - `cos(piTimes:)`
+  /// - `tan(piTimes:)`
+  /// - `sin()`
+  static func sin(piTimes x: Self) -> Self
+  
+  /// `tan(πx)`
+  ///
+  /// Computes the tangent of π times `x`.
+  ///
+  /// Edge cases:
+  /// - 
+  ///
+  /// See also:
+  /// -
+  /// - `cos(piTimes:)`
+  /// - `sin(piTimes:)`
+  /// - `tan()`
+  static func tan(piTimes x: Self) -> Self
+  
   /// The error function evaluated at `x`.
   ///
   /// See also:
@@ -118,3 +167,4 @@ public protocol RealFunctions: ElementaryFunctions {
   /// Whichever is faster should be chosen by the compiler statically.
   static func _mulAdd(_ a: Self, _ b: Self, _ c: Self) -> Self
 }
+
