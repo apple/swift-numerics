@@ -112,7 +112,7 @@ public protocol RealFunctions: ElementaryFunctions {
   /// -
   /// - `cos(piTimes:)`
   /// - `sin(piTimes:)`
-  /// - `ElementaryFunctions.tan(_:)`
+  /// - `tan()`
   static func tan(piTimes x: Self) -> Self
   
   /// The [error function][wiki] evaluated at `x`.
