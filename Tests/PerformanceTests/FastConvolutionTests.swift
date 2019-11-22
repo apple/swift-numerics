@@ -62,4 +62,42 @@ final class FastConvolutionTests: XCTestCase {
     
     let accuracy = 0.00000001
     
+    func testTypedFFTConv() {
+        
+        for log2N in 1...8 {
+            
+            let length = 1 << log2N
+            
+            let signal = (0..<length).map { _ in Double.random(in: -1...1) }
+            let kernel = (0..<length).map { _ in Double.random(in: -1...1) }
+            
+            let output = FastFourier.convolve(signal, withKernel: kernel)
+            
+            let check = _cyclic_conv(signal, kernel)
+            
+            for i in 0..<output.count {
+                XCTAssertEqual(check[i], output[i], accuracy: accuracy)
+            }
+        }
+    }
+    
+    func testTypedFFTConvComplex() {
+        
+        for log2N in 1...8 {
+            
+            let length = 1 << log2N
+            
+            let signal = (0..<length).map { _ in Complex(Double.random(in: -1...1), Double.random(in: -1...1)) }
+            let kernel = (0..<length).map { _ in Complex(Double.random(in: -1...1), Double.random(in: -1...1)) }
+            
+            let output = FastFourier.convolve(signal, withKernel: kernel)
+            
+            let check = _cyclic_conv(signal, kernel)
+            
+            for i in 0..<output.count {
+                XCTAssertEqual(check[i].real, output[i].real, accuracy: accuracy)
+                XCTAssertEqual(check[i].imaginary, output[i].imaginary, accuracy: accuracy)
+            }
+        }
+    }
 }

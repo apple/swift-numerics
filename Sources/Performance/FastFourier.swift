@@ -67,7 +67,7 @@ extension FastFourier {
         _ real: U,
         _ imaginary: U,
         direction: Direction
-    ) -> (real: U, imaginary: U) where U : PerformanceMutableBuffer, U.Element : Real, U.Element : BinaryFloatingPoint {
+    ) -> (real: U, imaginary: U) where U : PerformanceMutableBuffer, U.Element : Real & BinaryFloatingPoint {
         
         precondition(real.count == imaginary.count)
         precondition(real.count.isPower2)
@@ -92,28 +92,4 @@ extension FastFourier {
         return (real, imaginary)
     }
     
-}
-
-extension UnsafeBufferPointer {
-    
-    @inlinable
-    @inline(__always)
-    func _reboundToReal<T>(body: (UnsafeBufferPointer<T>) -> Void) where Element == Complex<T> {
-        let raw_ptr = UnsafeRawBufferPointer(self)
-        let bound_ptr = raw_ptr.bindMemory(to: T.self)
-        defer { _ = raw_ptr.bindMemory(to: Complex<T>.self) }
-        return body(bound_ptr)
-    }
-}
-
-extension UnsafeMutableBufferPointer {
-    
-    @inlinable
-    @inline(__always)
-    func _reboundToReal<T>(body: (UnsafeMutableBufferPointer<T>) -> Void) where Element == Complex<T> {
-        let raw_ptr = UnsafeMutableRawBufferPointer(self)
-        let bound_ptr = raw_ptr.bindMemory(to: T.self)
-        defer { _ = raw_ptr.bindMemory(to: Complex<T>.self) }
-        return body(bound_ptr)
-    }
 }
