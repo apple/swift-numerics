@@ -64,9 +64,9 @@ final class FastConvolutionTests: XCTestCase {
     
     func testTypedFFTConv() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             let signal = (0..<length).map { _ in Double.random(in: -1...1) }
             let kernel = (0..<length).map { _ in Double.random(in: -1...1) }
@@ -83,9 +83,9 @@ final class FastConvolutionTests: XCTestCase {
     
     func testTypedFFTConvComplex() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             let signal = (0..<length).map { _ in Complex(Double.random(in: -1...1), Double.random(in: -1...1)) }
             let kernel = (0..<length).map { _ in Complex(Double.random(in: -1...1), Double.random(in: -1...1)) }

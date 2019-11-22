@@ -29,30 +29,30 @@ import Real
 /// - complexity: O(n log2(n))
 ///
 /// - parameters:
-///   - log2N: The base 2 exponent of the number of elements to process.
+///   - log2n: The base 2 exponent of the number of elements to process.
 ///   - real: Real part of complex output vector.
 ///   - imag: Imaginary part of complex output vector.
 ///   - stride: Stride between elements in `real` and `imag`.
 ///   - direction: Forward or inverse directional.
 @_transparent
-public func _fft_zip<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int, _ direction: FFTDirection) {
+public func _fft_zip<T: Real & BinaryFloatingPoint>(_ log2n: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int, _ direction: FFTDirection) {
     switch direction {
     case .forward:
         
         // perform the forward transform.
-        _fft_zip_imp(log2N, real, imag, stride)
+        _fft_zip_imp(log2n, real, imag, stride)
         
     case .inverse:
         
         // we can perform the inverse transform by swapping the real and imaginary.
-        _fft_zip_imp(log2N, imag, real, stride)
+        _fft_zip_imp(log2n, imag, real, stride)
     }
 }
 
 @inlinable
-func _fft_zip_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
+func _fft_zip_imp<T: Real & BinaryFloatingPoint>(_ log2n: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
     
-    switch log2N {
+    switch log2n {
         
     case 0: break
         
@@ -64,10 +64,10 @@ func _fft_zip_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMut
         _fft_zop_imp_8(real, imag, stride, real, imag, stride)
         
     default:
-        let count = 1 << log2N
+        let count = 1 << log2n
         
         do {
-            let offset = Int.bitWidth - log2N
+            let offset = Int.bitWidth - log2n
             var _real = real
             var _imag = imag
             for i in 1..<count - 1 {
@@ -81,15 +81,15 @@ func _fft_zip_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMut
             }
         }
         
-        _fft_zip_reordered_imp(log2N, real, imag, stride)
+        _fft_zip_reordered_imp(log2n, real, imag, stride)
     }
 }
 
 @inlinable
 @inline(__always)
-func _fft_zip_reordered_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
+func _fft_zip_reordered_imp<T: Real & BinaryFloatingPoint>(_ log2n: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int) {
     
-    let count = 1 << log2N
+    let count = 1 << log2n
     
     do {
         var _r = real
@@ -102,7 +102,7 @@ func _fft_zip_reordered_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real:
         }
     }
     
-    for s in 3..<log2N {
+    for s in 3..<log2n {
         
         let m = 2 << s
         let n = 1 << s

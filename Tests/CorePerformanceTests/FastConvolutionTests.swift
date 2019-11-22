@@ -64,16 +64,16 @@ final class FastConvolutionTests: XCTestCase {
     
     func testFFTConv() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             let signal = (0..<length).map { _ in Double.random(in: -1...1) }
             let kernel = (0..<length).map { _ in Double.random(in: -1...1) }
             var output: [Double] = Array(repeating: 0, count: signal.count)
             var temp: [Double] = Array(repeating: 0, count: signal.count)
             
-            _fft_conv(log2N, signal, 1, kernel, 1, &output, 1, &temp, 1)
+            _fft_conv(log2n, signal, 1, kernel, 1, &output, 1, &temp, 1)
             
             let check = _cyclic_conv(signal, kernel)
             
@@ -85,9 +85,9 @@ final class FastConvolutionTests: XCTestCase {
     
     func testFFTConvComplex() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             let sreal = (0..<length).map { _ in Double.random(in: -1...1) }
             let simag = (0..<length).map { _ in Double.random(in: -1...1) }
@@ -98,7 +98,7 @@ final class FastConvolutionTests: XCTestCase {
             var treal: [Double] = Array(repeating: 0, count: kreal.count)
             var timag: [Double] = Array(repeating: 0, count: kimag.count)
             
-            _fft_conv(log2N, sreal, simag, 1, kreal, kimag, 1, &oreal, &oimag, 1, &treal, &timag, 1)
+            _fft_conv(log2n, sreal, simag, 1, kreal, kimag, 1, &oreal, &oimag, 1, &treal, &timag, 1)
             
             let signal = zip(sreal, simag).map { Complex($0, $1) }
             let kernel = zip(kreal, kimag).map { Complex($0, $1) }

@@ -29,7 +29,7 @@ import Real
 /// - complexity: O(n log2(n))
 /// 
 /// - parameters:
-///   - log2N: The base 2 exponent of the number of elements to process.
+///   - log2n: The base 2 exponent of the number of elements to process.
 ///   - in_real: Real part of complex input vector.
 ///   - in_imag: Imaginary part of complex input vector.
 ///   - in_stride: Stride between elements in `in_real` and `in_imag`.
@@ -38,24 +38,24 @@ import Real
 ///   - out_stride: Stride between elements in `out_real` and `out_imag`.
 ///   - direction: Forward or inverse directional.
 @_transparent
-public func _fft_zop<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int, _ direction: FFTDirection) {
+public func _fft_zop<T: Real & BinaryFloatingPoint>(_ log2n: Int, _ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int, _ direction: FFTDirection) {
     switch direction {
     case .forward:
         
         // perform the forward transform.
-        _fft_zop_imp(log2N, in_real, in_imag, in_stride, out_real, out_imag, out_stride)
+        _fft_zop_imp(log2n, in_real, in_imag, in_stride, out_real, out_imag, out_stride)
         
     case .inverse:
         
         // we can perform the inverse transform by swapping the real and imaginary.
-        _fft_zop_imp(log2N, in_imag, in_real, in_stride, out_imag, out_real, out_stride)
+        _fft_zop_imp(log2n, in_imag, in_real, in_stride, out_imag, out_real, out_stride)
     }
 }
 
 @inlinable
-func _fft_zop_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int) {
+func _fft_zop_imp<T: Real & BinaryFloatingPoint>(_ log2n: Int, _ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int) {
     
-    switch log2N {
+    switch log2n {
         
     case 0:
         out_real.pointee = in_real.pointee
@@ -69,7 +69,7 @@ func _fft_zop_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: Unsafe
         _fft_zop_imp_8(in_real, in_imag, in_stride, out_real, out_imag, out_stride)
         
     default:
-        let length = 1 << log2N
+        let length = 1 << log2n
         let half = length >> 1
         
         let oph_stride = half * out_stride
@@ -78,8 +78,8 @@ func _fft_zop_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: Unsafe
         var oph_r = out_real + oph_stride
         var oph_i = out_imag + oph_stride
         
-        _fft_zop_imp(log2N - 1, in_real, in_imag, in_stride << 1, op_r, op_i, out_stride)
-        _fft_zop_imp(log2N - 1, in_real + in_stride, in_imag + in_stride, in_stride << 1, oph_r, oph_i, out_stride)
+        _fft_zop_imp(log2n - 1, in_real, in_imag, in_stride << 1, op_r, op_i, out_stride)
+        _fft_zop_imp(log2n - 1, in_real + in_stride, in_imag + in_stride, in_stride << 1, oph_r, oph_i, out_stride)
         
         let angle = -T.pi / T(half)
         let _cos = T.cos(angle)

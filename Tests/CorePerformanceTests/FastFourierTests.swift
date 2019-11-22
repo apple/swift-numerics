@@ -68,9 +68,9 @@ final class FastFourierTests: XCTestCase {
     
     func testFFTZropForward() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             let in_even: [Double] = (0..<length / 2).map { _ in Double.random(in: -1...1) }
             let in_odd: [Double] = (0..<length / 2).map { _ in Double.random(in: -1...1) }
@@ -78,7 +78,7 @@ final class FastFourierTests: XCTestCase {
             var out_real: [Double] = Array(repeating: 0, count: length / 2)
             var out_imag: [Double] = Array(repeating: 0, count: length / 2)
             
-            _fft_zrop(log2N, in_even, in_odd, 1, &out_real, &out_imag, 1, .forward)
+            _fft_zrop(log2n, in_even, in_odd, 1, &out_real, &out_imag, 1, .forward)
             
             let check = _FDFT(zip(in_even, in_odd).flatMap { [$0, $1] })
             
@@ -91,16 +91,16 @@ final class FastFourierTests: XCTestCase {
     
     func testFFTZripForward() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             var real: [Double] = (0..<length / 2).map { _ in Double.random(in: -1...1) }
             var imag: [Double] = (0..<length / 2).map { _ in Double.random(in: -1...1) }
             
             let check = _FDFT(zip(real, imag).flatMap { [$0, $1] })
             
-            _fft_zrip(log2N, &real, &imag, 1, .forward)
+            _fft_zrip(log2n, &real, &imag, 1, .forward)
             
             for i in 0..<length / 2 {
                 XCTAssertEqual(check[i].real, real[i], accuracy: accuracy)
@@ -111,9 +111,9 @@ final class FastFourierTests: XCTestCase {
     
     func testFFTZropInverse() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             var real: [Double] = (0..<length / 2).map { _ in Double.random(in: -1...1) }
             var imag: [Double] = (0..<length / 2).map { _ in Double.random(in: -1...1) }
@@ -121,12 +121,12 @@ final class FastFourierTests: XCTestCase {
             let check_even = real
             let check_odd = imag
             
-            _fft_zrip(log2N, &real, &imag, 1, .forward)
+            _fft_zrip(log2n, &real, &imag, 1, .forward)
             
             var out_real: [Double] = Array(repeating: 0, count: length / 2)
             var out_imag: [Double] = Array(repeating: 0, count: length / 2)
             
-            _fft_zrop(log2N, real, imag, 1, &out_real, &out_imag, 1, .inverse)
+            _fft_zrop(log2n, real, imag, 1, &out_real, &out_imag, 1, .inverse)
             
             for i in 0..<length / 2 {
                 XCTAssertEqual(check_even[i], out_real[i] / Double(length), accuracy: accuracy)
@@ -137,9 +137,9 @@ final class FastFourierTests: XCTestCase {
     
     func testFFTZripInverse() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             var real: [Double] = (0..<length / 2).map { _ in Double.random(in: -1...1) }
             var imag: [Double] = (0..<length / 2).map { _ in Double.random(in: -1...1) }
@@ -147,8 +147,8 @@ final class FastFourierTests: XCTestCase {
             let check_even = real
             let check_odd = imag
             
-            _fft_zrip(log2N, &real, &imag, 1, .forward)
-            _fft_zrip(log2N, &real, &imag, 1, .inverse)
+            _fft_zrip(log2n, &real, &imag, 1, .forward)
+            _fft_zrip(log2n, &real, &imag, 1, .inverse)
             
             for i in 0..<length / 2 {
                 XCTAssertEqual(check_even[i], real[i] / Double(length), accuracy: accuracy)
@@ -159,9 +159,9 @@ final class FastFourierTests: XCTestCase {
     
     func testFFTZopForward() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             let in_real: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
             let in_imag: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
@@ -169,7 +169,7 @@ final class FastFourierTests: XCTestCase {
             var out_real: [Double] = Array(repeating: 0, count: length)
             var out_imag: [Double] = Array(repeating: 0, count: length)
             
-            _fft_zop(log2N, in_real, in_imag, 1, &out_real, &out_imag, 1, .forward)
+            _fft_zop(log2n, in_real, in_imag, 1, &out_real, &out_imag, 1, .forward)
             
             let check = _FDFT(zip(in_real, in_imag).map { Complex($0, $1) })
             
@@ -182,9 +182,9 @@ final class FastFourierTests: XCTestCase {
     
     func testFFTZopInverse() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             let in_real: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
             let in_imag: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
@@ -192,7 +192,7 @@ final class FastFourierTests: XCTestCase {
             var out_real: [Double] = Array(repeating: 0, count: length)
             var out_imag: [Double] = Array(repeating: 0, count: length)
             
-            _fft_zop(log2N, in_real, in_imag, 1, &out_real, &out_imag, 1, .inverse)
+            _fft_zop(log2n, in_real, in_imag, 1, &out_real, &out_imag, 1, .inverse)
             
             let check = _IDFT(zip(in_real, in_imag).map { Complex($0, $1) })
             
@@ -205,16 +205,16 @@ final class FastFourierTests: XCTestCase {
     
     func testFFTZipForward() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             var real: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
             var imag: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
             
             let check = _FDFT(zip(real, imag).map { Complex($0, $1) })
             
-            _fft_zip(log2N, &real, &imag, 1, .forward)
+            _fft_zip(log2n, &real, &imag, 1, .forward)
             
             for i in 0..<length {
                 XCTAssertEqual(check[i].real, real[i], accuracy: accuracy)
@@ -225,16 +225,16 @@ final class FastFourierTests: XCTestCase {
     
     func testFFTZipInverse() {
         
-        for log2N in 1...8 {
+        for log2n in 1...8 {
             
-            let length = 1 << log2N
+            let length = 1 << log2n
             
             var real: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
             var imag: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
             
             let check = _IDFT(zip(real, imag).map { Complex($0, $1) })
             
-            _fft_zip(log2N, &real, &imag, 1, .inverse)
+            _fft_zip(log2n, &real, &imag, 1, .inverse)
             
             for i in 0..<length {
                 XCTAssertEqual(check[i].real, real[i], accuracy: accuracy)
