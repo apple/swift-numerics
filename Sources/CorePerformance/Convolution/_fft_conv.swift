@@ -29,6 +29,8 @@ import Real
 /// }
 /// ```
 ///
+/// - complexity: O(n log2(n))
+///
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.
 ///   - signal: signal buffer.
@@ -92,6 +94,8 @@ public func _fft_conv<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ signal: Uns
 ///     result[i] = sum
 /// }
 /// ```
+///
+/// - complexity: O(n log2(n))
 ///
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.

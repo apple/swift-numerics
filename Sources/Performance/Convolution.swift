@@ -16,13 +16,34 @@ import CorePerformance
 extension FastFourier {
     
     /// Performs a fast fourier based cyclic convolution.
+    ///
+    /// This function behaves the same as the following
+    ///
+    /// ```swift
+    /// for i in 0..<signal.count {
+    ///
+    ///     var sum = 0.0
+    ///
+    ///     for j in 0..<kernel.count {
+    ///         let k = positive_mod(i - j, signal.count)
+    ///         sum += kernel[j] * signal[k]
+    ///     }
+    ///
+    ///     result[i] = sum
+    /// }
+    /// ```
+    ///
+    /// - precondition: The length of vector must be power of 2.
+    ///
+    /// - complexity: O(n log2(n))
+    ///
     public static func convolve<U, V>(
         _ vector: U,
         withKernel kernel: V
     ) -> [U.Element] where U : PerformanceBuffer, V : PerformanceBuffer, U.Element : Real & BinaryFloatingPoint, U.Element == V.Element {
         
-        precondition(vector.count == kernel.count)
-        precondition(vector.count.isPower2)
+        precondition(vector.count == kernel.count, "Invalid length of inputs. The length of inputs should be same.")
+        precondition(vector.count.isPower2, "Invalid length of vector. The length of vector should be power of 2.")
         
         let count = vector.count
         var output: [U.Element] = Array(repeating: 0, count: count)
@@ -55,13 +76,34 @@ extension FastFourier {
     }
     
     /// Performs a fast fourier based cyclic convolution.
+    ///
+    /// This function behaves the same as the following
+    ///
+    /// ```swift
+    /// for i in 0..<signal.count {
+    ///
+    ///     var sum = 0.0
+    ///
+    ///     for j in 0..<kernel.count {
+    ///         let k = positive_mod(i - j, signal.count)
+    ///         sum += kernel[j] * signal[k]
+    ///     }
+    ///
+    ///     result[i] = sum
+    /// }
+    /// ```
+    ///
+    /// - precondition: The length of vector must be power of 2.
+    ///
+    /// - complexity: O(n log2(n))
+    ///
     public static func convolve<T, U, V>(
         _ vector: U,
         withKernel kernel: V
     ) -> [Complex<T>] where U : PerformanceBuffer, V : PerformanceBuffer, T : BinaryFloatingPoint, U.Element == Complex<T>, V.Element == Complex<T> {
         
-        precondition(vector.count == kernel.count)
-        precondition(vector.count.isPower2)
+        precondition(vector.count == kernel.count, "Invalid length of inputs. The length of inputs should be same.")
+        precondition(vector.count.isPower2, "Invalid length of vector. The length of vector should be power of 2.")
         
         let count = vector.count
         var output: [Complex<T>] = Array(repeating: 0, count: count)

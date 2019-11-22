@@ -13,6 +13,8 @@ import Real
 
 /// Performs a Real to Complex out-of-place discrete fourier transform. This function requires/results the first half of frequency domain only.
 ///
+/// - complexity: O(m log2(m)), where m == n - 1
+/// 
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.
 ///   - in_real: The even part of elements of real input vector when performing forward transform. Otherwise, this is the real part of complex input vector.
@@ -114,6 +116,10 @@ func _fft_zrop_forward_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_rea
         _fft_zrop_forward_twiddling_imp(log2N, out_real, out_imag, out_stride)
     }
 }
+
+/// This method performs in-place.
+///
+/// - seealso: `_fft_zrip_inverse_imp(_:_:_:_:)`
 @inlinable
 @inline(__always)
 func _fft_zrop_inverse_imp<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int) {

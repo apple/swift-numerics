@@ -26,6 +26,8 @@ import Real
 /// }
 /// ```
 ///
+/// - complexity: O(n log2(n))
+///
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.
 ///   - real: Real part of complex output vector.
