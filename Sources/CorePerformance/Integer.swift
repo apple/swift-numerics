@@ -54,6 +54,6 @@ extension BinaryInteger {
 
 @inlinable
 @inline(__always)
-func log2<T: FixedWidthInteger>(_ x: T) -> T {
+public func log2<T: FixedWidthInteger>(_ x: T) -> T {
     return x == 0 ? 0 : T(T.bitWidth - x.leadingZeroBitCount - 1)
 }

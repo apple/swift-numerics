@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import Accelerate
+import CorePerformance
 import Complex
 import Real
 

@@ -1,4 +1,4 @@
-//===--- Numerics.swift ---------------------------------------*- swift -*-===//
+//===--- FFTDirection.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -9,7 +9,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-// A module that re-exports the complete Swift Numerics public API.
-@_exported import Real
-@_exported import Complex
-@_exported import Performance
+public enum FFTDirection {
+    
+    case forward
+    
+    case inverse
+}

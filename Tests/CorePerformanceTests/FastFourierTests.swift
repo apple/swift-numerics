@@ -1,4 +1,4 @@
-//===--- FastFourierTransformTests.swift ----------------------------------*- swift -*-===//
+//===--- FastFourierTests.swift ----------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import Accelerate
+import CorePerformance
 import Complex
 import Real
 
@@ -62,7 +62,7 @@ func _IDFT<T>(_ input: [Complex<T>]) -> [Complex<T>] {
     return result
 }
 
-final class FastFourierTransformTests: XCTestCase {
+final class FastFourierTests: XCTestCase {
     
     let accuracy = 0.00000001
     
@@ -243,36 +243,4 @@ final class FastFourierTransformTests: XCTestCase {
         }
     }
     
-    func testTypedFastFourier1() {
-        
-        let length = 1 << 8
-        
-        let input = (0..<length).map { _ in Complex(Double.random(in: -1...1), Double.random(in: -1...1)) }
-        
-        let output = FastFourier.transform(input, direction: .forward)
-        
-        let check = _FDFT(input)
-        
-        for i in 0..<length {
-            XCTAssertEqual(check[i].real, output[i].real, accuracy: accuracy)
-            XCTAssertEqual(check[i].imaginary, output[i].imaginary, accuracy: accuracy)
-        }
-    }
-    
-    func testTypedFastFourier2() {
-        
-        let length = 1 << 8
-        
-        let in_real: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
-        let in_imag: [Double] = (0..<length).map { _ in Double.random(in: -1...1) }
-        
-        let (out_real, out_imag) = FastFourier.transform(in_real, in_imag, direction: .forward)
-        
-        let check = _FDFT(zip(in_real, in_imag).map { Complex($0, $1) })
-        
-        for i in 0..<length {
-            XCTAssertEqual(check[i].real, out_real[i], accuracy: accuracy)
-            XCTAssertEqual(check[i].imaginary, out_imag[i], accuracy: accuracy)
-        }
-    }
 }

@@ -18,18 +18,21 @@ let package = Package(
     .library(name: "Complex", targets: ["Complex"]),
     .library(name: "Numerics", targets: ["Numerics"]),
     .library(name: "Real", targets: ["Real"]),
-    .library(name: "Accelerate", targets: ["Accelerate"]),
+    .library(name: "Performance", targets: ["Performance"]),
+    .library(name: "CorePerformance", targets: ["CorePerformance"]),
   ],
   dependencies: [
   ],
   targets: [
     .target(name: "Complex", dependencies: ["Real"]),
-    .target(name: "Numerics", dependencies: ["Complex", "Real", "Accelerate"]),
+    .target(name: "Numerics", dependencies: ["Complex", "Real", "Performance"]),
     .target(name: "NumericsShims", dependencies: []),
     .target(name: "Real", dependencies: ["NumericsShims"]),
-    .target(name: "Accelerate", dependencies: ["Complex", "Real"]),
+    .target(name: "Performance", dependencies: ["Complex", "Real", "CorePerformance"]),
+    .target(name: "CorePerformance", dependencies: ["Complex", "Real"]),
     
-    .testTarget(name: "AccelerateTests", dependencies: ["Accelerate", "Complex"]),
+    .testTarget(name: "CorePerformanceTests", dependencies: ["CorePerformance", "Complex"]),
+    .testTarget(name: "PerformanceTests", dependencies: ["Performance", "Complex"]),
     .testTarget(name: "ComplexTests", dependencies: ["Complex", "NumericsShims"]),
     .testTarget(name: "RealTests", dependencies: ["Real"]),
   ]

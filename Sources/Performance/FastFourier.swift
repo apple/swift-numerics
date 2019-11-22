@@ -11,6 +11,7 @@
 
 import Real
 import Complex
+import CorePerformance
 
 public enum FastFourier {
     
@@ -23,13 +24,23 @@ public enum FastFourier {
     
 }
 
+extension FastFourier.Direction {
+    
+    var rawValue: FFTDirection {
+        switch self {
+        case .forward: return .forward
+        case .inverse: return .inverse
+        }
+    }
+}
+
 extension FastFourier {
     
     /// Computes fast Fourier transform.
     public static func transform<U, T>(
         _ vector: U,
         direction: Direction
-    ) -> U where U : AccelerateMutableBuffer, U.Element == Complex<T>, T : BinaryFloatingPoint {
+    ) -> U where U : PerformanceMutableBuffer, U.Element == Complex<T>, T : BinaryFloatingPoint {
         
         precondition(vector.count.isPower2)
         
@@ -40,7 +51,7 @@ extension FastFourier {
             
             guard let buffer = vector.baseAddress else { return }
             
-            _fft_zip(log2(count), buffer, buffer + 1, 2, direction)
+            _fft_zip(log2(count), buffer, buffer + 1, 2, direction.rawValue)
             
             } }
         
@@ -56,7 +67,7 @@ extension FastFourier {
         _ real: U,
         _ imaginary: U,
         direction: Direction
-    ) -> (real: U, imaginary: U) where U : AccelerateMutableBuffer, U.Element : Real, U.Element : BinaryFloatingPoint {
+    ) -> (real: U, imaginary: U) where U : PerformanceMutableBuffer, U.Element : Real, U.Element : BinaryFloatingPoint {
         
         precondition(real.count == imaginary.count)
         precondition(real.count.isPower2)
@@ -73,7 +84,7 @@ extension FastFourier {
                 
                 guard let imaginary = imaginary.baseAddress else { return }
                 
-                _fft_zip(log2(count), real, imaginary, 1, direction)
+                _fft_zip(log2(count), real, imaginary, 1, direction.rawValue)
                 
             }
         }

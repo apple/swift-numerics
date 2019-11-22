@@ -24,7 +24,7 @@ import Real
 ///   - direction: Forward or inverse directional.
 @inlinable
 @inline(__always)
-public func _fft_zrop<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int, _ direction: FastFourier.Direction) {
+public func _fft_zrop<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ in_real: UnsafePointer<T>, _ in_imag: UnsafePointer<T>, _ in_stride: Int, _ out_real: UnsafeMutablePointer<T>, _ out_imag: UnsafeMutablePointer<T>, _ out_stride: Int, _ direction: FFTDirection) {
     switch direction {
     case .forward: _fft_zrop_forward_imp(log2N, in_real, in_imag, in_stride, out_real, out_imag, out_stride)
     case .inverse: _fft_zrop_inverse_imp(log2N, in_real, in_imag, in_stride, out_real, out_imag, out_stride)

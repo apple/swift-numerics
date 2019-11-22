@@ -20,7 +20,7 @@ import Real
 ///
 /// for i in 0..<n {
 ///     for j in 0..<n {
-///         let twiddle = Complex(length: 1, phase: _2_PI * T(i * j) / T(n))!
+///         let twiddle = Complex(length: 1, phase: _2_PI * T(i * j) / T(n))
 ///         output[i] += input[j] * twiddle
 ///     }
 /// }
@@ -33,7 +33,7 @@ import Real
 ///   - stride: Stride between elements in `real` and `imag`.
 ///   - direction: Forward or inverse directional.
 @_transparent
-public func _fft_zip<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int, _ direction: FastFourier.Direction) {
+public func _fft_zip<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ real: UnsafeMutablePointer<T>, _ imag: UnsafeMutablePointer<T>, _ stride: Int, _ direction: FFTDirection) {
     switch direction {
     case .forward:
         

@@ -1,4 +1,4 @@
-//===--- AccelerateBuffer.swift ----------------------------------------*- swift -*-===//
+//===--- PerformanceBuffer.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -14,7 +14,7 @@
 /// In practice, most types conforming to this protocol will be Collections,
 /// but they need not be--they need only have an Element type and count, and
 /// provide the withUnsafeBufferPointer function.
-public protocol AccelerateBuffer {
+public protocol PerformanceBuffer {
     /// The buffer's element type.
     associatedtype Element
     
@@ -32,7 +32,7 @@ public protocol AccelerateBuffer {
 ///
 /// In practice, most types conforming to this protocol will be
 /// MutableCollections, but they need not be.
-public protocol AccelerateMutableBuffer: AccelerateBuffer {
+public protocol PerformanceMutableBuffer: PerformanceBuffer {
     /// Calls the given closure with a pointer to the object's mutable
     /// contiguous storage.
     mutating func withUnsafeMutableBufferPointer<R>(
@@ -40,7 +40,7 @@ public protocol AccelerateMutableBuffer: AccelerateBuffer {
     ) rethrows -> R
 }
 
-public extension AccelerateBuffer where Self: Collection {
+public extension PerformanceBuffer where Self: Collection {
     @inlinable
     func withUnsafeBufferPointer<R>(
         _ body: (UnsafeBufferPointer<Element>) throws -> R
@@ -49,7 +49,7 @@ public extension AccelerateBuffer where Self: Collection {
     }
 }
 
-extension AccelerateMutableBuffer where Self: MutableCollection {
+extension PerformanceMutableBuffer where Self: MutableCollection {
     @inlinable
     public mutating func withUnsafeMutableBufferPointer<R>(
         _ body: (inout UnsafeMutableBufferPointer<Element>) throws -> R
@@ -58,17 +58,17 @@ extension AccelerateMutableBuffer where Self: MutableCollection {
     }
 }
 
-extension Array: AccelerateMutableBuffer { }
+extension Array: PerformanceMutableBuffer { }
 
-extension ContiguousArray: AccelerateMutableBuffer { }
+extension ContiguousArray: PerformanceMutableBuffer { }
 
-extension ArraySlice: AccelerateMutableBuffer { }
+extension ArraySlice: PerformanceMutableBuffer { }
 
-extension UnsafeBufferPointer: AccelerateBuffer { }
+extension UnsafeBufferPointer: PerformanceBuffer { }
 
-extension UnsafeMutableBufferPointer: AccelerateMutableBuffer { }
+extension UnsafeMutableBufferPointer: PerformanceMutableBuffer { }
 
-extension Slice: AccelerateBuffer where Base: AccelerateBuffer { }
+extension Slice: PerformanceBuffer where Base: PerformanceBuffer { }
 
-extension Slice: AccelerateMutableBuffer
-where Base: AccelerateMutableBuffer & MutableCollection { }
+extension Slice: PerformanceMutableBuffer
+where Base: PerformanceMutableBuffer & MutableCollection { }
