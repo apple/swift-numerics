@@ -13,7 +13,7 @@ import Real
 
 /// Performs a Real to Complex out-of-place discrete fourier transform. This function requires/results the first half of frequency domain only.
 ///
-/// - complexity: O(m log2(m)), where m == n - 1
+/// - complexity: O(n log2(n))
 ///
 /// - parameters:
 ///   - log2N: The base 2 exponent of the number of elements to process.
