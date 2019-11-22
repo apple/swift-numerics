@@ -40,7 +40,6 @@ import Real
 ///   - temp: temporary buffer.
 ///   - temp_stride: Stride between elements in `temp`.
 @inlinable
-@inline(__always)
 public func _fft_conv<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ signal: UnsafePointer<T>, _ signal_stride: Int, _ kernel: UnsafePointer<T>, _ kernel_stride: Int, _ output: UnsafeMutablePointer<T>, _ out_stride: Int, _ temp: UnsafeMutablePointer<T>, _ temp_stride: Int) {
     
     let length = 1 << log2N
@@ -109,7 +108,6 @@ public func _fft_conv<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ signal: Uns
 ///   - timag: Imaginary part of complex temporary buffer.
 ///   - temp_stride: Stride between elements in `treal` and `timag`.
 @inlinable
-@inline(__always)
 public func _fft_conv<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ sreal: UnsafePointer<T>, _ simag: UnsafePointer<T>, _ signal_stride: Int, _ kreal: UnsafePointer<T>, _ kimag: UnsafePointer<T>, _ kernel_stride: Int, _ oreal: UnsafeMutablePointer<T>, _ oimag: UnsafeMutablePointer<T>, _ out_stride: Int, _ treal: UnsafeMutablePointer<T>, _ timag: UnsafeMutablePointer<T>, _ temp_stride: Int) {
     
     let length = 1 << log2N
