@@ -20,7 +20,7 @@ func positive_mod<T: BinaryInteger>(_ x: T, _ m: T) -> T {
     return r < 0 ? r + m : r
 }
 
-func _cyclic_conv(_ signal: [Double], _ kernal: [Double]) -> [Double] {
+func _cyclic_conv(_ signal: [Double], _ kernel: [Double]) -> [Double] {
     
     var result: [Double] = Array(repeating: 0, count: signal.count)
     
@@ -28,9 +28,9 @@ func _cyclic_conv(_ signal: [Double], _ kernal: [Double]) -> [Double] {
         
         var sum = 0.0
         
-        for j in 0..<kernal.count {
+        for j in 0..<kernel.count {
             let k = positive_mod(i - j, signal.count)
-            sum += kernal[j] * signal[k]
+            sum += kernel[j] * signal[k]
         }
         
         result[i] = sum
@@ -39,7 +39,7 @@ func _cyclic_conv(_ signal: [Double], _ kernal: [Double]) -> [Double] {
     return result
 }
 
-func _cyclic_conv<T>(_ signal: [Complex<T>], _ kernal: [Complex<T>]) -> [Complex<T>] {
+func _cyclic_conv<T>(_ signal: [Complex<T>], _ kernel: [Complex<T>]) -> [Complex<T>] {
     
     var result: [Complex<T>] = Array(repeating: 0, count: signal.count)
     
@@ -47,9 +47,9 @@ func _cyclic_conv<T>(_ signal: [Complex<T>], _ kernal: [Complex<T>]) -> [Complex
         
         var sum: Complex<T> = 0
         
-        for j in 0..<kernal.count {
+        for j in 0..<kernel.count {
             let k = positive_mod(i - j, signal.count)
-            sum += kernal[j] * signal[k]
+            sum += kernel[j] * signal[k]
         }
         
         result[i] = sum

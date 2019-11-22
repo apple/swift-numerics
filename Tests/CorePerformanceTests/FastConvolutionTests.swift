@@ -20,7 +20,7 @@ func positive_mod<T: BinaryInteger>(_ x: T, _ m: T) -> T {
     return r < 0 ? r + m : r
 }
 
-func _cyclic_conv(_ signal: [Double], _ kernal: [Double]) -> [Double] {
+func _cyclic_conv(_ signal: [Double], _ kernel: [Double]) -> [Double] {
     
     var result: [Double] = Array(repeating: 0, count: signal.count)
     
@@ -28,9 +28,9 @@ func _cyclic_conv(_ signal: [Double], _ kernal: [Double]) -> [Double] {
         
         var sum = 0.0
         
-        for j in 0..<kernal.count {
+        for j in 0..<kernel.count {
             let k = positive_mod(i - j, signal.count)
-            sum += kernal[j] * signal[k]
+            sum += kernel[j] * signal[k]
         }
         
         result[i] = sum
@@ -39,7 +39,7 @@ func _cyclic_conv(_ signal: [Double], _ kernal: [Double]) -> [Double] {
     return result
 }
 
-func _cyclic_conv<T>(_ signal: [Complex<T>], _ kernal: [Complex<T>]) -> [Complex<T>] {
+func _cyclic_conv<T>(_ signal: [Complex<T>], _ kernel: [Complex<T>]) -> [Complex<T>] {
     
     var result: [Complex<T>] = Array(repeating: 0, count: signal.count)
     
@@ -47,9 +47,9 @@ func _cyclic_conv<T>(_ signal: [Complex<T>], _ kernal: [Complex<T>]) -> [Complex
         
         var sum: Complex<T> = 0
         
-        for j in 0..<kernal.count {
+        for j in 0..<kernel.count {
             let k = positive_mod(i - j, signal.count)
-            sum += kernal[j] * signal[k]
+            sum += kernel[j] * signal[k]
         }
         
         result[i] = sum
@@ -69,13 +69,13 @@ final class FastConvolutionTests: XCTestCase {
             let length = 1 << log2N
             
             let signal = (0..<length).map { _ in Double.random(in: -1...1) }
-            let kernal = (0..<length).map { _ in Double.random(in: -1...1) }
+            let kernel = (0..<length).map { _ in Double.random(in: -1...1) }
             var output: [Double] = Array(repeating: 0, count: signal.count)
             var temp: [Double] = Array(repeating: 0, count: signal.count)
             
-            _fft_conv(log2N, signal, 1, kernal, 1, &output, 1, &temp, 1)
+            _fft_conv(log2N, signal, 1, kernel, 1, &output, 1, &temp, 1)
             
-            let check = _cyclic_conv(signal, kernal)
+            let check = _cyclic_conv(signal, kernel)
             
             for i in 0..<output.count {
                 XCTAssertEqual(check[i], output[i], accuracy: accuracy)
@@ -101,8 +101,8 @@ final class FastConvolutionTests: XCTestCase {
             _fft_conv(log2N, sreal, simag, 1, kreal, kimag, 1, &oreal, &oimag, 1, &treal, &timag, 1)
             
             let signal = zip(sreal, simag).map { Complex($0, $1) }
-            let kernal = zip(kreal, kimag).map { Complex($0, $1) }
-            let check = _cyclic_conv(signal, kernal)
+            let kernel = zip(kreal, kimag).map { Complex($0, $1) }
+            let check = _cyclic_conv(signal, kernel)
             
             for i in 0..<oreal.count {
                 XCTAssertEqual(check[i].real, oreal[i], accuracy: accuracy)

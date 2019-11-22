@@ -20,9 +20,9 @@ import Real
 ///
 ///     var sum = 0.0
 ///
-///     for j in 0..<kernal.count {
+///     for j in 0..<kernel.count {
 ///         let k = positive_mod(i - j, signal.count)
-///         sum += kernal[j] * signal[k]
+///         sum += kernel[j] * signal[k]
 ///     }
 ///
 ///     result[i] = sum
@@ -84,9 +84,9 @@ public func _fft_conv<T: Real & BinaryFloatingPoint>(_ log2N: Int, _ signal: Uns
 ///
 ///     var sum = 0.0
 ///
-///     for j in 0..<kernal.count {
+///     for j in 0..<kernel.count {
 ///         let k = positive_mod(i - j, signal.count)
-///         sum += kernal[j] * signal[k]
+///         sum += kernel[j] * signal[k]
 ///     }
 ///
 ///     result[i] = sum
