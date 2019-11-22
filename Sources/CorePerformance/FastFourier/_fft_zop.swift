@@ -16,7 +16,7 @@ import Real
 /// This function behaves the same as the following
 ///
 /// ```swift
-/// let _2_PI = direction == .forward ? -2 * .pi : -2 * .pi
+/// let _2_PI = direction == .forward ? -2 * .pi : 2 * .pi
 ///
 /// for i in 0..<n {
 ///     for j in 0..<n {
