@@ -13,12 +13,16 @@ import Real
 import Complex
 import CorePerformance
 
+/// A namespace for fast fourier based algorithm.
 public enum FastFourier {
     
+    /// Fast Fourier transform directions.
     public enum Direction {
         
+        /// Performs forward direction of fourier transform.
         case forward
         
+        /// Performs inverse direction of fourier transform.
         case inverse
     }
     
