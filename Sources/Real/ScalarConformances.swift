@@ -43,11 +43,7 @@ extension Float: Real {
   @_transparent public static func gamma(_ x: Float) -> Float { return libm_tgammaf(x) }
   @_transparent public static func log2(_ x: Float) -> Float { return libm_log2f(x) }
   @_transparent public static func log10(_ x: Float) -> Float { return libm_log10f(x) }
-  
-  @_transparent public static func pow(_ x: Float, _ y: Float) -> Float {
-    guard x >= 0 else { return .nan }
-    return libm_powf(x, y)
-  }
+  @_transparent public static func pow(_ x: Float, _ y: Float) -> Float { return libm_powf(x, y) }
   
   @_transparent public static func pow(_ x: Float, _ n: Int) -> Float {
     // TODO: this implementation is not quite correct, because n may be
@@ -122,11 +118,7 @@ extension Double: Real {
   @_transparent public static func gamma(_ x: Double) -> Double { return libm_tgamma(x) }
   @_transparent public static func log2(_ x: Double) -> Double { return libm_log2(x) }
   @_transparent public static func log10(_ x: Double) -> Double { return libm_log10(x) }
-  
-  @_transparent public static func pow(_ x: Double, _ y: Double) -> Double {
-    guard x >= 0 else { return .nan }
-    return libm_pow(x, y)
-  }
+  @_transparent public static func pow(_ x: Double, _ y: Double) -> Double { return libm_pow(x, y) }
   
   @_transparent public static func pow(_ x: Double, _ n: Int) -> Double {
     // TODO: this implementation is not quite correct, because n may be
@@ -184,11 +176,7 @@ extension Float80: Real {
   @_transparent public static func gamma(_ x: Float80) -> Float80 { return libm_tgammal(x) }
   @_transparent public static func log2(_ x: Float80) -> Float80 { return libm_log2l(x) }
   @_transparent public static func log10(_ x: Float80) -> Float80 { return libm_log10l(x) }
-  
-  @_transparent public static func pow(_ x: Float80, _ y: Float80) -> Float80 {
-    guard x >= 0 else { return .nan }
-    return libm_powl(x, y)
-  }
+  @_transparent public static func pow(_ x: Float80, _ y: Float80) -> Float80 { return libm_powl(x, y) }
   
   @_transparent public static func pow(_ x: Float80, _ n: Int) -> Float80 {
     // TODO: this implementation is not quite correct, because n may be
