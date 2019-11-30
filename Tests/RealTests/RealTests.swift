@@ -27,10 +27,10 @@ func sanityCheck<T>(_ expected: TestLiteralType, _ actual: T,
   // right through zero to the other side.
   XCTAssert(actual.sign == expected.sign, "\(actual) != \(expected) as \(T.self)", file: file, line: line)
   // Default tolerance is 16 ulps; It's OK to relax this as needed for new
-  // platforms, as these Checks are *not* intended to validate the math
+  // platforms, as these checks are *not* intended to validate the math
   // library--they are only intended to check that the Swift bindings are
   // calling the right functions in the math library. It's important, however
-  // not to relax the tolerance beyond a few hundred ulps, because these Checks
+  // not to relax the tolerance beyond a few hundred ulps, because these checks
   // need to detect errors where the *wrong function* is being called; e.g.
   // we need to flag an implentation that inadvertently called the C hypotf
   // function instead of hypot. This is especially important because the C
