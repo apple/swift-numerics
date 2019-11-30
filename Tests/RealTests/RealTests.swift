@@ -139,12 +139,26 @@ extension Float {
     sanityCheck(-7.0064924138100205091278464932003585e-46, Float.pow(-d, 1744361943))
     sanityCheck( 7.0064919961905290625123586120258840e-46, Float.pow(-d, 1744361944))
     sanityCheck(-7.0064915785710625079583096856510544e-46, Float.pow(-d, 1744361945))
+    // Just hammer max/min exponents, these always saturate, but this will reveal
+    // errors in some implementations that one could try.
+    sanityCheck( .infinity, Self.pow(-u,  Int.max - 1))
+    sanityCheck( 0.0,       Self.pow(-d,  Int.max - 1))
+    sanityCheck( 0.0,       Self.pow(-u, -Int.max + 1))
+    sanityCheck( .infinity, Self.pow(-d, -Int.max + 1))
+    sanityCheck(-.infinity, Self.pow(-u,  Int.max))
+    sanityCheck(-0.0,       Self.pow(-d,  Int.max))
+    sanityCheck(-0.0,       Self.pow(-u, -Int.max))
+    sanityCheck(-.infinity, Self.pow(-d, -Int.max))
+    sanityCheck( 0.0,       Self.pow(-u,  Int.min))
+    sanityCheck( .infinity, Self.pow(-d,  Int.min))
   }
 }
 
 extension Double {
   static func testPown() {
     testPownCommon()
+    // Following tests only make sense (and are only necessary) on 64b platforms.
+#if arch(arm64) || arch(x86_64)
     let u: Double = 1.nextUp
     let d: Double = 1.nextDown
     // Smallest exponent not exactly representable as Double.
@@ -166,6 +180,19 @@ extension Double {
     sanityCheck(-2.4703282292062332640976590913373022e-324, Double.pow(-d, 6711563375777760775))
     sanityCheck( 2.4703282292062329898361312467121758e-324, Double.pow(-d, 6711563375777760776))
     sanityCheck(-2.4703282292062327155746034020870799e-324, Double.pow(-d, 6711563375777760777))
+    // Just hammer max/min exponents, these always saturate, but this will reveal
+    // errors in some implementations that one could try.
+    sanityCheck( .infinity, Self.pow(-u,  Int.max - 1))
+    sanityCheck( 0.0,       Self.pow(-d,  Int.max - 1))
+    sanityCheck( 0.0,       Self.pow(-u, -Int.max + 1))
+    sanityCheck( .infinity, Self.pow(-d, -Int.max + 1))
+    sanityCheck(-.infinity, Self.pow(-u,  Int.max))
+    sanityCheck(-0.0,       Self.pow(-d,  Int.max))
+    sanityCheck(-0.0,       Self.pow(-u, -Int.max))
+    sanityCheck(-.infinity, Self.pow(-d, -Int.max))
+    sanityCheck( 0.0,       Self.pow(-u,  Int.min))
+    sanityCheck( .infinity, Self.pow(-d,  Int.min))
+#endif
   }
 }
 
