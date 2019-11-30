@@ -50,11 +50,21 @@ extension Float: Real {
   }
   
   @_transparent public static func pow(_ x: Float, _ n: Int) -> Float {
-    // TODO: this implementation is not quite correct, because n may be
-    // rounded in conversion to Float. This only effects very extreme cases,
-    // so we'll leave it alone for now; however, it gets the sign wrong if
-    // it rounds an odd number to an even number, so we should fix it soon.
-    return libm_powf(x, Float(n))
+    // If n is exactly representable as Float, we can just call powf:
+    if let y = Float(exactly: n) {
+      return libm_powf(x, y)
+    }
+    // Otherwise, n is too large to losslessly represent as Float.
+    // The range of "interesting" n is -1488522191 ... 1744361944; outside
+    // of this range, all x != 1 overflow or underflow, so only the parity
+    // of x matters. We don't really care about the specific range at all,
+    // only that the bounds fit exactly into two Floats. Mask the low 24
+    // bits of n, get pow with that exponent (this contains the parity),
+    // then get pow with the rest (this may round, but if it does we've
+    // saturated anyway, so it doesn't matter).
+    let low = n & 0xffffff
+    let high = n - low
+    return libm_powf(x, Float(low)) * libm_powf(x, Float(high))
   }
   
   @_transparent public static func root(_ x: Float, _ n: Int) -> Float {
@@ -129,11 +139,22 @@ extension Double: Real {
   }
   
   @_transparent public static func pow(_ x: Double, _ n: Int) -> Double {
-    // TODO: this implementation is not quite correct, because n may be
-    // rounded in conversion to Double. This only effects very extreme cases,
-    // so we'll leave it alone for now; however, it gets the sign wrong if
-    // it rounds an odd number to an even number, so we should fix it soon.
-    return libm_pow(x, Double(n))
+    // If n is exactly representable as Double, we can just call pow:
+    // Note that all calls on a 32b platform go down this path.
+    if let y = Double(exactly: n) {
+      return libm_pow(x, y)
+    }
+    // Otherwise, n is too large to losslessly represent as Double, so we
+    // just split it into two parts, high and low. This is always exact,
+    // so the only source of error is pow itself and the multiplication.
+    //
+    // mask constant is spelled in this funny way because if we just anded
+    // with the hex value, we'd get a compile error on 32b platforms, even
+    // though this whole branch is dead code on 32b.
+    let mask = Int(truncatingIfNeeded: 0x1fffffffffffff as UInt64)
+    let low = n & mask
+    let high = n - low
+    return libm_pow(x, Double(low)) * libm_pow(x, Double(high))
   }
   
   @_transparent public static func root(_ x: Double, _ n: Int) -> Double {
@@ -191,10 +212,9 @@ extension Float80: Real {
   }
   
   @_transparent public static func pow(_ x: Float80, _ n: Int) -> Float80 {
-    // TODO: this implementation is not quite correct, because n may be
-    // rounded in conversion to Float80. This only effects very extreme cases,
-    // so we'll leave it alone for now; however, it gets the sign wrong if
-    // it rounds an odd number to an even number, so we should fix it soon.
+    // Every Int value is exactly representable as Float80, so we don't need
+    // to do anything fancy--unlike Float and Double, we can just call the
+    // libm pow function.
     return libm_powl(x, Float80(n))
   }
   
