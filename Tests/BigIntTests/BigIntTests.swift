@@ -34,6 +34,9 @@ final class BigIntTests: XCTestCase {
         XCTAssertNotNil(baz)
         let equal = (baz ?? 0) / BigInt(1e38) == BigInt(24)
         XCTAssertEqual(equal, true)
+        
+        let infinite = BigInt(exactly: Double.infinity)
+        XCTAssertNil(infinite)
     }
     
     func testUIntConversion() {

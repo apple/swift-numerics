@@ -4,9 +4,6 @@
 //
 //  Created by Robert Thompson on 2/4/19.
 //
-
-import NumericsShims
-
 fileprivate let digitsAndDash = Set("-0123456789")
 
 public struct BigInt: BinaryInteger, SignedNumeric, SignedInteger, CustomStringConvertible, LosslessStringConvertible, Hashable {
@@ -159,17 +156,27 @@ public struct BigInt: BinaryInteger, SignedNumeric, SignedInteger, CustomStringC
     }
     
     public init<T>(_ source: T) where T : BinaryFloatingPoint {
+        precondition(
+            !(source.isNaN || source.isInfinite),
+            "\(type(of: source)) value cannot be converted to BigInt because it is either infinite or NaN"
+        )
+        
         let isNegative = source < 0.0
-        var float = Double(isNegative ? -source : source)
-        var words = Words()
-        while float > 0.0 {
-            let digit = UInt(libm_remainder(float, Double(UInt.max) + 1.0))
-            words.append(digit)
+        var float = isNegative ? -source : source
+        
+        if let _ = UInt(exactly: T.greatestFiniteMagnitude) {
+            self.words = [UInt(float)]
+        } else {
+            var words = Words()
+            let radix = T(sign: .plus, exponent: T.Exponent(UInt.bitWidth), significand: 1)
+            repeat {
+                let digit = UInt(float.truncatingRemainder(dividingBy: radix))
+                words.append(digit)
+                float = (float / radix).rounded(.towardZero)
+            } while float != 0
 
-            float = libm_floor(float / (Double(UInt.max) + 1.0))
+            self.words = words
         }
-
-        self.words = words
 
         if isNegative {
             self = -self
@@ -203,7 +210,11 @@ public struct BigInt: BinaryInteger, SignedNumeric, SignedInteger, CustomStringC
     }
     
     public init?<T>(exactly source: T) where T : BinaryFloatingPoint {
-        if libm_ceil(Double(source)) != Double(source) { return nil }
+        if (source.isNaN || source.isInfinite) ||
+            (source.rounded(.towardZero) != source) {
+            return nil
+        }
+        
         self.init(source)
     }
     
