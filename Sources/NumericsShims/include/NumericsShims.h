@@ -143,6 +143,18 @@ HEADER_SHIM float libm_log10f(float x) {
   return __builtin_log10f(x);
 }
 
+HEADER_SHIM float libm_ceilf(float x) {
+    return __builtin_ceilf(x);
+}
+
+HEADER_SHIM float libm_floorf(float x) {
+    return __builtin_floorf(x);
+}
+
+HEADER_SHIM float libm_remainderf(float x, float y) {
+    return __builtin_remainderf(x, y);
+}
+
 #if !defined _WIN32
 HEADER_SHIM float libm_lgammaf(float x, int *signp) {
   extern float lgammaf_r(float, int *);
@@ -263,6 +275,18 @@ HEADER_SHIM double libm_log10(double x) {
   return __builtin_log10(x);
 }
 
+HEADER_SHIM double libm_ceil(double x) {
+    return __builtin_ceil(x);
+}
+
+HEADER_SHIM double libm_floor(double x) {
+    return __builtin_floor(x);
+}
+
+HEADER_SHIM double libm_remainder(double x, double y) {
+    return __builtin_remainder(x, y);
+}
+
 #if !defined _WIN32
 HEADER_SHIM double libm_lgamma(double x, int *signp) {
   extern double lgamma_r(double, int *);
@@ -379,6 +403,18 @@ HEADER_SHIM long double libm_log10l(long double x) {
 HEADER_SHIM long double libm_lgammal(long double x, int *signp) {
   extern long double lgammal_r(long double, int *);
   return lgammal_r(x, signp);
+}
+
+HEADER_SHIM long double libm_ceill(long double x) {
+    return __builtin_ceill(x);
+}
+
+HEADER_SHIM long double libm_floorl(long double x) {
+    return __builtin_floorl(x);
+}
+
+HEADER_SHIM long double libm_remainderl(long double x, long double y) {
+    return __builtin_remainderl(x, y);
 }
 #endif
 

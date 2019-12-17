@@ -1,19 +1,16 @@
 //
 //  BigInt.swift
-//  lispish
+//  swift-numerics
 //
 //  Created by Robert Thompson on 2/4/19.
 //
 
-#if os(Linux)
-import Glibc
-#else
-import Darwin
-#endif
+import NumericsShims
 
 fileprivate let digitsAndDash = Set("-0123456789")
 
 public struct BigInt: BinaryInteger, SignedNumeric, SignedInteger, CustomStringConvertible, LosslessStringConvertible, Hashable {
+    
     public private(set) var words: Array<UInt>
 
     public init?(_ description: String) {
@@ -163,17 +160,17 @@ public struct BigInt: BinaryInteger, SignedNumeric, SignedInteger, CustomStringC
     
     public init<T>(_ source: T) where T : BinaryFloatingPoint {
         let isNegative = source < 0.0
-        var float = isNegative ? -source : source
+        var float = Double(isNegative ? -source : source)
         var words = Words()
         while float > 0.0 {
-            let digit = UInt(remainder(float, T(UInt.max) + 1.0))
+            let digit = UInt(libm_remainder(float, Double(UInt.max) + 1.0))
             words.append(digit)
-            
-            float = floor(float / (T(UInt.max) + 1.0))
+
+            float = libm_floor(float / (Double(UInt.max) + 1.0))
         }
-        
+
         self.words = words
-        
+
         if isNegative {
             self = -self
         }
@@ -206,7 +203,7 @@ public struct BigInt: BinaryInteger, SignedNumeric, SignedInteger, CustomStringC
     }
     
     public init?<T>(exactly source: T) where T : BinaryFloatingPoint {
-        if ceil(source) != source { return nil }
+        if libm_ceil(Double(source)) != Double(source) { return nil }
         self.init(source)
     }
     
@@ -452,15 +449,17 @@ public struct BigInt: BinaryInteger, SignedNumeric, SignedInteger, CustomStringC
         let bitWidth = UInt(UInt.bitWidth)
         
         let s = normalize(x: rhsWords[n - 1])
-        guard let rn = calloc(n, MemoryLayout<UInt>.stride)?.assumingMemoryBound(to: UInt.self) else { fatalError("OOM") }
-        defer { free(rn) }
+        let rn = UnsafeMutablePointer<UInt>.allocate(capacity: n)
+        rn.initialize(repeating: 0, count: n)
+        defer { rn.deallocate() }
         for i in (1...(n - 1)).reversed() {
             rn[i] = (rhsWords[i] << s) | (rhsWords[i - 1] >> (bitWidth - s))
         }
         rn[0] <<= s
         
-        guard let ln = calloc(m + n + 1, MemoryLayout<UInt>.stride)?.assumingMemoryBound(to: UInt.self) else { fatalError("OOM") }
-        defer { free(ln) }
+        let ln = UnsafeMutablePointer<UInt>.allocate(capacity: m + n + 1)
+        ln.initialize(repeating: 0, count: m + n + 1)
+        defer { ln.deallocate() }
         ln[m] = lhsWords[m - 1] >> (bitWidth - s)
         for i in (1...(m - 1)).reversed() {
             ln[i] = (lhsWords[i] << s) | (lhsWords[i - 1] >> (bitWidth - s))

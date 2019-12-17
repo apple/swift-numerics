@@ -18,16 +18,19 @@ let package = Package(
     .library(name: "Complex", targets: ["Complex"]),
     .library(name: "Numerics", targets: ["Numerics"]),
     .library(name: "Real", targets: ["Real"]),
+    .library(name: "BigInt", targets: ["BigInt"]),
   ],
   dependencies: [
   ],
   targets: [
     .target(name: "Complex", dependencies: ["Real"]),
-    .target(name: "Numerics", dependencies: ["Complex", "Real"]),
+    .target(name: "Numerics", dependencies: ["Complex", "Real", "BigInt"]),
     .target(name: "NumericsShims", dependencies: []),
     .target(name: "Real", dependencies: ["NumericsShims"]),
+    .target(name: "BigInt", dependencies: ["NumericsShims"]),
     
     .testTarget(name: "ComplexTests", dependencies: ["Complex", "NumericsShims"]),
     .testTarget(name: "RealTests", dependencies: ["Real"]),
+    .testTarget(name: "BigIntTests", dependencies: ["BigInt", "NumericsShims"]),
   ]
 )
