@@ -27,10 +27,10 @@ let package = Package(
     .target(name: "Numerics", dependencies: ["Complex", "Real", "BigInt"]),
     .target(name: "NumericsShims", dependencies: []),
     .target(name: "Real", dependencies: ["NumericsShims"]),
-    .target(name: "BigInt", dependencies: ["NumericsShims"]),
+    .target(name: "BigInt", dependencies: []),
     
     .testTarget(name: "ComplexTests", dependencies: ["Complex", "NumericsShims"]),
     .testTarget(name: "RealTests", dependencies: ["Real"]),
-    .testTarget(name: "BigIntTests", dependencies: ["BigInt", "NumericsShims"]),
+    .testTarget(name: "BigIntTests", dependencies: ["BigInt"]),
   ]
 )
