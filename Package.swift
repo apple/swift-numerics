@@ -25,7 +25,7 @@ let package = Package(
   targets: [
     .target(name: "BigInt", dependencies: []),
     .target(name: "Complex", dependencies: ["Real"]),
-    .target(name: "Numerics", dependencies: ["Complex", "Real", "BigInt"]),
+    .target(name: "Numerics", dependencies: ["BigInt", "Complex", "Real"]),
     .target(name: "NumericsShims", dependencies: []),
     .target(name: "Real", dependencies: ["NumericsShims"]),
     
