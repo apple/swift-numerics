@@ -13,17 +13,17 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
   public private(set) var words: [UInt]
 
   public init?(_ description: String) {
-    var description = description
     let isNegative = description.hasPrefix("-")
-    if isNegative || description.hasPrefix("+") {
-      _ = description.removeFirst()
-    }
+    let hasPrefixOperator = isNegative || description.hasPrefix("+")
+    
+    let unprefixedDescription = hasPrefixOperator ? description.dropFirst() : description[...]
+    guard !unprefixedDescription.isEmpty else { return nil }
 
     let digits = Set("0123456789")
-    guard description.allSatisfy({ digits.contains($0) }) else { return nil }
+    guard unprefixedDescription.allSatisfy({ digits.contains($0) }) else { return nil }
 
     var result: BigInt = 0
-    for (i, char) in description.reversed().enumerated() {
+    for (i, char) in unprefixedDescription.drop(while: { $0 == "0" }).reversed().enumerated() {
       // We're ok to force unwrap here because of the guard above.
       result += BigInt(char.wholeNumberValue!) * pow(10, BigInt(i))
     }
