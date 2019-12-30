@@ -23,7 +23,7 @@ public struct BigInt: BinaryInteger, SignedNumeric, SignedInteger, CustomStringC
             }
         }
         
-        let digitsAndDash = Set("0123456789")
+        let digits = Set("0123456789")
         guard description.allSatisfy({ digitsAndDash.contains($0) }) else { return nil }
         
         var result: BigInt = 0
