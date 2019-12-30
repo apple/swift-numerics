@@ -13,7 +13,7 @@ public struct BigInt: BinaryInteger, SignedNumeric, SignedInteger, CustomStringC
         guard let firstCharacter = description.first else { return nil }
         
         var description = description
-        let isNegative: Bool
+        var isNegative: Bool = false
         if description.count > 1 {
             if firstCharacter == "-" {
                 isNegative = true
