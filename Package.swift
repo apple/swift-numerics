@@ -15,22 +15,22 @@ import PackageDescription
 let package = Package(
   name: "swift-numerics",
   products: [
+    .library(name: "BigInt", targets: ["BigInt"]),
     .library(name: "Complex", targets: ["Complex"]),
     .library(name: "Numerics", targets: ["Numerics"]),
     .library(name: "Real", targets: ["Real"]),
-    .library(name: "BigInt", targets: ["BigInt"]),
   ],
   dependencies: [
   ],
   targets: [
+    .target(name: "BigInt", dependencies: []),
     .target(name: "Complex", dependencies: ["Real"]),
     .target(name: "Numerics", dependencies: ["Complex", "Real", "BigInt"]),
     .target(name: "NumericsShims", dependencies: []),
     .target(name: "Real", dependencies: ["NumericsShims"]),
-    .target(name: "BigInt", dependencies: []),
     
+    .testTarget(name: "BigIntTests", dependencies: ["BigInt"]),
     .testTarget(name: "ComplexTests", dependencies: ["Complex", "NumericsShims"]),
     .testTarget(name: "RealTests", dependencies: ["Real"]),
-    .testTarget(name: "BigIntTests", dependencies: ["BigInt"]),
   ]
 )
