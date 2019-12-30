@@ -24,7 +24,7 @@ public struct BigInt: BinaryInteger, SignedNumeric, SignedInteger, CustomStringC
         }
         
         let digits = Set("0123456789")
-        guard description.allSatisfy({ digitsAndDash.contains($0) }) else { return nil }
+        guard description.allSatisfy({ digits.contains($0) }) else { return nil }
         
         var result: BigInt = 0
         for (i, char) in description.reversed().enumerated() {
