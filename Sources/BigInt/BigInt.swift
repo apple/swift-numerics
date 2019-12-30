@@ -4,29 +4,32 @@
 //
 //  Created by Robert Thompson on 2/4/19.
 //
-fileprivate let digitsAndDash = Set("-0123456789")
 
 public struct BigInt: BinaryInteger, SignedNumeric, SignedInteger, CustomStringConvertible, LosslessStringConvertible, Hashable {
     
     public private(set) var words: Array<UInt>
 
     public init?(_ description: String) {
-        guard description.allSatisfy({ digitsAndDash.contains($0) }) else { return nil }
-        var result: BigInt = 0
+        guard let firstCharacter = description.first else { return nil }
+        
         var description = description
         let isNegative: Bool
-        if description.first == "-" {
-            guard description.count > 1 else { return nil }
-
-            isNegative = true
-            description.removeFirst()
-        } else {
-            isNegative = false
+        if description.count > 1 {
+            if firstCharacter == "-" {
+                isNegative = true
+                description.removeFirst()
+            } else if firstCharacter == "+" {
+                description.removeFirst()
+            }
         }
         
+        let digitsAndDash = Set("0123456789")
+        guard description.allSatisfy({ digitsAndDash.contains($0) }) else { return nil }
+        
+        var result: BigInt = 0
         for (i, char) in description.reversed().enumerated() {
-            guard let digitInt = Int(String(char)) else { return nil }
-            result += BigInt(digitInt) * pow(10, BigInt(i))
+            // We're ok to force unwrap here because of the guard above.
+            result += BigInt(char.wholeNumberValue!) * pow(10, BigInt(i))
         }
         
         if isNegative {
