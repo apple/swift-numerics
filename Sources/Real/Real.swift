@@ -26,7 +26,8 @@
 /// -
 /// - `ElementaryFunctions`
 /// - `RealFunctions`
-public protocol Real: FloatingPoint, RealFunctions {
+/// - `Field`
+public protocol Real: FloatingPoint, RealFunctions, Field {
 }
 
 //  While `Real` does not provide any additional customization points,
@@ -78,5 +79,14 @@ extension Real {
   @_transparent
   public static func sqrt(_ x: Self) -> Self {
     return x.squareRoot()
+  }
+  
+  @inlinable
+  public var reciprocal: Self? {
+    let recip = 1/self
+    if recip.isNormal || isZero || !isFinite {
+      return recip
+    }
+    return nil
   }
 }
