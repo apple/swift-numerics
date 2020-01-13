@@ -316,6 +316,11 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
   public static func == (lhs: BigInt, rhs: BigInt) -> Bool {
     lhs.words == rhs.words
   }
+  
+  @inlinable
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(words)
+  }
 
   @inlinable
   public static func != (lhs: BigInt, rhs: BigInt) -> Bool {
