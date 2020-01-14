@@ -44,6 +44,14 @@ extension BigInt: Equatable {
   }
 }
 
+extension BigInt: Hashable {
+
+  @inlinable
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(words)
+  }
+}
+
 extension BigInt {
 
   public init?(_ description: String) {
@@ -328,11 +336,6 @@ extension BigInt {
     }
 
     return true
-  }
-
-  @inlinable
-  public func hash(into hasher: inout Hasher) {
-    hasher.combine(words)
   }
 
   @inlinable
