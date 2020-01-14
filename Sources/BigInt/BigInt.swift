@@ -281,6 +281,24 @@ extension BigInt: Numeric {
   }
 }
 
+extension BigInt: SignedNumeric {
+
+  @inlinable
+  public static prefix func - (x: BigInt) -> BigInt {
+    var newWords = x.words.map { ~$0 }
+    let carry: UInt = 1
+    for i in 0 ..< newWords.count {
+      let isOverflow: Bool
+      (newWords[i], isOverflow) = newWords[i].addingReportingOverflow(carry)
+      if !isOverflow {
+        break
+      }
+    }
+
+    return BigInt(words: Words(newWords))
+  }
+}
+
 extension BigInt {
 
   public static func <<= <RHS>(lhs: inout BigInt, rhs: RHS) where RHS: BinaryInteger {
@@ -370,21 +388,6 @@ extension BigInt {
   @inlinable
   public static prefix func ~ (x: BigInt) -> BigInt {
     let newWords = x.words.map { ~$0 }
-    return BigInt(words: Words(newWords))
-  }
-
-  @inlinable
-  public static prefix func - (x: BigInt) -> BigInt {
-    var newWords = x.words.map { ~$0 }
-    let carry: UInt = 1
-    for i in 0 ..< newWords.count {
-      let isOverflow: Bool
-      (newWords[i], isOverflow) = newWords[i].addingReportingOverflow(carry)
-      if !isOverflow {
-        break
-      }
-    }
-
     return BigInt(words: Words(newWords))
   }
 
