@@ -282,8 +282,6 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
     }
   }
 
-  public static var isSigned: Bool { true }
-
   public var bitWidth: Int { words.count * MemoryLayout<UInt>.size * 8 }
 
   public var trailingZeroBitCount: Int { words.first?.trailingZeroBitCount ?? 0 }
