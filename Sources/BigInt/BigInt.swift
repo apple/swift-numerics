@@ -125,6 +125,17 @@ extension BigInt: LosslessStringConvertible {
   }
 }
 
+extension BigInt: ExpressibleByIntegerLiteral {
+
+  public init(integerLiteral value: Int) {
+    if value >= 0, value < BigInt._digits.count {
+      self = BigInt._digits[value]
+    } else {
+      words = [UInt(bitPattern: value)]
+    }
+  }
+}
+
 extension BigInt {
 
   public init?<T>(exactly source: T) where T: BinaryInteger {
@@ -350,14 +361,6 @@ extension BigInt {
     }
 
     BigInt._dropExcessWords(words: &lhs.words)
-  }
-
-  public init(integerLiteral value: Int) {
-    if value >= 0, value < BigInt._digits.count {
-      self = BigInt._digits[value]
-    } else {
-      words = [UInt(bitPattern: value)]
-    }
   }
 
   public var bitWidth: Int { words.count * MemoryLayout<UInt>.size * 8 }
