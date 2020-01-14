@@ -1,8 +1,8 @@
-//===--- BigInt.swift ----------------------------------------*- swift -*-===//
+//===--- BigInt.swift -----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019 - 2020 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -33,6 +33,11 @@ public struct BigInt: SignedInteger {
     (0 ... 10).map { BigInt(words: [UInt(bitPattern: $0)]) }
   }()
 }
+
+// MARK: - Basic Behaviors
+
+// TODO: extension BigInt: Encodable
+// TODO: extension BigInt: Decodable
 
 extension BigInt: Equatable {
 
@@ -127,6 +132,8 @@ extension BigInt: LosslessStringConvertible {
     words = result.words
   }
 }
+
+// MARK: - Numeric Protocols
 
 extension BigInt: ExpressibleByIntegerLiteral {
 
@@ -285,6 +292,8 @@ extension BigInt: Numeric {
 }
 
 extension BigInt: SignedNumeric {
+
+  // TODO: public mutating func negate()
 
   @inlinable
   public static prefix func - (x: BigInt) -> BigInt {
@@ -510,6 +519,8 @@ extension BigInt: BinaryInteger {
     return 1
   }
 }
+
+// MARK: -
 
 extension BigInt {
 
