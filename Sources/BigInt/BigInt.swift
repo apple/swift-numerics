@@ -204,7 +204,7 @@ extension BigInt: AdditiveArithmetic {
   }
 }
 
-extension BigInt {
+extension BigInt: Numeric {
 
   public init?<T>(exactly source: T) where T: BinaryInteger {
     self.init(source)
@@ -216,6 +216,72 @@ extension BigInt {
     }
     return self
   }
+
+  public static func * (lhs: BigInt, rhs: BigInt) -> BigInt {
+    let lhsIsNeg = lhs.words[lhs.words.endIndex - 1] > Int.max
+    let rhsIsNeg = rhs.words[rhs.words.endIndex - 1] > Int.max
+
+    let lhsWords = lhsIsNeg ? (-lhs).words : lhs.words
+    let rhsWords = rhsIsNeg ? (-rhs).words : rhs.words
+
+    let count = lhsWords.count + rhsWords.count + 1
+    var newWords = Words(repeating: 0, count: count)
+
+    for i in 0 ..< rhsWords.count {
+      var carry: UInt = 0
+      var digit: UInt = 0
+
+      var lastJ: Int = 0
+      for j in i ..< (lhsWords.count + i) {
+        var (high, low) = rhsWords[i].multipliedFullWidth(by: lhsWords[j - i])
+        var isOverflow: Bool
+        (digit, isOverflow) = low.addingReportingOverflow(newWords[j])
+        if isOverflow {
+          high += 1
+        }
+
+        (digit, isOverflow) = digit.addingReportingOverflow(carry)
+        if isOverflow {
+          high += 1
+        }
+
+        carry = high
+        newWords[j] = digit
+        lastJ = j
+      }
+
+      if carry != 0 {
+        let isOverflow: Bool
+        (digit, isOverflow) = newWords[lastJ + 1].addingReportingOverflow(carry)
+        if isOverflow {
+          carry = 1
+        }
+        newWords[lastJ + 1] = digit
+      }
+    }
+
+    for i in stride(from: count - 1, through: 1, by: -1) {
+      if newWords[i] == 0, newWords[i - 1] <= Int.max {
+        newWords.removeLast()
+      } else {
+        break
+      }
+    }
+
+    if lhsIsNeg || rhsIsNeg, !(lhsIsNeg && rhsIsNeg) {
+      return -BigInt(words: newWords)
+    }
+
+    return BigInt(words: newWords)
+  }
+
+  @inlinable
+  public static func *= (lhs: inout BigInt, rhs: BigInt) {
+    lhs = lhs * rhs
+  }
+}
+
+extension BigInt {
 
   public static func <<= <RHS>(lhs: inout BigInt, rhs: RHS) where RHS: BinaryInteger {
     if rhs.signum() < 0 {
@@ -621,69 +687,6 @@ extension BigInt {
   @inlinable
   public static func %= (lhs: inout BigInt, rhs: BigInt) {
     lhs = lhs % rhs
-  }
-
-  public static func * (lhs: BigInt, rhs: BigInt) -> BigInt {
-    let lhsIsNeg = lhs.words[lhs.words.endIndex - 1] > Int.max
-    let rhsIsNeg = rhs.words[rhs.words.endIndex - 1] > Int.max
-
-    let lhsWords = lhsIsNeg ? (-lhs).words : lhs.words
-    let rhsWords = rhsIsNeg ? (-rhs).words : rhs.words
-
-    let count = lhsWords.count + rhsWords.count + 1
-    var newWords = Words(repeating: 0, count: count)
-
-    for i in 0 ..< rhsWords.count {
-      var carry: UInt = 0
-      var digit: UInt = 0
-
-      var lastJ: Int = 0
-      for j in i ..< (lhsWords.count + i) {
-        var (high, low) = rhsWords[i].multipliedFullWidth(by: lhsWords[j - i])
-        var isOverflow: Bool
-        (digit, isOverflow) = low.addingReportingOverflow(newWords[j])
-        if isOverflow {
-          high += 1
-        }
-
-        (digit, isOverflow) = digit.addingReportingOverflow(carry)
-        if isOverflow {
-          high += 1
-        }
-
-        carry = high
-        newWords[j] = digit
-        lastJ = j
-      }
-
-      if carry != 0 {
-        let isOverflow: Bool
-        (digit, isOverflow) = newWords[lastJ + 1].addingReportingOverflow(carry)
-        if isOverflow {
-          carry = 1
-        }
-        newWords[lastJ + 1] = digit
-      }
-    }
-
-    for i in stride(from: count - 1, through: 1, by: -1) {
-      if newWords[i] == 0, newWords[i - 1] <= Int.max {
-        newWords.removeLast()
-      } else {
-        break
-      }
-    }
-
-    if lhsIsNeg || rhsIsNeg, !(lhsIsNeg && rhsIsNeg) {
-      return -BigInt(words: newWords)
-    }
-
-    return BigInt(words: newWords)
-  }
-
-  @inlinable
-  public static func *= (lhs: inout BigInt, rhs: BigInt) {
-    lhs = lhs * rhs
   }
 
   public static func &= (lhs: inout BigInt, rhs: BigInt) {
