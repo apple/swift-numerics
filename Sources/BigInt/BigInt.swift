@@ -1,21 +1,118 @@
-//===--- BigInt.swift ----------------------------------------*- swift -*-===//
+//===--- BigInt.swift -----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019 - 2020 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
 //
 //===----------------------------------------------------------------------===//
 
-public struct BigInt: SignedInteger, LosslessStringConvertible {
-  public private(set) var words: [UInt]
+public struct BigInt: SignedInteger {
+
+  public typealias Words = [UInt]
+
+  public private(set) var words: Words
+
+  @usableFromInline
+  internal init(words: Words) {
+    self.words = words
+  }
+
+  public init<T>(bitPattern source: T) where T: BinaryInteger {
+    words = Words(source.words)
+  }
+
+  @usableFromInline
+  internal var _isNegative: Bool {
+    words[words.endIndex - 1] > Int.max
+  }
+
+  private static let _digits = {
+    (0 ... 10).map { BigInt(words: [UInt(bitPattern: $0)]) }
+  }()
+}
+
+// MARK: - Basic Behaviors
+
+// TODO: extension BigInt: Encodable
+// TODO: extension BigInt: Decodable
+
+extension BigInt: Equatable {
+
+  @inlinable
+  public static func == (lhs: BigInt, rhs: BigInt) -> Bool {
+    lhs.words == rhs.words
+  }
+
+  @inlinable
+  public static func != (lhs: BigInt, rhs: BigInt) -> Bool {
+    !(lhs == rhs)
+  }
+}
+
+extension BigInt: Hashable {
+
+  @inlinable
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(words)
+  }
+}
+
+extension BigInt: Comparable {
+
+  @inlinable
+  public static func < (lhs: BigInt, rhs: BigInt) -> Bool {
+    let lhsNegative = lhs._isNegative
+    let rhsNegative = rhs._isNegative
+
+    if lhsNegative && !rhsNegative { return true }
+    if rhsNegative && !lhsNegative { return false }
+
+    if (lhsNegative && rhsNegative) || (!lhsNegative && !rhsNegative) {
+      if lhs.words.count > rhs.words.count {
+        return lhsNegative ? true : false
+      }
+      if lhs.words.count < rhs.words.count {
+        return lhsNegative ? false : true
+      }
+
+      for i in stride(from: lhs.words.count - 1, through: 0, by: -1) {
+        if lhs.words[i] > rhs.words[i] { return false }
+      }
+    }
+
+    return true
+  }
+}
+
+extension BigInt: CustomStringConvertible {
+
+  public var description: String {
+    var result = ""
+
+    if words.count == 1 {
+      return Int64(bitPattern: UInt64(words[0])).description
+    } else {
+      var next = abs(self)
+      while next != 0 {
+        let digit: BigInt
+        (next, digit) = BigInt._div(lhs: next, rhs: 10)
+        result += "\(digit.words[0])"
+      }
+    }
+
+    return (self < 0 ? "-" : "") + String(result.reversed())
+  }
+}
+
+extension BigInt: LosslessStringConvertible {
 
   public init?(_ description: String) {
     let isNegative = description.hasPrefix("-")
     let hasPrefixOperator = isNegative || description.hasPrefix("+")
-    
+
     let unprefixedDescription = hasPrefixOperator ? description.dropFirst() : description[...]
     guard !unprefixedDescription.isEmpty else { return nil }
 
@@ -34,20 +131,303 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
 
     words = result.words
   }
+}
+
+// MARK: - Numeric Protocols
+
+extension BigInt: ExpressibleByIntegerLiteral {
+
+  public init(integerLiteral value: Int) {
+    if value >= 0, value < BigInt._digits.count {
+      self = BigInt._digits[value]
+    } else {
+      words = [UInt(bitPattern: value)]
+    }
+  }
+}
+
+extension BigInt: AdditiveArithmetic {
+
+  @inlinable
+  public static func + (lhs: BigInt, rhs: BigInt) -> BigInt {
+    var result = lhs
+    result += rhs
+    return result
+  }
+
+  public static func += (lhs: inout BigInt, rhs: BigInt) {
+    if lhs.words.count == 1, rhs.words.count == 1 {
+      let lhsWord = lhs.words[0]
+      let rhsWord = rhs.words[0]
+
+      let (result, isOverflow) = lhsWord.addingReportingOverflow(rhsWord)
+
+      if !isOverflow {
+        lhs.words[0] = result
+        return
+      }
+      let knownNegativeResult = lhsWord > Int.max && rhsWord > Int.max
+
+      if lhsWord > Int.max || rhsWord > Int.max, !knownNegativeResult {
+        // positive + negative is always smaller, so overflow is a red herring
+        lhs.words[0] = result
+        return
+      }
+    }
+
+    var isOverflow = false
+
+    var rhsWords = rhs.words
+
+    lhs.words.append(lhs._isNegative ? UInt.max : 0)
+    rhsWords.append(rhs._isNegative ? UInt.max : 0)
+
+    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
+    var temp: UInt = 0
+    for index in 0 ..< lhs.words.count {
+      var carryOverflow = false
+
+      if isOverflow {
+        (temp, carryOverflow) = rhsWords[index].addingReportingOverflow(1)
+      } else {
+        temp = rhsWords[index]
+      }
+
+      (lhs.words[index], isOverflow) = lhs.words[index].addingReportingOverflow(temp)
+
+      isOverflow = carryOverflow || isOverflow
+    }
+
+    BigInt._dropExcessWords(words: &lhs.words)
+  }
+
+  @inlinable
+  public static func - (lhs: BigInt, rhs: BigInt) -> BigInt {
+    var result = lhs
+    result -= rhs
+    return result
+  }
+
+  @inlinable
+  public static func -= (lhs: inout BigInt, rhs: BigInt) {
+    lhs += -rhs
+  }
+}
+
+extension BigInt: Numeric {
 
   public init?<T>(exactly source: T) where T: BinaryInteger {
     self.init(source)
   }
 
-  public init<T>(bitPattern source: T) where T: BinaryInteger {
+  public var magnitude: BigInt { _isNegative ? -self : self }
+
+  public static func * (lhs: BigInt, rhs: BigInt) -> BigInt {
+    let lhsIsNeg = lhs.words[lhs.words.endIndex - 1] > Int.max
+    let rhsIsNeg = rhs.words[rhs.words.endIndex - 1] > Int.max
+
+    let lhsWords = lhsIsNeg ? (-lhs).words : lhs.words
+    let rhsWords = rhsIsNeg ? (-rhs).words : rhs.words
+
+    let count = lhsWords.count + rhsWords.count + 1
+    var newWords = Words(repeating: 0, count: count)
+
+    for i in 0 ..< rhsWords.count {
+      var carry: UInt = 0
+      var digit: UInt = 0
+
+      var lastJ: Int = 0
+      for j in i ..< (lhsWords.count + i) {
+        var (high, low) = rhsWords[i].multipliedFullWidth(by: lhsWords[j - i])
+        var isOverflow: Bool
+        (digit, isOverflow) = low.addingReportingOverflow(newWords[j])
+        if isOverflow {
+          high += 1
+        }
+
+        (digit, isOverflow) = digit.addingReportingOverflow(carry)
+        if isOverflow {
+          high += 1
+        }
+
+        carry = high
+        newWords[j] = digit
+        lastJ = j
+      }
+
+      if carry != 0 {
+        let isOverflow: Bool
+        (digit, isOverflow) = newWords[lastJ + 1].addingReportingOverflow(carry)
+        if isOverflow {
+          carry = 1
+        }
+        newWords[lastJ + 1] = digit
+      }
+    }
+
+    for i in stride(from: count - 1, through: 1, by: -1) {
+      if newWords[i] == 0, newWords[i - 1] <= Int.max {
+        newWords.removeLast()
+      } else {
+        break
+      }
+    }
+
+    if lhsIsNeg || rhsIsNeg, !(lhsIsNeg && rhsIsNeg) {
+      return -BigInt(words: newWords)
+    }
+
+    return BigInt(words: newWords)
+  }
+
+  @inlinable
+  public static func *= (lhs: inout BigInt, rhs: BigInt) {
+    lhs = lhs * rhs
+  }
+}
+
+extension BigInt: SignedNumeric {
+
+  // TODO: public mutating func negate()
+
+  @inlinable
+  public static prefix func - (x: BigInt) -> BigInt {
+    var newWords = x.words.map { ~$0 }
+    let carry: UInt = 1
+    for i in 0 ..< newWords.count {
+      let isOverflow: Bool
+      (newWords[i], isOverflow) = newWords[i].addingReportingOverflow(carry)
+      if !isOverflow {
+        break
+      }
+    }
+
+    return BigInt(words: Words(newWords))
+  }
+}
+
+extension BigInt: BinaryInteger {
+
+  public init?<T>(exactly source: T) where T: BinaryFloatingPoint {
+    if (source.isNaN || source.isInfinite) ||
+      (source.rounded(.towardZero) != source) {
+      return nil
+    }
+
+    self.init(source)
+  }
+
+  public init<T>(_ source: T) where T: BinaryFloatingPoint {
+    precondition(
+      !(source.isNaN || source.isInfinite),
+      "\(type(of: source)) value cannot be converted to BigInt because it is either infinite or NaN"
+    )
+
+    let isNegative = source < 0.0
+    var float = isNegative ? -source : source
+
+    if let _ = UInt(exactly: T.greatestFiniteMagnitude) {
+      words = [UInt(float)]
+    } else {
+      var words = Words()
+      let radix = T(sign: .plus, exponent: T.Exponent(UInt.bitWidth), significand: 1)
+      repeat {
+        let digit = UInt(float.truncatingRemainder(dividingBy: radix))
+        words.append(digit)
+        float = (float / radix).rounded(.towardZero)
+      } while float != 0
+
+      self.words = words
+    }
+
+    if isNegative {
+      self = -self
+    }
+  }
+
+  public init<T>(_ source: T) where T: BinaryInteger {
+    if source >= 0, source < BigInt._digits.count {
+      self = BigInt._digits[Int(source)]
+    } else {
+      words = Words(source.words)
+      if source > Int.max {
+        words.append(0)
+      }
+    }
+  }
+
+  public init<T>(clamping source: T) where T: BinaryInteger {
+    self.init(source)
+  }
+
+  public init<T>(truncatingIfNeeded source: T) where T: BinaryInteger {
     words = Words(source.words)
   }
 
-  public var magnitude: BigInt {
-    if _isNegative {
-      return -self
+  public var bitWidth: Int { words.count * UInt.bitWidth }
+
+  public var trailingZeroBitCount: Int { words.first?.trailingZeroBitCount ?? 0 }
+
+  @inlinable
+  public static func / (lhs: BigInt, rhs: BigInt) -> BigInt {
+    let (result, _) = _div(lhs: lhs, rhs: rhs)
+    return result
+  }
+
+  @inlinable
+  public static func /= (lhs: inout BigInt, rhs: BigInt) {
+    lhs = lhs / rhs
+  }
+
+  @inlinable
+  public static func % (lhs: BigInt, rhs: BigInt) -> BigInt {
+    let (_, result) = _div(lhs: lhs, rhs: rhs)
+
+    return result
+  }
+
+  @inlinable
+  public static func %= (lhs: inout BigInt, rhs: BigInt) {
+    lhs = lhs % rhs
+  }
+
+  @inlinable
+  public static prefix func ~ (x: BigInt) -> BigInt {
+    let newWords = x.words.map { ~$0 }
+    return BigInt(words: Words(newWords))
+  }
+
+  public static func &= (lhs: inout BigInt, rhs: BigInt) {
+    var rhsWords = rhs.words
+    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
+
+    for i in 0 ..< rhsWords.count {
+      lhs.words[i] &= rhsWords[i]
     }
-    return self
+
+    BigInt._dropExcessWords(words: &lhs.words)
+  }
+
+  public static func |= (lhs: inout BigInt, rhs: BigInt) {
+    var rhsWords = rhs.words
+    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
+
+    for i in 0 ..< rhsWords.count {
+      lhs.words[i] |= rhsWords[i]
+    }
+
+    BigInt._dropExcessWords(words: &lhs.words)
+  }
+
+  public static func ^= (lhs: inout BigInt, rhs: BigInt) {
+    var rhsWords = rhs.words
+    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
+
+    for i in 0 ..< rhsWords.count {
+      lhs.words[i] &= rhsWords[i]
+    }
+
+    BigInt._dropExcessWords(words: &lhs.words)
   }
 
   public static func <<= <RHS>(lhs: inout BigInt, rhs: RHS) where RHS: BinaryInteger {
@@ -133,207 +513,19 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
 
     return 1
   }
+}
 
-  @inlinable
-  public static prefix func ~ (x: BigInt) -> BigInt {
-    let newWords = x.words.map { ~$0 }
-    return BigInt(words: Words(newWords))
-  }
+// MARK: -
 
-  @inlinable
-  public static prefix func - (x: BigInt) -> BigInt {
-    var newWords = x.words.map { ~$0 }
-    let carry: UInt = 1
-    for i in 0 ..< newWords.count {
-      let isOverflow: Bool
-      (newWords[i], isOverflow) = newWords[i].addingReportingOverflow(carry)
-      if !isOverflow {
-        break
-      }
-    }
+extension BigInt {
 
-    return BigInt(words: Words(newWords))
-  }
-
-  @usableFromInline
-  internal var _isNegative: Bool {
-    words[words.endIndex - 1] > Int.max
-  }
-
-  public init<T>(_ source: T) where T: BinaryFloatingPoint {
-    precondition(
-      !(source.isNaN || source.isInfinite),
-      "\(type(of: source)) value cannot be converted to BigInt because it is either infinite or NaN"
-    )
-
-    let isNegative = source < 0.0
-    var float = isNegative ? -source : source
-
-    if let _ = UInt(exactly: T.greatestFiniteMagnitude) {
-      words = [UInt(float)]
-    } else {
-      var words = Words()
-      let radix = T(sign: .plus, exponent: T.Exponent(UInt.bitWidth), significand: 1)
-      repeat {
-        let digit = UInt(float.truncatingRemainder(dividingBy: radix))
-        words.append(digit)
-        float = (float / radix).rounded(.towardZero)
-      } while float != 0
-
-      self.words = words
-    }
-
-    if isNegative {
-      self = -self
-    }
-  }
-
-  public init<T>(_ source: T) where T: BinaryInteger {
-    if source >= 0, source < BigInt._digits.count {
-      self = BigInt._digits[Int(source)]
-    } else {
-      words = Words(source.words)
-      if source > Int.max {
-        words.append(0)
-      }
-    }
-  }
-
-  public init<T>(clamping source: T) where T: BinaryInteger {
-    self.init(source)
-  }
-
-  public init<T>(truncatingIfNeeded source: T) where T: BinaryInteger {
-    words = Words(source.words)
-  }
-
-  @inlinable
-  public static func - (lhs: BigInt, rhs: BigInt) -> BigInt {
-    var result = lhs
-    result -= rhs
-    return result
-  }
-
-  public init?<T>(exactly source: T) where T: BinaryFloatingPoint {
-    if (source.isNaN || source.isInfinite) ||
-      (source.rounded(.towardZero) != source) {
-      return nil
-    }
-
-    self.init(source)
-  }
-
-  @usableFromInline
-  internal init(words: Words) {
-    self.words = words
-  }
-
-  public static func += (lhs: inout BigInt, rhs: BigInt) {
-    if lhs.words.count == 1, rhs.words.count == 1 {
-      let lhsWord = lhs.words[0]
-      let rhsWord = rhs.words[0]
-
-      let (result, isOverflow) = lhsWord.addingReportingOverflow(rhsWord)
-
-      if !isOverflow {
-        lhs.words[0] = result
-        return
-      }
-      let knownNegativeResult = lhsWord > Int.max && rhsWord > Int.max
-
-      if lhsWord > Int.max || rhsWord > Int.max, !knownNegativeResult {
-        // positive + negative is always smaller, so overflow is a red herring
-        lhs.words[0] = result
-        return
-      }
-    }
-
-    var isOverflow = false
-
-    var rhsWords = rhs.words
-
-    lhs.words.append(lhs._isNegative ? UInt.max : 0)
-    rhsWords.append(rhs._isNegative ? UInt.max : 0)
-
-    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
-    var temp: UInt = 0
-    for index in 0 ..< lhs.words.count {
-      var carryOverflow = false
-
-      if isOverflow {
-        (temp, carryOverflow) = rhsWords[index].addingReportingOverflow(1)
-      } else {
-        temp = rhsWords[index]
-      }
-
-      (lhs.words[index], isOverflow) = lhs.words[index].addingReportingOverflow(temp)
-
-      isOverflow = carryOverflow || isOverflow
-    }
-
-    BigInt._dropExcessWords(words: &lhs.words)
-  }
-
-  public init(integerLiteral value: Int) {
-    if value >= 0, value < BigInt._digits.count {
-      self = BigInt._digits[value]
-    } else {
-      words = [UInt(bitPattern: value)]
-    }
-  }
-
-  public static var isSigned: Bool { true }
-
-  public var bitWidth: Int { words.count * MemoryLayout<UInt>.size * 8 }
-
-  public var trailingZeroBitCount: Int { words.first?.trailingZeroBitCount ?? 0 }
-
-  @inlinable
-  public static func < (lhs: BigInt, rhs: BigInt) -> Bool {
-    let lhsNegative = lhs._isNegative
-    let rhsNegative = rhs._isNegative
-
-    if lhsNegative && !rhsNegative { return true }
-    if rhsNegative && !lhsNegative { return false }
-
-    if (lhsNegative && rhsNegative) || (!lhsNegative && !rhsNegative) {
-      if lhs.words.count > rhs.words.count {
-        return lhsNegative ? true : false
-      }
-      if lhs.words.count < rhs.words.count {
-        return lhsNegative ? false : true
-      }
-
-      for i in stride(from: lhs.words.count - 1, through: 0, by: -1) {
-        if lhs.words[i] > rhs.words[i] { return false }
-      }
-    }
-
-    return true
-  }
-
-  @inlinable
-  public static func == (lhs: BigInt, rhs: BigInt) -> Bool {
-    lhs.words == rhs.words
-  }
-  
-  @inlinable
-  public func hash(into hasher: inout Hasher) {
-    hasher.combine(words)
-  }
-
-  @inlinable
-  public static func != (lhs: BigInt, rhs: BigInt) -> Bool {
-    !(lhs == rhs)
-  }
-
-  @inlinable
-  public static func / (lhs: BigInt, rhs: BigInt) -> BigInt {
-    let (result, _) = _div(lhs: lhs, rhs: rhs)
-    return result
-  }
-
-  private static func findQhat(high: UInt, low: UInt.Magnitude, divisor: UInt, nextVdigit: UInt, nextUdigit: UInt) -> UInt {
+  private static func _findQhat(
+    high: UInt,
+    low: UInt.Magnitude,
+    divisor: UInt,
+    nextVdigit: UInt,
+    nextUdigit: UInt
+  ) -> UInt {
     var (qhat, rhat) = divisor.dividingFullWidth((high, low))
 
     if high >= divisor { // This means qhat >= b
@@ -491,7 +683,12 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
     var quot = Words(repeating: 0, count: resultSize)
 
     for j in (0 ... m).reversed() {
-      let qhat = findQhat(high: ln[j + n], low: UInt.Magnitude(ln[j + n - 1]), divisor: rn[n - 1], nextVdigit: rn[n - 2], nextUdigit: ln[j + n - 2])
+      let qhat = _findQhat(
+        high: ln[j + n],
+        low: UInt.Magnitude(ln[j + n - 1]),
+        divisor: rn[n - 1],
+        nextVdigit: rn[n - 2],
+        nextUdigit: ln[j + n - 2])
 
       var carry: UInt = 0
       var isOverflow = false
@@ -551,131 +748,6 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
     return (BigInt(words: quot), BigInt(words: rem))
   }
 
-  @inlinable
-  public static func /= (lhs: inout BigInt, rhs: BigInt) {
-    lhs = lhs / rhs
-  }
-
-  @inlinable
-  public static func % (lhs: BigInt, rhs: BigInt) -> BigInt {
-    let (_, result) = _div(lhs: lhs, rhs: rhs)
-
-    return result
-  }
-
-  @inlinable
-  public static func %= (lhs: inout BigInt, rhs: BigInt) {
-    lhs = lhs % rhs
-  }
-
-  public static func * (lhs: BigInt, rhs: BigInt) -> BigInt {
-    let lhsIsNeg = lhs.words[lhs.words.endIndex - 1] > Int.max
-    let rhsIsNeg = rhs.words[rhs.words.endIndex - 1] > Int.max
-
-    let lhsWords = lhsIsNeg ? (-lhs).words : lhs.words
-    let rhsWords = rhsIsNeg ? (-rhs).words : rhs.words
-
-    let count = lhsWords.count + rhsWords.count + 1
-    var newWords = Words(repeating: 0, count: count)
-
-    for i in 0 ..< rhsWords.count {
-      var carry: UInt = 0
-      var digit: UInt = 0
-
-      var lastJ: Int = 0
-      for j in i ..< (lhsWords.count + i) {
-        var (high, low) = rhsWords[i].multipliedFullWidth(by: lhsWords[j - i])
-        var isOverflow: Bool
-        (digit, isOverflow) = low.addingReportingOverflow(newWords[j])
-        if isOverflow {
-          high += 1
-        }
-
-        (digit, isOverflow) = digit.addingReportingOverflow(carry)
-        if isOverflow {
-          high += 1
-        }
-
-        carry = high
-        newWords[j] = digit
-        lastJ = j
-      }
-
-      if carry != 0 {
-        let isOverflow: Bool
-        (digit, isOverflow) = newWords[lastJ + 1].addingReportingOverflow(carry)
-        if isOverflow {
-          carry = 1
-        }
-        newWords[lastJ + 1] = digit
-      }
-    }
-
-    for i in stride(from: count - 1, through: 1, by: -1) {
-      if newWords[i] == 0, newWords[i - 1] <= Int.max {
-        newWords.removeLast()
-      } else {
-        break
-      }
-    }
-
-    if lhsIsNeg || rhsIsNeg, !(lhsIsNeg && rhsIsNeg) {
-      return -BigInt(words: newWords)
-    }
-
-    return BigInt(words: newWords)
-  }
-
-  @inlinable
-  public static func *= (lhs: inout BigInt, rhs: BigInt) {
-    lhs = lhs * rhs
-  }
-
-  public static func &= (lhs: inout BigInt, rhs: BigInt) {
-    var rhsWords = rhs.words
-    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
-
-    for i in 0 ..< rhsWords.count {
-      lhs.words[i] &= rhsWords[i]
-    }
-
-    BigInt._dropExcessWords(words: &lhs.words)
-  }
-
-  public static func |= (lhs: inout BigInt, rhs: BigInt) {
-    var rhsWords = rhs.words
-    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
-
-    for i in 0 ..< rhsWords.count {
-      lhs.words[i] |= rhsWords[i]
-    }
-
-    BigInt._dropExcessWords(words: &lhs.words)
-  }
-
-  public static func ^= (lhs: inout BigInt, rhs: BigInt) {
-    var rhsWords = rhs.words
-    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
-
-    for i in 0 ..< rhsWords.count {
-      lhs.words[i] &= rhsWords[i]
-    }
-
-    BigInt._dropExcessWords(words: &lhs.words)
-  }
-
-  @inlinable
-  public static func + (lhs: BigInt, rhs: BigInt) -> BigInt {
-    var result = lhs
-    result += rhs
-    return result
-  }
-
-  @inlinable
-  public static func -= (lhs: inout BigInt, rhs: BigInt) {
-    lhs += -rhs
-  }
-
   private static func _signExtend(lhsWords: inout Words, rhsWords: inout Words) {
     let lhsIsNeg = (lhsWords.last ?? 0) >> (UInt.bitWidth - Int(1)) == 1
     let rhsIsNeg = (rhsWords.last ?? 0) >> (UInt.bitWidth - Int(1)) == 1
@@ -708,27 +780,6 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
       }
     }
   }
-
-  public var description: String {
-    var result = ""
-
-    if words.count == 1 {
-      return Int64(bitPattern: UInt64(words[0])).description
-    } else {
-      var next = abs(self)
-      while next != 0 {
-        let digit: BigInt
-        (next, digit) = BigInt._div(lhs: next, rhs: 10)
-        result += "\(digit.words[0])"
-      }
-    }
-
-    return (self < 0 ? "-" : "") + String(result.reversed())
-  }
-
-  private static let _digits = {
-    (0 ... 10).map { BigInt(words: [UInt(bitPattern: $0)]) }
-  }()
 }
 
 // inspired by https://eli.thegreenplace.net/2009/03/21/efficient-integer-exponentiation-algorithms
