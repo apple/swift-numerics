@@ -10,7 +10,10 @@
 //===----------------------------------------------------------------------===//
 
 public struct BigInt: SignedInteger {
-  public private(set) var words: [UInt]
+
+  public typealias Words = [UInt]
+
+  public private(set) var words: Words
 
   @usableFromInline
   internal init(words: Words) {
