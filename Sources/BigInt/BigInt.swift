@@ -136,6 +136,74 @@ extension BigInt: ExpressibleByIntegerLiteral {
   }
 }
 
+extension BigInt: AdditiveArithmetic {
+
+  @inlinable
+  public static func + (lhs: BigInt, rhs: BigInt) -> BigInt {
+    var result = lhs
+    result += rhs
+    return result
+  }
+
+  public static func += (lhs: inout BigInt, rhs: BigInt) {
+    if lhs.words.count == 1, rhs.words.count == 1 {
+      let lhsWord = lhs.words[0]
+      let rhsWord = rhs.words[0]
+
+      let (result, isOverflow) = lhsWord.addingReportingOverflow(rhsWord)
+
+      if !isOverflow {
+        lhs.words[0] = result
+        return
+      }
+      let knownNegativeResult = lhsWord > Int.max && rhsWord > Int.max
+
+      if lhsWord > Int.max || rhsWord > Int.max, !knownNegativeResult {
+        // positive + negative is always smaller, so overflow is a red herring
+        lhs.words[0] = result
+        return
+      }
+    }
+
+    var isOverflow = false
+
+    var rhsWords = rhs.words
+
+    lhs.words.append(lhs._isNegative ? UInt.max : 0)
+    rhsWords.append(rhs._isNegative ? UInt.max : 0)
+
+    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
+    var temp: UInt = 0
+    for index in 0 ..< lhs.words.count {
+      var carryOverflow = false
+
+      if isOverflow {
+        (temp, carryOverflow) = rhsWords[index].addingReportingOverflow(1)
+      } else {
+        temp = rhsWords[index]
+      }
+
+      (lhs.words[index], isOverflow) = lhs.words[index].addingReportingOverflow(temp)
+
+      isOverflow = carryOverflow || isOverflow
+    }
+
+    BigInt._dropExcessWords(words: &lhs.words)
+  }
+
+  @inlinable
+  public static func - (lhs: BigInt, rhs: BigInt) -> BigInt {
+    var result = lhs
+    result -= rhs
+    return result
+  }
+
+  @inlinable
+  public static func -= (lhs: inout BigInt, rhs: BigInt) {
+    lhs += -rhs
+  }
+}
+
 extension BigInt {
 
   public init?<T>(exactly source: T) where T: BinaryInteger {
@@ -301,13 +369,6 @@ extension BigInt {
     words = Words(source.words)
   }
 
-  @inlinable
-  public static func - (lhs: BigInt, rhs: BigInt) -> BigInt {
-    var result = lhs
-    result -= rhs
-    return result
-  }
-
   public init?<T>(exactly source: T) where T: BinaryFloatingPoint {
     if (source.isNaN || source.isInfinite) ||
       (source.rounded(.towardZero) != source) {
@@ -315,52 +376,6 @@ extension BigInt {
     }
 
     self.init(source)
-  }
-
-  public static func += (lhs: inout BigInt, rhs: BigInt) {
-    if lhs.words.count == 1, rhs.words.count == 1 {
-      let lhsWord = lhs.words[0]
-      let rhsWord = rhs.words[0]
-
-      let (result, isOverflow) = lhsWord.addingReportingOverflow(rhsWord)
-
-      if !isOverflow {
-        lhs.words[0] = result
-        return
-      }
-      let knownNegativeResult = lhsWord > Int.max && rhsWord > Int.max
-
-      if lhsWord > Int.max || rhsWord > Int.max, !knownNegativeResult {
-        // positive + negative is always smaller, so overflow is a red herring
-        lhs.words[0] = result
-        return
-      }
-    }
-
-    var isOverflow = false
-
-    var rhsWords = rhs.words
-
-    lhs.words.append(lhs._isNegative ? UInt.max : 0)
-    rhsWords.append(rhs._isNegative ? UInt.max : 0)
-
-    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
-    var temp: UInt = 0
-    for index in 0 ..< lhs.words.count {
-      var carryOverflow = false
-
-      if isOverflow {
-        (temp, carryOverflow) = rhsWords[index].addingReportingOverflow(1)
-      } else {
-        temp = rhsWords[index]
-      }
-
-      (lhs.words[index], isOverflow) = lhs.words[index].addingReportingOverflow(temp)
-
-      isOverflow = carryOverflow || isOverflow
-    }
-
-    BigInt._dropExcessWords(words: &lhs.words)
   }
 
   public var bitWidth: Int { words.count * MemoryLayout<UInt>.size * 8 }
@@ -702,18 +717,6 @@ extension BigInt {
     }
 
     BigInt._dropExcessWords(words: &lhs.words)
-  }
-
-  @inlinable
-  public static func + (lhs: BigInt, rhs: BigInt) -> BigInt {
-    var result = lhs
-    result += rhs
-    return result
-  }
-
-  @inlinable
-  public static func -= (lhs: inout BigInt, rhs: BigInt) {
-    lhs += -rhs
   }
 
   private static func _signExtend(lhsWords: inout Words, rhsWords: inout Words) {
