@@ -299,6 +299,65 @@ extension BigInt: SignedNumeric {
   }
 }
 
+extension BigInt: BinaryInteger {
+
+  public init?<T>(exactly source: T) where T: BinaryFloatingPoint {
+    if (source.isNaN || source.isInfinite) ||
+      (source.rounded(.towardZero) != source) {
+      return nil
+    }
+
+    self.init(source)
+  }
+
+  public init<T>(_ source: T) where T: BinaryFloatingPoint {
+    precondition(
+      !(source.isNaN || source.isInfinite),
+      "\(type(of: source)) value cannot be converted to BigInt because it is either infinite or NaN"
+    )
+
+    let isNegative = source < 0.0
+    var float = isNegative ? -source : source
+
+    if let _ = UInt(exactly: T.greatestFiniteMagnitude) {
+      words = [UInt(float)]
+    } else {
+      var words = Words()
+      let radix = T(sign: .plus, exponent: T.Exponent(UInt.bitWidth), significand: 1)
+      repeat {
+        let digit = UInt(float.truncatingRemainder(dividingBy: radix))
+        words.append(digit)
+        float = (float / radix).rounded(.towardZero)
+      } while float != 0
+
+      self.words = words
+    }
+
+    if isNegative {
+      self = -self
+    }
+  }
+
+  public init<T>(_ source: T) where T: BinaryInteger {
+    if source >= 0, source < BigInt._digits.count {
+      self = BigInt._digits[Int(source)]
+    } else {
+      words = Words(source.words)
+      if source > Int.max {
+        words.append(0)
+      }
+    }
+  }
+
+  public init<T>(clamping source: T) where T: BinaryInteger {
+    self.init(source)
+  }
+
+  public init<T>(truncatingIfNeeded source: T) where T: BinaryInteger {
+    words = Words(source.words)
+  }
+}
+
 extension BigInt {
 
   public static func <<= <RHS>(lhs: inout BigInt, rhs: RHS) where RHS: BinaryInteger {
@@ -389,62 +448,6 @@ extension BigInt {
   public static prefix func ~ (x: BigInt) -> BigInt {
     let newWords = x.words.map { ~$0 }
     return BigInt(words: Words(newWords))
-  }
-
-  public init<T>(_ source: T) where T: BinaryFloatingPoint {
-    precondition(
-      !(source.isNaN || source.isInfinite),
-      "\(type(of: source)) value cannot be converted to BigInt because it is either infinite or NaN"
-    )
-
-    let isNegative = source < 0.0
-    var float = isNegative ? -source : source
-
-    if let _ = UInt(exactly: T.greatestFiniteMagnitude) {
-      words = [UInt(float)]
-    } else {
-      var words = Words()
-      let radix = T(sign: .plus, exponent: T.Exponent(UInt.bitWidth), significand: 1)
-      repeat {
-        let digit = UInt(float.truncatingRemainder(dividingBy: radix))
-        words.append(digit)
-        float = (float / radix).rounded(.towardZero)
-      } while float != 0
-
-      self.words = words
-    }
-
-    if isNegative {
-      self = -self
-    }
-  }
-
-  public init<T>(_ source: T) where T: BinaryInteger {
-    if source >= 0, source < BigInt._digits.count {
-      self = BigInt._digits[Int(source)]
-    } else {
-      words = Words(source.words)
-      if source > Int.max {
-        words.append(0)
-      }
-    }
-  }
-
-  public init<T>(clamping source: T) where T: BinaryInteger {
-    self.init(source)
-  }
-
-  public init<T>(truncatingIfNeeded source: T) where T: BinaryInteger {
-    words = Words(source.words)
-  }
-
-  public init?<T>(exactly source: T) where T: BinaryFloatingPoint {
-    if (source.isNaN || source.isInfinite) ||
-      (source.rounded(.towardZero) != source) {
-      return nil
-    }
-
-    self.init(source)
   }
 
   public var bitWidth: Int { words.count * MemoryLayout<UInt>.size * 8 }
