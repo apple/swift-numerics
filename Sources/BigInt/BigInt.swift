@@ -21,6 +21,15 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
     words = Words(source.words)
   }
 
+  @usableFromInline
+  internal var _isNegative: Bool {
+    words[words.endIndex - 1] > Int.max
+  }
+
+  private static let _digits = {
+    (0 ... 10).map { BigInt(words: [UInt(bitPattern: $0)]) }
+  }()
+
   public init?(_ description: String) {
     let isNegative = description.hasPrefix("-")
     let hasPrefixOperator = isNegative || description.hasPrefix("+")
@@ -158,11 +167,6 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
     }
 
     return BigInt(words: Words(newWords))
-  }
-
-  @usableFromInline
-  internal var _isNegative: Bool {
-    words[words.endIndex - 1] > Int.max
   }
 
   public init<T>(_ source: T) where T: BinaryFloatingPoint {
@@ -723,10 +727,6 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
 
     return (self < 0 ? "-" : "") + String(result.reversed())
   }
-
-  private static let _digits = {
-    (0 ... 10).map { BigInt(words: [UInt(bitPattern: $0)]) }
-  }()
 }
 
 // inspired by https://eli.thegreenplace.net/2009/03/21/efficient-integer-exponentiation-algorithms
