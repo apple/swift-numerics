@@ -220,12 +220,7 @@ extension BigInt: Numeric {
     self.init(source)
   }
 
-  public var magnitude: BigInt {
-    if _isNegative {
-      return -self
-    }
-    return self
-  }
+  public var magnitude: BigInt { _isNegative ? -self : self }
 
   public static func * (lhs: BigInt, rhs: BigInt) -> BigInt {
     let lhsIsNeg = lhs.words[lhs.words.endIndex - 1] > Int.max
@@ -369,7 +364,7 @@ extension BigInt: BinaryInteger {
     words = Words(source.words)
   }
 
-  public var bitWidth: Int { words.count * MemoryLayout<UInt>.size * 8 }
+  public var bitWidth: Int { words.count * UInt.bitWidth }
 
   public var trailingZeroBitCount: Int { words.first?.trailingZeroBitCount ?? 0 }
 
