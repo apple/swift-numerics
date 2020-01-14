@@ -288,7 +288,16 @@ extension BigInt: Numeric {
 
 extension BigInt: SignedNumeric {
 
-  // TODO: public mutating func negate()
+  public mutating func negate() {
+    var isOverflow = true
+    for i in 0 ..< words.count {
+      if isOverflow {
+        (words[i], isOverflow) = (~words[i]).addingReportingOverflow(1)
+      } else {
+        words[i] = ~words[i]
+      }
+    }
+  }
 
   @inlinable
   public static prefix func - (x: BigInt) -> BigInt {

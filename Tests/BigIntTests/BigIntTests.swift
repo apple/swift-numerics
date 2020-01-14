@@ -98,4 +98,15 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(dict[foo]!, "Hello")
     XCTAssertEqual(dict[bar]!, "World")
   }
+  
+  func testNegation() {
+    let foo = BigInt("1234567890123456789012345678901234567890")!
+    let bar = BigInt(0) - foo
+    
+    XCTAssertEqual(-foo, bar)
+    
+    var baz = foo
+    baz.negate()
+    XCTAssertEqual(baz, bar)
+  }
 }
