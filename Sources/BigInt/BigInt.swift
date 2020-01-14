@@ -52,6 +52,33 @@ extension BigInt: Hashable {
   }
 }
 
+extension BigInt: Comparable {
+
+  @inlinable
+  public static func < (lhs: BigInt, rhs: BigInt) -> Bool {
+    let lhsNegative = lhs._isNegative
+    let rhsNegative = rhs._isNegative
+
+    if lhsNegative && !rhsNegative { return true }
+    if rhsNegative && !lhsNegative { return false }
+
+    if (lhsNegative && rhsNegative) || (!lhsNegative && !rhsNegative) {
+      if lhs.words.count > rhs.words.count {
+        return lhsNegative ? true : false
+      }
+      if lhs.words.count < rhs.words.count {
+        return lhsNegative ? false : true
+      }
+
+      for i in stride(from: lhs.words.count - 1, through: 0, by: -1) {
+        if lhs.words[i] > rhs.words[i] { return false }
+      }
+    }
+
+    return true
+  }
+}
+
 extension BigInt {
 
   public init?(_ description: String) {
@@ -313,30 +340,6 @@ extension BigInt {
   public var bitWidth: Int { words.count * MemoryLayout<UInt>.size * 8 }
 
   public var trailingZeroBitCount: Int { words.first?.trailingZeroBitCount ?? 0 }
-
-  @inlinable
-  public static func < (lhs: BigInt, rhs: BigInt) -> Bool {
-    let lhsNegative = lhs._isNegative
-    let rhsNegative = rhs._isNegative
-
-    if lhsNegative && !rhsNegative { return true }
-    if rhsNegative && !lhsNegative { return false }
-
-    if (lhsNegative && rhsNegative) || (!lhsNegative && !rhsNegative) {
-      if lhs.words.count > rhs.words.count {
-        return lhsNegative ? true : false
-      }
-      if lhs.words.count < rhs.words.count {
-        return lhsNegative ? false : true
-      }
-
-      for i in stride(from: lhs.words.count - 1, through: 0, by: -1) {
-        if lhs.words[i] > rhs.words[i] { return false }
-      }
-    }
-
-    return true
-  }
 
   @inlinable
   public static func / (lhs: BigInt, rhs: BigInt) -> BigInt {
