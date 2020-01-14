@@ -519,7 +519,13 @@ extension BigInt: BinaryInteger {
 
 extension BigInt {
 
-  private static func findQhat(high: UInt, low: UInt.Magnitude, divisor: UInt, nextVdigit: UInt, nextUdigit: UInt) -> UInt {
+  private static func _findQhat(
+    high: UInt,
+    low: UInt.Magnitude,
+    divisor: UInt,
+    nextVdigit: UInt,
+    nextUdigit: UInt
+  ) -> UInt {
     var (qhat, rhat) = divisor.dividingFullWidth((high, low))
 
     if high >= divisor { // This means qhat >= b
@@ -677,7 +683,12 @@ extension BigInt {
     var quot = Words(repeating: 0, count: resultSize)
 
     for j in (0 ... m).reversed() {
-      let qhat = findQhat(high: ln[j + n], low: UInt.Magnitude(ln[j + n - 1]), divisor: rn[n - 1], nextVdigit: rn[n - 2], nextUdigit: ln[j + n - 2])
+      let qhat = _findQhat(
+        high: ln[j + n],
+        low: UInt.Magnitude(ln[j + n - 1]),
+        divisor: rn[n - 1],
+        nextVdigit: rn[n - 2],
+        nextUdigit: ln[j + n - 2])
 
       var carry: UInt = 0
       var isOverflow = false
