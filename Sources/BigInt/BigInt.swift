@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-public struct BigInt: SignedInteger, LosslessStringConvertible {
+public struct BigInt: SignedInteger {
   public private(set) var words: [UInt]
 
   @usableFromInline
@@ -99,12 +99,12 @@ extension BigInt: CustomStringConvertible {
   }
 }
 
-extension BigInt {
+extension BigInt: LosslessStringConvertible {
 
   public init?(_ description: String) {
     let isNegative = description.hasPrefix("-")
     let hasPrefixOperator = isNegative || description.hasPrefix("+")
-    
+
     let unprefixedDescription = hasPrefixOperator ? description.dropFirst() : description[...]
     guard !unprefixedDescription.isEmpty else { return nil }
 
@@ -123,6 +123,9 @@ extension BigInt {
 
     words = result.words
   }
+}
+
+extension BigInt {
 
   public init?<T>(exactly source: T) where T: BinaryInteger {
     self.init(source)
