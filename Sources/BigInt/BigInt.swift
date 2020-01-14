@@ -356,6 +356,10 @@ extension BigInt: BinaryInteger {
   public init<T>(truncatingIfNeeded source: T) where T: BinaryInteger {
     words = Words(source.words)
   }
+
+  public var bitWidth: Int { words.count * MemoryLayout<UInt>.size * 8 }
+
+  public var trailingZeroBitCount: Int { words.first?.trailingZeroBitCount ?? 0 }
 }
 
 extension BigInt {
@@ -449,10 +453,6 @@ extension BigInt {
     let newWords = x.words.map { ~$0 }
     return BigInt(words: Words(newWords))
   }
-
-  public var bitWidth: Int { words.count * MemoryLayout<UInt>.size * 8 }
-
-  public var trailingZeroBitCount: Int { words.first?.trailingZeroBitCount ?? 0 }
 
   @inlinable
   public static func / (lhs: BigInt, rhs: BigInt) -> BigInt {
