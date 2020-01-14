@@ -29,6 +29,22 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
   private static let _digits = {
     (0 ... 10).map { BigInt(words: [UInt(bitPattern: $0)]) }
   }()
+}
+
+extension BigInt: Equatable {
+
+  @inlinable
+  public static func == (lhs: BigInt, rhs: BigInt) -> Bool {
+    lhs.words == rhs.words
+  }
+
+  @inlinable
+  public static func != (lhs: BigInt, rhs: BigInt) -> Bool {
+    !(lhs == rhs)
+  }
+}
+
+extension BigInt {
 
   public init?(_ description: String) {
     let isNegative = description.hasPrefix("-")
@@ -315,18 +331,8 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
   }
 
   @inlinable
-  public static func == (lhs: BigInt, rhs: BigInt) -> Bool {
-    lhs.words == rhs.words
-  }
-  
-  @inlinable
   public func hash(into hasher: inout Hasher) {
     hasher.combine(words)
-  }
-
-  @inlinable
-  public static func != (lhs: BigInt, rhs: BigInt) -> Bool {
-    !(lhs == rhs)
   }
 
   @inlinable
