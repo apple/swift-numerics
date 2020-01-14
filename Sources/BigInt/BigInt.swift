@@ -360,9 +360,68 @@ extension BigInt: BinaryInteger {
   public var bitWidth: Int { words.count * MemoryLayout<UInt>.size * 8 }
 
   public var trailingZeroBitCount: Int { words.first?.trailingZeroBitCount ?? 0 }
-}
 
-extension BigInt {
+  @inlinable
+  public static func / (lhs: BigInt, rhs: BigInt) -> BigInt {
+    let (result, _) = _div(lhs: lhs, rhs: rhs)
+    return result
+  }
+
+  @inlinable
+  public static func /= (lhs: inout BigInt, rhs: BigInt) {
+    lhs = lhs / rhs
+  }
+
+  @inlinable
+  public static func % (lhs: BigInt, rhs: BigInt) -> BigInt {
+    let (_, result) = _div(lhs: lhs, rhs: rhs)
+
+    return result
+  }
+
+  @inlinable
+  public static func %= (lhs: inout BigInt, rhs: BigInt) {
+    lhs = lhs % rhs
+  }
+
+  @inlinable
+  public static prefix func ~ (x: BigInt) -> BigInt {
+    let newWords = x.words.map { ~$0 }
+    return BigInt(words: Words(newWords))
+  }
+
+  public static func &= (lhs: inout BigInt, rhs: BigInt) {
+    var rhsWords = rhs.words
+    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
+
+    for i in 0 ..< rhsWords.count {
+      lhs.words[i] &= rhsWords[i]
+    }
+
+    BigInt._dropExcessWords(words: &lhs.words)
+  }
+
+  public static func |= (lhs: inout BigInt, rhs: BigInt) {
+    var rhsWords = rhs.words
+    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
+
+    for i in 0 ..< rhsWords.count {
+      lhs.words[i] |= rhsWords[i]
+    }
+
+    BigInt._dropExcessWords(words: &lhs.words)
+  }
+
+  public static func ^= (lhs: inout BigInt, rhs: BigInt) {
+    var rhsWords = rhs.words
+    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
+
+    for i in 0 ..< rhsWords.count {
+      lhs.words[i] &= rhsWords[i]
+    }
+
+    BigInt._dropExcessWords(words: &lhs.words)
+  }
 
   public static func <<= <RHS>(lhs: inout BigInt, rhs: RHS) where RHS: BinaryInteger {
     if rhs.signum() < 0 {
@@ -431,6 +490,9 @@ extension BigInt {
 
     BigInt._dropExcessWords(words: &lhs.words)
   }
+}
+
+extension BigInt {
 
   @inlinable
   public func quotientAndRemainder(dividingBy rhs: BigInt) -> (quotient: BigInt, remainder: BigInt) {
@@ -446,18 +508,6 @@ extension BigInt {
     }
 
     return 1
-  }
-
-  @inlinable
-  public static prefix func ~ (x: BigInt) -> BigInt {
-    let newWords = x.words.map { ~$0 }
-    return BigInt(words: Words(newWords))
-  }
-
-  @inlinable
-  public static func / (lhs: BigInt, rhs: BigInt) -> BigInt {
-    let (result, _) = _div(lhs: lhs, rhs: rhs)
-    return result
   }
 
   private static func findQhat(high: UInt, low: UInt.Magnitude, divisor: UInt, nextVdigit: UInt, nextUdigit: UInt) -> UInt {
@@ -676,56 +726,6 @@ extension BigInt {
     BigInt._dropExcessWords(words: &rem)
 
     return (BigInt(words: quot), BigInt(words: rem))
-  }
-
-  @inlinable
-  public static func /= (lhs: inout BigInt, rhs: BigInt) {
-    lhs = lhs / rhs
-  }
-
-  @inlinable
-  public static func % (lhs: BigInt, rhs: BigInt) -> BigInt {
-    let (_, result) = _div(lhs: lhs, rhs: rhs)
-
-    return result
-  }
-
-  @inlinable
-  public static func %= (lhs: inout BigInt, rhs: BigInt) {
-    lhs = lhs % rhs
-  }
-
-  public static func &= (lhs: inout BigInt, rhs: BigInt) {
-    var rhsWords = rhs.words
-    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
-
-    for i in 0 ..< rhsWords.count {
-      lhs.words[i] &= rhsWords[i]
-    }
-
-    BigInt._dropExcessWords(words: &lhs.words)
-  }
-
-  public static func |= (lhs: inout BigInt, rhs: BigInt) {
-    var rhsWords = rhs.words
-    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
-
-    for i in 0 ..< rhsWords.count {
-      lhs.words[i] |= rhsWords[i]
-    }
-
-    BigInt._dropExcessWords(words: &lhs.words)
-  }
-
-  public static func ^= (lhs: inout BigInt, rhs: BigInt) {
-    var rhsWords = rhs.words
-    BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
-
-    for i in 0 ..< rhsWords.count {
-      lhs.words[i] &= rhsWords[i]
-    }
-
-    BigInt._dropExcessWords(words: &lhs.words)
   }
 
   private static func _signExtend(lhsWords: inout Words, rhsWords: inout Words) {
