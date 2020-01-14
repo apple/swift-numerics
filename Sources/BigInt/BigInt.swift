@@ -490,9 +490,6 @@ extension BigInt: BinaryInteger {
 
     BigInt._dropExcessWords(words: &lhs.words)
   }
-}
-
-extension BigInt {
 
   @inlinable
   public func quotientAndRemainder(dividingBy rhs: BigInt) -> (quotient: BigInt, remainder: BigInt) {
@@ -509,6 +506,9 @@ extension BigInt {
 
     return 1
   }
+}
+
+extension BigInt {
 
   private static func findQhat(high: UInt, low: UInt.Magnitude, divisor: UInt, nextVdigit: UInt, nextUdigit: UInt) -> UInt {
     var (qhat, rhat) = divisor.dividingFullWidth((high, low))
