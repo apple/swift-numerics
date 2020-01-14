@@ -36,8 +36,7 @@ public struct BigInt: SignedInteger {
 
 // MARK: - Basic Behaviors
 
-// TODO: extension BigInt: Encodable
-// TODO: extension BigInt: Decodable
+extension BigInt: Codable { }
 
 extension BigInt: Equatable {
 

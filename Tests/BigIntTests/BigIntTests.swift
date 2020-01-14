@@ -109,4 +109,18 @@ final class BigIntTests: XCTestCase {
     baz.negate()
     XCTAssertEqual(baz, bar)
   }
+  
+  func testCodable() {
+    let foo = BigInt("1234567890123456789012345678901234567890")!
+    guard let fooData = try? JSONEncoder().encode(foo) else {
+      XCTFail("Failed to encode \(foo)")
+      return
+    }
+    guard let bar = try? JSONDecoder().decode(BigInt.self, from: fooData) else {
+      XCTFail("Failed to decode \(String(data: fooData, encoding: .utf8) ?? "")")
+      return
+    }
+    
+    XCTAssertEqual(foo, bar)
+  }
 }
