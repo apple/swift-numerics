@@ -12,6 +12,15 @@
 public struct BigInt: SignedInteger, LosslessStringConvertible {
   public private(set) var words: [UInt]
 
+  @usableFromInline
+  internal init(words: Words) {
+    self.words = words
+  }
+
+  public init<T>(bitPattern source: T) where T: BinaryInteger {
+    words = Words(source.words)
+  }
+
   public init?(_ description: String) {
     let isNegative = description.hasPrefix("-")
     let hasPrefixOperator = isNegative || description.hasPrefix("+")
@@ -37,10 +46,6 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
 
   public init?<T>(exactly source: T) where T: BinaryInteger {
     self.init(source)
-  }
-
-  public init<T>(bitPattern source: T) where T: BinaryInteger {
-    words = Words(source.words)
   }
 
   public var magnitude: BigInt {
@@ -221,11 +226,6 @@ public struct BigInt: SignedInteger, LosslessStringConvertible {
     }
 
     self.init(source)
-  }
-
-  @usableFromInline
-  internal init(words: Words) {
-    self.words = words
   }
 
   public static func += (lhs: inout BigInt, rhs: BigInt) {
