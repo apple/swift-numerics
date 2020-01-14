@@ -40,9 +40,9 @@ public protocol Field: Numeric {
 extension Field {
   @_transparent
   public static func /(a: Self, b: Self) -> Self {
-    var a = a
-    a /= b
-    return a
+    var result = a
+    result /= b
+    return result
   }
   
   public var reciprocal: Self? {
