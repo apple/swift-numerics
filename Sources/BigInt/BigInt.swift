@@ -36,8 +36,6 @@ public struct BigInt: SignedInteger {
 
 // MARK: - Basic Behaviors
 
-extension BigInt: Codable { }
-
 extension BigInt: Equatable {
 
   @inlinable
@@ -143,6 +141,28 @@ extension BigInt: LosslessStringConvertible {
     if isNegative {
       self.negate()
     }
+  }
+}
+
+extension BigInt: Decodable {
+
+  public init(from decoder: Decoder) throws {
+    let singleValueContainer = try decoder.singleValueContainer()
+    let description = try singleValueContainer.decode(String.self)
+    guard let result = BigInt(description) else {
+      throw DecodingError.dataCorruptedError(
+        in: singleValueContainer,
+        debugDescription: "BigInt(\(description.debugDescription)) failed")
+    }
+    self = result
+  }
+}
+
+extension BigInt: Encodable {
+
+  public func encode(to encoder: Encoder) throws {
+    var singleValueContainer = encoder.singleValueContainer()
+    try singleValueContainer.encode(description)
   }
 }
 
