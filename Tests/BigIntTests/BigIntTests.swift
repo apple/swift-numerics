@@ -111,18 +111,17 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(baz, bar)
   }
   
-  func testCodable() {
-    let foo = BigInt("1234567890123456789012345678901234567890")!
-    guard let fooData = try? JSONEncoder().encode(foo) else {
-      XCTFail("Failed to encode \(foo)")
-      return
-    }
-    guard let bar = try? JSONDecoder().decode(BigInt.self, from: fooData) else {
-      XCTFail("Failed to decode \(String(data: fooData, encoding: .utf8) ?? "")")
-      return
-    }
-    
-    XCTAssertEqual(foo, bar)
+  func testCodable() throws {
+    let lowerBound = BigInt("-1234567890123456789012345678901234567890")!
+    let upperBound = BigInt("+1234567890123456789012345678901234567890")!
+    let expectedRange: Range<BigInt> = lowerBound ..< upperBound
+
+    let encoder = JSONEncoder()
+    let decoder = JSONDecoder()
+    let data = try encoder.encode(expectedRange)
+    let actualRange = try decoder.decode(Range<BigInt>.self, from: data)
+
+    XCTAssertEqual(actualRange, expectedRange)
   }
 
   func testMinMaxDescriptions() {
