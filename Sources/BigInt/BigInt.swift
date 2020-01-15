@@ -527,6 +527,7 @@ extension BigInt: BinaryInteger {
 
 extension BigInt {
 
+  /// See _The Art of Computer Programming_ volume 2 by Donald Knuth, Section 4.3.1: The Classical Algorithms
   private static func _findQhat(
     high: UInt,
     low: UInt.Magnitude,
@@ -570,6 +571,7 @@ extension BigInt {
     return qhat
   }
 
+  /// See _The Art of Computer Programming_ volume 2 by Donald Knuth, Section 4.3.1: The Classical Algorithms
   @usableFromInline
   internal static func _div(lhs: BigInt, rhs: BigInt) -> (quotient: BigInt, remainder: BigInt) {
     precondition(rhs != _digits[0], "Division by zero error!")
