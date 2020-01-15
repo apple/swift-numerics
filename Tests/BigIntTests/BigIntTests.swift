@@ -33,7 +33,8 @@ final class BigIntTests: XCTestCase {
     XCTAssert(-(bar!) > 0)
     XCTAssertEqual(-(bar!), BigInt(100))
 
-    XCTAssertEqual(-BigInt("-1234567890123456789012345678901234567890")!, BigInt("1234567890123456789012345678901234567890")!)
+    XCTAssertEqual(-BigInt("-1234567890123456789012345678901234567890")!,
+                   BigInt("1234567890123456789012345678901234567890")!)
   }
 
   func testFloatingConversion() {
