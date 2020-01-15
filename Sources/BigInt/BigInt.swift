@@ -195,7 +195,7 @@ extension BigInt: AdditiveArithmetic {
 
       let (result, isOverflow) = lhsWord.addingReportingOverflow(rhsWord)
 
-      if !isOverflow {
+      if !isOverflow && result < Int.max {
         lhs.words[0] = result
         return
       }
@@ -330,6 +330,8 @@ extension BigInt: SignedNumeric {
         words[i] = ~words[i]
       }
     }
+    
+    BigInt._dropExcessWords(words: &words)
   }
 
   @inlinable
@@ -344,6 +346,7 @@ extension BigInt: SignedNumeric {
       }
     }
 
+    BigInt._dropExcessWords(words: &newWords)
     return BigInt(words: Words(newWords))
   }
 }
@@ -631,69 +634,6 @@ extension BigInt {
       rhsWords.append(0)
     }
 
-    func normalize(x: UInt) -> UInt {
-      #if arch(arm64) || arch(x86_64)
-        if x == 0 {
-          return 64
-        }
-        var x = UInt64(x)
-        var n: UInt = 0
-        if x <= 0x0000_0000_FFFF_FFFF {
-          n += 32
-          x <<= 32
-        }
-        if x <= 0x0000_FFFF_FFFF_FFFF {
-          n += 16
-          x <<= 16
-        }
-        if x <= 0x00FF_FFFF_FFFF_FFFF {
-          n += 8
-          x <<= 8
-        }
-        if x <= 0x0FFF_FFFF_FFFF_FFFF {
-          n += 4
-          x <<= 4
-        }
-        if x <= 0x3FFF_FFFF_FFFF_FFFF {
-          n += 2
-          x <<= 2
-        }
-        if x <= 0x7FFF_FFFF_FFFF_FFFF {
-          n += 1
-        }
-
-        return n
-      #else
-        if x == 0 {
-          return 32
-        }
-
-        var x = x
-        var n: UInt = 0
-        if x <= 0x0000_FFFF {
-          n += 16
-          x <<= 16
-        }
-        if x <= 0x00FF_FFFF {
-          n += 8
-          x <<= 8
-        }
-        if x <= 0x0FFF_FFFF {
-          n += 4
-          x <<= 4
-        }
-        if x <= 0x3FFF_FFFF {
-          n += 2
-          x <<= 2
-        }
-        if x <= 0x7FFF_FFFF {
-          n += 1
-        }
-
-        return n
-      #endif
-    }
-
     if lhsWords.count < rhsWords.count {
       for _ in 0 ..< (rhsWords.count - lhsWords.count) {
         lhsWords.append(0)
@@ -705,7 +645,7 @@ extension BigInt {
 
     let bitWidth = UInt(UInt.bitWidth)
 
-    let s = normalize(x: rhsWords[n - 1])
+    let s = UInt(rhsWords[n - 1].leadingZeroBitCount)
     let rn = UnsafeMutablePointer<UInt>.allocate(capacity: n)
     rn.initialize(repeating: 0, count: n)
     defer { rn.deallocate() }
@@ -807,7 +747,8 @@ extension BigInt {
     }
   }
 
-  private static func _dropExcessWords(words: inout Words) {
+  @usableFromInline
+  internal static func _dropExcessWords(words: inout Words) {
     while words.count > 1, words[words.endIndex - 1] == 0 {
       if words[words.endIndex - 2] <= Int.max {
         words.removeLast()

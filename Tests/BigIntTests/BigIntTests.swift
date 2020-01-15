@@ -160,7 +160,10 @@ final class BigIntTests: XCTestCase {
       let expectedNumbers: [BigInt] = (-2 ... 2).map({ expectedNumber + $0 })
       let actualNumbers: [BigInt] = expectedStrings.compactMap({ BigInt($0) })
       let actualStrings: [String] = actualNumbers.map({ $0.description })
-      XCTAssertEqual(actualNumbers, expectedNumbers)
+//      XCTAssertEqual(actualNumbers, expectedNumbers)
+      for (actualNumber, expectedNumber) in zip(actualNumbers, expectedNumbers) {
+        XCTAssertEqual(actualNumber, expectedNumber)
+      }
       XCTAssertEqual(actualStrings, expectedStrings)
     }
   }
@@ -184,5 +187,12 @@ final class BigIntTests: XCTestCase {
         }
       }
     }
+  }
+  
+  func testDivision() {
+    let foo = BigInt("12345678901234567890123456789012345678901234567890123456789012345678901234567890")!
+    let bar = BigInt("351235231535161613134135135135")!
+    let baz = foo / bar
+    XCTAssertEqual(baz, BigInt("35149318157164029155780432046477458820396117503007")!)
   }
 }
