@@ -25,16 +25,16 @@ func fac(_ n: BigInt) -> BigInt {
 
 final class BigIntTests: XCTestCase {
 
-  func testExample() throws {
+  func testExample() {
     let bar = BigInt(exactly: -100)
     XCTAssertNotNil(bar)
-    XCTAssert(bar! < 0)
-
-    XCTAssert(-(bar!) > 0)
-    XCTAssertEqual(-(bar!), BigInt(100))
-
+    if let bar = bar {
+      XCTAssertLessThan(bar, 0)
+      XCTAssertGreaterThan(-bar, 0)
+      XCTAssertEqual(-bar, BigInt(100))
+    }
     XCTAssertEqual(-BigInt("-1234567890123456789012345678901234567890")!,
-                   BigInt("1234567890123456789012345678901234567890")!)
+                   +BigInt("+1234567890123456789012345678901234567890")!)
   }
 
   func testFloatingConversion() {
