@@ -164,4 +164,27 @@ final class BigIntTests: XCTestCase {
       XCTAssertEqual(actualStrings, expectedStrings, "Strings: actual, expected")
     }
   }
+
+  func testRandomDescriptions() {
+    for _ in 0 ..< 100 {
+      let expectedNumber = BigInt(Int.random(in: .min ... .max))
+      for radix in 2 ... 36 {
+        for uppercase in [false, true] {
+          let expectedString = String(expectedNumber,
+                                      radix: radix,
+                                      uppercase: uppercase)
+          let actualNumber = BigInt(expectedString, radix: radix)
+          XCTAssertNotNil(actualNumber)
+          if let actualNumber = actualNumber {
+            XCTAssertEqual(actualNumber, expectedNumber,
+                           "Numbers: actual, expected")
+            if radix == 10 {
+              XCTAssertEqual(actualNumber.description, expectedString,
+                             "Strings: actual, expected")
+            }
+          }
+        }
+      }
+    }
+  }
 }

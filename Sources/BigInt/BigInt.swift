@@ -29,9 +29,9 @@ public struct BigInt: SignedInteger {
     words[words.endIndex - 1] > Int.max
   }
 
-  private static let _digits = {
-    (0 ... 10).map { BigInt(words: [UInt(bitPattern: $0)]) }
-  }()
+  private static let _digits: [BigInt] = (0 ... 36).map {
+    BigInt(words: [UInt(bitPattern: $0)])
+  }
 }
 
 // MARK: - Basic Behaviors
@@ -109,26 +109,40 @@ extension BigInt: CustomStringConvertible {
 extension BigInt: LosslessStringConvertible {
 
   public init?(_ description: String) {
+    self.init(description, radix: 10)
+  }
+
+  public init?<T>(_ description: T, radix: Int = 10) where T: StringProtocol {
+    precondition(2 ... 36 ~= radix, "Radix not in range 2 ... 36")
+
+    self = 0
+
     let isNegative = description.hasPrefix("-")
-    let hasPrefixOperator = isNegative || description.hasPrefix("+")
+    let hasPrefix = isNegative || description.hasPrefix("+")
+    let utf8 = description.utf8.dropFirst(hasPrefix ? 1 : 0)
+    guard !utf8.isEmpty else { return nil }
 
-    let unprefixedDescription = hasPrefixOperator ? description.dropFirst() : description[...]
-    guard !unprefixedDescription.isEmpty else { return nil }
-
-    let digits = Set("0123456789")
-    guard unprefixedDescription.allSatisfy({ digits.contains($0) }) else { return nil }
-
-    var result: BigInt = 0
-    for (i, char) in unprefixedDescription.drop(while: { $0 == "0" }).reversed().enumerated() {
-      // We're ok to force unwrap here because of the guard above.
-      result += BigInt(char.wholeNumberValue!) * pow(10, BigInt(i))
+    for var byte in utf8 {
+      switch byte {
+      case UInt8(ascii: "0") ... UInt8(ascii: "9"):
+        byte -= UInt8(ascii: "0")
+      case UInt8(ascii: "A") ... UInt8(ascii: "Z"):
+        byte -= UInt8(ascii: "A")
+        byte += 10
+      case UInt8(ascii: "a") ... UInt8(ascii: "z"):
+        byte -= UInt8(ascii: "a")
+        byte += 10
+      default:
+        return nil
+      }
+      guard byte < radix else { return nil }
+      self *= BigInt._digits[radix]
+      self += BigInt._digits[Int(byte)]
     }
 
     if isNegative {
-      result = -result
+      self.negate()
     }
-
-    words = result.words
   }
 }
 
