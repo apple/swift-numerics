@@ -85,32 +85,32 @@ final class BigIntTests: XCTestCase {
     let barz = BigInt(1) << 64
     XCTAssertEqual(barz, BigInt(UInt.max) + 1)
   }
-  
-  func testHashable(){
+
+  func testHashable() {
     let foo = BigInt("1234567890123456789012345678901234567890")!
     let bar = BigInt("1234567890123456789112345678901234567890")!
     let baz: BigInt = 153
-    
+
     let dict = [ foo: "Hello", bar: "World", baz: "!" ]
-    
+
     let hash = foo.hashValue
     print(hash)
-    
+
     XCTAssertEqual(dict[foo]!, "Hello")
     XCTAssertEqual(dict[bar]!, "World")
   }
-  
+
   func testNegation() {
     let foo = BigInt("1234567890123456789012345678901234567890")!
     let bar = BigInt(0) - foo
-    
+
     XCTAssertEqual(-foo, bar)
-    
+
     var baz = foo
     baz.negate()
     XCTAssertEqual(baz, bar)
   }
-  
+
   func testCodable() throws {
     let lowerBound = BigInt("-1234567890123456789012345678901234567890")!
     let upperBound = BigInt("+1234567890123456789012345678901234567890")!
