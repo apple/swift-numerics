@@ -1,8 +1,8 @@
-//===--- BigIntTests.swift -----------------------*- swift -*-===//
+//===--- BigIntTests.swift ------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019 - 2020 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -24,15 +24,17 @@ func fac(_ n: BigInt) -> BigInt {
 }
 
 final class BigIntTests: XCTestCase {
-  func testExample() throws {
+
+  func testExample() {
     let bar = BigInt(exactly: -100)
     XCTAssertNotNil(bar)
-    XCTAssert(bar! < 0)
-
-    XCTAssert(-(bar!) > 0)
-    XCTAssertEqual(-(bar!), BigInt(100))
-
-    XCTAssertEqual(-BigInt("-1234567890123456789012345678901234567890")!, BigInt("1234567890123456789012345678901234567890")!)
+    if let bar = bar {
+      XCTAssertLessThan(bar, 0)
+      XCTAssertGreaterThan(-bar, 0)
+      XCTAssertEqual(-bar, BigInt(100))
+    }
+    XCTAssertEqual(-BigInt("-1234567890123456789012345678901234567890")!,
+                   +BigInt("+1234567890123456789012345678901234567890")!)
   }
 
   func testFloatingConversion() {
@@ -84,43 +86,103 @@ final class BigIntTests: XCTestCase {
     let barz = BigInt(1) << 64
     XCTAssertEqual(barz, BigInt(UInt.max) + 1)
   }
-  
-  func testHashable(){
+
+  func testHashable() {
     let foo = BigInt("1234567890123456789012345678901234567890")!
     let bar = BigInt("1234567890123456789112345678901234567890")!
     let baz: BigInt = 153
-    
+
     let dict = [ foo: "Hello", bar: "World", baz: "!" ]
-    
+
     let hash = foo.hashValue
     print(hash)
-    
+
     XCTAssertEqual(dict[foo]!, "Hello")
     XCTAssertEqual(dict[bar]!, "World")
   }
-  
+
   func testNegation() {
     let foo = BigInt("1234567890123456789012345678901234567890")!
     let bar = BigInt(0) - foo
-    
+
     XCTAssertEqual(-foo, bar)
-    
+
     var baz = foo
     baz.negate()
     XCTAssertEqual(baz, bar)
   }
-  
-  func testCodable() {
-    let foo = BigInt("1234567890123456789012345678901234567890")!
-    guard let fooData = try? JSONEncoder().encode(foo) else {
-      XCTFail("Failed to encode \(foo)")
-      return
+
+  func testCodable() throws {
+    let lowerBound = BigInt("-1234567890123456789012345678901234567890")!
+    let upperBound = BigInt("+1234567890123456789012345678901234567890")!
+    let expectedRange: Range<BigInt> = lowerBound ..< upperBound
+
+    let encoder = JSONEncoder()
+    let decoder = JSONDecoder()
+    let data = try encoder.encode(expectedRange)
+    let actualRange = try decoder.decode(Range<BigInt>.self, from: data)
+
+    XCTAssertEqual(actualRange, expectedRange)
+  }
+
+  func testMinMaxDescriptions() {
+    let keyValuePairs: KeyValuePairs<BigInt, [String]> = [
+      BigInt(UInt64.min): [
+        "-2",
+        "-1",
+        "0",
+        "1",
+        "2"
+      ],
+      BigInt(UInt64.max): [
+        "18446744073709551613",
+        "18446744073709551614",
+        "18446744073709551615",
+        "18446744073709551616",
+        "18446744073709551617",
+      ],
+      BigInt(Int64.min): [
+        "-9223372036854775810",
+        "-9223372036854775809",
+        "-9223372036854775808",
+        "-9223372036854775807",
+        "-9223372036854775806",
+      ],
+      BigInt(Int64.max): [
+        "9223372036854775805",
+        "9223372036854775806",
+        "9223372036854775807",
+        "9223372036854775808",
+        "9223372036854775809",
+      ],
+    ]
+    for (expectedNumber, expectedStrings) in keyValuePairs {
+      let expectedNumbers: [BigInt] = (-2 ... 2).map({ expectedNumber + $0 })
+      let actualNumbers: [BigInt] = expectedStrings.compactMap({ BigInt($0) })
+      let actualStrings: [String] = actualNumbers.map({ $0.description })
+      XCTAssertEqual(actualNumbers, expectedNumbers)
+      XCTAssertEqual(actualStrings, expectedStrings)
     }
-    guard let bar = try? JSONDecoder().decode(BigInt.self, from: fooData) else {
-      XCTFail("Failed to decode \(String(data: fooData, encoding: .utf8) ?? "")")
-      return
+  }
+
+  func testRandomDescriptions() {
+    for _ in 0 ..< 100 {
+      let expectedNumber = BigInt(Int.random(in: .min ... .max))
+      for radix in 2 ... 36 {
+        for uppercase in [false, true] {
+          let expectedString = String(expectedNumber,
+                                      radix: radix,
+                                      uppercase: uppercase)
+          let actualNumber = BigInt(expectedString, radix: radix)
+          XCTAssertNotNil(actualNumber)
+          if let actualNumber = actualNumber {
+            XCTAssertEqual(actualNumber, expectedNumber)
+            if radix == 10 {
+              XCTAssertEqual(actualNumber.description, expectedString)
+            }
+          }
+        }
+      }
     }
-    
-    XCTAssertEqual(foo, bar)
   }
 }
