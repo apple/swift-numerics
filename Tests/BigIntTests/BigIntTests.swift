@@ -1,8 +1,8 @@
-//===--- BigIntTests.swift -----------------------*- swift -*-===//
+//===--- BigIntTests.swift ------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019 - 2020 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -24,6 +24,7 @@ func fac(_ n: BigInt) -> BigInt {
 }
 
 final class BigIntTests: XCTestCase {
+
   func testExample() throws {
     let bar = BigInt(exactly: -100)
     XCTAssertNotNil(bar)
@@ -122,5 +123,45 @@ final class BigIntTests: XCTestCase {
     }
     
     XCTAssertEqual(foo, bar)
+  }
+
+  func testMinMaxDescriptions() {
+    let keyValuePairs: KeyValuePairs<BigInt, [String]> = [
+      BigInt(UInt64.min): [
+        "-2",
+        "-1",
+        "0",
+        "1",
+        "2"
+      ],
+      BigInt(UInt64.max): [
+        "18446744073709551613",
+        "18446744073709551614",
+        "18446744073709551615",
+        "18446744073709551616",
+        "18446744073709551617",
+      ],
+      BigInt(Int64.min): [
+        "-9223372036854775810",
+        "-9223372036854775809",
+        "-9223372036854775808",
+        "-9223372036854775807",
+        "-9223372036854775806",
+      ],
+      BigInt(Int64.max): [
+        "9223372036854775805",
+        "9223372036854775806",
+        "9223372036854775807",
+        "9223372036854775808",
+        "9223372036854775809",
+      ],
+    ]
+    for (expectedNumber, expectedStrings) in keyValuePairs {
+      let expectedNumbers: [BigInt] = (-2 ... 2).map({ expectedNumber + $0 })
+      let actualNumbers: [BigInt] = expectedStrings.compactMap({ BigInt($0) })
+      let actualStrings: [String] = actualNumbers.map({ $0.description })
+      XCTAssertEqual(actualNumbers, expectedNumbers, "Numbers: actual, expected")
+      XCTAssertEqual(actualStrings, expectedStrings, "Strings: actual, expected")
+    }
   }
 }
