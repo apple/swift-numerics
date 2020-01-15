@@ -160,8 +160,8 @@ final class BigIntTests: XCTestCase {
       let expectedNumbers: [BigInt] = (-2 ... 2).map({ expectedNumber + $0 })
       let actualNumbers: [BigInt] = expectedStrings.compactMap({ BigInt($0) })
       let actualStrings: [String] = actualNumbers.map({ $0.description })
-      XCTAssertEqual(actualNumbers, expectedNumbers, "Numbers: actual, expected")
-      XCTAssertEqual(actualStrings, expectedStrings, "Strings: actual, expected")
+      XCTAssertEqual(actualNumbers, expectedNumbers)
+      XCTAssertEqual(actualStrings, expectedStrings)
     }
   }
 
@@ -176,11 +176,9 @@ final class BigIntTests: XCTestCase {
           let actualNumber = BigInt(expectedString, radix: radix)
           XCTAssertNotNil(actualNumber)
           if let actualNumber = actualNumber {
-            XCTAssertEqual(actualNumber, expectedNumber,
-                           "Numbers: actual, expected")
+            XCTAssertEqual(actualNumber, expectedNumber)
             if radix == 10 {
-              XCTAssertEqual(actualNumber.description, expectedString,
-                             "Strings: actual, expected")
+              XCTAssertEqual(actualNumber.description, expectedString)
             }
           }
         }
