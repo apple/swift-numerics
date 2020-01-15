@@ -160,10 +160,7 @@ final class BigIntTests: XCTestCase {
       let expectedNumbers: [BigInt] = (-2 ... 2).map({ expectedNumber + $0 })
       let actualNumbers: [BigInt] = expectedStrings.compactMap({ BigInt($0) })
       let actualStrings: [String] = actualNumbers.map({ $0.description })
-//      XCTAssertEqual(actualNumbers, expectedNumbers)
-      for (actualNumber, expectedNumber) in zip(actualNumbers, expectedNumbers) {
-        XCTAssertEqual(actualNumber, expectedNumber)
-      }
+      XCTAssertEqual(actualNumbers, expectedNumbers)
       XCTAssertEqual(actualStrings, expectedStrings)
     }
   }
