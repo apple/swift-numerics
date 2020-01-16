@@ -77,11 +77,15 @@ extension BigInt: Comparable {
       }
 
       for i in stride(from: lhs.words.count - 1, through: 0, by: -1) {
-        if lhs.words[i] > rhs.words[i] { return false }
+        if lhs.words[i] > rhs.words[i] {
+          return false
+        } else if lhs.words[i] < rhs.words[i] {
+          return true
+        }
       }
     }
 
-    return true
+    return false
   }
 }
 

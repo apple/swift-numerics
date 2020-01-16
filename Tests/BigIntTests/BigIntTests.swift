@@ -111,6 +111,24 @@ final class BigIntTests: XCTestCase {
     baz.negate()
     XCTAssertEqual(baz, bar)
   }
+  
+  func testComparable() {
+    let foo = BigInt("1234567890123456789012345678901234567890")!
+    let bar = foo * foo
+    
+    XCTAssertLessThan(foo, bar)
+    XCTAssertFalse(foo < foo)
+    XCTAssertFalse(bar < bar)
+    XCTAssertFalse(foo > foo)
+    XCTAssertFalse(bar > bar)
+    XCTAssertGreaterThan(bar, foo)
+    
+    let baz = bar * -1
+    
+    XCTAssertLessThan(baz, foo)
+    XCTAssertNotEqual(bar, baz)
+    XCTAssertFalse(baz < baz)
+  }
 
   func testCodable() throws {
     let lowerBound = BigInt("-1234567890123456789012345678901234567890")!
