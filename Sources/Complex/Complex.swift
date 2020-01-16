@@ -208,7 +208,7 @@ extension Complex {
   
   /// The ∞-norm of the value (`max(abs(real), abs(imaginary))`).
   ///
-  /// If you need the euclidean norm (a.k.a. 2-norm) use the `length` or `lengthSquared`
+  /// If you need the Euclidean norm (a.k.a. 2-norm) use the `length` or `lengthSquared`
   /// properties instead.
   ///
   /// Edge cases:
@@ -369,7 +369,7 @@ extension Complex: CustomDebugStringConvertible {
 // MARK: - Operations for working with polar form
 extension Complex {
   
-  /// The euclidean norm (a.k.a. 2-norm, `sqrt(real*real + imaginary*imaginary)`).
+  /// The Euclidean norm (a.k.a. 2-norm, `sqrt(real*real + imaginary*imaginary)`).
   ///
   /// This property takes care to avoid spurious over- or underflow in
   /// this computation. For example:
