@@ -24,7 +24,7 @@ public protocol Field: Numeric {
   
   static func /(a: Self, b: Self) -> Self
   
-  /// The (approximate) reciprocal (mulitplicative inverse) of this number, if one is representable.
+  /// The (approximate) reciprocal (multiplicative inverse) of this number, if it is representable.
   ///
   /// If reciprocal is non-nil, you can replace division by self with multiplication by reciprocal and
   /// either get exact the same result (for finite fields) or approximately the same result up to a
@@ -34,6 +34,10 @@ public protocol Field: Numeric {
   /// represented, the result is nil. Implementations should be *conservative*; it is OK to return
   /// nil even in some cases where a reciprocal can be represented. For this reason, a default
   /// implementation that simply always returns nil is provided.
+  ///
+  /// Note that `.zero.reciprocal`, somewhat surprisingly, is *not* nil for `Real` or
+  /// `Complex` types, because these types have an `.infinity` value that acts as the
+  /// reciprocal of `.zero`.
   var reciprocal: Self? { get }
 }
 
