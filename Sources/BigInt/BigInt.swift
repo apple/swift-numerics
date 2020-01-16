@@ -22,6 +22,7 @@ public struct BigInt: SignedInteger {
 
   public init<T>(bitPattern source: T) where T: BinaryInteger {
     words = Words(source.words)
+    BigInt._dropExcessWords(words: &words)
   }
 
   @usableFromInline
