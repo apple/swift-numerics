@@ -89,26 +89,6 @@ extension BigInt: Comparable {
   }
 }
 
-extension BigInt: CustomStringConvertible {
-
-  public var description: String {
-    var result = ""
-
-    if words.count == 1 {
-      return Int64(bitPattern: UInt64(words[0])).description
-    } else {
-      var next = abs(self)
-      while next != 0 {
-        let digit: BigInt
-        (next, digit) = BigInt._div(lhs: next, rhs: 10)
-        result += "\(digit.words[0])"
-      }
-    }
-
-    return (self < 0 ? "-" : "") + String(result.reversed())
-  }
-}
-
 extension BigInt: LosslessStringConvertible {
 
   public init?(_ description: String) {

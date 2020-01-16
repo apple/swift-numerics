@@ -112,6 +112,11 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(baz, bar)
   }
   
+  func testThing() {
+    let foo = BigInt("-1234567890123456789012345678901234567890")!
+    XCTAssertTrue(foo != 0)
+  }
+  
   func testComparable() {
     let foo = BigInt("1234567890123456789012345678901234567890")!
     let bar = foo * foo
