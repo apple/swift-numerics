@@ -16,8 +16,8 @@ public struct BigInt: SignedInteger {
   public private(set) var words: Words
 
   @usableFromInline
-  internal init(words: Words) {
-    self.words = words
+  internal init(_uncheckedWords: Words) {
+    self.words = _uncheckedWords
   }
 
   public init<T>(bitPattern source: T) where T: BinaryInteger {
@@ -30,7 +30,7 @@ public struct BigInt: SignedInteger {
   }
 
   private static let _digits: [BigInt] = (0 ... 36).map {
-    BigInt(words: [UInt(bitPattern: $0)])
+    BigInt(_uncheckedWords: [UInt(bitPattern: $0)])
   }
 }
 
@@ -307,10 +307,10 @@ extension BigInt: Numeric {
     }
 
     if lhsIsNeg || rhsIsNeg, !(lhsIsNeg && rhsIsNeg) {
-      return -BigInt(words: newWords)
+      return -BigInt(_uncheckedWords: newWords)
     }
 
-    return BigInt(words: newWords)
+    return BigInt(_uncheckedWords: newWords)
   }
 
   @inlinable
@@ -430,7 +430,7 @@ extension BigInt: BinaryInteger {
   @inlinable
   public static prefix func ~ (x: BigInt) -> BigInt {
     let newWords = x.words.map { ~$0 }
-    return BigInt(words: Words(newWords))
+    return BigInt(_uncheckedWords: Words(newWords))
   }
 
   public static func &= (lhs: inout BigInt, rhs: BigInt) {
@@ -606,7 +606,7 @@ extension BigInt {
 
     if lhs.words.count == 1, rhs.words.count == 1 {
       let (quot, rem) = Int(bitPattern: lhs.words[0]).quotientAndRemainder(dividingBy: Int(bitPattern: rhs.words[0]))
-      return (BigInt(words: [UInt(bitPattern: quot)]), BigInt(words: [UInt(bitPattern: rem)]))
+      return (BigInt(_uncheckedWords: [UInt(bitPattern: quot)]), BigInt(_uncheckedWords: [UInt(bitPattern: rem)]))
     }
 
     let lhsIsNeg = lhs._isNegative
@@ -720,7 +720,7 @@ extension BigInt {
     BigInt._dropExcessWords(words: &quot)
     BigInt._dropExcessWords(words: &rem)
 
-    return (BigInt(words: quot), BigInt(words: rem))
+    return (BigInt(_uncheckedWords: quot), BigInt(_uncheckedWords: rem))
   }
 
   private static func _signExtend(lhsWords: inout Words, rhsWords: inout Words) {
