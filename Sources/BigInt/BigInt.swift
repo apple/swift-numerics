@@ -336,18 +336,9 @@ extension BigInt: SignedNumeric {
 
   @inlinable
   public static prefix func - (x: BigInt) -> BigInt {
-    var newWords = x.words.map { ~$0 }
-    let carry: UInt = 1
-    for i in 0 ..< newWords.count {
-      let isOverflow: Bool
-      (newWords[i], isOverflow) = newWords[i].addingReportingOverflow(carry)
-      if !isOverflow {
-        break
-      }
-    }
-
-    BigInt._dropExcessWords(words: &newWords)
-    return BigInt(words: Words(newWords))
+    var result = x
+    result.negate()
+    return result
   }
 }
 
