@@ -152,6 +152,13 @@ final class BigIntTests: XCTestCase {
   }
 
   func testLosslessStringConvertible() {
+    XCTAssertNil(BigInt(""))
+    XCTAssertNil(BigInt("-"))
+    XCTAssertNil(BigInt("+"))
+    XCTAssertNil(BigInt("A"))
+    XCTAssertNil(BigInt(" 0"))
+    XCTAssertNil(BigInt("0 "))
+
     XCTAssertEqual(BigInt(UInt64.min) - 2, BigInt("-2"))
     XCTAssertEqual(BigInt(UInt64.min) - 1, BigInt("-1"))
     XCTAssertEqual(BigInt(UInt64.min) + 0, BigInt("0"))
