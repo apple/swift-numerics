@@ -177,7 +177,7 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(BigInt(Int64.max) + 2, BigInt("9223372036854775809"))
   }
 
-  func testRandomDescriptions() {
+  func testRadicesAndNumerals() {
     for _ in 0 ..< 100 {
       let expectedNumber = BigInt(Int.random(in: .min ... .max))
       for radix in 2 ... 36 {
