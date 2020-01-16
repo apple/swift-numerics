@@ -185,26 +185,25 @@ final class BigIntTests: XCTestCase {
   }
 
   func testRadicesAndNumerals() {
-    for _ in 0 ..< 100 {
-      let expectedNumber = BigInt(Int.random(in: .min ... .max))
-      for radix in 2 ... 36 {
-        for uppercase in [false, true] {
+    for radix in 2 ... 36 {
+      for uppercase in [false, true] {
+        for _ in 0 ..< 100 {
+          let expectedNumber = BigInt(Int.random(in: .min ... .max))
           let expectedString = String(expectedNumber,
                                       radix: radix,
                                       uppercase: uppercase)
           let actualNumber = BigInt(expectedString, radix: radix)
           XCTAssertNotNil(actualNumber)
-          if let actualNumber = actualNumber {
-            XCTAssertEqual(actualNumber, expectedNumber)
-            if radix == 10 {
-              XCTAssertEqual(actualNumber.description, expectedString)
-            }
+          XCTAssertEqual(actualNumber, expectedNumber)
+          if radix == 10 {
+            let actualString = expectedNumber.description
+            XCTAssertEqual(actualString, expectedString)
           }
         }
       }
     }
   }
-  
+
   func testDivision() {
     let foo = BigInt("12345678901234567890123456789012345678901234567890123456789012345678901234567890")!
     let bar = BigInt("351235231535161613134135135135")!
