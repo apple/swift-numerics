@@ -25,6 +25,49 @@ func fac(_ n: BigInt) -> BigInt {
 
 final class BigIntTests: XCTestCase {
 
+  /// Python: `bitWidth = 1024; -(2 ** (bitWidth - 1))`
+  static let descriptionInt1024Min: String =
+    """
+    -89884656743115795386465259539451236680898848947115328636715040578866337902\
+    750481566354238661203768010560056939935696678829394884407208311246423715319\
+    737062188883946712432742638151109800623047059726541476042502884419075341171\
+    231440736956555270413618581675255342293149119973622969239858152417678164812\
+    112068608
+    """
+
+  /// Python: `bitWidth = 1024; (2 ** (bitWidth - 1)) - 1`
+  static let descriptionInt1024Max: String =
+    """
+    89884656743115795386465259539451236680898848947115328636715040578866337902\
+    750481566354238661203768010560056939935696678829394884407208311246423715319\
+    737062188883946712432742638151109800623047059726541476042502884419075341171\
+    231440736956555270413618581675255342293149119973622969239858152417678164812\
+    112068607
+    """
+
+  /// Python: `numpy.base_repr(math.factorial(512), base=36)`
+  static let descriptionFactorial512Radix36: String =
+    """
+    7FA5Y7EHR9XHMQ519MBHGYOF8XDYMUX8OZHO9WF1KCM0SSPXV2V45UA73BAFRYM2PFB8CZLTODV\
+    OS3QWA7PYFJ7WAFBI4VF371E27N6XZ4LGWHMFDS4ZH1O3DGNFG4YABUE1G90ORGRTIOGSQVZLSQ\
+    4TKHKHIQ262JVQ0J6LSKAPN5I65AJD33XODVHRNWJ1VSO0Q2FBOUNCPGQG2SFQKR17XHF1OLTV2\
+    MVNJVTDAIYWVJ9ZH7KXT0EPS00IGIVC7MNCU25HFWE37KNMSJQUL5ALUCE5XZVPFQCQGEVEB93B\
+    GA8LKG67PVZ7Q9QMQKIVNIMPT2973MVDTD1D1A0A4QT6NBZYR0TGSZXBV1PD0CHW4SKZJSLBS4Z\
+    W5WCKDY8BCQCE17KKADVLCTVSQL1BZ2PL52DDPB8S5L0ZEG2ZAZF9V4TNJJNO1D9U9JU7B264QZ\
+    5GLHC3Q0Y3BTECGTI8GRENQ2FV4HSEZKPM9OG302KLSY9MBCSOO0FN229AST84TT87LYWOOS71C\
+    54RPJ9RTO9875Z9DE3HPH89EW5I3SV219O04UU09A4KME7DD7IH49ABO79NR4EXFX1VLL4YOHSA\
+    7AHD1LS5YKZ66F4UPG0RCBGG000000000000000000000000000000000000000000000000000\
+    000000000000000000000000000000000000000000000000000000000000000000000000000
+    """
+
+  func testFactorial() {
+    let factorial512 = fac(BigInt(512))
+    XCTAssertEqual(String(factorial512, radix: 36, uppercase: true),
+                   Self.descriptionFactorial512Radix36)
+    XCTAssertEqual(BigInt(Self.descriptionFactorial512Radix36, radix: 36),
+                   factorial512)
+  }
+
   func testExample() {
     let bar = BigInt(exactly: -100)
     XCTAssertNotNil(bar)
@@ -111,25 +154,20 @@ final class BigIntTests: XCTestCase {
     baz.negate()
     XCTAssertEqual(baz, bar)
   }
-  
-  func testThing() {
-    let foo = BigInt("-1234567890123456789012345678901234567890")!
-    XCTAssertTrue(foo != 0)
-  }
-  
+
   func testComparable() {
     let foo = BigInt("1234567890123456789012345678901234567890")!
     let bar = foo * foo
-    
+
     XCTAssertLessThan(foo, bar)
     XCTAssertFalse(foo < foo)
     XCTAssertFalse(bar < bar)
     XCTAssertFalse(foo > foo)
     XCTAssertFalse(bar > bar)
     XCTAssertGreaterThan(bar, foo)
-    
+
     let baz = bar * -1
-    
+
     XCTAssertLessThan(baz, foo)
     XCTAssertNotEqual(bar, baz)
     XCTAssertFalse(baz < baz)
@@ -172,6 +210,9 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual("\(BigInt(Int64.max) + 0)", "9223372036854775807")
     XCTAssertEqual("\(BigInt(Int64.max) + 1)", "9223372036854775808")
     XCTAssertEqual("\(BigInt(Int64.max) + 2)", "9223372036854775809")
+
+    XCTAssertEqual("\(-(BigInt(1) << 1023))",     Self.descriptionInt1024Min)
+    XCTAssertEqual("\(+(BigInt(1) << 1023) - 1)", Self.descriptionInt1024Max)
   }
 
   func testLosslessStringConvertible() {
@@ -205,6 +246,9 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(BigInt(Int64.max) + 0, BigInt("9223372036854775807"))
     XCTAssertEqual(BigInt(Int64.max) + 1, BigInt("9223372036854775808"))
     XCTAssertEqual(BigInt(Int64.max) + 2, BigInt("9223372036854775809"))
+
+    XCTAssertEqual(-(BigInt(1) << 1023),     BigInt(Self.descriptionInt1024Min))
+    XCTAssertEqual(+(BigInt(1) << 1023) - 1, BigInt(Self.descriptionInt1024Max))
   }
 
   func testRadicesAndNumerals() {
