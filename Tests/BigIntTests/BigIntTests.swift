@@ -25,6 +25,24 @@ func fac(_ n: BigInt) -> BigInt {
 
 final class BigIntTests: XCTestCase {
 
+  static let descriptionInt1024Min: String =
+    """
+    -89884656743115795386465259539451236680898848947115328636715040578866337902\
+    750481566354238661203768010560056939935696678829394884407208311246423715319\
+    737062188883946712432742638151109800623047059726541476042502884419075341171\
+    231440736956555270413618581675255342293149119973622969239858152417678164812\
+    112068608
+    """
+
+  static let descriptionInt1024Max: String =
+    """
+    89884656743115795386465259539451236680898848947115328636715040578866337902\
+    750481566354238661203768010560056939935696678829394884407208311246423715319\
+    737062188883946712432742638151109800623047059726541476042502884419075341171\
+    231440736956555270413618581675255342293149119973622969239858152417678164812\
+    112068607
+    """
+
   func testExample() {
     let bar = BigInt(exactly: -100)
     XCTAssertNotNil(bar)
@@ -111,25 +129,20 @@ final class BigIntTests: XCTestCase {
     baz.negate()
     XCTAssertEqual(baz, bar)
   }
-  
-  func testThing() {
-    let foo = BigInt("-1234567890123456789012345678901234567890")!
-    XCTAssertTrue(foo != 0)
-  }
-  
+
   func testComparable() {
     let foo = BigInt("1234567890123456789012345678901234567890")!
     let bar = foo * foo
-    
+
     XCTAssertLessThan(foo, bar)
     XCTAssertFalse(foo < foo)
     XCTAssertFalse(bar < bar)
     XCTAssertFalse(foo > foo)
     XCTAssertFalse(bar > bar)
     XCTAssertGreaterThan(bar, foo)
-    
+
     let baz = bar * -1
-    
+
     XCTAssertLessThan(baz, foo)
     XCTAssertNotEqual(bar, baz)
     XCTAssertFalse(baz < baz)
@@ -172,6 +185,9 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual("\(BigInt(Int64.max) + 0)", "9223372036854775807")
     XCTAssertEqual("\(BigInt(Int64.max) + 1)", "9223372036854775808")
     XCTAssertEqual("\(BigInt(Int64.max) + 2)", "9223372036854775809")
+
+    XCTAssertEqual("\(-(BigInt(1) << 1023))",     Self.descriptionInt1024Min)
+    XCTAssertEqual("\(+(BigInt(1) << 1023) - 1)", Self.descriptionInt1024Max)
   }
 
   func testLosslessStringConvertible() {
@@ -205,6 +221,9 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(BigInt(Int64.max) + 0, BigInt("9223372036854775807"))
     XCTAssertEqual(BigInt(Int64.max) + 1, BigInt("9223372036854775808"))
     XCTAssertEqual(BigInt(Int64.max) + 2, BigInt("9223372036854775809"))
+
+    XCTAssertEqual(-(BigInt(1) << 1023),     BigInt(Self.descriptionInt1024Min))
+    XCTAssertEqual(+(BigInt(1) << 1023) - 1, BigInt(Self.descriptionInt1024Max))
   }
 
   func testRadicesAndNumerals() {
