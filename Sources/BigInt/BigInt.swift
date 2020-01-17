@@ -315,7 +315,7 @@ extension BigInt: SignedNumeric {
         words[i] = ~words[i]
       }
     }
-    
+
     BigInt._dropExcessWords(words: &words)
   }
 
@@ -362,7 +362,7 @@ extension BigInt: BinaryInteger {
     }
 
     if isNegative {
-      self = -self
+      self.negate()
     }
   }
 
