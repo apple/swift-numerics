@@ -330,36 +330,28 @@ extension BigInt: SignedNumeric {
 extension BigInt: BinaryInteger {
 
   public init?<T>(exactly source: T) where T: BinaryFloatingPoint {
-    if (source.isNaN || source.isInfinite) ||
-      (source.rounded(.towardZero) != source) {
+    guard source.isFinite, source == source.rounded(.towardZero) else {
       return nil
     }
-
     self.init(source)
   }
 
   public init<T>(_ source: T) where T: BinaryFloatingPoint {
-    precondition(
-      !(source.isNaN || source.isInfinite),
-      "\(type(of: source)) value cannot be converted to BigInt because it is either infinite or NaN"
-    )
+    precondition(source.isFinite, "BigInt(\(source)) failed")
+    precondition(T.significandBitCount < .max)
 
-    let isNegative = source < 0.0
-    var float = isNegative ? -source : source
+    let source = source.rounded(.towardZero)
+    let isNegative = source < 0
 
-    if let _ = UInt(exactly: T.greatestFiniteMagnitude) {
-      words = [UInt(float)]
-    } else {
-      var words = Words()
-      let radix = T(sign: .plus, exponent: T.Exponent(UInt.bitWidth), significand: 1)
-      repeat {
-        let digit = UInt(float.truncatingRemainder(dividingBy: radix))
-        words.append(digit)
-        float = (float / radix).rounded(.towardZero)
-      } while float != 0
-
-      self.words = words
+    guard !source.isZero else {
+      self = 0
+      return
     }
+
+    self = BigInt(source.significandBitPattern)
+    self |= BigInt(1) << T.significandBitCount
+    self *= BigInt(1) << source.exponent
+    self >>= T.significandBitCount
 
     if isNegative {
       self.negate()
