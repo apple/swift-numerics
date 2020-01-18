@@ -12,6 +12,8 @@
 import BigInt
 import XCTest
 
+typealias FloatXX = CLongDouble // Float64 or Float80
+
 func fac(_ n: BigInt) -> BigInt {
   var result: BigInt = 1
   var count = n
@@ -43,6 +45,16 @@ final class BigIntTests: XCTestCase {
     737062188883946712432742638151109800623047059726541476042502884419075341171\
     231440736956555270413618581675255342293149119973622969239858152417678164812\
     112068607
+    """
+
+  /// Python: `int(sys.float_info.max)`
+  static let descriptionFloat64_greatestFiniteMagnitude: String =
+    """
+    179769313486231570814527423731704356798070567525844996598917476803157260780\
+    028538760589558632766878171540458953514382464234321326889464182768467546703\
+    537516986049910576551282076245490090389328944075868508455133942304583236903\
+    222948165808559332123348274797826204144723168738177180919299881250404026184\
+    124858368
     """
 
   /// Python: `numpy.base_repr(math.factorial(512), base=36)`
@@ -80,19 +92,111 @@ final class BigIntTests: XCTestCase {
                    +BigInt("+1234567890123456789012345678901234567890")!)
   }
 
-  func testFloatingConversion() {
-    let bar = BigInt(3.14159)
-    XCTAssertEqual(bar, BigInt(3))
-    let foo = BigInt(exactly: 3.14159)
-    XCTAssertNil(foo)
+  func testFloatingPoint_greatestFiniteMagnitude() {
+    XCTAssertEqual(BigInt(exactly: -Float64.greatestFiniteMagnitude),
+                   BigInt("-\(Self.descriptionFloat64_greatestFiniteMagnitude)"))
+    XCTAssertEqual(BigInt(exactly: +Float64.greatestFiniteMagnitude),
+                   BigInt("+\(Self.descriptionFloat64_greatestFiniteMagnitude)"))
 
-    let baz = BigInt(exactly: 2.4e39)
-    XCTAssertNotNil(baz)
-    let equal = (baz ?? 0) / BigInt(1e38) == BigInt(24)
-    XCTAssertEqual(equal, true)
+    XCTAssertEqual(BigInt(-Float64.greatestFiniteMagnitude),
+                   BigInt("-\(Self.descriptionFloat64_greatestFiniteMagnitude)"))
+    XCTAssertEqual(BigInt(+Float64.greatestFiniteMagnitude),
+                   BigInt("+\(Self.descriptionFloat64_greatestFiniteMagnitude)"))
+  }
 
-    let infinite = BigInt(exactly: Double.infinity)
-    XCTAssertNil(infinite)
+  func testFloatingPoint_infinity() {
+    XCTAssertNil(BigInt(exactly: -Float32.infinity))
+    XCTAssertNil(BigInt(exactly: -Float64.infinity))
+    XCTAssertNil(BigInt(exactly: -FloatXX.infinity))
+
+    XCTAssertNil(BigInt(exactly: +Float32.infinity))
+    XCTAssertNil(BigInt(exactly: +Float64.infinity))
+    XCTAssertNil(BigInt(exactly: +FloatXX.infinity))
+  }
+
+  func testFloatingPoint_leastNonzeroMagnitude() {
+    XCTAssertNil(BigInt(exactly: -Float32.leastNonzeroMagnitude))
+    XCTAssertNil(BigInt(exactly: -Float64.leastNonzeroMagnitude))
+    XCTAssertNil(BigInt(exactly: -FloatXX.leastNonzeroMagnitude))
+
+    XCTAssertNil(BigInt(exactly: +Float32.leastNonzeroMagnitude))
+    XCTAssertNil(BigInt(exactly: +Float64.leastNonzeroMagnitude))
+    XCTAssertNil(BigInt(exactly: +FloatXX.leastNonzeroMagnitude))
+
+    XCTAssertEqual(BigInt(-Float32.leastNonzeroMagnitude), 0)
+    XCTAssertEqual(BigInt(-Float64.leastNonzeroMagnitude), 0)
+    XCTAssertEqual(BigInt(-FloatXX.leastNonzeroMagnitude), 0)
+
+    XCTAssertEqual(BigInt(+Float32.leastNonzeroMagnitude), 0)
+    XCTAssertEqual(BigInt(+Float64.leastNonzeroMagnitude), 0)
+    XCTAssertEqual(BigInt(+FloatXX.leastNonzeroMagnitude), 0)
+  }
+
+  func testFloatingPoint_leastNormalMagnitude() {
+    XCTAssertNil(BigInt(exactly: -Float32.leastNormalMagnitude))
+    XCTAssertNil(BigInt(exactly: -Float64.leastNormalMagnitude))
+    XCTAssertNil(BigInt(exactly: -FloatXX.leastNormalMagnitude))
+
+    XCTAssertNil(BigInt(exactly: +Float32.leastNormalMagnitude))
+    XCTAssertNil(BigInt(exactly: +Float64.leastNormalMagnitude))
+    XCTAssertNil(BigInt(exactly: +FloatXX.leastNormalMagnitude))
+
+    XCTAssertEqual(BigInt(-Float32.leastNormalMagnitude), 0)
+    XCTAssertEqual(BigInt(-Float64.leastNormalMagnitude), 0)
+    XCTAssertEqual(BigInt(-FloatXX.leastNormalMagnitude), 0)
+
+    XCTAssertEqual(BigInt(+Float32.leastNormalMagnitude), 0)
+    XCTAssertEqual(BigInt(+Float64.leastNormalMagnitude), 0)
+    XCTAssertEqual(BigInt(+FloatXX.leastNormalMagnitude), 0)
+  }
+
+  func testFloatingPoint_nan() {
+    XCTAssertNil(BigInt(exactly: Float32.nan))
+    XCTAssertNil(BigInt(exactly: Float64.nan))
+    XCTAssertNil(BigInt(exactly: FloatXX.nan))
+  }
+
+  func testFloatingPoint_pi() {
+    XCTAssertNil(BigInt(exactly: -Float32.pi))
+    XCTAssertNil(BigInt(exactly: -Float64.pi))
+    XCTAssertNil(BigInt(exactly: -FloatXX.pi))
+
+    XCTAssertNil(BigInt(exactly: +Float32.pi))
+    XCTAssertNil(BigInt(exactly: +Float64.pi))
+    XCTAssertNil(BigInt(exactly: +FloatXX.pi))
+
+    XCTAssertEqual(BigInt(-Float32.pi), -3)
+    XCTAssertEqual(BigInt(-Float64.pi), -3)
+    XCTAssertEqual(BigInt(-FloatXX.pi), -3)
+
+    XCTAssertEqual(BigInt(+Float32.pi), +3)
+    XCTAssertEqual(BigInt(+Float64.pi), +3)
+    XCTAssertEqual(BigInt(+FloatXX.pi), +3)
+  }
+
+  func testFloatingPoint_random() {
+    for _ in 0 ..< 1000 {
+      let random = Float64.random(in: -0x1p52 ... +0x1p52)
+      XCTAssertEqual(BigInt(random), BigInt(Int64(random)))
+    }
+  }
+
+  func testFloatingPoint_zero() {
+    XCTAssertEqual(BigInt(exactly: -Float32.zero), 0)
+    XCTAssertEqual(BigInt(exactly: -Float64.zero), 0)
+    XCTAssertEqual(BigInt(exactly: -FloatXX.zero), 0)
+
+    XCTAssertEqual(BigInt(exactly: +Float32.zero), 0)
+    XCTAssertEqual(BigInt(exactly: +Float64.zero), 0)
+    XCTAssertEqual(BigInt(exactly: +FloatXX.zero), 0)
+
+    XCTAssertEqual(BigInt(-Float32.zero), 0)
+    XCTAssertEqual(BigInt(-Float64.zero), 0)
+    XCTAssertEqual(BigInt(-FloatXX.zero), 0)
+
+    XCTAssertEqual(BigInt(+Float32.zero), 0)
+    XCTAssertEqual(BigInt(+Float64.zero), 0)
+    XCTAssertEqual(BigInt(+FloatXX.zero), 0)
   }
 
   func testUIntConversion() {
@@ -260,7 +364,6 @@ final class BigIntTests: XCTestCase {
                                       radix: radix,
                                       uppercase: uppercase)
           let actualNumber = BigInt(expectedString, radix: radix)
-          XCTAssertNotNil(actualNumber)
           XCTAssertEqual(actualNumber, expectedNumber)
           if radix == 10 {
             let actualString = expectedNumber.description
@@ -276,5 +379,9 @@ final class BigIntTests: XCTestCase {
     let bar = BigInt("351235231535161613134135135135")!
     let baz = foo / bar
     XCTAssertEqual(baz, BigInt("35149318157164029155780432046477458820396117503007")!)
+
+    XCTAssertNotNil(BigInt(exactly: 2.4e39))
+    XCTAssertNotNil(BigInt(exactly: 1e38))
+    XCTAssertEqual(BigInt(2.4e39) / BigInt(1e38), BigInt(24))
   }
 }
