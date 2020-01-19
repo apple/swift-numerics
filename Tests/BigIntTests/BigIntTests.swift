@@ -175,9 +175,28 @@ final class BigIntTests: XCTestCase {
   }
 
   func testFloatingPoint_random() {
-    for _ in 0 ..< 1000 {
-      let random = Float64.random(in: -0x1p52 ... +0x1p52)
-      XCTAssertEqual(BigInt(random), BigInt(Int64(random)))
+    for _ in 0 ..< 100 {
+      let small = Float32.random(in: -10 ... +10)
+      XCTAssertEqual(BigInt(small), BigInt(Int64(small)))
+
+      let large = Float32.random(in: -0x1p23 ... +0x1p23)
+      XCTAssertEqual(BigInt(large), BigInt(Int64(large)))
+    }
+
+    for _ in 0 ..< 100 {
+      let small = Float64.random(in: -10 ... +10)
+      XCTAssertEqual(BigInt(small), BigInt(Int64(small)))
+
+      let large = Float64.random(in: -0x1p52 ... +0x1p52)
+      XCTAssertEqual(BigInt(large), BigInt(Int64(large)))
+    }
+
+    for _ in 0 ..< 100 {
+      let small = FloatXX.random(in: -10 ... +10)
+      XCTAssertEqual(BigInt(small), BigInt(Int64(small)))
+
+      let large = FloatXX.random(in: -0x1p52 ... +0x1p52)
+      XCTAssertEqual(BigInt(large), BigInt(Int64(large)))
     }
   }
 
