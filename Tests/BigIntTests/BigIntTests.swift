@@ -73,11 +73,18 @@ final class BigIntTests: XCTestCase {
     """
 
   func testFactorial() {
-    let factorial512 = fac(BigInt(512))
-    XCTAssertEqual(String(factorial512, radix: 36, uppercase: true),
-                   Self.descriptionFactorial512Radix36)
-    XCTAssertEqual(BigInt(Self.descriptionFactorial512Radix36, radix: 36),
-                   factorial512)
+    var expectedNumber: BigInt!
+    var actualNumber: BigInt!
+    var actualString: String!
+
+    measure {
+      expectedNumber = BigInt(Self.descriptionFactorial512Radix36, radix: 36)
+      actualNumber = fac(BigInt(512))
+      actualString = String(actualNumber, radix: 36, uppercase: true)
+    }
+
+    XCTAssertEqual(actualNumber, expectedNumber)
+    XCTAssertEqual(actualString, Self.descriptionFactorial512Radix36)
   }
 
   func testExample() {
