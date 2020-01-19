@@ -26,8 +26,8 @@
 /// -
 /// - `ElementaryFunctions`
 /// - `RealFunctions`
-/// - `Field`
-public protocol Real: FloatingPoint, RealFunctions, Field {
+/// - `AlgebraicField`
+public protocol Real: FloatingPoint, RealFunctions, AlgebraicField {
 }
 
 //  While `Real` does not provide any additional customization points,
