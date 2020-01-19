@@ -517,15 +517,7 @@ extension BigInt: BinaryInteger {
   }
 
   @inlinable
-  public func signum() -> BigInt {
-    if _isNegative {
-      return -1
-    } else if self == 0 {
-      return 0
-    }
-
-    return 1
-  }
+  public func signum() -> BigInt { _isNegative ? -1 : (self == 0) ? 0 : 1 }
 }
 
 // MARK: -

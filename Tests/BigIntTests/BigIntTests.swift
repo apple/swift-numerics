@@ -410,4 +410,20 @@ final class BigIntTests: XCTestCase {
     XCTAssertNotNil(BigInt(exactly: 1e38))
     XCTAssertEqual(BigInt(2.4e39) / BigInt(1e38), BigInt(24))
   }
+
+  func testSignum() {
+    XCTAssertEqual(BigInt(-0x1p1023).signum(), -1)
+    XCTAssertEqual(BigInt(Int64.min).signum(), -1)
+    XCTAssertEqual(BigInt(Int32.min).signum(), -1)
+    XCTAssertEqual(BigInt(Int16.min).signum(), -1)
+    XCTAssertEqual(BigInt(Int8.min).signum(), -1)
+    XCTAssertEqual(BigInt(-1).signum(), -1)
+    XCTAssertEqual(BigInt(0).signum(), 0)
+    XCTAssertEqual(BigInt(+1).signum(), +1)
+    XCTAssertEqual(BigInt(Int8.max).signum(), +1)
+    XCTAssertEqual(BigInt(Int16.max).signum(), +1)
+    XCTAssertEqual(BigInt(Int32.max).signum(), +1)
+    XCTAssertEqual(BigInt(Int64.max).signum(), +1)
+    XCTAssertEqual(BigInt(+0x1p1023).signum(), +1)
+  }
 }
