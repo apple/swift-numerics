@@ -350,7 +350,7 @@ extension BigInt: BinaryInteger {
 
     self = BigInt(source.significandBitPattern)
     self |= BigInt(1) << T.significandBitCount
-    self *= BigInt(1) << source.exponent
+    self <<= source.exponent
     self >>= T.significandBitCount
 
     if isNegative {
