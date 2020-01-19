@@ -12,8 +12,6 @@
 import BigInt
 import XCTest
 
-typealias FloatXX = CLongDouble // Float64 or Float80
-
 func fac(_ n: BigInt) -> BigInt {
   var result: BigInt = 1
   var count = n
@@ -26,6 +24,9 @@ func fac(_ n: BigInt) -> BigInt {
 }
 
 final class BigIntTests: XCTestCase {
+
+  /// Float64 or Float80 (or Float128)
+  typealias FloatXX = CLongDouble
 
   /// Python: `bitWidth = 1024; -(2 ** (bitWidth - 1))`
   static let descriptionInt1024Min: String =
