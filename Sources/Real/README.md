@@ -6,7 +6,7 @@ The `Real` module provides that API as a separate module so that you can use it 
 
 ## Protocols and Methods
 
-The module defines three protocols. The most general is `ElementaryFunctions`, which makes the following functions available:
+The module defines four protocols. The most general is `ElementaryFunctions`, which makes the following functions available:
 - Exponential functions: `exp`, `expMinusOne`
 - Logarithmic functions: `log`, `log(onePlus:)`
 - Trigonometric functions: `cos`, `sin`, `tan`
@@ -27,6 +27,9 @@ The `RealFunctions` protocol refines `ElementaryFunctions`, and adds operations 
 
 The protocol that you will use most often is `Real`, which describes a floating-point type equipped with the full set of basic math functions.
 This is a great protocol to use in writing generic code, because it has all the basics that you need to implement most numeric functions.
+
+The fourth protocol is `AlgebraicField`, which `Real` also refines. This protocol is a very small refinement of `Numeric`, adding the `/` and `/=` operators and a `reciprocal` property.
+The primary use of this protocol is for writing code that is generic over real and complex types.
 
 ## Using Real
 
@@ -70,3 +73,4 @@ Not having this protocol is a significant missing feature for numerical computin
 [ErrorFunction]: https://en.wikipedia.org/wiki/Error_function
 [GammaFunction]: https://en.wikipedia.org/wiki/Gamma_function
 [SE-0246]: https://github.com/apple/swift-evolution/blob/master/proposals/0246-mathable.md
+[Sigmoid]: https://en.wikipedia.org/wiki/Sigmoid_function
