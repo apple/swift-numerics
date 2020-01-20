@@ -48,18 +48,17 @@ final class BigIntTests: XCTestCase {
     112068607
     """
 
-  /// Python: `int(sys.float_info.max)`
-  static let descriptionFloat64_greatestFiniteMagnitude: String =
+  /// Python: `hex(int(sys.float_info.max))`
+  static let descriptionFloat64Max_radix16: String =
     """
-    179769313486231570814527423731704356798070567525844996598917476803157260780\
-    028538760589558632766878171540458953514382464234321326889464182768467546703\
-    537516986049910576551282076245490090389328944075868508455133942304583236903\
-    222948165808559332123348274797826204144723168738177180919299881250404026184\
-    124858368
+    FFFFFFFFFFFFF80000000000000000000000000000000000000000000000000000000000000\
+    000000000000000000000000000000000000000000000000000000000000000000000000000\
+    000000000000000000000000000000000000000000000000000000000000000000000000000\
+    0000000000000000000000000000000
     """
 
   /// Python: `numpy.base_repr(math.factorial(512), base=36)`
-  static let descriptionFactorial512Radix36: String =
+  static let descriptionFactorial512_radix36: String =
     """
     7FA5Y7EHR9XHMQ519MBHGYOF8XDYMUX8OZHO9WF1KCM0SSPXV2V45UA73BAFRYM2PFB8CZLTODV\
     OS3QWA7PYFJ7WAFBI4VF371E27N6XZ4LGWHMFDS4ZH1O3DGNFG4YABUE1G90ORGRTIOGSQVZLSQ\
@@ -92,13 +91,13 @@ final class BigIntTests: XCTestCase {
     var actualString: String!
 
     measure {
-      expectedNumber = BigInt(Self.descriptionFactorial512Radix36, radix: 36)
+      expectedNumber = BigInt(Self.descriptionFactorial512_radix36, radix: 36)
       actualNumber = fac(BigInt(512))
       actualString = String(actualNumber, radix: 36, uppercase: true)
     }
 
     XCTAssertEqual(actualNumber, expectedNumber)
-    XCTAssertEqual(actualString, Self.descriptionFactorial512Radix36)
+    XCTAssertEqual(actualString, Self.descriptionFactorial512_radix36)
   }
 
   func testMath() {
@@ -312,14 +311,14 @@ final class BigIntTests: XCTestCase {
 
   func testFloatingPoint_greatestFiniteMagnitude() {
     XCTAssertEqual(BigInt(exactly: -Float64.greatestFiniteMagnitude),
-                   BigInt("-\(Self.descriptionFloat64_greatestFiniteMagnitude)"))
+                   BigInt("-\(Self.descriptionFloat64Max_radix16)", radix: 16))
     XCTAssertEqual(BigInt(exactly: +Float64.greatestFiniteMagnitude),
-                   BigInt("+\(Self.descriptionFloat64_greatestFiniteMagnitude)"))
+                   BigInt("+\(Self.descriptionFloat64Max_radix16)", radix: 16))
 
     XCTAssertEqual(BigInt(-Float64.greatestFiniteMagnitude),
-                   BigInt("-\(Self.descriptionFloat64_greatestFiniteMagnitude)"))
+                   BigInt("-\(Self.descriptionFloat64Max_radix16)", radix: 16))
     XCTAssertEqual(BigInt(+Float64.greatestFiniteMagnitude),
-                   BigInt("+\(Self.descriptionFloat64_greatestFiniteMagnitude)"))
+                   BigInt("+\(Self.descriptionFloat64Max_radix16)", radix: 16))
   }
 
   func testFloatingPoint_infinity() {
