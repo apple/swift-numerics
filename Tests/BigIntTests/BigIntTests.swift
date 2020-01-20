@@ -73,6 +73,19 @@ final class BigIntTests: XCTestCase {
     000000000000000000000000000000000000000000000000000000000000000000000000000
     """
 
+  // MARK: - Basic arithmetic
+
+  func testDivision() {
+    let foo = BigInt("12345678901234567890123456789012345678901234567890123456789012345678901234567890")!
+    let bar = BigInt("351235231535161613134135135135")!
+    let baz = foo / bar
+    XCTAssertEqual(baz, BigInt("35149318157164029155780432046477458820396117503007")!)
+
+    XCTAssertNotNil(BigInt(exactly: 2.4e39))
+    XCTAssertNotNil(BigInt(exactly: 1e38))
+    XCTAssertEqual(BigInt(2.4e39) / BigInt(1e38), BigInt(24))
+  }
+
   func testFactorial() {
     var expectedNumber: BigInt!
     var actualNumber: BigInt!
@@ -86,38 +99,6 @@ final class BigIntTests: XCTestCase {
 
     XCTAssertEqual(actualNumber, expectedNumber)
     XCTAssertEqual(actualString, Self.descriptionFactorial512Radix36)
-  }
-
-  func testExample() {
-    let bar = BigInt(exactly: -100)
-    XCTAssertNotNil(bar)
-    if let bar = bar {
-      XCTAssertLessThan(bar, 0)
-      XCTAssertGreaterThan(-bar, 0)
-      XCTAssertEqual(-bar, BigInt(100))
-    }
-    XCTAssertEqual(-BigInt("-1234567890123456789012345678901234567890")!,
-                   +BigInt("+1234567890123456789012345678901234567890")!)
-  }
-
-  func testUIntConversion() {
-    let foo = BigInt(UInt.max)
-    XCTAssertNotEqual(foo, BigInt(-1))
-
-    let bar = BigInt(bitPattern: UInt.max)
-    XCTAssertEqual(bar, BigInt(-1))
-  }
-
-  func testComparison() {
-    let foo = BigInt(-10)
-    let bar = BigInt(-20)
-
-    XCTAssert(foo > bar)
-    XCTAssert(bar < foo)
-    XCTAssert(foo == BigInt(-10))
-
-    let baz = pow(foo, -bar)
-    XCTAssertEqual(baz, BigInt("100000000000000000000")!)
   }
 
   func testMath() {
@@ -135,20 +116,6 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(barz, BigInt(UInt.max) + 1)
   }
 
-  func testHashable() {
-    let foo = BigInt("1234567890123456789012345678901234567890")!
-    let bar = BigInt("1234567890123456789112345678901234567890")!
-    let baz: BigInt = 153
-
-    let dict = [ foo: "Hello", bar: "World", baz: "!" ]
-
-    let hash = foo.hashValue
-    print(hash)
-
-    XCTAssertEqual(dict[foo]!, "Hello")
-    XCTAssertEqual(dict[bar]!, "World")
-  }
-
   func testNegation() {
     let foo = BigInt("1234567890123456789012345678901234567890")!
     let bar = BigInt(0) - foo
@@ -159,6 +126,24 @@ final class BigIntTests: XCTestCase {
     baz.negate()
     XCTAssertEqual(baz, bar)
   }
+
+  func testSignum() {
+    XCTAssertEqual(BigInt(-0x1p1023).signum(), -1)
+    XCTAssertEqual(BigInt(Int64.min).signum(), -1)
+    XCTAssertEqual(BigInt(Int32.min).signum(), -1)
+    XCTAssertEqual(BigInt(Int16.min).signum(), -1)
+    XCTAssertEqual(BigInt(Int8.min).signum(), -1)
+    XCTAssertEqual(BigInt(-1).signum(), -1)
+    XCTAssertEqual(BigInt(0).signum(), 0)
+    XCTAssertEqual(BigInt(+1).signum(), +1)
+    XCTAssertEqual(BigInt(Int8.max).signum(), +1)
+    XCTAssertEqual(BigInt(Int16.max).signum(), +1)
+    XCTAssertEqual(BigInt(Int32.max).signum(), +1)
+    XCTAssertEqual(BigInt(Int64.max).signum(), +1)
+    XCTAssertEqual(BigInt(+0x1p1023).signum(), +1)
+  }
+
+  // MARK: - Comparing and hashing
 
   func testComparable() {
     let foo = BigInt("1234567890123456789012345678901234567890")!
@@ -176,6 +161,52 @@ final class BigIntTests: XCTestCase {
     XCTAssertLessThan(baz, foo)
     XCTAssertNotEqual(bar, baz)
     XCTAssertFalse(baz < baz)
+  }
+
+  func testComparison() {
+    let foo = BigInt(-10)
+    let bar = BigInt(-20)
+
+    XCTAssert(foo > bar)
+    XCTAssert(bar < foo)
+    XCTAssert(foo == BigInt(-10))
+
+    let baz = pow(foo, -bar)
+    XCTAssertEqual(baz, BigInt("100000000000000000000")!)
+  }
+
+  func testExample() {
+    let bar = BigInt(exactly: -100)
+    XCTAssertNotNil(bar)
+    if let bar = bar {
+      XCTAssertLessThan(bar, 0)
+      XCTAssertGreaterThan(-bar, 0)
+      XCTAssertEqual(-bar, BigInt(100))
+    }
+    XCTAssertEqual(-BigInt("-1234567890123456789012345678901234567890")!,
+                   +BigInt("+1234567890123456789012345678901234567890")!)
+  }
+
+  func testHashable() {
+    let foo = BigInt("1234567890123456789012345678901234567890")!
+    let bar = BigInt("1234567890123456789112345678901234567890")!
+    let baz: BigInt = 153
+
+    let dict = [ foo: "Hello", bar: "World", baz: "!" ]
+
+    let hash = foo.hashValue
+    print(hash)
+
+    XCTAssertEqual(dict[foo]!, "Hello")
+    XCTAssertEqual(dict[bar]!, "World")
+  }
+
+  func testUIntConversion() {
+    let foo = BigInt(UInt.max)
+    XCTAssertNotEqual(foo, BigInt(-1))
+
+    let bar = BigInt(bitPattern: UInt.max)
+    XCTAssertEqual(bar, BigInt(-1))
   }
 
   // MARK: - Converting to/from textual representations
@@ -403,34 +434,5 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(BigInt(+Float32.zero), 0)
     XCTAssertEqual(BigInt(+Float64.zero), 0)
     XCTAssertEqual(BigInt(+FloatXX.zero), 0)
-  }
-
-  // MARK: - Basic arithmetic
-
-  func testDivision() {
-    let foo = BigInt("12345678901234567890123456789012345678901234567890123456789012345678901234567890")!
-    let bar = BigInt("351235231535161613134135135135")!
-    let baz = foo / bar
-    XCTAssertEqual(baz, BigInt("35149318157164029155780432046477458820396117503007")!)
-
-    XCTAssertNotNil(BigInt(exactly: 2.4e39))
-    XCTAssertNotNil(BigInt(exactly: 1e38))
-    XCTAssertEqual(BigInt(2.4e39) / BigInt(1e38), BigInt(24))
-  }
-
-  func testSignum() {
-    XCTAssertEqual(BigInt(-0x1p1023).signum(), -1)
-    XCTAssertEqual(BigInt(Int64.min).signum(), -1)
-    XCTAssertEqual(BigInt(Int32.min).signum(), -1)
-    XCTAssertEqual(BigInt(Int16.min).signum(), -1)
-    XCTAssertEqual(BigInt(Int8.min).signum(), -1)
-    XCTAssertEqual(BigInt(-1).signum(), -1)
-    XCTAssertEqual(BigInt(0).signum(), 0)
-    XCTAssertEqual(BigInt(+1).signum(), +1)
-    XCTAssertEqual(BigInt(Int8.max).signum(), +1)
-    XCTAssertEqual(BigInt(Int16.max).signum(), +1)
-    XCTAssertEqual(BigInt(Int32.max).signum(), +1)
-    XCTAssertEqual(BigInt(Int64.max).signum(), +1)
-    XCTAssertEqual(BigInt(+0x1p1023).signum(), +1)
   }
 }
