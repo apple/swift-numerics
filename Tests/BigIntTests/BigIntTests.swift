@@ -100,6 +100,185 @@ final class BigIntTests: XCTestCase {
                    +BigInt("+1234567890123456789012345678901234567890")!)
   }
 
+  func testUIntConversion() {
+    let foo = BigInt(UInt.max)
+    XCTAssertNotEqual(foo, BigInt(-1))
+
+    let bar = BigInt(bitPattern: UInt.max)
+    XCTAssertEqual(bar, BigInt(-1))
+  }
+
+  func testComparison() {
+    let foo = BigInt(-10)
+    let bar = BigInt(-20)
+
+    XCTAssert(foo > bar)
+    XCTAssert(bar < foo)
+    XCTAssert(foo == BigInt(-10))
+
+    let baz = pow(foo, -bar)
+    XCTAssertEqual(baz, BigInt("100000000000000000000")!)
+  }
+
+  func testMath() {
+    let foo = pow(BigInt(10), 20)
+    let bar = BigInt("1234567890123456789012345678901234567890")!
+
+    let baz = foo + bar
+
+    XCTAssertEqual(baz, BigInt("1234567890123456789112345678901234567890")!)
+
+    let fooz = foo >> BigInt(10)
+    XCTAssertEqual(fooz, foo / 1024)
+
+    let barz = BigInt(1) << 64
+    XCTAssertEqual(barz, BigInt(UInt.max) + 1)
+  }
+
+  func testHashable() {
+    let foo = BigInt("1234567890123456789012345678901234567890")!
+    let bar = BigInt("1234567890123456789112345678901234567890")!
+    let baz: BigInt = 153
+
+    let dict = [ foo: "Hello", bar: "World", baz: "!" ]
+
+    let hash = foo.hashValue
+    print(hash)
+
+    XCTAssertEqual(dict[foo]!, "Hello")
+    XCTAssertEqual(dict[bar]!, "World")
+  }
+
+  func testNegation() {
+    let foo = BigInt("1234567890123456789012345678901234567890")!
+    let bar = BigInt(0) - foo
+
+    XCTAssertEqual(-foo, bar)
+
+    var baz = foo
+    baz.negate()
+    XCTAssertEqual(baz, bar)
+  }
+
+  func testComparable() {
+    let foo = BigInt("1234567890123456789012345678901234567890")!
+    let bar = foo * foo
+
+    XCTAssertLessThan(foo, bar)
+    XCTAssertFalse(foo < foo)
+    XCTAssertFalse(bar < bar)
+    XCTAssertFalse(foo > foo)
+    XCTAssertFalse(bar > bar)
+    XCTAssertGreaterThan(bar, foo)
+
+    let baz = bar * -1
+
+    XCTAssertLessThan(baz, foo)
+    XCTAssertNotEqual(bar, baz)
+    XCTAssertFalse(baz < baz)
+  }
+
+  // MARK: - Converting to/from textual representations
+
+  func testCodable() throws {
+    let lowerBound = BigInt("-1234567890123456789012345678901234567890")!
+    let upperBound = BigInt("+1234567890123456789012345678901234567890")!
+    let expectedRange: Range<BigInt> = lowerBound ..< upperBound
+
+    let encoder = JSONEncoder()
+    let decoder = JSONDecoder()
+    let data = try encoder.encode(expectedRange)
+    let actualRange = try decoder.decode(Range<BigInt>.self, from: data)
+
+    XCTAssertEqual(actualRange, expectedRange)
+  }
+
+  func testCustomStringConvertible() {
+    XCTAssertEqual("\(BigInt(UInt64.min) - 2)", "-2")
+    XCTAssertEqual("\(BigInt(UInt64.min) - 1)", "-1")
+    XCTAssertEqual("\(BigInt(UInt64.min) + 0)", "0")
+    XCTAssertEqual("\(BigInt(UInt64.min) + 1)", "1")
+    XCTAssertEqual("\(BigInt(UInt64.min) + 2)", "2")
+
+    XCTAssertEqual("\(BigInt(UInt64.max) - 2)", "18446744073709551613")
+    XCTAssertEqual("\(BigInt(UInt64.max) - 1)", "18446744073709551614")
+    XCTAssertEqual("\(BigInt(UInt64.max) + 0)", "18446744073709551615")
+    XCTAssertEqual("\(BigInt(UInt64.max) + 1)", "18446744073709551616")
+    XCTAssertEqual("\(BigInt(UInt64.max) + 2)", "18446744073709551617")
+
+    XCTAssertEqual("\(BigInt(Int64.min) - 2)", "-9223372036854775810")
+    XCTAssertEqual("\(BigInt(Int64.min) - 1)", "-9223372036854775809")
+    XCTAssertEqual("\(BigInt(Int64.min) + 0)", "-9223372036854775808")
+    XCTAssertEqual("\(BigInt(Int64.min) + 1)", "-9223372036854775807")
+    XCTAssertEqual("\(BigInt(Int64.min) + 2)", "-9223372036854775806")
+
+    XCTAssertEqual("\(BigInt(Int64.max) - 2)", "9223372036854775805")
+    XCTAssertEqual("\(BigInt(Int64.max) - 1)", "9223372036854775806")
+    XCTAssertEqual("\(BigInt(Int64.max) + 0)", "9223372036854775807")
+    XCTAssertEqual("\(BigInt(Int64.max) + 1)", "9223372036854775808")
+    XCTAssertEqual("\(BigInt(Int64.max) + 2)", "9223372036854775809")
+
+    XCTAssertEqual("\(-(BigInt(1) << 1023))",     Self.descriptionInt1024Min)
+    XCTAssertEqual("\(+(BigInt(1) << 1023) - 1)", Self.descriptionInt1024Max)
+  }
+
+  func testLosslessStringConvertible() {
+    XCTAssertNil(BigInt(""))
+    XCTAssertNil(BigInt("-"))
+    XCTAssertNil(BigInt("+"))
+    XCTAssertNil(BigInt("A"))
+    XCTAssertNil(BigInt(" 0"))
+    XCTAssertNil(BigInt("0 "))
+
+    XCTAssertEqual(BigInt(UInt64.min) - 2, BigInt("-2"))
+    XCTAssertEqual(BigInt(UInt64.min) - 1, BigInt("-1"))
+    XCTAssertEqual(BigInt(UInt64.min) + 0, BigInt("0"))
+    XCTAssertEqual(BigInt(UInt64.min) + 1, BigInt("1"))
+    XCTAssertEqual(BigInt(UInt64.min) + 2, BigInt("2"))
+
+    XCTAssertEqual(BigInt(UInt64.max) - 2, BigInt("18446744073709551613"))
+    XCTAssertEqual(BigInt(UInt64.max) - 1, BigInt("18446744073709551614"))
+    XCTAssertEqual(BigInt(UInt64.max) + 0, BigInt("18446744073709551615"))
+    XCTAssertEqual(BigInt(UInt64.max) + 1, BigInt("18446744073709551616"))
+    XCTAssertEqual(BigInt(UInt64.max) + 2, BigInt("18446744073709551617"))
+
+    XCTAssertEqual(BigInt(Int64.min) - 2, BigInt("-9223372036854775810"))
+    XCTAssertEqual(BigInt(Int64.min) - 1, BigInt("-9223372036854775809"))
+    XCTAssertEqual(BigInt(Int64.min) + 0, BigInt("-9223372036854775808"))
+    XCTAssertEqual(BigInt(Int64.min) + 1, BigInt("-9223372036854775807"))
+    XCTAssertEqual(BigInt(Int64.min) + 2, BigInt("-9223372036854775806"))
+
+    XCTAssertEqual(BigInt(Int64.max) - 2, BigInt("9223372036854775805"))
+    XCTAssertEqual(BigInt(Int64.max) - 1, BigInt("9223372036854775806"))
+    XCTAssertEqual(BigInt(Int64.max) + 0, BigInt("9223372036854775807"))
+    XCTAssertEqual(BigInt(Int64.max) + 1, BigInt("9223372036854775808"))
+    XCTAssertEqual(BigInt(Int64.max) + 2, BigInt("9223372036854775809"))
+
+    XCTAssertEqual(-(BigInt(1) << 1023),     BigInt(Self.descriptionInt1024Min))
+    XCTAssertEqual(+(BigInt(1) << 1023) - 1, BigInt(Self.descriptionInt1024Max))
+  }
+
+  func testRadicesAndNumerals() {
+    for radix in 2 ... 36 {
+      for uppercase in [false, true] {
+        for _ in 0 ..< 100 {
+          let expectedNumber = BigInt(Int.random(in: .min ... .max))
+          let expectedString = String(expectedNumber,
+                                      radix: radix,
+                                      uppercase: uppercase)
+          let actualNumber = BigInt(expectedString, radix: radix)
+          XCTAssertEqual(actualNumber, expectedNumber)
+          if radix == 10 {
+            let actualString = expectedNumber.description
+            XCTAssertEqual(actualString, expectedString)
+          }
+        }
+      }
+    }
+  }
+
+  // MARK: - Converting from floating-point binary types
+
   func testFloatingPoint_greatestFiniteMagnitude() {
     XCTAssertEqual(BigInt(exactly: -Float64.greatestFiniteMagnitude),
                    BigInt("-\(Self.descriptionFloat64_greatestFiniteMagnitude)"))
@@ -226,180 +405,7 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(BigInt(+FloatXX.zero), 0)
   }
 
-  func testUIntConversion() {
-    let foo = BigInt(UInt.max)
-    XCTAssertNotEqual(foo, BigInt(-1))
-
-    let bar = BigInt(bitPattern: UInt.max)
-    XCTAssertEqual(bar, BigInt(-1))
-  }
-
-  func testComparison() {
-    let foo = BigInt(-10)
-    let bar = BigInt(-20)
-
-    XCTAssert(foo > bar)
-    XCTAssert(bar < foo)
-    XCTAssert(foo == BigInt(-10))
-
-    let baz = pow(foo, -bar)
-    XCTAssertEqual(baz, BigInt("100000000000000000000")!)
-  }
-
-  func testMath() {
-    let foo = pow(BigInt(10), 20)
-    let bar = BigInt("1234567890123456789012345678901234567890")!
-
-    let baz = foo + bar
-
-    XCTAssertEqual(baz, BigInt("1234567890123456789112345678901234567890")!)
-
-    let fooz = foo >> BigInt(10)
-    XCTAssertEqual(fooz, foo / 1024)
-
-    let barz = BigInt(1) << 64
-    XCTAssertEqual(barz, BigInt(UInt.max) + 1)
-  }
-
-  func testHashable() {
-    let foo = BigInt("1234567890123456789012345678901234567890")!
-    let bar = BigInt("1234567890123456789112345678901234567890")!
-    let baz: BigInt = 153
-
-    let dict = [ foo: "Hello", bar: "World", baz: "!" ]
-
-    let hash = foo.hashValue
-    print(hash)
-
-    XCTAssertEqual(dict[foo]!, "Hello")
-    XCTAssertEqual(dict[bar]!, "World")
-  }
-
-  func testNegation() {
-    let foo = BigInt("1234567890123456789012345678901234567890")!
-    let bar = BigInt(0) - foo
-
-    XCTAssertEqual(-foo, bar)
-
-    var baz = foo
-    baz.negate()
-    XCTAssertEqual(baz, bar)
-  }
-
-  func testComparable() {
-    let foo = BigInt("1234567890123456789012345678901234567890")!
-    let bar = foo * foo
-
-    XCTAssertLessThan(foo, bar)
-    XCTAssertFalse(foo < foo)
-    XCTAssertFalse(bar < bar)
-    XCTAssertFalse(foo > foo)
-    XCTAssertFalse(bar > bar)
-    XCTAssertGreaterThan(bar, foo)
-
-    let baz = bar * -1
-
-    XCTAssertLessThan(baz, foo)
-    XCTAssertNotEqual(bar, baz)
-    XCTAssertFalse(baz < baz)
-  }
-
-  func testCodable() throws {
-    let lowerBound = BigInt("-1234567890123456789012345678901234567890")!
-    let upperBound = BigInt("+1234567890123456789012345678901234567890")!
-    let expectedRange: Range<BigInt> = lowerBound ..< upperBound
-
-    let encoder = JSONEncoder()
-    let decoder = JSONDecoder()
-    let data = try encoder.encode(expectedRange)
-    let actualRange = try decoder.decode(Range<BigInt>.self, from: data)
-
-    XCTAssertEqual(actualRange, expectedRange)
-  }
-
-  func testCustomStringConvertible() {
-    XCTAssertEqual("\(BigInt(UInt64.min) - 2)", "-2")
-    XCTAssertEqual("\(BigInt(UInt64.min) - 1)", "-1")
-    XCTAssertEqual("\(BigInt(UInt64.min) + 0)", "0")
-    XCTAssertEqual("\(BigInt(UInt64.min) + 1)", "1")
-    XCTAssertEqual("\(BigInt(UInt64.min) + 2)", "2")
-
-    XCTAssertEqual("\(BigInt(UInt64.max) - 2)", "18446744073709551613")
-    XCTAssertEqual("\(BigInt(UInt64.max) - 1)", "18446744073709551614")
-    XCTAssertEqual("\(BigInt(UInt64.max) + 0)", "18446744073709551615")
-    XCTAssertEqual("\(BigInt(UInt64.max) + 1)", "18446744073709551616")
-    XCTAssertEqual("\(BigInt(UInt64.max) + 2)", "18446744073709551617")
-
-    XCTAssertEqual("\(BigInt(Int64.min) - 2)", "-9223372036854775810")
-    XCTAssertEqual("\(BigInt(Int64.min) - 1)", "-9223372036854775809")
-    XCTAssertEqual("\(BigInt(Int64.min) + 0)", "-9223372036854775808")
-    XCTAssertEqual("\(BigInt(Int64.min) + 1)", "-9223372036854775807")
-    XCTAssertEqual("\(BigInt(Int64.min) + 2)", "-9223372036854775806")
-
-    XCTAssertEqual("\(BigInt(Int64.max) - 2)", "9223372036854775805")
-    XCTAssertEqual("\(BigInt(Int64.max) - 1)", "9223372036854775806")
-    XCTAssertEqual("\(BigInt(Int64.max) + 0)", "9223372036854775807")
-    XCTAssertEqual("\(BigInt(Int64.max) + 1)", "9223372036854775808")
-    XCTAssertEqual("\(BigInt(Int64.max) + 2)", "9223372036854775809")
-
-    XCTAssertEqual("\(-(BigInt(1) << 1023))",     Self.descriptionInt1024Min)
-    XCTAssertEqual("\(+(BigInt(1) << 1023) - 1)", Self.descriptionInt1024Max)
-  }
-
-  func testLosslessStringConvertible() {
-    XCTAssertNil(BigInt(""))
-    XCTAssertNil(BigInt("-"))
-    XCTAssertNil(BigInt("+"))
-    XCTAssertNil(BigInt("A"))
-    XCTAssertNil(BigInt(" 0"))
-    XCTAssertNil(BigInt("0 "))
-
-    XCTAssertEqual(BigInt(UInt64.min) - 2, BigInt("-2"))
-    XCTAssertEqual(BigInt(UInt64.min) - 1, BigInt("-1"))
-    XCTAssertEqual(BigInt(UInt64.min) + 0, BigInt("0"))
-    XCTAssertEqual(BigInt(UInt64.min) + 1, BigInt("1"))
-    XCTAssertEqual(BigInt(UInt64.min) + 2, BigInt("2"))
-
-    XCTAssertEqual(BigInt(UInt64.max) - 2, BigInt("18446744073709551613"))
-    XCTAssertEqual(BigInt(UInt64.max) - 1, BigInt("18446744073709551614"))
-    XCTAssertEqual(BigInt(UInt64.max) + 0, BigInt("18446744073709551615"))
-    XCTAssertEqual(BigInt(UInt64.max) + 1, BigInt("18446744073709551616"))
-    XCTAssertEqual(BigInt(UInt64.max) + 2, BigInt("18446744073709551617"))
-
-    XCTAssertEqual(BigInt(Int64.min) - 2, BigInt("-9223372036854775810"))
-    XCTAssertEqual(BigInt(Int64.min) - 1, BigInt("-9223372036854775809"))
-    XCTAssertEqual(BigInt(Int64.min) + 0, BigInt("-9223372036854775808"))
-    XCTAssertEqual(BigInt(Int64.min) + 1, BigInt("-9223372036854775807"))
-    XCTAssertEqual(BigInt(Int64.min) + 2, BigInt("-9223372036854775806"))
-
-    XCTAssertEqual(BigInt(Int64.max) - 2, BigInt("9223372036854775805"))
-    XCTAssertEqual(BigInt(Int64.max) - 1, BigInt("9223372036854775806"))
-    XCTAssertEqual(BigInt(Int64.max) + 0, BigInt("9223372036854775807"))
-    XCTAssertEqual(BigInt(Int64.max) + 1, BigInt("9223372036854775808"))
-    XCTAssertEqual(BigInt(Int64.max) + 2, BigInt("9223372036854775809"))
-
-    XCTAssertEqual(-(BigInt(1) << 1023),     BigInt(Self.descriptionInt1024Min))
-    XCTAssertEqual(+(BigInt(1) << 1023) - 1, BigInt(Self.descriptionInt1024Max))
-  }
-
-  func testRadicesAndNumerals() {
-    for radix in 2 ... 36 {
-      for uppercase in [false, true] {
-        for _ in 0 ..< 100 {
-          let expectedNumber = BigInt(Int.random(in: .min ... .max))
-          let expectedString = String(expectedNumber,
-                                      radix: radix,
-                                      uppercase: uppercase)
-          let actualNumber = BigInt(expectedString, radix: radix)
-          XCTAssertEqual(actualNumber, expectedNumber)
-          if radix == 10 {
-            let actualString = expectedNumber.description
-            XCTAssertEqual(actualString, expectedString)
-          }
-        }
-      }
-    }
-  }
+  // MARK: - Basic arithmetic
 
   func testDivision() {
     let foo = BigInt("12345678901234567890123456789012345678901234567890123456789012345678901234567890")!
