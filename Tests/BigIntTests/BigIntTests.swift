@@ -13,14 +13,7 @@ import BigInt
 import XCTest
 
 func fac(_ n: BigInt) -> BigInt {
-  var result: BigInt = 1
-  var count = n
-  while count >= 1 {
-    result *= count
-    count -= 1
-  }
-
-  return result
+  return stride(from: n, to: 1, by: -1).reduce(into: 1, { $0 *= $1 })
 }
 
 final class BigIntTests: XCTestCase {
