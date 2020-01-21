@@ -337,7 +337,12 @@ extension BigInt: BinaryInteger {
   }
 
   public init<T>(_ source: T) where T: BinaryFloatingPoint {
-    precondition(source.isFinite, "BigInt(\(source)) failed")
+    precondition(
+      source.isFinite,
+      """
+      \(type(of: source)) value cannot be converted to BigInt because it is \
+      either infinite or NaN
+      """)
     precondition(T.significandBitCount < .max)
 
     let source = source.rounded(.towardZero)
