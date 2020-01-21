@@ -330,19 +330,19 @@ extension BigInt: SignedNumeric {
 extension BigInt: BinaryInteger {
 
   public init?<T>(exactly source: T) where T: BinaryFloatingPoint {
-    if (source.isNaN || source.isInfinite) ||
-      (source.rounded(.towardZero) != source) {
+    guard source.isFinite, source == source.rounded(.towardZero) else {
       return nil
     }
-
     self.init(source)
   }
 
   public init<T>(_ source: T) where T: BinaryFloatingPoint {
     precondition(
-      !(source.isNaN || source.isInfinite),
-      "\(type(of: source)) value cannot be converted to BigInt because it is either infinite or NaN"
-    )
+      source.isFinite,
+      """
+      \(type(of: source)) value cannot be converted to BigInt because it is \
+      either infinite or NaN
+      """)
 
     let isNegative = source < 0.0
     var float = isNegative ? -source : source
@@ -525,15 +525,7 @@ extension BigInt: BinaryInteger {
   }
 
   @inlinable
-  public func signum() -> BigInt {
-    if _isNegative {
-      return -1
-    } else if self == 0 {
-      return 0
-    }
-
-    return 1
-  }
+  public func signum() -> BigInt { _isNegative ? -1 : (self == 0) ? 0 : 1 }
 }
 
 // MARK: -
@@ -741,29 +733,4 @@ extension BigInt {
       }
     }
   }
-}
-
-// inspired by https://eli.thegreenplace.net/2009/03/21/efficient-integer-exponentiation-algorithms
-public func pow(_ lhs: BigInt, _ rhs: BigInt) -> BigInt {
-  let bits_of_n = {
-    (n: BigInt) -> [Int] in
-    var bits: [Int] = []
-    var n = n
-    while n != 0 {
-      bits.append(Int(n % 2))
-      n /= 2
-    }
-
-    return bits
-  }
-
-  var r: BigInt = 1
-  for bit in bits_of_n(rhs).reversed() {
-    r *= r
-    if bit == 1 {
-      r *= lhs
-    }
-  }
-
-  return r
 }
