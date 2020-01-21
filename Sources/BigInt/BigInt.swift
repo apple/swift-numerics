@@ -343,20 +343,23 @@ extension BigInt: BinaryInteger {
       \(type(of: source)) value cannot be converted to BigInt because it is \
       either infinite or NaN
       """)
-    precondition(T.significandBitCount < .max)
 
-    let source = source.rounded(.towardZero)
-    let isNegative = source < 0
+    let isNegative = source < 0.0
+    var float = isNegative ? -source : source
 
-    guard !source.isZero else {
-      self = 0
-      return
+    if let _ = UInt(exactly: T.greatestFiniteMagnitude) {
+      words = [UInt(float)]
+    } else {
+      var words = Words()
+      let radix = T(sign: .plus, exponent: T.Exponent(UInt.bitWidth), significand: 1)
+      repeat {
+        let digit = UInt(float.truncatingRemainder(dividingBy: radix))
+        words.append(digit)
+        float = (float / radix).rounded(.towardZero)
+      } while float != 0
+
+      self.words = words
     }
-
-    self = BigInt(source.significandBitPattern)
-    self |= BigInt(1) << T.significandBitCount
-    self <<= source.exponent
-    self >>= T.significandBitCount
 
     if isNegative {
       self.negate()
