@@ -47,8 +47,11 @@ extension BigInt {
 
 final class BigIntTests: XCTestCase {
 
-  /// Float64 or Float80 (or Float128)
-  typealias FloatXX = CLongDouble
+  #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+  typealias FloatXX = Float80
+  #else
+  typealias FloatXX = Float64
+  #endif
 
   /// Python: `bitWidth = 1024; -(2 ** (bitWidth - 1))`
   static let descriptionInt1024Min: String =
