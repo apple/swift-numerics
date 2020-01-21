@@ -12,8 +12,12 @@
 import BigInt
 import XCTest
 
-func fac(_ n: BigInt) -> BigInt {
-  return stride(from: n, to: 1, by: -1).reduce(into: 1, { $0 *= $1 })
+extension BigInt {
+
+  static func fac(_ n: BigInt) -> BigInt {
+    precondition(n >= 0, "Factorial of a negative integer is undefined")
+    return stride(from: n, to: 1, by: -1).reduce(into: 1, { $0 *= $1 })
+  }
 }
 
 final class BigIntTests: XCTestCase {
@@ -79,18 +83,29 @@ final class BigIntTests: XCTestCase {
   }
 
   func testFactorial() {
-    var expectedNumber: BigInt!
+    var expectedNumber: BigInt?
     var actualNumber: BigInt!
     var actualString: String!
 
     measure {
       expectedNumber = BigInt(Self.descriptionFactorial512_radix36, radix: 36)
-      actualNumber = fac(BigInt(512))
+      actualNumber = BigInt.fac(512)
       actualString = String(actualNumber, radix: 36, uppercase: true)
     }
 
     XCTAssertEqual(actualNumber, expectedNumber)
     XCTAssertEqual(actualString, Self.descriptionFactorial512_radix36)
+
+    XCTAssertEqual(BigInt.fac(0), 1)
+    XCTAssertEqual(BigInt.fac(1), 1)
+    XCTAssertEqual(BigInt.fac(2), 2)
+    XCTAssertEqual(BigInt.fac(3), 6)
+    XCTAssertEqual(BigInt.fac(4), 24)
+    XCTAssertEqual(BigInt.fac(5), 120)
+    XCTAssertEqual(BigInt.fac(6), 720)
+    XCTAssertEqual(BigInt.fac(7), 5040)
+    XCTAssertEqual(BigInt.fac(8), 40320)
+    XCTAssertEqual(BigInt.fac(9), 362880)
   }
 
   func testMath() {
