@@ -410,6 +410,12 @@ final class BigIntTests: XCTestCase {
     }
   }
 
+  func testFloatingPoint_signalingNaN() {
+    XCTAssertNil(BigInt(exactly: Float32.signalingNaN))
+    XCTAssertNil(BigInt(exactly: Float64.signalingNaN))
+    XCTAssertNil(BigInt(exactly: FloatXX.signalingNaN))
+  }
+
   func testFloatingPoint_zero() {
     XCTAssertEqual(BigInt(exactly: -Float32.zero), 0)
     XCTAssertEqual(BigInt(exactly: -Float64.zero), 0)
