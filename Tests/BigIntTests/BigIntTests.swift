@@ -18,6 +18,31 @@ extension BigInt {
     precondition(n >= 0, "Factorial of a negative integer is undefined")
     return stride(from: n, to: 1, by: -1).reduce(into: 1, { $0 *= $1 })
   }
+
+  // inspired by https://eli.thegreenplace.net/2009/03/21/efficient-integer-exponentiation-algorithms
+  static func pow(_ lhs: BigInt, _ rhs: BigInt) -> BigInt {
+    let bits_of_n = {
+      (n: BigInt) -> [Int] in
+      var bits: [Int] = []
+      var n = n
+      while n != 0 {
+        bits.append(Int(n % 2))
+        n /= 2
+      }
+
+      return bits
+    }
+
+    var r: BigInt = 1
+    for bit in bits_of_n(rhs).reversed() {
+      r *= r
+      if bit == 1 {
+        r *= lhs
+      }
+    }
+
+    return r
+  }
 }
 
 final class BigIntTests: XCTestCase {
@@ -109,7 +134,7 @@ final class BigIntTests: XCTestCase {
   }
 
   func testMath() {
-    let foo = pow(BigInt(10), 20)
+    let foo = BigInt.pow(10, 20)
     let bar = BigInt("1234567890123456789012345678901234567890")!
 
     let baz = foo + bar
@@ -178,7 +203,7 @@ final class BigIntTests: XCTestCase {
     XCTAssert(bar < foo)
     XCTAssert(foo == BigInt(-10))
 
-    let baz = pow(foo, -bar)
+    let baz = BigInt.pow(foo, -bar)
     XCTAssertEqual(baz, BigInt("100000000000000000000")!)
   }
 

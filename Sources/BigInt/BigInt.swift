@@ -726,28 +726,3 @@ extension BigInt {
     }
   }
 }
-
-// inspired by https://eli.thegreenplace.net/2009/03/21/efficient-integer-exponentiation-algorithms
-public func pow(_ lhs: BigInt, _ rhs: BigInt) -> BigInt {
-  let bits_of_n = {
-    (n: BigInt) -> [Int] in
-    var bits: [Int] = []
-    var n = n
-    while n != 0 {
-      bits.append(Int(n % 2))
-      n /= 2
-    }
-
-    return bits
-  }
-
-  var r: BigInt = 1
-  for bit in bits_of_n(rhs).reversed() {
-    r *= r
-    if bit == 1 {
-      r *= lhs
-    }
-  }
-
-  return r
-}
