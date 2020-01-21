@@ -358,6 +358,9 @@ extension BigInt: BinaryInteger {
         float = (float / radix).rounded(.towardZero)
       } while float != 0
 
+      if let last = words.last, last >= Int.max {
+        words.append(0)
+      }
       self.words = words
     }
 
