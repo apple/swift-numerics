@@ -235,6 +235,10 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(dict[foo]!, "Hello")
     XCTAssertEqual(dict[bar]!, "World")
   }
+  
+  func testClampingConversion() {
+    XCTAssertEqual(BigInt(clamping: UInt.max), BigInt(UInt(18446744073709551615)))
+  }
 
   func testUIntConversion() {
     let foo = BigInt(UInt.max)
