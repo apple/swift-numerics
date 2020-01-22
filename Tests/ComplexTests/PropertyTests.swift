@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019 - 2020 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -101,5 +101,32 @@ final class PropertyTests: XCTestCase {
     #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
     testEquatableHashable(Float80.self)
     #endif
+  }
+
+  func testCodable<T: Codable & Real>(_ type: T.Type) throws {
+    let encoder = JSONEncoder()
+    encoder.nonConformingFloatEncodingStrategy = .convertToString(
+      positiveInfinity: "inf",
+      negativeInfinity: "-inf",
+      nan: "nan")
+
+    let decoder = JSONDecoder()
+    decoder.nonConformingFloatDecodingStrategy = .convertFromString(
+      positiveInfinity: "inf",
+      negativeInfinity: "-inf",
+      nan: "nan")
+
+    for expected: Complex<T> in [.zero, .one, .i, .infinity] {
+      let data = try encoder.encode(expected)
+      // print("*** \(String(decoding: data, as: Unicode.UTF8.self)) ***")
+      let actual = try decoder.decode(Complex<T>.self, from: data)
+      XCTAssertEqual(actual, expected)
+    }
+  }
+
+  func testCodable() throws {
+    try testCodable(Float32.self)
+    try testCodable(Float64.self)
+    // Float80 doesn't conform to Codable.
   }
 }
