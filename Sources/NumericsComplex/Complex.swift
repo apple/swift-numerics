@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Real
+import NumericsReal
 
 /// A complex number represented by real and imaginary parts.
 ///

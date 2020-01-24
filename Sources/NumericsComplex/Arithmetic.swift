@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Real
+import NumericsReal
 
 // MARK: - Additive structure
 extension Complex: AdditiveArithmetic {

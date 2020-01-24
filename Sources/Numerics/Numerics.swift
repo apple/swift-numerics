@@ -10,5 +10,5 @@
 //===----------------------------------------------------------------------===//
 
 // A module that re-exports the complete Swift Numerics public API.
-@_exported import Real
-@_exported import Complex
+@_exported import NumericsReal
+@_exported import NumericsComplex

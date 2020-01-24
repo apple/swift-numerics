@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import Real
+import NumericsReal
 
 internal extension Real where Self: BinaryFloatingPoint {
   static func testIntegerExponentCommon() {
