@@ -165,5 +165,3 @@ extension Complex: AlgebraicField {
     return nil
   }
 }
-
-extension Complex: SignedNumeric {}
