@@ -28,7 +28,8 @@ The `RealFunctions` protocol refines `ElementaryFunctions`, and adds operations 
 The protocol that you will use most often is `Real`, which describes a floating-point type equipped with the full set of basic math functions.
 This is a great protocol to use in writing generic code, because it has all the basics that you need to implement most numeric functions.
 
-The fourth protocol is `AlgebraicField`, which `Real` also refines. This protocol is a very small refinement of `Numeric`, adding the `/` and `/=` operators and a `reciprocal` property.
+The fourth protocol is `AlgebraicField`, which `Real` also refines.
+This protocol is a very small refinement of `SignedNumeric`, adding the `/` and `/=` operators and a `reciprocal` property.
 The primary use of this protocol is for writing code that is generic over real and complex types.
 
 ## Using Real

@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// A type modeling an algebraic [field]. Refines the `Numeric` protocol,
+/// A type modeling an algebraic [field]. Refines the `SignedNumeric` protocol,
 /// adding division.
 ///
 /// A field is a set on which addition, subtraction, multiplication, and
@@ -40,11 +40,12 @@
 /// See Also:
 /// -
 /// - Real
+/// - SignedNumeric
 /// - Numeric
 /// - AdditiveArithmetic
 ///
 /// [field]: https://en.wikipedia.org/wiki/Field_(mathematics)
-public protocol AlgebraicField: Numeric {
+public protocol AlgebraicField: SignedNumeric {
   
   static func /=(a: inout Self, b: Self)
   
