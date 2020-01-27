@@ -100,10 +100,27 @@ final class BigIntTests: XCTestCase {
   // MARK: - Basic arithmetic
 
   func testDivision() {
+    let num1 = BigInt("18446744073709551616")!
+    let den1 = BigInt(123)
+    let expected1 = BigInt(149973529054549200)
+    XCTAssertEqual(num1 / den1, expected1)
+    
+    let num2 = BigInt.pow(BigInt(10), 100)
+    let den2: BigInt = 3
+    let expected2: BigInt = BigInt(String(repeating: "3", count: 100))!
+    let actual2 = num2 / den2
+    XCTAssertEqual(actual2, expected2)
+    
+    let num3 = BigInt.pow(BigInt(10), 97)
+    let den3: BigInt = BigInt("33333333333333333333")!
+    let expected3: BigInt = BigInt("300000000000000000003000000000000000000030000000000000000000300000000000000000")!
+    let actual3 = num3 / den3
+    XCTAssertEqual(actual3, expected3)
+    
     let foo = BigInt("12345678901234567890123456789012345678901234567890123456789012345678901234567890")!
     let bar = BigInt("351235231535161613134135135135")!
     let baz = foo / bar
-    XCTAssertEqual(baz, BigInt("35149318157164029155780432046477458820396117503007")!)
+    XCTAssertEqual(baz, BigInt("35149318157164029153358504918339691272847595997760")!)
 
     XCTAssertNotNil(BigInt(exactly: 2.4e39))
     XCTAssertNotNil(BigInt(exactly: 1e38))

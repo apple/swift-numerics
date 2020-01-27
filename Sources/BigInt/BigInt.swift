@@ -33,6 +33,8 @@ public struct BigInt: SignedInteger {
   private static let _digits: [BigInt] = (0 ... 36).map {
     BigInt(_uncheckedWords: [UInt(bitPattern: $0)])
   }
+  
+  private static let _digitRadix = BigInt(_uncheckedWords: [0, 1])
 }
 
 // MARK: - Basic Behaviors
@@ -543,40 +545,72 @@ extension BigInt {
     nextVdigit: UInt,
     nextUdigit: UInt
   ) -> UInt {
-    var (qhat, rhat) = divisor.dividingFullWidth((high, low))
-
-    if high >= divisor { // This means qhat >= b
-      qhat = UInt.max
+//    var (qhat, rhat) = divisor.dividingFullWidth((high, low))
+//
+//    if high >= divisor { // This means qhat >= b
+//      qhat = UInt.max
+//    }
+//
+//    let (tempHigh, tempLow) = qhat.multipliedFullWidth(by: nextVdigit)
+//    var (rtempHigh, rtempLow) = rhat.multipliedFullWidth(by: UInt.max)
+//    var overflow = false
+//    (rtempLow, overflow) = rtempLow.addingReportingOverflow(rhat)
+//    if overflow {
+//      rtempHigh += 1
+//    }
+//
+//    (rtempLow, overflow) = rtempLow.addingReportingOverflow(nextUdigit)
+//    if overflow {
+//      rtempHigh += 1
+//    }
+//
+//    while true {
+//      if (tempHigh > rtempHigh) || ((tempHigh == rtempHigh) && (tempLow > rtempLow)) {
+//        qhat -= 1
+//        (rhat, overflow) = rhat.addingReportingOverflow(divisor)
+//        if !overflow {
+//          continue
+//        } else {
+//          break
+//        }
+//      } else {
+//        break
+//      }
+//    }
+//
+//    return qhat
+    
+    var qhat: BigInt
+    var rhat: BigInt
+    if high >= divisor {
+      let v = divisor
+      let u = [low, high]
+      var r: UInt = 0
+      var quot = Words(repeating: 0, count: u.count)
+      for j in (0...(u.count - 1)).reversed() {
+        let uj = u[j]
+        (quot[j], r) = v.dividingFullWidth((r, uj))
+      }
+      
+      BigInt._dropExcessWords(words: &quot)
+      qhat = BigInt(_uncheckedWords: quot)
+      rhat = BigInt(r)
+    } else {
+      let (qhatWord, rhatWord) = divisor.dividingFullWidth((high, low))
+      qhat = BigInt(qhatWord)
+      rhat = BigInt(rhatWord)
     }
-
-    let (tempHigh, tempLow) = qhat.multipliedFullWidth(by: nextVdigit)
-    var (rtempHigh, rtempLow) = rhat.multipliedFullWidth(by: UInt.max)
-    var overflow = false
-    (rtempLow, overflow) = rtempLow.addingReportingOverflow(1)
-    if overflow {
-      rtempHigh += 1
-    }
-
-    (rtempLow, overflow) = rtempLow.addingReportingOverflow(nextUdigit)
-    if overflow {
-      rtempHigh += 1
-    }
-
-    while true {
-      if (tempHigh > rtempHigh) || ((tempHigh == rtempHigh) && (tempLow > rtempLow)) {
+    
+    repeat {
+      if (high >= divisor) || (qhat * BigInt(nextVdigit) < BigInt(_uncheckedWords: [nextUdigit, rhat.words[0]])) {
         qhat -= 1
-        (rhat, overflow) = rhat.addingReportingOverflow(divisor)
-        if !overflow {
-          continue
-        } else {
-          break
-        }
+        rhat += BigInt(divisor)
       } else {
         break
       }
-    }
-
-    return qhat
+    } while rhat < BigInt._digitRadix
+    
+    return qhat.words[0]
   }
 
   /// See _The Art of Computer Programming_ volume 2 by Donald Knuth, Section 4.3.1: The Classical Algorithms
@@ -594,6 +628,21 @@ extension BigInt {
 
     var lhsWords = lhsIsNeg ? (-lhs).words : lhs.words
     var rhsWords = rhsIsNeg ? (-rhs).words : rhs.words
+    
+    // See the answer to exercise 16 in Section 4.3.1 of TAOCP
+    if rhsWords.count == 1 {
+      let v = rhsWords[0]
+      let u = lhsWords
+      var r: UInt = 0
+      var quot = Words(repeating: 0, count: u.count)
+      for j in (0...(u.count - 1)).reversed() {
+        let uj = u[j]
+        (quot[j], r) = v.dividingFullWidth((r, uj))
+      }
+      
+      BigInt._dropExcessWords(words: &quot)
+      return (quotient: BigInt(_uncheckedWords: quot), remainder: BigInt(r))
+    }
 
     while rhsWords[rhsWords.endIndex - 1] == 0, rhsWords.count > 2 {
       rhsWords.removeLast()
@@ -605,13 +654,13 @@ extension BigInt {
       rhsWords.append(0)
     }
 
-    if lhsWords.count < rhsWords.count {
-      for _ in 0 ..< (rhsWords.count - lhsWords.count) {
+    if lhsWords.count <= rhsWords.count {
+      for _ in 0 ... (rhsWords.count - lhsWords.count) {
         lhsWords.append(0)
       }
     }
 
-    let m = lhsWords.count
+    let m = lhsWords.count - rhsWords.count
     let n = rhsWords.count
 
     let bitWidth = UInt(UInt.bitWidth)
@@ -623,16 +672,16 @@ extension BigInt {
     for i in (1 ... (n - 1)).reversed() {
       rn[i] = (rhsWords[i] << s) | (rhsWords[i - 1] >> (bitWidth - s))
     }
-    rn[0] <<= s
+    rn[0] = rhsWords[0] << s
 
     let ln = UnsafeMutablePointer<UInt>.allocate(capacity: m + n + 1)
     ln.initialize(repeating: 0, count: m + n + 1)
     defer { ln.deallocate() }
-    ln[m] = lhsWords[m - 1] >> (bitWidth - s)
-    for i in (1 ... (m - 1)).reversed() {
+    ln[m + n] = lhsWords[m + n - 1] >> (bitWidth - s)
+    for i in (1 ... (m + n - 1)).reversed() {
       ln[i] = (lhsWords[i] << s) | (lhsWords[i - 1] >> (bitWidth - s))
     }
-    ln[0] <<= s
+    ln[0] = lhsWords[0] << s
 
     let resultSize = m + 1
     var quot = Words(repeating: 0, count: resultSize)
@@ -682,7 +731,7 @@ extension BigInt {
           (ln[i + j], isOverflow) = total.addingReportingOverflow(rn[i])
           if carry == 0 { carry = isOverflow ? 1 : 0 }
         }
-        ln[j + n] += carry
+        (ln[j + n], _) = ln[j + n].addingReportingOverflow(carry)
 
         quot[j] = newQhat
       } else {
