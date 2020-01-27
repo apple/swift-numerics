@@ -47,12 +47,6 @@ extension BigInt {
 
 final class BigIntTests: XCTestCase {
 
-  #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
-  typealias FloatXX = Float80
-  #else
-  typealias FloatXX = Float64
-  #endif
-
   /// Python: `bitWidth = 1024; -(2 ** (bitWidth - 1))`
   static let descriptionInt1024Min: String =
     """
@@ -71,15 +65,6 @@ final class BigIntTests: XCTestCase {
     737062188883946712432742638151109800623047059726541476042502884419075341171\
     231440736956555270413618581675255342293149119973622969239858152417678164812\
     112068607
-    """
-
-  /// Python: `hex(int(sys.float_info.max))`
-  static let descriptionFloat64Max_radix16: String =
-    """
-    FFFFFFFFFFFFF80000000000000000000000000000000000000000000000000000000000000\
-    000000000000000000000000000000000000000000000000000000000000000000000000000\
-    000000000000000000000000000000000000000000000000000000000000000000000000000\
-    0000000000000000000000000000000
     """
 
   /// Python: `numpy.base_repr(math.factorial(512), base=36)`
@@ -345,89 +330,56 @@ final class BigIntTests: XCTestCase {
 
   // MARK: - Converting from floating-point binary types
 
-  func testFloatingPoint_greatestFiniteMagnitude() {
-    XCTAssertEqual(BigInt(exactly: -Float64.greatestFiniteMagnitude),
-                   BigInt("-\(Self.descriptionFloat64Max_radix16)", radix: 16))
-    XCTAssertEqual(BigInt(exactly: +Float64.greatestFiniteMagnitude),
-                   BigInt("+\(Self.descriptionFloat64Max_radix16)", radix: 16))
+  func testBinaryFloatingPoint<T>(_ type: T.Type) where T: BinaryFloatingPoint {
+    var expected = BigInt(T.greatestFiniteMagnitude.significandBitPattern)
+    expected |= BigInt(1) << T.significandBitCount
+    expected <<= T.greatestFiniteMagnitude.exponent
+    expected >>= T.significandBitCount
 
-    XCTAssertEqual(BigInt(-Float64.greatestFiniteMagnitude),
-                   BigInt("-\(Self.descriptionFloat64Max_radix16)", radix: 16))
-    XCTAssertEqual(BigInt(+Float64.greatestFiniteMagnitude),
-                   BigInt("+\(Self.descriptionFloat64Max_radix16)", radix: 16))
+    XCTAssertEqual(BigInt(exactly: -T.greatestFiniteMagnitude), -expected)
+    XCTAssertEqual(BigInt(exactly: +T.greatestFiniteMagnitude), +expected)
+    XCTAssertEqual(BigInt(-T.greatestFiniteMagnitude), -expected)
+    XCTAssertEqual(BigInt(+T.greatestFiniteMagnitude), +expected)
+
+    XCTAssertNil(BigInt(exactly: -T.infinity))
+    XCTAssertNil(BigInt(exactly: +T.infinity))
+
+    XCTAssertNil(BigInt(exactly: -T.leastNonzeroMagnitude))
+    XCTAssertNil(BigInt(exactly: +T.leastNonzeroMagnitude))
+    XCTAssertEqual(BigInt(-T.leastNonzeroMagnitude), 0)
+    XCTAssertEqual(BigInt(+T.leastNonzeroMagnitude), 0)
+
+    XCTAssertNil(BigInt(exactly: -T.leastNormalMagnitude))
+    XCTAssertNil(BigInt(exactly: +T.leastNormalMagnitude))
+    XCTAssertEqual(BigInt(-T.leastNormalMagnitude), 0)
+    XCTAssertEqual(BigInt(+T.leastNormalMagnitude), 0)
+
+    XCTAssertNil(BigInt(exactly: T.nan))
+    XCTAssertNil(BigInt(exactly: T.signalingNaN))
+
+    XCTAssertNil(BigInt(exactly: -T.pi))
+    XCTAssertNil(BigInt(exactly: +T.pi))
+    XCTAssertEqual(BigInt(-T.pi), -3)
+    XCTAssertEqual(BigInt(+T.pi), +3)
+
+    XCTAssertNil(BigInt(exactly: -T.ulpOfOne))
+    XCTAssertNil(BigInt(exactly: +T.ulpOfOne))
+    XCTAssertEqual(BigInt(-T.ulpOfOne), 0)
+    XCTAssertEqual(BigInt(+T.ulpOfOne), 0)
+
+    XCTAssertEqual(BigInt(exactly: -T.zero), 0)
+    XCTAssertEqual(BigInt(exactly: +T.zero), 0)
+    XCTAssertEqual(BigInt(-T.zero), 0)
+    XCTAssertEqual(BigInt(+T.zero), 0)
   }
 
-  func testFloatingPoint_infinity() {
-    XCTAssertNil(BigInt(exactly: -Float32.infinity))
-    XCTAssertNil(BigInt(exactly: -Float64.infinity))
-    XCTAssertNil(BigInt(exactly: -FloatXX.infinity))
+  func testBinaryFloatingPoint() {
+    testBinaryFloatingPoint(Float32.self)
+    testBinaryFloatingPoint(Float64.self)
+    #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+    testBinaryFloatingPoint(Float80.self)
+    #endif
 
-    XCTAssertNil(BigInt(exactly: +Float32.infinity))
-    XCTAssertNil(BigInt(exactly: +Float64.infinity))
-    XCTAssertNil(BigInt(exactly: +FloatXX.infinity))
-  }
-
-  func testFloatingPoint_leastNonzeroMagnitude() {
-    XCTAssertNil(BigInt(exactly: -Float32.leastNonzeroMagnitude))
-    XCTAssertNil(BigInt(exactly: -Float64.leastNonzeroMagnitude))
-    XCTAssertNil(BigInt(exactly: -FloatXX.leastNonzeroMagnitude))
-
-    XCTAssertNil(BigInt(exactly: +Float32.leastNonzeroMagnitude))
-    XCTAssertNil(BigInt(exactly: +Float64.leastNonzeroMagnitude))
-    XCTAssertNil(BigInt(exactly: +FloatXX.leastNonzeroMagnitude))
-
-    XCTAssertEqual(BigInt(-Float32.leastNonzeroMagnitude), 0)
-    XCTAssertEqual(BigInt(-Float64.leastNonzeroMagnitude), 0)
-    XCTAssertEqual(BigInt(-FloatXX.leastNonzeroMagnitude), 0)
-
-    XCTAssertEqual(BigInt(+Float32.leastNonzeroMagnitude), 0)
-    XCTAssertEqual(BigInt(+Float64.leastNonzeroMagnitude), 0)
-    XCTAssertEqual(BigInt(+FloatXX.leastNonzeroMagnitude), 0)
-  }
-
-  func testFloatingPoint_leastNormalMagnitude() {
-    XCTAssertNil(BigInt(exactly: -Float32.leastNormalMagnitude))
-    XCTAssertNil(BigInt(exactly: -Float64.leastNormalMagnitude))
-    XCTAssertNil(BigInt(exactly: -FloatXX.leastNormalMagnitude))
-
-    XCTAssertNil(BigInt(exactly: +Float32.leastNormalMagnitude))
-    XCTAssertNil(BigInt(exactly: +Float64.leastNormalMagnitude))
-    XCTAssertNil(BigInt(exactly: +FloatXX.leastNormalMagnitude))
-
-    XCTAssertEqual(BigInt(-Float32.leastNormalMagnitude), 0)
-    XCTAssertEqual(BigInt(-Float64.leastNormalMagnitude), 0)
-    XCTAssertEqual(BigInt(-FloatXX.leastNormalMagnitude), 0)
-
-    XCTAssertEqual(BigInt(+Float32.leastNormalMagnitude), 0)
-    XCTAssertEqual(BigInt(+Float64.leastNormalMagnitude), 0)
-    XCTAssertEqual(BigInt(+FloatXX.leastNormalMagnitude), 0)
-  }
-
-  func testFloatingPoint_nan() {
-    XCTAssertNil(BigInt(exactly: Float32.nan))
-    XCTAssertNil(BigInt(exactly: Float64.nan))
-    XCTAssertNil(BigInt(exactly: FloatXX.nan))
-  }
-
-  func testFloatingPoint_pi() {
-    XCTAssertNil(BigInt(exactly: -Float32.pi))
-    XCTAssertNil(BigInt(exactly: -Float64.pi))
-    XCTAssertNil(BigInt(exactly: -FloatXX.pi))
-
-    XCTAssertNil(BigInt(exactly: +Float32.pi))
-    XCTAssertNil(BigInt(exactly: +Float64.pi))
-    XCTAssertNil(BigInt(exactly: +FloatXX.pi))
-
-    XCTAssertEqual(BigInt(-Float32.pi), -3)
-    XCTAssertEqual(BigInt(-Float64.pi), -3)
-    XCTAssertEqual(BigInt(-FloatXX.pi), -3)
-
-    XCTAssertEqual(BigInt(+Float32.pi), +3)
-    XCTAssertEqual(BigInt(+Float64.pi), +3)
-    XCTAssertEqual(BigInt(+FloatXX.pi), +3)
-  }
-
-  func testFloatingPoint_random() {
     for _ in 0 ..< 100 {
       let small = Float32.random(in: -10 ... +10)
       XCTAssertEqual(BigInt(small), BigInt(Int64(small)))
@@ -444,36 +396,14 @@ final class BigIntTests: XCTestCase {
       XCTAssertEqual(BigInt(large), BigInt(Int64(large)))
     }
 
+    #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
     for _ in 0 ..< 100 {
-      let small = FloatXX.random(in: -10 ... +10)
+      let small = Float80.random(in: -10 ... +10)
       XCTAssertEqual(BigInt(small), BigInt(Int64(small)))
 
-      let large = FloatXX.random(in: -0x1p52 ... +0x1p52)
+      let large = Float80.random(in: -0x1p63 ..< +0x1p63)
       XCTAssertEqual(BigInt(large), BigInt(Int64(large)))
     }
-  }
-
-  func testFloatingPoint_signalingNaN() {
-    XCTAssertNil(BigInt(exactly: Float32.signalingNaN))
-    XCTAssertNil(BigInt(exactly: Float64.signalingNaN))
-    XCTAssertNil(BigInt(exactly: FloatXX.signalingNaN))
-  }
-
-  func testFloatingPoint_zero() {
-    XCTAssertEqual(BigInt(exactly: -Float32.zero), 0)
-    XCTAssertEqual(BigInt(exactly: -Float64.zero), 0)
-    XCTAssertEqual(BigInt(exactly: -FloatXX.zero), 0)
-
-    XCTAssertEqual(BigInt(exactly: +Float32.zero), 0)
-    XCTAssertEqual(BigInt(exactly: +Float64.zero), 0)
-    XCTAssertEqual(BigInt(exactly: +FloatXX.zero), 0)
-
-    XCTAssertEqual(BigInt(-Float32.zero), 0)
-    XCTAssertEqual(BigInt(-Float64.zero), 0)
-    XCTAssertEqual(BigInt(-FloatXX.zero), 0)
-
-    XCTAssertEqual(BigInt(+Float32.zero), 0)
-    XCTAssertEqual(BigInt(+Float64.zero), 0)
-    XCTAssertEqual(BigInt(+FloatXX.zero), 0)
+    #endif
   }
 }
