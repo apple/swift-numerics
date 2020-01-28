@@ -87,7 +87,7 @@ final class BigIntTests: XCTestCase {
   func testDivision() {
     let num1 = BigInt("18446744073709551616")!
     let den1 = BigInt(123)
-    let expected1 = BigInt(149973529054549200)
+    let expected1 = BigInt(UInt64(149973529054549200))
     XCTAssertEqual(num1 / den1, expected1)
     
     let num2 = BigInt.pow(BigInt(10), 100)
@@ -239,7 +239,7 @@ final class BigIntTests: XCTestCase {
   }
   
   func testClampingConversion() {
-    XCTAssertEqual(BigInt(clamping: UInt.max), BigInt(UInt(18446744073709551615)))
+    XCTAssertEqual(BigInt(clamping: UInt.max), BigInt(UInt64(18446744073709551615)))
   }
 
   func testUIntConversion() {
