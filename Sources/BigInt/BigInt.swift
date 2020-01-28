@@ -644,6 +644,10 @@ extension BigInt {
         (quot[j], r) = v.dividingFullWidth((r, uj))
       }
 
+      if quot[1] > UInt(Int.max) {
+        quot.append(0)
+      }
+
       BigInt._dropExcessWords(words: &quot)
       return (quotient: BigInt(_uncheckedWords: quot), remainder: BigInt(r))
     }
