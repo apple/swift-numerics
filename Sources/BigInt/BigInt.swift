@@ -644,7 +644,7 @@ extension BigInt {
         (quot[j], r) = v.dividingFullWidth((r, uj))
       }
 
-      if quot[1] > UInt(Int.max) {
+      if quot[u.count - 1] > UInt(Int.max) {
         quot.append(0)
       }
 
