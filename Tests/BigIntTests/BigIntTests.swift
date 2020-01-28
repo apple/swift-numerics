@@ -110,6 +110,28 @@ final class BigIntTests: XCTestCase {
     XCTAssertNotNil(BigInt(exactly: 2.4e39))
     XCTAssertNotNil(BigInt(exactly: 1e38))
     XCTAssertEqual(BigInt(2.4e39) / BigInt(1e38), BigInt(24))
+    
+    for _ in 0 ..< 100 {
+      let expected = BigInt(Float64.random(in: 0x1p64 ... 0x1p255))
+      let divisor  = BigInt(Float64.random(in: 0x1p64 ... 0x1p128))
+      let (quotient, remainder) = expected.quotientAndRemainder(dividingBy: divisor)
+      let actual = divisor * quotient + remainder
+      XCTAssertEqual(quotient,  expected / divisor)
+      XCTAssertEqual(remainder, expected % divisor)
+      XCTAssertEqual(
+        actual, expected,
+        """
+        ## FAILURE ##
+        ~~~~~~~~~~~~~
+              actual: \(actual)
+         != expected: \(expected)
+        ~~~~~~~~~~~~~
+             divisor: \(divisor)
+          * quotient: \(quotient)
+         + remainder: \(remainder)
+        ~~~~~~~~~~~~~
+        """)
+    }
   }
 
   func testFactorial() {

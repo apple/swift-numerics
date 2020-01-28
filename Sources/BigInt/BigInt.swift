@@ -745,6 +745,10 @@ extension BigInt {
       rem[i] = (ln[i] >> s) | ln[i + 1] << (bitWidth - s)
     }
     rem[n - 1] = ln[n - 1] >> s
+    
+    if rem[n - 1] > UInt(Int.max) {
+      rem.append(0)
+    }
 
     BigInt._dropExcessWords(words: &quot)
     BigInt._dropExcessWords(words: &rem)
