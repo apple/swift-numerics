@@ -545,72 +545,84 @@ extension BigInt {
     nextVdigit: UInt,
     nextUdigit: UInt
   ) -> UInt {
-//    var (qhat, rhat) = divisor.dividingFullWidth((high, low))
-//
-//    if high >= divisor { // This means qhat >= b
-//      qhat = UInt.max
-//    }
-//
-//    let (tempHigh, tempLow) = qhat.multipliedFullWidth(by: nextVdigit)
-//    var (rtempHigh, rtempLow) = rhat.multipliedFullWidth(by: UInt.max)
-//    var overflow = false
-//    (rtempLow, overflow) = rtempLow.addingReportingOverflow(rhat)
-//    if overflow {
-//      rtempHigh += 1
-//    }
-//
-//    (rtempLow, overflow) = rtempLow.addingReportingOverflow(nextUdigit)
-//    if overflow {
-//      rtempHigh += 1
-//    }
-//
-//    while true {
-//      if (tempHigh > rtempHigh) || ((tempHigh == rtempHigh) && (tempLow > rtempLow)) {
-//        qhat -= 1
-//        (rhat, overflow) = rhat.addingReportingOverflow(divisor)
-//        if !overflow {
-//          continue
-//        } else {
-//          break
-//        }
-//      } else {
-//        break
-//      }
-//    }
-//
-//    return qhat
-    
-    var qhat: BigInt
-    var rhat: BigInt
+    var qhat: Array<UInt>
+    var rhat: Array<UInt>
     if high >= divisor {
       let v = divisor
       let u = [low, high]
       var r: UInt = 0
-      var quot = Words(repeating: 0, count: u.count)
-      for j in (0...(u.count - 1)).reversed() {
+      qhat = Words(repeating: 0, count: 2)
+      for j in (0...1).reversed() {
         let uj = u[j]
-        (quot[j], r) = v.dividingFullWidth((r, uj))
+        (qhat[j], r) = v.dividingFullWidth((r, uj))
       }
       
-      BigInt._dropExcessWords(words: &quot)
-      qhat = BigInt(_uncheckedWords: quot)
-      rhat = BigInt(r)
+      BigInt._dropExcessWords(words: &qhat)
+      rhat = [r]
     } else {
       let (qhatWord, rhatWord) = divisor.dividingFullWidth((high, low))
-      qhat = BigInt(qhatWord)
-      rhat = BigInt(rhatWord)
+      qhat = [qhatWord]
+      rhat = [rhatWord]
     }
     
     repeat {
-      if (high >= divisor) || (qhat * BigInt(nextVdigit) < BigInt(_uncheckedWords: [nextUdigit, rhat.words[0]])) {
-        qhat -= 1
-        rhat += BigInt(divisor)
+      // All of the following is computing and checking qhat*v_n-2 > rhat*b + u_j+n-2
+      // from TAoCP Volume 2 Section 4.3.1, Algorithm D, step D3
+      let (comp_lhs_lohi, comp_lhs_lolo): (UInt, UInt)
+      let (comp_lhs_hihi, comp_lhs_hilo): (UInt, UInt)
+      var comp_lhs_result = Array<UInt>(repeating: 0, count: 3)
+      
+      (comp_lhs_lohi, comp_lhs_lolo) = qhat[0].multipliedFullWidth(by: nextVdigit)
+      comp_lhs_result[0] = comp_lhs_lolo
+
+      if qhat.count > 1 {
+        (comp_lhs_hihi, comp_lhs_hilo) = qhat[1].multipliedFullWidth(by: nextVdigit)
+      } else {
+        (comp_lhs_hihi, comp_lhs_hilo) = (0, 0)
+        let overflow: Bool
+        (comp_lhs_result[1], overflow) = comp_lhs_lohi.addingReportingOverflow(comp_lhs_hilo)
+        (comp_lhs_result[2], _) = comp_lhs_hihi.addingReportingOverflow(overflow ? 1 : 0)
+      }
+      
+      var lhsLarger = false
+      if comp_lhs_result[2] > 0 {
+        lhsLarger = true
+      } else if comp_lhs_result[1] > rhat[0] {
+        lhsLarger = true
+      } else if comp_lhs_result[1] == rhat[0] && comp_lhs_result[0] > nextUdigit {
+        lhsLarger = true
+      }
+      
+      // high >= divisor is standing in for the test qhat >= b from Algorithm D step D3
+      if (high >= divisor) || lhsLarger {
+        // begin qhat -= 1
+        if qhat.count == 1 {
+          qhat[0] -= 1
+        } else {
+          let (qlow, underflow) = qhat[0].subtractingReportingOverflow(1)
+          qhat[0] = qlow
+          if qhat[1] > 0 {
+            qhat[1] -= (underflow ? 1 : 0)
+          }
+        }
+        // end qhat -= 1
+        
+        // begin rhat += divisor
+        let (rhatResult, overflow) : (UInt, Bool)
+        if rhat.count == 1 || rhat[1] == 0 {
+          (rhatResult, overflow) = rhat[0].addingReportingOverflow(divisor)
+          rhat[0] = rhatResult
+          if overflow {
+            rhat.append(1)
+          }
+        } // we don't need an else because rhat is already larger than BigInt._digitRadix
+        // end rhat += divisor
       } else {
         break
       }
-    } while rhat < BigInt._digitRadix
+    } while rhat.count == 1 // equivalent to rhat < b
     
-    return qhat.words[0]
+    return qhat[0]
   }
 
   /// See _The Art of Computer Programming_ volume 2 by Donald Knuth, Section 4.3.1: The Classical Algorithms
