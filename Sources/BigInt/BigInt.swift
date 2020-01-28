@@ -566,43 +566,35 @@ extension BigInt {
     }
     
     repeat {
-      // All of the following is computing and checking qhat*v_n-2 > rhat*b + u_j+n-2
-      // from TAoCP Volume 2 Section 4.3.1, Algorithm D, step D3
-      let (comp_lhs_lohi, comp_lhs_lolo): (UInt, UInt)
-      let (comp_lhs_hihi, comp_lhs_hilo): (UInt, UInt)
-      var comp_lhs_result = Array<UInt>(repeating: 0, count: 3)
+      var qhatTooLarge = false
       
-      (comp_lhs_lohi, comp_lhs_lolo) = qhat[0].multipliedFullWidth(by: nextVdigit)
-      comp_lhs_result[0] = comp_lhs_lolo
-
       if qhat.count > 1 {
-        (comp_lhs_hihi, comp_lhs_hilo) = qhat[1].multipliedFullWidth(by: nextVdigit)
+        qhatTooLarge = true
       } else {
-        (comp_lhs_hihi, comp_lhs_hilo) = (0, 0)
-        let overflow: Bool
-        (comp_lhs_result[1], overflow) = comp_lhs_lohi.addingReportingOverflow(comp_lhs_hilo)
-        (comp_lhs_result[2], _) = comp_lhs_hihi.addingReportingOverflow(overflow ? 1 : 0)
-      }
-      
-      var lhsLarger = false
-      if comp_lhs_result[2] > 0 {
-        lhsLarger = true
-      } else if comp_lhs_result[1] > rhat[0] {
-        lhsLarger = true
-      } else if comp_lhs_result[1] == rhat[0] && comp_lhs_result[0] > nextUdigit {
-        lhsLarger = true
+        // All of the following is computing and checking qhat*v_n-2 > rhat*b + u_j+n-2
+        // from TAoCP Volume 2 Section 4.3.1, Algorithm D, step D3
+        let (comp_lhs_hi, comp_lhs_lo) = qhat[0].multipliedFullWidth(by: nextVdigit)
+        
+        if comp_lhs_hi > rhat[0] {
+          qhatTooLarge = true
+        } else if comp_lhs_hi == rhat[0] && comp_lhs_lo > nextUdigit {
+          qhatTooLarge = true
+        }
       }
       
       // high >= divisor is standing in for the test qhat >= b from Algorithm D step D3
-      if (high >= divisor) || lhsLarger {
+      if qhatTooLarge {
         // begin qhat -= 1
         if qhat.count == 1 {
           qhat[0] -= 1
         } else {
           let (qlow, underflow) = qhat[0].subtractingReportingOverflow(1)
           qhat[0] = qlow
-          if qhat[1] > 0 {
-            qhat[1] -= (underflow ? 1 : 0)
+          if qhat[1] > 0 && underflow {
+            qhat[1] -= 1
+            if qhat[1] == 0 {
+              qhat.remove(at: 1)
+            }
           }
         }
         // end qhat -= 1
@@ -642,7 +634,7 @@ extension BigInt {
     var rhsWords = rhsIsNeg ? (-rhs).words : rhs.words
     
     // See the answer to exercise 16 in Section 4.3.1 of TAOCP
-    if rhsWords.count == 1 {
+    if rhsWords.count == 1 || (rhsWords.count == 2 && rhsWords[1] == 0) {
       let v = rhsWords[0]
       let u = lhsWords
       var r: UInt = 0
@@ -651,20 +643,16 @@ extension BigInt {
         let uj = u[j]
         (quot[j], r) = v.dividingFullWidth((r, uj))
       }
-      
+
       BigInt._dropExcessWords(words: &quot)
       return (quotient: BigInt(_uncheckedWords: quot), remainder: BigInt(r))
     }
 
-    while rhsWords[rhsWords.endIndex - 1] == 0, rhsWords.count > 2 {
+    while rhsWords[rhsWords.endIndex - 1] == 0 {
       rhsWords.removeLast()
     }
 
     if rhsWords.count > lhsWords.count { return (0, lhs) }
-
-    if rhsWords.count == 1 {
-      rhsWords.append(0)
-    }
 
     if lhsWords.count <= rhsWords.count {
       for _ in 0 ... (rhsWords.count - lhsWords.count) {
