@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-@testable import BigInt
+import BigInt
 import XCTest
 
 extension BigInt {
