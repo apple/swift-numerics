@@ -172,7 +172,7 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(fooz, foo / 1024)
 
     let barz = BigInt(1) << 64
-    XCTAssertEqual(barz, BigInt(UInt.max) + 1)
+    XCTAssertEqual(barz, BigInt(UInt64.max) + 1)
   }
 
   func testNegation() {
@@ -261,7 +261,7 @@ final class BigIntTests: XCTestCase {
   }
   
   func testClampingConversion() {
-    XCTAssertEqual(BigInt(clamping: UInt.max), BigInt(UInt64(18446744073709551615)))
+    XCTAssertEqual(BigInt(clamping: UInt64.max), BigInt(UInt64(18446744073709551615)))
   }
 
   func testUIntConversion() {
