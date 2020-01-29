@@ -376,7 +376,7 @@ extension BigInt: BinaryInteger {
       self = BigInt._digits[Int(source)]
     } else {
       words = Words(source.words)
-      if source > Int.max {
+      if source.words[source.words.endIndex - 1] > Int.max {
         words.append(0)
       }
     }
