@@ -379,6 +379,9 @@ extension BigInt: BinaryInteger {
       if source > 0 && source.words[source.words.endIndex - 1] > Int.max {
         words.append(0)
       }
+      // needed to handle sign-extended multi-word numbers that
+      // actually fit in a single word
+      BigInt._dropExcessWords(words: &words)
     }
   }
 
