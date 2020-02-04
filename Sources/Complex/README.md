@@ -7,7 +7,7 @@ This module provides a `Complex` number type generic over an underlying `RealTyp
 ```
 This module provides approximate feature parity and memory layout compatibility with C, Fortran, and C++ complex types (although the importer cannot map the types for you, buffers may be reinterpreted to shim API defined in other languages).
 
-The usual arithmetic operators are provided for Complex numbers, as well as conversion to and from polar coordinates and many useful properties, plus conformances to the obvious usual protocols: `Equatable`, `Hashable`, `Codable` (if the underlying `RealType` is), and `Numeric` (hence also `AdditiveArithmetic`).
+The usual arithmetic operators are provided for Complex numbers, as well as conversion to and from polar coordinates and many useful properties, plus conformances to the obvious usual protocols: `Equatable`, `Hashable`, `Codable` (if the underlying `RealType` is), and `AlgebraicField` (hence also `AdditiveArithmetic` and `SignedNumeric`).
 
 ### Dependencies:
 - The `Real` module.
