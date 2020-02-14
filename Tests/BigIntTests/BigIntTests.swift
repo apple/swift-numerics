@@ -201,6 +201,14 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(BigInt(Int64.max).signum(), +1)
     XCTAssertEqual(BigInt(+0x1p1023).signum(), +1)
   }
+  
+  func testTrailingZeroCount() {
+    let foo = BigInt(1) << 300
+    XCTAssertEqual(foo.trailingZeroBitCount, 300)
+    
+    let bar = (BigInt(1) << 300) + 0b101000
+    XCTAssertEqual(bar.trailingZeroBitCount, 3)
+  }
 
   // MARK: - Comparing and hashing
 

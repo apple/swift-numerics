@@ -395,7 +395,17 @@ extension BigInt: BinaryInteger {
 
   public var bitWidth: Int { words.count * UInt.bitWidth }
 
-  public var trailingZeroBitCount: Int { words.first?.trailingZeroBitCount ?? 0 }
+  public var trailingZeroBitCount: Int {
+    var totalZeros = 0
+    for word in words {
+      let zeros = word.trailingZeroBitCount
+      totalZeros += zeros
+      if zeros < UInt.bitWidth {
+        break
+      }
+    }
+    return totalZeros
+  }
 
   @inlinable
   public static func / (lhs: BigInt, rhs: BigInt) -> BigInt {
