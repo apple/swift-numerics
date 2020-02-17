@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import NumericsReal
+import Numerics_Real
 
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
 typealias TestLiteralType = Float80

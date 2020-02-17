@@ -9,9 +9,9 @@ These modules fall broadly into two categories:
 
 There is some overlap between these two categories, and API that begins in the first category may migrate to the second as it matures and new uses are discovered.
 
-Swift Numerics modules are fine-grained; if you need support for Complex numbers, you can import the Complex module without pulling in everything else in the library as well:
+Swift Numerics modules are fine-grained; if you need support for Complex numbers, you can import the Numerics_Complex module without pulling in everything else in the library as well:
 ```swift
-import Complex
+import Numerics_Complex
 
 let z = Complex<Double>.i
 ```
@@ -51,8 +51,8 @@ To fix a bug, or make smaller improvements:
 Questions about how to use Swift Numerics modules, or issues that are not clearly bugs can be discussed in the ["Swift Numerics" section of the Swift forums.](https://forums.swift.org/c/related-projects/swift-numerics)
 
 ## Modules
-1. [Real](Sources/Real/README.md)
-2. [Complex](Sources/Complex/README.md)
+1. [Numerics_Real](Sources/Numerics_Real/README.md)
+2. [Numerics_Complex](Sources/Numerics_Complex/README.md)
 
 ## Future expansion
 1. [Approximate Equality](https://github.com/apple/swift-numerics/issues/3)
@@ -60,4 +60,3 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 3. [Arbitrary-Precision Integers](https://github.com/apple/swift-numerics/issues/5)
 4. [Shaped Arrays](https://github.com/apple/swift-numerics/issues/6)
 5. [Decimal Floating-point](https://github.com/apple/swift-numerics/issues/7)
-6. [Float16](https://github.com/apple/swift-numerics/issues/8)

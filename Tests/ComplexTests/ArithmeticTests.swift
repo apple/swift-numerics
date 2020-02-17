@@ -10,8 +10,8 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import NumericsComplex
-import NumericsReal
+import Numerics_Complex
+import Numerics_Real
 
 // TODO: improve this to be a general-purpose complex comparison with tolerance
 func relativeError<T>(_ a: Complex<T>, _ b: Complex<T>) -> T {
