@@ -398,9 +398,10 @@ extension BigInt: BinaryInteger {
   public var trailingZeroBitCount: Int {
     var totalZeros = 0
     for word in words {
-      let zeros = word.trailingZeroBitCount
-      totalZeros += zeros
-      if zeros < UInt.bitWidth {
+      if word == 0 {
+        totalZeros += UInt.bitWidth
+      } else {
+        totalZeros += word.trailingZeroBitCount
         break
       }
     }
