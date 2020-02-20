@@ -10,8 +10,8 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import Numerics_Complex
-import Numerics_Real
+import ComplexModule
+import RealModule
 
 final class PropertyTests: XCTestCase {
   

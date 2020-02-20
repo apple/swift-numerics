@@ -10,10 +10,10 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import Numerics_Complex
+import ComplexModule
 
 // For CComplex and shims
-import _Numerics_Shims
+import _NumericsShims
 
 extension Complex where RealType == Double {
   @_transparent

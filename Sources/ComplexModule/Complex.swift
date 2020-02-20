@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Numerics_Real
+import RealModule
 
 /// A complex number represented by real and imaginary parts.
 ///

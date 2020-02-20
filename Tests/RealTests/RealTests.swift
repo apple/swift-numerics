@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
-import Numerics_Real
+import RealModule
 
 internal extension ElementaryFunctions where Self: BinaryFloatingPoint {
   static func elementaryFunctionChecks() {

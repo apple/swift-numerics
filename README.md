@@ -9,9 +9,9 @@ These modules fall broadly into two categories:
 
 There is some overlap between these two categories, and API that begins in the first category may migrate to the second as it matures and new uses are discovered.
 
-Swift Numerics modules are fine-grained; if you need support for Complex numbers, you can import the Numerics_Complex module without pulling in everything else in the library as well:
+Swift Numerics modules are fine-grained; if you need support for Complex numbers, you can import the ComplexModule module without pulling in everything else in the library as well:
 ```swift
-import Numerics_Complex
+import ComplexModule
 
 let z = Complex<Double>.i
 ```
@@ -51,8 +51,8 @@ To fix a bug, or make smaller improvements:
 Questions about how to use Swift Numerics modules, or issues that are not clearly bugs can be discussed in the ["Swift Numerics" section of the Swift forums.](https://forums.swift.org/c/related-projects/swift-numerics)
 
 ## Modules
-1. [Numerics_Real](Sources/Numerics_Real/README.md)
-2. [Numerics_Complex](Sources/Numerics_Complex/README.md)
+1. [RealModule](Sources/RealModule/README.md)
+2. [ComplexModule](Sources/ComplexModule/README.md)
 
 ## Future expansion
 1. [Approximate Equality](https://github.com/apple/swift-numerics/issues/3)

@@ -15,19 +15,19 @@ import PackageDescription
 let package = Package(
   name: "swift-numerics",
   products: [
-    .library(name: "Numerics_Complex", targets: ["Numerics_Complex"]),
+    .library(name: "ComplexModule", targets: ["ComplexModule"]),
     .library(name: "Numerics", targets: ["Numerics"]),
-    .library(name: "Numerics_Real", targets: ["Numerics_Real"]),
+    .library(name: "RealModule", targets: ["RealModule"]),
   ],
   dependencies: [
   ],
   targets: [
-    .target(name: "Numerics_Complex", dependencies: ["Numerics_Real"]),
-    .target(name: "Numerics", dependencies: ["Numerics_Complex", "Numerics_Real"]),
-    .target(name: "_Numerics_Shims", dependencies: []),
-    .target(name: "Numerics_Real", dependencies: ["_Numerics_Shims"]),
+    .target(name: "ComplexModule", dependencies: ["RealModule"]),
+    .target(name: "Numerics", dependencies: ["ComplexModule", "RealModule"]),
+    .target(name: "_NumericsShims", dependencies: []),
+    .target(name: "RealModule", dependencies: ["_NumericsShims"]),
     
-    .testTarget(name: "ComplexTests", dependencies: ["Numerics_Complex", "_Numerics_Shims"]),
-    .testTarget(name: "RealTests", dependencies: ["Numerics_Real"]),
+    .testTarget(name: "ComplexTests", dependencies: ["ComplexModule", "_NumericsShims"]),
+    .testTarget(name: "RealTests", dependencies: ["RealModule"]),
   ]
 )

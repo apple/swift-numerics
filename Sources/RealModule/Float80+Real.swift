@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import _Numerics_Shims
+import _NumericsShims
 
 // Restrict extension to platforms for which Float80 exists.
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
