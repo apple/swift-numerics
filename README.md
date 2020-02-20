@@ -68,9 +68,9 @@ This would prevent users of Swift Numerics who don't need generic types from doi
 import Complex
 // I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
 typealias Complex = Complex.Complex<Double> // doesn't work, because name lookup fails.
-```swift
-For this reason, modules that would have this ambiguity are suffixed with `Module` within Swift Numerics:
 ```
+For this reason, modules that would have this ambiguity are suffixed with `Module` within Swift Numerics:
+```swift
 import ComplexModule
 // I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
 typealias Complex = ComplexModule.Complex<Double>
