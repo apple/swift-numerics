@@ -9,7 +9,7 @@ These modules fall broadly into two categories:
 
 There is some overlap between these two categories, and API that begins in the first category may migrate to the second as it matures and new uses are discovered.
 
-Swift Numerics modules are fine-grained; if you need support for Complex numbers, you can import ComplexModule<sup>[1](#footnote1)</sup> without pulling in everything else in the library as well:
+Swift Numerics modules are fine-grained; if you need support for Complex numbers, you can import ComplexModule<sup><a name="back1">[1](#foot1)</a></sup> without pulling in everything else in the library as well:
 ```swift
 import ComplexModule
 
@@ -62,7 +62,7 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 5. [Decimal Floating-point](https://github.com/apple/swift-numerics/issues/7)
 
 ## Notes
-<a name="footnote1">1</a> Swift is unable to use the fully-qualified name for types when a type and module have the same name.
+<a name="foot1">[1](#back1)</a> Swift is unable to use the fully-qualified name for types when a type and module have the same name.
 This would prevent users of Swift Numerics who don't need generic types from doing things like:
 ```swift
 import Complex
