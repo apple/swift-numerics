@@ -9,7 +9,7 @@ These modules fall broadly into two categories:
 
 There is some overlap between these two categories, and API that begins in the first category may migrate to the second as it matures and new uses are discovered.
 
-Swift Numerics modules are fine-grained; if you need support for Complex numbers, you can import the ComplexModule module without pulling in everything else in the library as well:
+Swift Numerics modules are fine-grained; if you need support for Complex numbers, you can import ComplexModule<sup>[1](#footnote1)</sup> without pulling in everything else in the library as well:
 ```swift
 import ComplexModule
 
@@ -60,3 +60,23 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 3. [Arbitrary-Precision Integers](https://github.com/apple/swift-numerics/issues/5)
 4. [Shaped Arrays](https://github.com/apple/swift-numerics/issues/6)
 5. [Decimal Floating-point](https://github.com/apple/swift-numerics/issues/7)
+
+## Notes
+<a name="footnote1">1</a> Swift is unable to use the fully-qualified name for types when a type and module have the same name.
+This would prevent users of Swift Numerics who don't need generic types from doing things like:
+```swift
+import Complex
+// I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
+typealias Complex = Complex.Complex<Double> // doesn't work, because name lookup fails.
+```swift
+For this reason, modules that would have this ambiguity are suffixed with `Module` within Swift Numerics:
+```
+import ComplexModule
+// I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
+typealias Complex = ComplexModule.Complex<Double>
+// But I can still refer to the generic type by qualifying the name if I need it occasionally:
+let a = ComplexModule.Complex<Float>
+```
+The `Real` module does not contain a `Real` type, but does contain a `Real` protocol, and users may want to define their own `Real` type (and possibly re-export the `Real` module), so the suffix is also applied there.
+ New modules have to evaluate this decision carefully, but can err on the side of adding the suffix.
+ It's expected that most users will simply `import Numerics`, so this isn't an issue for them.
