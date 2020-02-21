@@ -69,7 +69,7 @@ When new basic floating-point types are added to Swift, like `Float16` or `Float
 Not having this protocol is a significant missing feature for numerical computing in Swift, and I'm really looking forward to seeing what people do with it.
 
 ### Dependencies:
-- The C standard math library (`libm`) via the `NumericShims` target.
+- The C standard math library (`libm`) via the `_NumericsShims` target.
 
 [ErrorFunction]: https://en.wikipedia.org/wiki/Error_function
 [GammaFunction]: https://en.wikipedia.org/wiki/Gamma_function
