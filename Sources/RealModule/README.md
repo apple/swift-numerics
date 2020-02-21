@@ -1,8 +1,8 @@
-# Real
+# Real Module
 
 [SE-0246] proposed an API for "basic math functions" that would make operations like sine and logarithm available in generic contexts.
 It was accepted, but because of limitations in the compiler, the API could not be added to the standard library in a source-stable manner.
-The `Real` module provides that API as a separate module so that you can use it right away to get access to the improved API for these operations in your projects.
+`RealModule` provides that API as a separate module so that you can use it right away to get access to the improved API for these operations in your projects.
 
 ## Protocols and Methods
 
@@ -34,7 +34,7 @@ The primary use of this protocol is for writing code that is generic over real a
 
 ## Using Real
 
-First, either import `Real` directly or import the `Numerics` umbrella module.
+First, either import `RealModule` directly or import the `Numerics` umbrella module.
 
 Suppose we were experimenting with some basic machine learning, and needed a generic [sigmoid function][Sigmoid] activation function:
 
@@ -69,7 +69,7 @@ When new basic floating-point types are added to Swift, like `Float16` or `Float
 Not having this protocol is a significant missing feature for numerical computing in Swift, and I'm really looking forward to seeing what people do with it.
 
 ### Dependencies:
-- The C standard math library (`libm`) via the `NumericShims` target.
+- The C standard math library (`libm`) via the `_NumericsShims` target.
 
 [ErrorFunction]: https://en.wikipedia.org/wiki/Error_function
 [GammaFunction]: https://en.wikipedia.org/wiki/Gamma_function
