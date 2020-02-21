@@ -1,8 +1,8 @@
-# Real
+# Real Module
 
 [SE-0246] proposed an API for "basic math functions" that would make operations like sine and logarithm available in generic contexts.
 It was accepted, but because of limitations in the compiler, the API could not be added to the standard library in a source-stable manner.
-The `Real` module provides that API as a separate module so that you can use it right away to get access to the improved API for these operations in your projects.
+`RealModule` provides that API as a separate module so that you can use it right away to get access to the improved API for these operations in your projects.
 
 ## Protocols and Methods
 
@@ -34,7 +34,7 @@ The primary use of this protocol is for writing code that is generic over real a
 
 ## Using Real
 
-First, either import `Real` directly or import the `Numerics` umbrella module.
+First, either import `RealModule` directly or import the `Numerics` umbrella module.
 
 Suppose we were experimenting with some basic machine learning, and needed a generic [sigmoid function][Sigmoid] activation function:
 
