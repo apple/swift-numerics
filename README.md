@@ -62,7 +62,7 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 5. [Decimal Floating-point](https://github.com/apple/swift-numerics/issues/7)
 
 ## Notes
-<a name="foot1">[1](#back1)</a> Swift is unable to use the fully-qualified name for types when a type and module have the same name.
+<sup><a name="foot1">[1](#back1)</a></sup> Swift is currently unable to use the fully-qualified name for types when a type and module have the same name (discussion here: https://forums.swift.org/t/pitch-fully-qualified-name-syntax/28482).
 This would prevent users of Swift Numerics who don't need generic types from doing things like:
 ```swift
 import Complex
