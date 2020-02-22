@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Real
+import RealModule
 
 /// Performs a fast fourier based convolution.
 ///

@@ -11,8 +11,8 @@
 
 import XCTest
 import CorePerformance
-import Complex
-import Real
+import ComplexModule
+import RealModule
 
 /// return positive mod
 func positive_mod<T: BinaryInteger>(_ x: T, _ m: T) -> T {

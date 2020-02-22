@@ -9,8 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Real
-import Complex
+import RealModule
+import ComplexModule
 import CorePerformance
 
 /// A namespace for fast fourier based algorithm.

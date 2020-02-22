@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Complex
+import ComplexModule
 
 extension UnsafeBufferPointer {
     

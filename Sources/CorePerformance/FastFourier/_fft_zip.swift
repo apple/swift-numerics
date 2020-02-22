@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Real
+import RealModule
 
 /// Performs a Complex to Complex in-place discrete fourier transform.
 ///

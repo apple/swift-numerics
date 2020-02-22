@@ -9,8 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Real
-import Complex
+import RealModule
+import ComplexModule
 import CorePerformance
 
 extension FastFourier {

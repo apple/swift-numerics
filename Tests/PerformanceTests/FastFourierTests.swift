@@ -11,8 +11,8 @@
 
 import XCTest
 import Performance
-import Complex
-import Real
+import ComplexModule
+import RealModule
 
 func _FDFT<T>(_ input: [T]) -> [Complex<T>] {
     

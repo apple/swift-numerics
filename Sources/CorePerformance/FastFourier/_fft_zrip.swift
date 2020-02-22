@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Real
+import RealModule
 
 /// Performs a Real to Complex out-of-place discrete fourier transform. This function requires/results the first half of frequency domain only.
 ///
