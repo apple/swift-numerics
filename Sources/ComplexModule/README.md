@@ -2,7 +2,7 @@
 
 This module provides a `Complex` number type generic over an underlying `RealType`:
 ```swift
-1> import Complex
+1> import ComplexModule
 2> let z = Complex(1,1) // z = 1 + i
 ```
 This module provides approximate feature parity and memory layout compatibility with C, Fortran, and C++ complex types (although the importer cannot map the types for you, buffers may be reinterpreted to shim API defined in other languages).
@@ -10,7 +10,7 @@ This module provides approximate feature parity and memory layout compatibility 
 The usual arithmetic operators are provided for Complex numbers, as well as conversion to and from polar coordinates and many useful properties, plus conformances to the obvious usual protocols: `Equatable`, `Hashable`, `Codable` (if the underlying `RealType` is), and `AlgebraicField` (hence also `AdditiveArithmetic` and `SignedNumeric`).
 
 ### Dependencies:
-- The `Real` module.
+- `RealModule`.
 
 ## Design notes
 

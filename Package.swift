@@ -15,25 +15,23 @@ import PackageDescription
 let package = Package(
   name: "swift-numerics",
   products: [
-    .library(name: "Complex", targets: ["Complex"]),
+    .library(name: "ComplexModule", targets: ["ComplexModule"]),
     .library(name: "Numerics", targets: ["Numerics"]),
-    .library(name: "Real", targets: ["Real"]),
+    .library(name: "RealModule", targets: ["RealModule"]),
     .library(name: "Performance", targets: ["Performance"]),
     .library(name: "CorePerformance", targets: ["CorePerformance"]),
   ],
   dependencies: [
   ],
   targets: [
-    .target(name: "Complex", dependencies: ["Real"]),
-    .target(name: "Numerics", dependencies: ["Complex", "Real", "Performance"]),
-    .target(name: "NumericsShims", dependencies: []),
-    .target(name: "Real", dependencies: ["NumericsShims"]),
-    .target(name: "Performance", dependencies: ["Complex", "Real", "CorePerformance"]),
-    .target(name: "CorePerformance", dependencies: ["Complex", "Real"]),
-    
-    .testTarget(name: "CorePerformanceTests", dependencies: ["CorePerformance", "Complex"]),
-    .testTarget(name: "PerformanceTests", dependencies: ["Performance", "Complex"]),
-    .testTarget(name: "ComplexTests", dependencies: ["Complex", "NumericsShims"]),
-    .testTarget(name: "RealTests", dependencies: ["Real"]),
-  ]
+    .target(name: "ComplexModule", dependencies: ["RealModule"]),
+    .target(name: "Numerics", dependencies: ["ComplexModule", "RealModule"]),
+    .target(name: "_NumericsShims", dependencies: []),
+    .target(name: "RealModule", dependencies: ["_NumericsShims"]),
+    .target(name: "Performance", dependencies: ["ComplexModule", "RealModule", "CorePerformance"]),
+    .target(name: "CorePerformance", dependencies: ["ComplexModule", "RealModule"]),
+    .testTarget(name: "ComplexTests", dependencies: ["ComplexModule", "_NumericsShims"]),
+    .testTarget(name: "RealTests", dependencies: ["RealModule"]),
+    .testTarget(name: "CorePerformanceTests", dependencies: ["CorePerformance", "ComplexModule"]),
+    .testTarget(name: "PerformanceTests", dependencies: ["Performance", "ComplexModule"]),
 )

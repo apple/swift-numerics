@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import NumericsShims
+import _NumericsShims
 
 extension Float: Real {
   @_transparent
