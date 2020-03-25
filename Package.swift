@@ -15,6 +15,7 @@ import PackageDescription
 let package = Package(
   name: "swift-numerics",
   products: [
+    .library(name: "ApproximateEquality", targets: ["ApproximateEquality"]),
     .library(name: "ComplexModule", targets: ["ComplexModule"]),
     .library(name: "Numerics", targets: ["Numerics"]),
     .library(name: "RealModule", targets: ["RealModule"]),
@@ -22,11 +23,13 @@ let package = Package(
   dependencies: [
   ],
   targets: [
+    .target(name: "ApproximateEquality", dependencies: []),
     .target(name: "ComplexModule", dependencies: ["RealModule"]),
     .target(name: "Numerics", dependencies: ["ComplexModule", "RealModule"]),
     .target(name: "_NumericsShims", dependencies: []),
     .target(name: "RealModule", dependencies: ["_NumericsShims"]),
     
+    .testTarget(name: "ApproximateEqualityTests", dependencies: ["ApproximateEquality"]),
     .testTarget(name: "ComplexTests", dependencies: ["ComplexModule", "_NumericsShims"]),
     .testTarget(name: "RealTests", dependencies: ["RealModule"]),
   ]
