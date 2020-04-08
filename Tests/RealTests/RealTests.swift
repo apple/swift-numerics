@@ -59,6 +59,13 @@ internal extension Real where Self: BinaryFloatingPoint {
 
 final class ElementaryFunctionChecks: XCTestCase {
   
+  func testFloat16() {
+    if #available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *) {
+      Float16.elementaryFunctionChecks()
+      Float16.realFunctionChecks()
+    }
+  }
+  
   func testFloat() {
     Float.elementaryFunctionChecks()
     Float.realFunctionChecks()
