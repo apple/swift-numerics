@@ -130,7 +130,40 @@ extension Double {
   }
 }
 
+@available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
+extension Float16 {
+  static func testIntegerExponent() {
+    testIntegerExponentCommon()
+    testIntegerExponentDoubleAndSmaller()
+    let u = Float16(1).nextUp
+    let d = Float16(1).nextDown
+    // Smallest exponents not exactly representable as Float16.
+    assertClose(-7.3890572722436554354625993393835304, Float16.pow(-u, 0x801))
+    assertClose(-0.3676100238077049750885141244927184, Float16.pow(-d, 0x801))
+    // Exponents close to overflow boundary.
+    assertClose( 65403.86633107, Float16.pow(-u, 11360))
+    assertClose(-65467.73729429, Float16.pow(-u, 11361))
+    assertClose( 65531.67063149, Float16.pow(-u, 11362))
+    assertClose( 65487.96799785, Float16.pow(-d, -22706))
+    assertClose(-65519.96016590, Float16.pow(-d, -22707))
+    assertClose( 65551.96796276, Float16.pow(-d, -22708))
+    // Exponents close to underflow boundary.
+    assertClose( 5.966876499900e-8, Float16.pow(-u, -17042))
+    assertClose(-5.961055156973e-8, Float16.pow(-u, -17043))
+    assertClose( 5.955239493405e-8, Float16.pow(-u, -17044))
+    assertClose( 5.964109628044e-8, Float16.pow(-d, 34060))
+    assertClose(-5.961197465140e-8, Float16.pow(-d, 34061))
+    assertClose( 5.958286724190e-8, Float16.pow(-d, 34062))
+  }
+}
+
 final class IntegerExponentTests: XCTestCase {
+  
+  @available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
+  func testFloat16() {
+    Float16.testIntegerExponent()
+  }
+  
   func testFloat() {
     Float.testIntegerExponent()
   }
