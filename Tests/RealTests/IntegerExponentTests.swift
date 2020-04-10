@@ -12,7 +12,8 @@
 import XCTest
 import RealModule
 
-internal extension Real where Self: BinaryFloatingPoint {
+internal extension Real where Self: BinaryFloatingPoint,
+                              Self.RawSignificand: FixedWidthInteger {
   static func testIntegerExponentCommon() {
     // If x is -1, then the result is ±1 with sign chosen by parity of n.
     // Simply converting n to Real will flip parity when n is large, so
@@ -27,12 +28,55 @@ internal extension Real where Self: BinaryFloatingPoint {
     XCTAssertEqual(Self.pow(-1,  Int.max), -1)
     XCTAssertEqual(Self.pow(-1, -Int.max), -1)
     XCTAssertEqual(Self.pow(-1,  Int.min),  1)
+    // Generate some random test values that definitely overflow or
+    // underflow; we want to be sure that we get the right ±0 or ±∞
+    // result.
+    for _ in 0 ..< 10 {
+      let x = Self.random(in: 2 ..< 4)
+      let n = Int.random(in: 1 - Int(Self.leastNonzeroMagnitude.exponent) ..< .max)
+      let even = n & -2
+      let odd = even | 1
+      assertClose( .infinity, Self.pow(x, even))
+      assertClose( .infinity, Self.pow(x, odd))
+      assertClose( 0.0, Self.pow(1/x, even))
+      assertClose( 0.0, Self.pow(1/x, odd))
+      assertClose( .infinity, Self.pow(-x, even))
+      assertClose(-.infinity, Self.pow(-x, odd))
+      assertClose( 0.0, Self.pow(-1/x, even))
+      assertClose(-0.0, Self.pow(-1/x, odd))
+      assertClose( 0.0, Self.pow(x, -even))
+      assertClose( 0.0, Self.pow(x, -odd))
+      assertClose( .infinity, Self.pow(1/x, -even))
+      assertClose( .infinity, Self.pow(1/x, -odd))
+      assertClose( 0.0, Self.pow(-x, -even))
+      assertClose(-0.0, Self.pow(-x, -odd))
+      assertClose( .infinity, Self.pow(-1/x, -even))
+      assertClose(-.infinity, Self.pow(-1/x, -odd))
+    }
+  }
+  
+  static func testIntegerExponentDoubleAndSmaller() {
+    // max/min exponents, these always saturate, but this will reveal
+    // errors in some implementations that one could try.
+    let u = Self(1).nextUp
+    let d = Self(1).nextDown
+    assertClose( .infinity, Self.pow(-u,  Int.max - 1))
+    assertClose( 0.0,       Self.pow(-d,  Int.max - 1))
+    assertClose( 0.0,       Self.pow(-u, -Int.max + 1))
+    assertClose( .infinity, Self.pow(-d, -Int.max + 1))
+    assertClose(-.infinity, Self.pow(-u,  Int.max))
+    assertClose(-0.0,       Self.pow(-d,  Int.max))
+    assertClose(-0.0,       Self.pow(-u, -Int.max))
+    assertClose(-.infinity, Self.pow(-d, -Int.max))
+    assertClose( 0.0,       Self.pow(-u,  Int.min))
+    assertClose( .infinity, Self.pow(-d,  Int.min))
   }
 }
 
 extension Float {
   static func testIntegerExponent() {
     testIntegerExponentCommon()
+    testIntegerExponentDoubleAndSmaller()
     let u = Float(1).nextUp
     let d = Float(1).nextDown
     // Smallest exponents not exactly representable as Float.
@@ -52,24 +96,13 @@ extension Float {
     assertClose(-7.0064924138100205091278464932003585e-46, Float.pow(-d, 1744361943))
     assertClose( 7.0064919961905290625123586120258840e-46, Float.pow(-d, 1744361944))
     assertClose(-7.0064915785710625079583096856510544e-46, Float.pow(-d, 1744361945))
-    // max/min exponents, these always saturate, but this will reveal
-    // errors in some implementations that one could try.
-    assertClose( .infinity, Self.pow(-u,  Int.max - 1))
-    assertClose( 0.0,       Self.pow(-d,  Int.max - 1))
-    assertClose( 0.0,       Self.pow(-u, -Int.max + 1))
-    assertClose( .infinity, Self.pow(-d, -Int.max + 1))
-    assertClose(-.infinity, Self.pow(-u,  Int.max))
-    assertClose(-0.0,       Self.pow(-d,  Int.max))
-    assertClose(-0.0,       Self.pow(-u, -Int.max))
-    assertClose(-.infinity, Self.pow(-d, -Int.max))
-    assertClose( 0.0,       Self.pow(-u,  Int.min))
-    assertClose( .infinity, Self.pow(-d,  Int.min))
   }
 }
 
 extension Double {
   static func testIntegerExponent() {
     testIntegerExponentCommon()
+    testIntegerExponentDoubleAndSmaller()
     // Following tests only make sense (and are only necessary) on 64b platforms.
 #if arch(arm64) || arch(x86_64)
     let u: Double = 1.nextUp
@@ -93,18 +126,6 @@ extension Double {
     assertClose(-2.4703282292062332640976590913373022e-324, Double.pow(-d, 6711563375777760775))
     assertClose( 2.4703282292062329898361312467121758e-324, Double.pow(-d, 6711563375777760776))
     assertClose(-2.4703282292062327155746034020870799e-324, Double.pow(-d, 6711563375777760777))
-    // max/min exponents, these always saturate, but this will reveal
-    // errors in some implementations that one could try.
-    assertClose( .infinity, Self.pow(-u,  Int.max - 1))
-    assertClose( 0.0,       Self.pow(-d,  Int.max - 1))
-    assertClose( 0.0,       Self.pow(-u, -Int.max + 1))
-    assertClose( .infinity, Self.pow(-d, -Int.max + 1))
-    assertClose(-.infinity, Self.pow(-u,  Int.max))
-    assertClose(-0.0,       Self.pow(-d,  Int.max))
-    assertClose(-0.0,       Self.pow(-u, -Int.max))
-    assertClose(-.infinity, Self.pow(-d, -Int.max))
-    assertClose( 0.0,       Self.pow(-u,  Int.min))
-    assertClose( .infinity, Self.pow(-d,  Int.min))
 #endif
   }
 }
