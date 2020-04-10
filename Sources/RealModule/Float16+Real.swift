@@ -9,6 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+import _NumericsShims
+
 @available(macOS 9999, iOS 9999, tvOS 9999, watchOS 9999, *)
 extension Float16: Real {
   @_transparent
@@ -141,9 +143,14 @@ extension Float16: Real {
   
   @_transparent
   public static func pow(_ x: Float16, _ n: Int) -> Float16 {
-    // TODO: this can be improved because the range of n that don't overflow
-    // for all x != 1 is pretty small for Float16.
-    Float16(.pow(Float(x), n))
+    // Float16 is simpler than Float or Double, because the range of
+    // "interesting" exponents is pretty small; anything outside of
+    // -22707 ... 34061 simply overflows or underflows for every
+    // x that isn't zero or one. This whole range is representable
+    // as Float, so we can just use powf as long as we're a little
+    // bit (get it?) careful to preserve parity.
+    let clamped = min(max(n, -0x10000), 0x10000) | (n & 1)
+    return Float16(libm_powf(Float(x), Float(clamped)))
   }
   
   @_transparent
