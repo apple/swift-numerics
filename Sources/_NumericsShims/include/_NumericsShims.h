@@ -383,6 +383,10 @@ HEADER_SHIM long double libm_lgammal(long double x, int *signp) {
 #endif
 
 // MARK: - shims to import C complex operations for timing purposes
+#if !defined _WIN32
+// Clang doesn't have support for complex arithmetic on Windows, so
+// it doesn't make sense to benchmark against it (and these will
+// fail to link if used there).
 
 typedef struct { double real; double imag; } CComplex;
 
@@ -399,3 +403,5 @@ HEADER_SHIM CComplex libm_cmul(CComplex z, CComplex w) {
   double _Complex c = a*b;
   return (CComplex){ __real__ c, __imag__ c };
 }
+
+#endif
