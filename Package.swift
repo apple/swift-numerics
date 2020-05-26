@@ -20,6 +20,7 @@ let package = Package(
   products: [
     .library(name: "ComplexModule", targets: ["ComplexModule"]),
     .library(name: "Numerics", targets: ["Numerics"]),
+    .library(name: "QuaternionModule", targets: ["QuaternionModule"]),
     .library(name: "RealModule", targets: ["RealModule"]),
   ],
   
@@ -40,6 +41,12 @@ let package = Package(
     .target(
       name: "Numerics",
       dependencies: ["ComplexModule", "IntegerUtilities", "RealModule"],
+      exclude: excludedFilenames
+    ),
+    
+    .target(
+      name: "QuaternionModule",
+      dependencies: ["RealModule"],
       exclude: excludedFilenames
     ),
     
@@ -73,12 +80,18 @@ let package = Package(
     
     .testTarget(
       name: "IntegerUtilitiesTests",
-      dependencies: ["IntegerUtilities", "_TestSupport"],
+      dependencies: ["_TestSupport"],
       exclude: ["CMakeLists.txt"]
     ),
     
     .testTarget(
       name: "RealTests",
+      dependencies: ["_TestSupport"],
+      exclude: ["CMakeLists.txt"]
+    ),
+    
+    .testTarget(
+      name: "QuaternionTests",
       dependencies: ["_TestSupport"],
       exclude: ["CMakeLists.txt"]
     )
