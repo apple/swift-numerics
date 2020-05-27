@@ -158,16 +158,40 @@ extension Double: Real {
     // If n is exactly representable as Double, we can just call pow:
     // Note that all calls on a 32b platform go down this path.
     if let y = Double(exactly: n) { return libm_pow(x, y) }
-    // Otherwise, n is too large to losslessly represent as Double, so we
-    // just split it into two parts, high and low. This is always exact,
-    // so the only source of error is pow itself and the multiplication.
+    // n is not representable in Double, so we will split it into two parts,
+    // low and high, such that (high + low) = n, and use the identity:
     //
-    // mask constant is spelled in this funny way because if we just anded
-    // with the hex value, we'd get a compile error on 32b platforms, even
-    // though this whole branch is dead code on 32b.
-    let mask = Int(truncatingIfNeeded: 0x1f_ffff_ffff_ffff as UInt64)
-    let low = n & mask
-    let high = n - low
+    //   x**(high + low) = x**high * x**low.
+    //
+    // We put the high-order 32 bits into high, and the remaining 32 bits
+    // in low.
+    //
+    // The exact split isn't important; all we need is that both pieces get
+    // less than 53 bits (so that they are exact) and that they both have
+    // the same sign as n.
+    //
+    // This second point is a little bit subtle--why is
+    // it necessary? Consider what would happen if we took x = 2 and
+    // n = Int.min + Int(UInt32.max), and simply naively split n without
+    // taking care with the sign. We would end up computing:
+    //
+    //   2**n = 2**Int.min * 2**UInt32.max
+    //
+    // The first exponent is negative, the second positive, so the first term
+    // underflows to zero, and the second overflows to infinity, so the final
+    // result is NaN, when it should be zero. In order to avoid this
+    // situation, we make sure that high contains n rounded *towards zero*,
+    // rather than using simple two's-complement truncation (which rounds
+    // down).
+    let mask = Int(truncatingIfNeeded: UInt32.max)
+    let round = n < 0 ? mask : 0
+    // The addition and subtraction below cannot actually overflow (proof:
+    // round is positive if n is negative, and zero otherwise, so n + round
+    // is guaranteed to be representable, and n and high have the same sign,
+    // so n - high is also representable), but it's hard to tell the compiler
+    // that, so I'm using wrapping operations instead.
+    let high = (n &+ round) & ~mask
+    let low = n &- high
     return libm_pow(x, Double(low)) * libm_pow(x, Double(high))
   }
   
