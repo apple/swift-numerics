@@ -1,6 +1,7 @@
 # Quaternion
 
-This module provides a `Quaternion` type generic over an underlying `RealType`:
+This module provides a `Quaternion` type over an underlying `RealType`:
+
 ```swift
 1> import QuaternionModule
 2> let q = Quaternion(1, (1,1,1)) // q = 1 + i + j + k
