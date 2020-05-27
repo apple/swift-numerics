@@ -37,29 +37,33 @@ extension Quaternion: AdditiveArithmetic {
 // MARK: - Vector space structure
 //
 // See: https://github.com/apple/swift-numerics/issues/12
-// While the issue tackles Complex operations, this should be in sync with Quaternions
+// While the issue addresses complex operations, this applies to quaternions as well.
 extension Quaternion {
   @usableFromInline @_transparent
-  internal func multiplied(by scalar: Component) -> Quaternion {
+  internal func multiplied(by scalar: RealType) -> Quaternion {
     Quaternion(from: components * scalar)
   }
 
   @usableFromInline @_transparent
-  internal func divided(by scalar: Component) -> Quaternion {
+  internal func divided(by scalar: RealType) -> Quaternion {
     Quaternion(from: components / scalar)
   }
 }
 
 // MARK: - Multiplicative structure
 extension Quaternion: AlgebraicField {
-    
   @_transparent
   public static func * (lhs: Self, rhs: Self) -> Quaternion {
 
-    let a = (lhs.components * SIMD4(+rhs.components.w, +rhs.components.z, -rhs.components.y, +rhs.components.x)).sum()
-    let b = (lhs.components * SIMD4(+rhs.components.x, -rhs.components.y, -rhs.components.z, -rhs.components.w)).sum()
-    let c = (lhs.components * SIMD4(+rhs.components.y, +rhs.components.x, +rhs.components.w, -rhs.components.z)).sum()
-    let d = (lhs.components * SIMD4(+rhs.components.z, -rhs.components.w, +rhs.components.x, +rhs.components.y)).sum()
+    let rhsA = SIMD4(+rhs.components.w, +rhs.components.z, -rhs.components.y, +rhs.components.x)
+    let rhsB = SIMD4(+rhs.components.x, -rhs.components.y, -rhs.components.z, -rhs.components.w)
+    let rhsC = SIMD4(+rhs.components.y, +rhs.components.x, +rhs.components.w, -rhs.components.z)
+    let rhsD = SIMD4(+rhs.components.z, -rhs.components.w, +rhs.components.x, +rhs.components.y)
+
+    let a = (lhs.components * rhsA).sum()
+    let b = (lhs.components * rhsB).sum()
+    let c = (lhs.components * rhsC).sum()
+    let d = (lhs.components * rhsD).sum()
 
     return Quaternion(from: SIMD4(a,b,c,d))
   }
@@ -69,9 +73,9 @@ extension Quaternion: AlgebraicField {
     // Try the naive expression lhs/rhs = lhs*conj(rhs) / |rhs|^2; if we can compute
     // this without over/underflow, everything is fine and the result is
     // correct. If not, we have to rescale and do the computation carefully.
-    let lenSq = rhs.lengthSquared
-    guard lenSq.isNormal else { return rescaledDivide(lhs, rhs) }
-    return lhs * (rhs.conjugate.divided(by: lenSq))
+    let lengthSquared = rhs.lengthSquared
+    guard lengthSquared.isNormal else { return rescaledDivide(lhs, rhs) }
+    return lhs * (rhs.conjugate.divided(by: lengthSquared))
   }
 
   @_transparent
@@ -130,17 +134,6 @@ extension Quaternion: AlgebraicField {
       return nil
     }
     return divided(by: magnitude).normalized
-  }
-
-  /// The inverse of this quaternion.
-  /// 
-  /// If such a value cannot be produced, `nil` is returned.
-  @_transparent
-  public var inverse: Self? {
-    if lengthSquared.isNormal {
-      return conjugate.divided(by: lengthSquared)
-    }
-    return nil
   }
 
   /// The reciprocal of this value, if it can be computed without undue overflow or underflow.

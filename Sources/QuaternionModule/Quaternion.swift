@@ -11,12 +11,19 @@
 
 import RealModule
 
-/// A quaternion represented by a real and three imaginary parts.
+/// A quaternion represented by a real (or scalar) and three imaginary (or vector) parts.
 ///
-/// TODO: More informations on type
+/// TODO: introductory text on quaternions
 ///
 /// Implementation notes:
 /// -
+/// This type does not provide heterogeneous real/quaternion arithmetic,
+/// not even the natural vector-space operations like real * quaternion.
+/// There are two reasons for this choice: first, Swift broadly avoids
+/// mixed-type arithmetic when the operation can be adequately expressed
+/// by a conversion and homogeneous arithmetic. Second, with the current
+/// typechecker rules, it would lead to undesirable ambiguity in common
+/// expressions (see README.md for more details).
 ///
 /// `.magnitude` does not return the Euclidean norm; it uses the "infinity
 /// norm" (`max(|a|,|b|,|c|,|d|)`) instead. There are two reasons for this
@@ -29,22 +36,19 @@ public struct Quaternion<RealType> where RealType: Real & SIMDScalar {
 
   /// The components of the 4-dimensional vector space of the quaternion.
   ///
-  /// Components are stored within a 4-dimensional SIMD vector with the scalar component
+  /// Components are stored within a 4-dimensional SIMD vector with the scalar part
   /// first, i.e. representing the most common mathmatical representation that is:
   ///
   ///     a + bi + cj + dk
   @usableFromInline @inline(__always)
   internal var components: SIMD4<RealType>
 
-  /// Creates a new quaternion from given 4-dimensional vector.
+  /// A quaternion constructed from given 4-dimensional vector.
   ///
-  /// This initializer creates a new quaternion by reading the values of the vector as components
-  /// of the quaternion with the scalar component ordered first, i.e in the form of:
+  /// Creates a new quaternion by reading the values of the SIMD vector
+  /// as components of a quaternion with teh scalar part first, i.e. in the form of:
   ///
   ///     a + bi + cj + dk
-  ///
-  /// - Parameter components: The components of the 4-dimensionsal vector space of the quaternion,
-  /// scalar part first.
   @_transparent
   public init(from components: SIMD4<RealType>) {
     self.components = components
@@ -53,19 +57,23 @@ public struct Quaternion<RealType> where RealType: Real & SIMDScalar {
 
 // MARK: - Basic Property
 extension Quaternion {
-  /// The real part of this quaternion value.
+  /// The real part of this quaternion.
+  ///
+  /// If `q` is not finite, `q.real` is `.nan`.
   public var real: RealType {
     @_transparent
-    _read { yield components[0] }
+    get { isFinite ? components[0] : .nan }
 
     @_transparent
-    _modify { yield &components[0] }
+    set { components[0] = newValue }
   }
 
-  /// The imaginary part of this quaternion value.
+  /// The imaginary part of this quaternion.
+  ///
+  /// If `q` is not finite, `q.imaginary` is `.nan` in all lanes.
   public var imaginary: SIMD3<RealType> {
     @_transparent
-    get { components[SIMD3(1,2,3)] }
+    get { isFinite ? components[SIMD3(1,2,3)] : SIMD3(repeating: .nan) }
 
     @_transparent
     set {
@@ -84,7 +92,7 @@ extension Quaternion {
   /// - .infinity
   @_transparent
   public static var zero: Quaternion {
-    .init(0)
+    Quaternion(from: SIMD4(repeating: 0))
   }
 
   /// The multiplicative identity, with real part one and imaginary parts all zero.
@@ -96,7 +104,7 @@ extension Quaternion {
   /// - .infinity
   @_transparent
   public static var one: Quaternion {
-    .init(1)
+    Quaternion(from: SIMD4(1,0,0,0))
   }
 
   /// The imaginary unit.
@@ -108,7 +116,7 @@ extension Quaternion {
   /// - .infinity
   @_transparent
   public static var i: Quaternion {
-    .init(imaginary: SIMD3(repeating: 1))
+    Quaternion(imaginary: SIMD3(repeating: 1))
   }
 
   /// The point at infinity.
@@ -120,18 +128,18 @@ extension Quaternion {
   /// - .i
   @_transparent
   public static var infinity: Quaternion {
-    .init(.infinity)
+    Quaternion(.infinity)
   }
 
-  /// The conjugate of this quaternion value.
+  /// The conjugate of this quaternion.
   @_transparent
   public var conjugate: Quaternion {
-    .init(from: components.replacing(with: -components, where: [false, true, true, true]))
+    Quaternion(from: components.replacing(with: -components, where: [false, true, true, true]))
   }
 
   /// True if this value is finite.
   ///
-  /// A quaternion value is finite if neither component is infinity or nan.
+  /// A quaternion is finite if neither component is an infinity or nan.
   ///
   /// See also:
   /// -
@@ -207,16 +215,16 @@ extension Quaternion {
     real.isZero
   }
 
-  /// The ∞-norm of the value (`max(abs(real), abs(imaginary))`).
+  /// The ∞-norm of the value (`max(abs(a), abs(b), abs(c), abs(d))`).
   ///
   /// If you need the Euclidean norm (a.k.a. 2-norm) use the `length` or `lengthSquared`
   /// properties instead.
   ///
   /// Edge cases:
   /// -
-  /// - If `z` is not finite, `z.magnitude` is `.infinity`.
-  /// - If `z` is zero, `z.magnitude` is `0`.
-  /// - Otherwise, `z.magnitude` is finite and non-zero.
+  /// - If `q` is not finite, `q.magnitude` is `.infinity`.
+  /// - If `q` is zero, `q.magnitude` is `0`.
+  /// - Otherwise, `q.magnitude` is finite and non-zero.
   ///
   /// See also:
   /// -
@@ -307,24 +315,23 @@ extension Quaternion where RealType: BinaryFloatingPoint {
   @inlinable
   public init?<Other: BinaryFloatingPoint>(exactly other: Quaternion<Other>) {
     guard
-        let x = RealType(exactly: other.components.x),
-        let y = RealType(exactly: other.components.y),
-        let z = RealType(exactly: other.components.z),
-        let w = RealType(exactly: other.components.w)
+        let a = RealType(exactly: other.components.x),
+        let b = RealType(exactly: other.components.y),
+        let c = RealType(exactly: other.components.z),
+        let d = RealType(exactly: other.components.w)
     else { return nil }
-    self.init(from: SIMD4(x, y, z, w))
+    self.init(from: SIMD4(a, b, c, d))
   }
 }
 
 // MARK: - Conformance to Hashable and Equatable
 extension Quaternion: Hashable {
-
   @_transparent
   public static func == (lhs: Quaternion, rhs: Quaternion) -> Bool {
     // Identify all numbers with either component non-finite as a single "point at infinity".
     guard lhs.isFinite || rhs.isFinite else { return true }
     // For finite numbers, equality is defined componentwise. Cases where
-    // only one of a or b is infinite fall through to here as well, but this
+    // only one of lhs or rhs is infinite fall through to here as well, but this
     // expression correctly returns false for them so we don't need to handle
     // them explicitly.
     return lhs.components == rhs.components
@@ -339,10 +346,7 @@ extension Quaternion: Hashable {
     // the hash behavior of floating-point, but we need to use a
     // representative member for any non-finite values.
     if isFinite {
-      hasher.combine(components.x)
-      hasher.combine(components.y)
-      hasher.combine(components.z)
-      hasher.combine(components.w)
+      components.hash(into: &hasher)
     } else {
       hasher.combine(RealType.infinity)
     }
@@ -367,21 +371,27 @@ extension Quaternion: Encodable where RealType: Encodable {
 // MARK: - Formatting
 extension Quaternion: CustomStringConvertible {
   public var description: String {
-    guard isFinite else { return "inf" }
+    guard isFinite else {
+        return "inf"
+    }
     return "(\(components.x), \(components.y), \(components.z), \(components.w))"
   }
 }
 
 extension Quaternion: CustomDebugStringConvertible {
   public var debugDescription: String {
-    "Quaternion<\(RealType.self)>\(description)"
+    let a = String(reflecting: components.x)
+    let b = String(reflecting: components.y)
+    let c = String(reflecting: components.z)
+    let d = String(reflecting: components.w)
+    return "Quaternion<\(RealType.self)>(\(a), \(b), \(c), \(d))"
   }
 }
 
 // MARK: - Operations for working with polar form
 extension Quaternion {
 
-  /// The Euclidean norm (a.k.a. 2-norm, `sqrt(lengthSquared)`).
+  /// The Euclidean norm (a.k.a. 2-norm, `sqrt(a*a + b*b + c*c + d*d)`).
   ///
   /// Note that it *is* possible for this property to overflow,
   /// because `lengthSquared` is highly prone to overflow or underflow.
@@ -392,21 +402,18 @@ extension Quaternion {
   ///
   /// Edge cases:
   /// -
-  /// If a complex value is not finite, its `.length` is `infinity`.
+  /// If a quaternion is not finite, its `.length` is `infinity`.
   ///
   /// See also:
   /// -
   /// - `.magnitude`
   /// - `.lengthSquared`
-  /// - `.phase`
-  /// - `.polar`
-  /// - `init(r:θ:)`
   @_transparent
   public var length: RealType {
     return .sqrt(lengthSquared)
   }
 
-  /// The squared length `(real*real + (imaginary*imaginary).sum())`.
+  /// The squared length `(a*a + b*b + c*c + d*d)`.
   ///
   /// This property is more efficient to compute than `length`.
   ///
@@ -422,78 +429,4 @@ extension Quaternion {
   public var lengthSquared: RealType {
     (components * components).sum()
   }
-
-  // MARK: - TODO: .altitude, .azimuth, .polar & .init(length:altitude:azimuth:) -
-
-  /// The altitude (angle).
-  ///
-  /// Edge cases:
-  /// -
-  /// If the quaternion is zero or non-finite, phase is `nan`.
-  ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.polar`
-  /// - `init(length:altitude:azimuth:)`
-//  @inlinable
-//  public var altitude: RealType
-
-  /// The azimuth (angle).
-  ///
-  /// Edge cases:
-  /// -
-  /// If the quaternion is zero or non-finite, phase is `nan`.
-  ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.polar`
-  /// - `init(length:altitude:azimuth:)`
-//  @inlinable
-//  public var azimuth: RealType
-
-  /// The length, altitude and azimuth (or polar coordinates) of this value.
-  ///
-  /// Edge cases:
-  /// -
-  /// If the quaternion is zero or non-finite, phase is `.nan`.
-  /// If the quaternion is non-finite, length is `.infinity`.
-  ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.altitude`
-  /// - `.azimuth`
-  /// - `init(length:altitude:azimuth:)`
-//  public var polar: (length: RealType, altitude: RealType, azimuth: RealType) {
-//    (length, altitude, azimuth)
-//  }
-
-  /// Creates a complex value specified with polar coordinates.
-  ///
-  /// Edge cases:
-  /// -
-  /// - Negative lengths are interpreted as reflecting the point through the origin, i.e.:
-  ///   ```
-  ///   Complex(length: -r, phase: θ) == -Complex(length: r, phase: θ)
-  ///   ```
-  /// - For any `θ`, even `.infinity` or `.nan`:
-  ///   ```
-  ///   Complex(length: .zero, phase: θ) == .zero
-  ///   ```
-  /// - For any `θ`, even `.infinity` or `.nan`, if `r` is infinite then:
-  ///   ```
-  ///   Complex(length: r, phase: θ) == .infinity
-  ///   ```
-  /// - Otherwise, `θ` must be finite, or a precondition failure occurs.
-  ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.altitude`
-  /// - `.azimuth`
-  /// - `.polar`
-//  @inlinable
-//  public init(length: RealType, altitude: RealType, azimuth: RealType)
 }
