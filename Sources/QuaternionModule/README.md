@@ -21,7 +21,7 @@ However, in practice there are good reasons to use something else instead:
 
 - The 2-norm requires special care to avoid spurious overflow/underflow, but the naive expressions for the 1-norm ("taxicab norm") or ∞-norm ("sup norm") are always correct.
 - Even when care is used, near the overflow boundary the 2-norm and the 1-norm are not representable.
-  As an example, consider `q = Quaternion(big, big, big, big)`, where `big` is `Double.greatestFiniteMagnitude`. The 1-norm and 2-norm of `q` both overflow (the 1-norm would be `4*big`, and the 2-norm would be `sqrt(4)*big`, neither of which are representable as `Double`), but the ∞-norm is always equal to either `real`, `i`, `j` or `k`, so it is guaranteed to be representable.
+  As an example, consider `q = Quaternion(big, (big, big, big))`, where `big` is `Double.greatestFiniteMagnitude`. The 1-norm and 2-norm of `q` both overflow (the 1-norm would be `4*big`, and the 2-norm would be `sqrt(4)*big`, neither of which are representable as `Double`), but the ∞-norm is always equal to either `real`, `i`, `j` or `k`, so it is guaranteed to be representable.
 Because of this, the ∞-norm is the obvious alternative; it gives the nicest API surface.
 - If we consider the magnitude of more exotic types, like operators, the 1-norm and ∞-norm are significantly easier to compute than the 2-norm (O(n) vs. "no closed form expression, but O(n^3) iterative methods"), so it is nice to establish a precedent of `.magnitude` binding one of these cheaper-to-compute norms.
 - The ∞-norm is heavily used in other computational libraries; for example, it is used by the `izamax` and `icamax` functions in BLAS.
