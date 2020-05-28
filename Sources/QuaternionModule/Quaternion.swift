@@ -214,27 +214,6 @@ extension Quaternion {
   public var isPure: Bool {
     real.isZero
   }
-
-  /// The ∞-norm of the value (`max(abs(a), abs(b), abs(c), abs(d))`).
-  ///
-  /// If you need the Euclidean norm (a.k.a. 2-norm) use the `length` or `lengthSquared`
-  /// properties instead.
-  ///
-  /// Edge cases:
-  /// -
-  /// - If `q` is not finite, `q.magnitude` is `.infinity`.
-  /// - If `q` is zero, `q.magnitude` is `0`.
-  /// - Otherwise, `q.magnitude` is finite and non-zero.
-  ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.lengthSquared`
-  @_transparent
-  public var magnitude: RealType {
-    guard isFinite else { return .infinity }
-    return max(abs(components.max()), abs(components.min()))
-  }
 }
 
 // MARK: - Additional Initializers
@@ -384,49 +363,5 @@ extension Quaternion: CustomDebugStringConvertible {
     let c = String(reflecting: components.z)
     let d = String(reflecting: components.w)
     return "Quaternion<\(RealType.self)>(\(a), \(b), \(c), \(d))"
-  }
-}
-
-// MARK: - Operations for working with polar form
-extension Quaternion {
-
-  /// The Euclidean norm (a.k.a. 2-norm, `sqrt(a*a + b*b + c*c + d*d)`).
-  ///
-  /// Note that it *is* possible for this property to overflow,
-  /// because `lengthSquared` is highly prone to overflow or underflow.
-  ///
-  /// For most use cases, you can use the cheaper `.magnitude`
-  /// property (which computes the ∞-norm) instead, which always produces
-  /// a representable result.
-  ///
-  /// Edge cases:
-  /// -
-  /// If a quaternion is not finite, its `.length` is `infinity`.
-  ///
-  /// See also:
-  /// -
-  /// - `.magnitude`
-  /// - `.lengthSquared`
-  @_transparent
-  public var length: RealType {
-    guard isFinite else { return .infinity }
-    return .sqrt(lengthSquared)
-  }
-
-  /// The squared length `(a*a + b*b + c*c + d*d)`.
-  ///
-  /// This property is more efficient to compute than `length`.
-  ///
-  /// This value is highly prone to overflow or underflow.
-  /// For many cases, `.magnitude` can be used instead, which is similarly
-  /// cheap to compute and always returns a representable value.
-  ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.magnitude`
-  @_transparent
-  public var lengthSquared: RealType {
-    (components * components).sum()
   }
 }
