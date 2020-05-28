@@ -357,8 +357,7 @@ extension Quaternion: Hashable {
 // FloatingPoint does not refine Codable, so this is a conditional conformance.
 extension Quaternion: Decodable where RealType: Decodable {
   public init(from decoder: Decoder) throws {
-    var unkeyedContainer = try decoder.unkeyedContainer()
-    self.init(from: try unkeyedContainer.decode(SIMD4<RealType>.self))
+    try self.init(from: SIMD4(from: decoder))
   }
 }
 
@@ -410,6 +409,7 @@ extension Quaternion {
   /// - `.lengthSquared`
   @_transparent
   public var length: RealType {
+    guard isFinite else { return .infinity }
     return .sqrt(lengthSquared)
   }
 
