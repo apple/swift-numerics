@@ -1,6 +1,6 @@
 # Quaternion
 
-This module provides a `Quaternion` type over an underlying `RealType`:
+This module provides a `Quaternion` type generic over an underlying `RealType`:
 
 ```swift
 1> import QuaternionModule
