@@ -49,8 +49,8 @@ public struct Quaternion<RealType> where RealType: Real & SIMDScalar {
   /// as components of a quaternion with teh scalar part first, i.e. in the form of:
   ///
   ///     a + bi + cj + dk
-  @_transparent
-  public init(from components: SIMD4<RealType>) {
+  @usableFromInline @inline(__always)
+  internal init(from components: SIMD4<RealType>) {
     self.components = components
   }
 }
@@ -83,7 +83,7 @@ extension Quaternion {
     }
   }
 
-  /// The additive identity, with real and imaginary parts all zero.
+  /// The additive identity, with real and *all* imaginary parts zero.
   ///
   /// See also:
   /// -
@@ -95,7 +95,7 @@ extension Quaternion {
     Quaternion(from: SIMD4(repeating: 0))
   }
 
-  /// The multiplicative identity, with real part one and imaginary parts all zero.
+  /// The multiplicative identity, with real part one and *all* imaginary parts zero.
   ///
   /// See also:
   /// -
@@ -149,7 +149,7 @@ extension Quaternion {
   /// - `.isPure`
   @_transparent
   public var isFinite: Bool {
-    components.x.isFinite
+    return components.x.isFinite
         && components.y.isFinite
         && components.z.isFinite
         && components.w.isFinite
@@ -157,9 +157,9 @@ extension Quaternion {
 
   /// True if this value is normal.
   ///
-  /// A quaternion is normal if it is finite and *either* the real or imaginary component is normal.
-  /// A floating-point number representing one of the components is normal if its exponent allows a
-  /// full-precision representation.
+  /// A quaternion is normal if it is finite and *either* the real or *all* of the imaginary
+  /// components are normal. A floating-point number representing one of the components is normal
+  /// if its exponent allows a full-precision representation.
   ///
   /// See also:
   /// -
@@ -169,9 +169,9 @@ extension Quaternion {
   /// - `.isPure`
   @_transparent
   public var isNormal: Bool {
-    isFinite && (
-        real.isNormal || (imaginary.x.isNormal && imaginary.y.isNormal && imaginary.z.isNormal)
-    )
+    let realIsNormal = components.x.isNormal
+    let imaginaryIsNormal = components.y.isNormal && components.z.isNormal && components.w.isNormal
+    return isFinite && (realIsNormal || imaginaryIsNormal)
   }
 
   /// True if this value is subnormal.
@@ -193,7 +193,7 @@ extension Quaternion {
 
   /// True if this value is zero.
   ///
-  /// A quaternion is zero if *both* the real and imaginary components are zero.
+  /// A quaternion is zero if the real and *all* imaginary components are zero.
   ///
   /// See also:
   /// -
