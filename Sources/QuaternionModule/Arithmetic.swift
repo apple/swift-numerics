@@ -55,10 +55,10 @@ extension Quaternion: AlgebraicField {
   @_transparent
   public static func * (lhs: Self, rhs: Self) -> Quaternion {
 
-    let rhsA = SIMD4(+rhs.components.w, +rhs.components.z, -rhs.components.y, +rhs.components.x)
-    let rhsB = SIMD4(+rhs.components.x, -rhs.components.y, -rhs.components.z, -rhs.components.w)
-    let rhsC = SIMD4(+rhs.components.y, +rhs.components.x, +rhs.components.w, -rhs.components.z)
-    let rhsD = SIMD4(+rhs.components.z, -rhs.components.w, +rhs.components.x, +rhs.components.y)
+    let rhsA = SIMD4(+rhs.components.x, -rhs.components.y, -rhs.components.z, -rhs.components.w)
+    let rhsB = SIMD4(+rhs.components.y, +rhs.components.x, +rhs.components.w, -rhs.components.z)
+    let rhsC = SIMD4(+rhs.components.z, -rhs.components.w, +rhs.components.x, +rhs.components.y)
+    let rhsD = SIMD4(+rhs.components.w, +rhs.components.z, -rhs.components.y, +rhs.components.x)
 
     let a = (lhs.components * rhsA).sum()
     let b = (lhs.components * rhsB).sum()
