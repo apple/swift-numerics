@@ -89,6 +89,7 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 
 1. [`RealModule`](Sources/RealModule/README.md)
 2. [`ComplexModule`](Sources/ComplexModule/README.md)
+3. [`QuaternionModule`](Sources/QuaternionModule/README.md)
 
 ## Future expansion
 
