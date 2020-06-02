@@ -16,7 +16,7 @@ import RealModule
 
 final class ArithmeticTests: XCTestCase {
 
-  func testMultiplication<T: Real & ExpressibleByFloatLiteral & SIMDScalar>(_ type: T.Type) {
+  func testMultiplication<T: Real & SIMDScalar>(_ type: T.Type) {
     for value: T in [-3, -2, -1, +1, +2, +3] {
       let q = Quaternion<T>(value, (value, value, value))
       XCTAssertEqual(q * .one, q)
@@ -30,18 +30,18 @@ final class ArithmeticTests: XCTestCase {
     testMultiplication(Float64.self)
   }
 
-  func testDivision<T: Real & ExpressibleByFloatLiteral & SIMDScalar>(_ type: T.Type) {
+  func testDivision<T: Real & SIMDScalar>(_ type: T.Type) {
     for value: T in [-3, -2, -1, +1, +2, +3] {
       let q = Quaternion(value, (value, value, value))
       XCTAssertEqual(q/q, .one)
       XCTAssertEqual(0/q, .zero)
 
-      for s: Quaternion<T> in [-3, -2, -1, 0, +1, +2, +3] {
-        XCTAssertEqual(s/q, s * q.reciprocal!)
+      for q2: Quaternion<T> in [-3, -2, -1, 0, +1, +2, +3] {
+        XCTAssertEqual(q2/q, q2 * q.reciprocal!)
       }
 
-      for s: T in [-3, -2, -1, +1, +2, +3] {
-        XCTAssertEqual(q.divided(by: s), q.multiplied(by: 1.0/s))
+      for q2: T in [-3, -2, -1, +1, +2, +3] {
+        XCTAssertEqual(q.divided(by: q2), q.multiplied(by: 1.0/q2))
       }
     }
   }
