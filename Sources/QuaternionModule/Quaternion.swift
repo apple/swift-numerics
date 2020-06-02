@@ -11,7 +11,7 @@
 
 import RealModule
 
-/// A quaternion represented by a real (or scalar) and three imaginary (or vector) parts.
+/// A quaternion represented by a real (or scalar) part and three imaginary (or vector) parts.
 ///
 /// TODO: introductory text on quaternions
 ///
