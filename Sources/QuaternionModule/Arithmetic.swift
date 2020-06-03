@@ -53,7 +53,7 @@ extension Quaternion {
 // MARK: - Multiplicative structure
 extension Quaternion: AlgebraicField {
   @_transparent
-  public static func * (lhs: Self, rhs: Self) -> Quaternion {
+  public static func * (lhs: Quaternion, rhs: Quaternion) -> Quaternion {
 
     let rhsA = SIMD4(+rhs.components.x, -rhs.components.y, -rhs.components.z, -rhs.components.w)
     let rhsB = SIMD4(+rhs.components.y, +rhs.components.x, +rhs.components.w, -rhs.components.z)
