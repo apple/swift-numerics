@@ -77,9 +77,7 @@ extension Quaternion {
 
     @_transparent
     set {
-        components[1] = newValue[0]
-        components[2] = newValue[1]
-        components[3] = newValue[2]
+      components = SIMD4(components[0], newValue.x, newValue.y, newValue.z)
     }
   }
 
