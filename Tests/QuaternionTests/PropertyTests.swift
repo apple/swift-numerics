@@ -124,7 +124,6 @@ final class PropertyTests: XCTestCase {
 
     for expected: Quaternion<T> in [.zero, .one, .i, .infinity] {
       let data = try encoder.encode(expected)
-//      print("*** \(String(decoding: data, as: Unicode.UTF8.self)) ***")
       let actual = try decoder.decode(Quaternion<T>.self, from: data)
       XCTAssertEqual(actual, expected)
     }
