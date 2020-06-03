@@ -43,10 +43,10 @@ public struct Quaternion<RealType> where RealType: Real & SIMDScalar {
   @usableFromInline @inline(__always)
   internal var components: SIMD4<RealType>
 
-  /// A quaternion constructed from given 4-dimensional vector.
+  /// A quaternion constructed from given 4-dimensional SIMD vector.
   ///
   /// Creates a new quaternion by reading the values of the SIMD vector
-  /// as components of a quaternion with teh scalar part first, i.e. in the form of:
+  /// as components of a quaternion with the scalar part first, i.e. in the form of:
   ///
   ///     a + bi + cj + dk
   @usableFromInline @inline(__always)
