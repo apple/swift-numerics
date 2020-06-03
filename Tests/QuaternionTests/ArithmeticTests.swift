@@ -32,7 +32,7 @@ final class ArithmeticTests: XCTestCase {
 
   func testDivision<T: Real & SIMDScalar>(_ type: T.Type) {
     for value: T in [-3, -2, -1, +1, +2, +3] {
-      let q = Quaternion(value, (value, value, value))
+      let q = Quaternion<T>(value, (value, value, value))
       XCTAssertEqual(q/q, .one)
       XCTAssertEqual(0/q, .zero)
 
@@ -41,7 +41,7 @@ final class ArithmeticTests: XCTestCase {
       }
 
       for q2: T in [-3, -2, -1, +1, +2, +3] {
-        XCTAssertEqual(q.divided(by: q2), q.multiplied(by: 1.0/q2))
+        XCTAssertEqual(q.divided(by: q2), q.multiplied(by: 1/q2))
       }
     }
   }
