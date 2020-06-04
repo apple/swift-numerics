@@ -60,7 +60,7 @@ Because of this, the ∞-norm is the obvious alternative; it gives the nicest AP
 - The ∞-norm is heavily used in other computational libraries; for example, it is used by the `izamax` and `icamax` functions in BLAS.
 
 The 2-norm still needs to be available, of course, because sometimes you need it.
-This functionality is accessed via the `.length` and `.unsafeLengthSquared` properties.
+This functionality is accessed via the `.length` and `.lengthSquared` properties.
 
 ### Accuracy of division and multiplication
 This library attempts to provide robust division and multiplication operations, with small relative error in a complex norm. It is a non-goal to deliver small componentwise errors.
