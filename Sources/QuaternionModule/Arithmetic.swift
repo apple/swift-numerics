@@ -55,17 +55,17 @@ extension Quaternion: AlgebraicField {
   @_transparent
   public static func * (lhs: Quaternion, rhs: Quaternion) -> Quaternion {
 
-    let rhsA = SIMD4(+rhs.components.x, -rhs.components.y, -rhs.components.z, -rhs.components.w)
-    let rhsB = SIMD4(+rhs.components.y, +rhs.components.x, +rhs.components.w, -rhs.components.z)
-    let rhsC = SIMD4(+rhs.components.z, -rhs.components.w, +rhs.components.x, +rhs.components.y)
-    let rhsD = SIMD4(+rhs.components.w, +rhs.components.z, -rhs.components.y, +rhs.components.x)
+    let rhsX = SIMD4(+rhs.components.w, +rhs.components.z, -rhs.components.y, +rhs.components.x)
+    let rhsY = SIMD4(-rhs.components.z, +rhs.components.w, +rhs.components.x, +rhs.components.y)
+    let rhsZ = SIMD4(+rhs.components.y, -rhs.components.x, +rhs.components.w, +rhs.components.z)
+    let rhsR = SIMD4(-rhs.components.x, -rhs.components.y, -rhs.components.z, +rhs.components.w)
 
-    let a = (lhs.components * rhsA).sum()
-    let b = (lhs.components * rhsB).sum()
-    let c = (lhs.components * rhsC).sum()
-    let d = (lhs.components * rhsD).sum()
+    let x = (lhs.components * rhsX).sum()
+    let y = (lhs.components * rhsY).sum()
+    let z = (lhs.components * rhsZ).sum()
+    let r = (lhs.components * rhsR).sum()
 
-    return Quaternion(from: SIMD4(a,b,c,d))
+    return Quaternion(from: SIMD4(x,y,z,r))
   }
 
   @_transparent
