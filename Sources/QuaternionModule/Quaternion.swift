@@ -204,10 +204,7 @@ extension Quaternion {
   /// - `.isPure`
   @_transparent
   public var isZero: Bool {
-    return components.x.isZero
-        && components.y.isZero
-        && components.z.isZero
-        && components.w.isZero
+    components == .zero
   }
 
   /// True if this value is only defined by the imaginary part (`real == .zero`)
