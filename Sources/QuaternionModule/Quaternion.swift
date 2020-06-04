@@ -155,8 +155,8 @@ extension Quaternion {
 
   /// True if this value is normal.
   ///
-  /// A quaternion is normal if it is finite and *either* the real or *all* of the imaginary
-  /// components are normal. A floating-point number representing one of the components is normal
+  /// A quaternion is normal if it is finite and *any* of its real or imaginary components
+  /// are normal. A floating-point number representing one of the components is normal
   /// if its exponent allows a full-precision representation.
   ///
   /// See also:
@@ -167,9 +167,12 @@ extension Quaternion {
   /// - `.isPure`
   @_transparent
   public var isNormal: Bool {
-    let realIsNormal = components.x.isNormal
-    let imaginaryIsNormal = components.y.isNormal && components.z.isNormal && components.w.isNormal
-    return isFinite && (realIsNormal || imaginaryIsNormal)
+    return isFinite && (
+      components.x.isNormal ||
+      components.y.isNormal ||
+      components.z.isNormal ||
+      components.w.isNormal
+    )
   }
 
   /// True if this value is subnormal.
