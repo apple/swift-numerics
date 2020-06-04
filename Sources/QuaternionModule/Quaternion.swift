@@ -26,7 +26,7 @@ import RealModule
 /// expressions (see README.md for more details).
 ///
 /// `.magnitude` does not return the Euclidean norm; it uses the "infinity
-/// norm" (`max(|a|,|b|,|c|,|d|)`) instead. There are two reasons for this
+/// norm" (`max(|r|,|x|,|y|,|z|)`) instead. There are two reasons for this
 /// choice: first, it's simply faster to compute on most hardware. Second,
 /// there exist values for which the Euclidean norm cannot be represented.
 /// Using the infinity norm avoids this problem entirely without significant
@@ -36,19 +36,19 @@ public struct Quaternion<RealType> where RealType: Real & SIMDScalar {
 
   /// The components of the 4-dimensional vector space of the quaternion.
   ///
-  /// Components are stored within a 4-dimensional SIMD vector with the scalar part
-  /// first, i.e. representing the most common mathmatical representation that is:
+  /// Components are stored within a 4-dimensional SIMD vector with the
+  /// scalar part last, i.e. in the form of:
   ///
-  ///     a + bi + cj + dk
+  ///     xi + yj + zk + r // SIMD(x,y,z,r)
   @usableFromInline @inline(__always)
   internal var components: SIMD4<RealType>
 
   /// A quaternion constructed from given 4-dimensional SIMD vector.
   ///
   /// Creates a new quaternion by reading the values of the SIMD vector
-  /// as components of a quaternion with the scalar part first, i.e. in the form of:
+  /// as components of a quaternion with the scalar part last, i.e. in the form of:
   ///
-  ///     a + bi + cj + dk
+  ///     xi + yj + zk + r // SIMD(x,y,z,r)
   @usableFromInline @inline(__always)
   internal init(from components: SIMD4<RealType>) {
     self.components = components
@@ -62,10 +62,10 @@ extension Quaternion {
   /// If `q` is not finite, `q.real` is `.nan`.
   public var real: RealType {
     @_transparent
-    get { isFinite ? components[0] : .nan }
+    get { isFinite ? components[3] : .nan }
 
     @_transparent
-    set { components[0] = newValue }
+    set { components[3] = newValue }
   }
 
   /// The imaginary part of this quaternion.
@@ -73,11 +73,11 @@ extension Quaternion {
   /// If `q` is not finite, `q.imaginary` is `.nan` in all lanes.
   public var imaginary: SIMD3<RealType> {
     @_transparent
-    get { isFinite ? components[SIMD3(1,2,3)] : SIMD3(repeating: .nan) }
+    get { isFinite ? components[SIMD3(0,1,2)] : SIMD3(repeating: .nan) }
 
     @_transparent
     set {
-      components = SIMD4(components[0], newValue.x, newValue.y, newValue.z)
+      components = SIMD4(newValue, components[3])
     }
   }
 
@@ -102,7 +102,7 @@ extension Quaternion {
   /// - .infinity
   @_transparent
   public static var one: Quaternion {
-    Quaternion(from: SIMD4(1,0,0,0))
+    Quaternion(from: SIMD4(0,0,0,1))
   }
 
   /// The imaginary unit.
@@ -132,7 +132,7 @@ extension Quaternion {
   /// The conjugate of this quaternion.
   @_transparent
   public var conjugate: Quaternion {
-    Quaternion(from: components.replacing(with: -components, where: [false, true, true, true]))
+    Quaternion(from: components.replacing(with: -components, where: [true, true, true, false]))
   }
 
   /// True if this value is finite.
@@ -236,20 +236,20 @@ extension Quaternion {
   ///
   /// Equivalent to `Quaternion(0, imaginary)`.
   @inlinable
-  public init(imaginary: (b: RealType, c: RealType, d: RealType)) {
-    self.init(imaginary: SIMD3(imaginary.b, imaginary.c, imaginary.d))
+  public init(imaginary: (x: RealType, y: RealType, z: RealType)) {
+    self.init(imaginary: SIMD3(imaginary.x, imaginary.y, imaginary.z))
   }
 
   /// The quaternion with specified real part and imaginary parts.
   @inlinable
   public init(_ real: RealType, _ imaginary: SIMD3<RealType>) {
-    self.init(from: SIMD4(real, imaginary.x, imaginary.y, imaginary.z))
+    self.init(from: SIMD4(imaginary.x, imaginary.y, imaginary.z, real))
   }
 
   /// The quaternion with specified real part and imaginary parts.
   @inlinable
-  public init(_ real: RealType, _ imaginary: (b: RealType, c: RealType, d: RealType)) {
-    self.init(real, SIMD3(imaginary.b, imaginary.c, imaginary.d))
+  public init(_ real: RealType, _ imaginary: (x: RealType, y: RealType, z: RealType)) {
+    self.init(real, SIMD3(imaginary.x, imaginary.y, imaginary.z))
   }
 
   /// The quaternion with specified real part and zero imaginary part.
@@ -292,12 +292,12 @@ extension Quaternion where RealType: BinaryFloatingPoint {
   @inlinable
   public init?<Other: BinaryFloatingPoint>(exactly other: Quaternion<Other>) {
     guard
-        let a = RealType(exactly: other.components.x),
-        let b = RealType(exactly: other.components.y),
-        let c = RealType(exactly: other.components.z),
-        let d = RealType(exactly: other.components.w)
+        let x = RealType(exactly: other.components.x),
+        let y = RealType(exactly: other.components.y),
+        let z = RealType(exactly: other.components.z),
+        let r = RealType(exactly: other.components.w)
     else { return nil }
-    self.init(from: SIMD4(a, b, c, d))
+    self.init(from: SIMD4(x, y, z, r))
   }
 }
 
@@ -350,16 +350,16 @@ extension Quaternion: CustomStringConvertible {
     guard isFinite else {
         return "inf"
     }
-    return "(\(components.x), \(components.y), \(components.z), \(components.w))"
+    return "(\(components.w), \(components.x), \(components.y), \(components.z))"
   }
 }
 
 extension Quaternion: CustomDebugStringConvertible {
   public var debugDescription: String {
-    let a = String(reflecting: components.x)
-    let b = String(reflecting: components.y)
-    let c = String(reflecting: components.z)
-    let d = String(reflecting: components.w)
-    return "Quaternion<\(RealType.self)>(\(a), \(b), \(c), \(d))"
+    let x = String(reflecting: components.x)
+    let y = String(reflecting: components.y)
+    let z = String(reflecting: components.z)
+    let r = String(reflecting: components.w)
+    return "Quaternion<\(RealType.self)>(\(r), \(x), \(y), \(z))"
   }
 }
