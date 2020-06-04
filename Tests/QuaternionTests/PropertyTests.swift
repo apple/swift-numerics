@@ -22,18 +22,18 @@ final class PropertyTests: XCTestCase {
     XCTAssertTrue(Quaternion<T>.infinity.imaginary.x.isNaN)
     XCTAssertTrue(Quaternion<T>.infinity.imaginary.y.isNaN)
     XCTAssertTrue(Quaternion<T>.infinity.imaginary.z.isNaN)
-    XCTAssertTrue(Quaternion<T>(.infinity, (.nan, .nan, .nan)).real.isNaN)
-    XCTAssertTrue(Quaternion<T>(.nan, (0, 0, 0)).imaginary.x.isNaN)
-    XCTAssertTrue(Quaternion<T>(.nan, (0, 0, 0)).imaginary.y.isNaN)
-    XCTAssertTrue(Quaternion<T>(.nan, (0, 0, 0)).imaginary.z.isNaN)
+    XCTAssertTrue(Quaternion<T>(real: .infinity, imaginary: .nan, .nan, .nan).real.isNaN)
+    XCTAssertTrue(Quaternion<T>(real: .nan, imaginary: 0, 0, 0).imaginary.x.isNaN)
+    XCTAssertTrue(Quaternion<T>(real: .nan, imaginary: 0, 0, 0).imaginary.y.isNaN)
+    XCTAssertTrue(Quaternion<T>(real: .nan, imaginary: 0, 0, 0).imaginary.z.isNaN)
     // The length of a non-finite value should be infinity.
     XCTAssertEqual(Quaternion<T>.infinity.length, .infinity)
-    XCTAssertEqual(Quaternion<T>(.infinity, (.nan, .nan, .nan)).length, .infinity)
-    XCTAssertEqual(Quaternion<T>(.nan, (0, 0, 0)).length, .infinity)
+    XCTAssertEqual(Quaternion<T>(real: .infinity, imaginary: .nan, .nan, .nan).length, .infinity)
+    XCTAssertEqual(Quaternion<T>(real: .nan, imaginary: 0, 0, 0).length, .infinity)
     // The length of a zero value should be zero.
     XCTAssertEqual(Quaternion<T>.zero.length, .zero)
     XCTAssertEqual(Quaternion<T>(.zero, -.zero).length, .zero)
-    XCTAssertEqual(Quaternion<T>(-.zero,-.zero).length, .zero)
+    XCTAssertEqual(Quaternion<T>(-.zero, -.zero).length, .zero)
   }
 
   func testProperties() {
@@ -45,56 +45,56 @@ final class PropertyTests: XCTestCase {
     // Validate that all zeros compare and hash equal, and all non-finites
     // do too.
     let zeros = [
-      Quaternion<T>( .zero, ( .zero,  .zero,  .zero)),
-      Quaternion<T>( .zero, (-.zero,  .zero,  .zero)),
-      Quaternion<T>( .zero, ( .zero, -.zero,  .zero)),
-      Quaternion<T>( .zero, ( .zero,  .zero, -.zero)),
-      Quaternion<T>( .zero, (-.zero, -.zero,  .zero)),
-      Quaternion<T>( .zero, (-.zero,  .zero, -.zero)),
-      Quaternion<T>( .zero, ( .zero, -.zero, -.zero)),
-      Quaternion<T>( .zero, (-.zero, -.zero, -.zero)),
+        Quaternion<T>(real:  .zero, imaginary:  .zero,  .zero,  .zero),
+        Quaternion<T>(real:  .zero, imaginary: -.zero,  .zero,  .zero),
+        Quaternion<T>(real:  .zero, imaginary:  .zero, -.zero,  .zero),
+        Quaternion<T>(real:  .zero, imaginary:  .zero,  .zero, -.zero),
+        Quaternion<T>(real:  .zero, imaginary: -.zero, -.zero,  .zero),
+        Quaternion<T>(real:  .zero, imaginary: -.zero,  .zero, -.zero),
+        Quaternion<T>(real:  .zero, imaginary:  .zero, -.zero, -.zero),
+        Quaternion<T>(real:  .zero, imaginary: -.zero, -.zero, -.zero),
 
-      Quaternion<T>(-.zero, ( .zero,  .zero,  .zero)),
-      Quaternion<T>(-.zero, (-.zero,  .zero,  .zero)),
-      Quaternion<T>(-.zero, ( .zero, -.zero,  .zero)),
-      Quaternion<T>(-.zero, ( .zero,  .zero, -.zero)),
-      Quaternion<T>(-.zero, (-.zero, -.zero,  .zero)),
-      Quaternion<T>(-.zero, (-.zero,  .zero, -.zero)),
-      Quaternion<T>(-.zero, ( .zero, -.zero, -.zero)),
-      Quaternion<T>(-.zero, (-.zero, -.zero, -.zero))
+        Quaternion<T>(real: -.zero, imaginary:  .zero,  .zero,  .zero),
+        Quaternion<T>(real: -.zero, imaginary: -.zero,  .zero,  .zero),
+        Quaternion<T>(real: -.zero, imaginary:  .zero, -.zero,  .zero),
+        Quaternion<T>(real: -.zero, imaginary:  .zero,  .zero, -.zero),
+        Quaternion<T>(real: -.zero, imaginary: -.zero, -.zero,  .zero),
+        Quaternion<T>(real: -.zero, imaginary: -.zero,  .zero, -.zero),
+        Quaternion<T>(real: -.zero, imaginary:  .zero, -.zero, -.zero),
+        Quaternion<T>(real: -.zero, imaginary: -.zero, -.zero, -.zero)
     ]
     for z in zeros[1...] {
       XCTAssertEqual(zeros[0], z)
       XCTAssertEqual(zeros[0].hashValue, z.hashValue)
     }
     let infs = [
-      Quaternion<T>( .nan,      (.nan, .nan, .nan)),
-      Quaternion<T>(-.infinity, (.nan, .nan, .nan)),
-      Quaternion<T>(-.ulpOfOne, (.nan, .nan, .nan)),
-      Quaternion<T>( .zero,     (.nan, .nan, .nan)),
-      Quaternion<T>( .pi,       (.nan, .nan, .nan)),
-      Quaternion<T>( .infinity, (.nan, .nan, .nan)),
-      Quaternion<T>( .nan,      (-.infinity, -.infinity, -.infinity)),
-      Quaternion<T>(-.infinity, (-.infinity, -.infinity, -.infinity)),
-      Quaternion<T>(-.ulpOfOne, (-.infinity, -.infinity, -.infinity)),
-      Quaternion<T>( .zero,     (-.infinity, -.infinity, -.infinity)),
-      Quaternion<T>( .pi,       (-.infinity, -.infinity, -.infinity)),
-      Quaternion<T>( .infinity, (-.infinity, -.infinity, -.infinity)),
-      Quaternion<T>( .nan,      (-.ulpOfOne, -.ulpOfOne, -.ulpOfOne)),
-      Quaternion<T>(-.infinity, (-.ulpOfOne, -.ulpOfOne, -.ulpOfOne)),
-      Quaternion<T>( .infinity, (-.ulpOfOne, -.ulpOfOne, -.ulpOfOne)),
-      Quaternion<T>( .nan,      (.zero, .zero, .zero)),
-      Quaternion<T>(-.infinity, (.zero, .zero, .zero)),
-      Quaternion<T>( .infinity, (.zero, .zero, .zero)),
-      Quaternion<T>( .nan,      (.pi, .pi, .pi)),
-      Quaternion<T>(-.infinity, (.pi, .pi, .pi)),
-      Quaternion<T>( .infinity, (.pi, .pi, .pi)),
-      Quaternion<T>( .nan,      (.infinity, .infinity, .infinity)),
-      Quaternion<T>(-.infinity, (.infinity, .infinity, .infinity)),
-      Quaternion<T>(-.ulpOfOne, (.infinity, .infinity, .infinity)),
-      Quaternion<T>( .zero,     (.infinity, .infinity, .infinity)),
-      Quaternion<T>( .pi,       (.infinity, .infinity, .infinity)),
-      Quaternion<T>( .infinity, (.infinity, .infinity, .infinity)),
+      Quaternion<T>(real:  .nan,      imaginary: .nan, .nan, .nan),
+      Quaternion<T>(real: -.infinity, imaginary: .nan, .nan, .nan),
+      Quaternion<T>(real: -.ulpOfOne, imaginary: .nan, .nan, .nan),
+      Quaternion<T>(real:  .zero,     imaginary: .nan, .nan, .nan),
+      Quaternion<T>(real:  .pi,       imaginary: .nan, .nan, .nan),
+      Quaternion<T>(real:  .infinity, imaginary: .nan, .nan, .nan),
+      Quaternion<T>(real:  .nan,      imaginary: -.infinity, -.infinity, -.infinity),
+      Quaternion<T>(real: -.infinity, imaginary: -.infinity, -.infinity, -.infinity),
+      Quaternion<T>(real: -.ulpOfOne, imaginary: -.infinity, -.infinity, -.infinity),
+      Quaternion<T>(real:  .zero,     imaginary: -.infinity, -.infinity, -.infinity),
+      Quaternion<T>(real:  .pi,       imaginary: -.infinity, -.infinity, -.infinity),
+      Quaternion<T>(real:  .infinity, imaginary: -.infinity, -.infinity, -.infinity),
+      Quaternion<T>(real:  .nan,      imaginary: -.ulpOfOne, -.ulpOfOne, -.ulpOfOne),
+      Quaternion<T>(real: -.infinity, imaginary: -.ulpOfOne, -.ulpOfOne, -.ulpOfOne),
+      Quaternion<T>(real:  .infinity, imaginary: -.ulpOfOne, -.ulpOfOne, -.ulpOfOne),
+      Quaternion<T>(real:  .nan,      imaginary: .zero, .zero, .zero),
+      Quaternion<T>(real: -.infinity, imaginary: .zero, .zero, .zero),
+      Quaternion<T>(real:  .infinity, imaginary: .zero, .zero, .zero),
+      Quaternion<T>(real:  .nan,      imaginary: .pi, .pi, .pi),
+      Quaternion<T>(real: -.infinity, imaginary: .pi, .pi, .pi),
+      Quaternion<T>(real:  .infinity, imaginary: .pi, .pi, .pi),
+      Quaternion<T>(real:  .nan,      imaginary: .infinity, .infinity, .infinity),
+      Quaternion<T>(real: -.infinity, imaginary: .infinity, .infinity, .infinity),
+      Quaternion<T>(real: -.ulpOfOne, imaginary: .infinity, .infinity, .infinity),
+      Quaternion<T>(real:  .zero,     imaginary: .infinity, .infinity, .infinity),
+      Quaternion<T>(real:  .pi,       imaginary: .infinity, .infinity, .infinity),
+      Quaternion<T>(real:  .infinity, imaginary: .infinity, .infinity, .infinity),
     ]
     for i in infs[1...] {
       XCTAssertEqual(infs[0], i)

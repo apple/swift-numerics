@@ -18,7 +18,7 @@ final class ArithmeticTests: XCTestCase {
 
   func testMultiplication<T: Real & SIMDScalar>(_ type: T.Type) {
     for value: T in [-3, -2, -1, +1, +2, +3] {
-      let q = Quaternion<T>(value, (value, value, value))
+      let q = Quaternion<T>(real: value, imaginary: value, value, value)
       XCTAssertEqual(q * .one, q)
       XCTAssertEqual(q * 1, q)
       XCTAssertEqual(1 * q, q)
@@ -32,7 +32,7 @@ final class ArithmeticTests: XCTestCase {
 
   func testDivision<T: Real & SIMDScalar>(_ type: T.Type) {
     for value: T in [-3, -2, -1, +1, +2, +3] {
-      let q = Quaternion<T>(value, (value, value, value))
+      let q = Quaternion<T>(real: value, imaginary: value, value, value)
       XCTAssertEqual(q/q, .one)
       XCTAssertEqual(0/q, .zero)
 
@@ -52,10 +52,12 @@ final class ArithmeticTests: XCTestCase {
   }
 
   func testDivisionByZero<T: Real & SIMDScalar>(_ type: T.Type) {
-    XCTAssertFalse((Quaternion<T>(0, (0, 0, 0)) / Quaternion<T>(0, (0, 0, 0))).isFinite)
-    XCTAssertFalse((Quaternion<T>(1, (1, 1, 1)) / Quaternion<T>(0, (0, 0, 0))).isFinite)
-    XCTAssertFalse((Quaternion<T>.infinity / Quaternion<T>(0, (0, 0, 0))).isFinite)
-    XCTAssertFalse((Quaternion<T>.i / Quaternion<T>(0, (0, 0, 0))).isFinite)
+    XCTAssertFalse((Quaternion<T>(real: 0, imaginary: 0, 0, 0) / Quaternion<T>(real: 0, imaginary: 0, 0, 0)).isFinite)
+    XCTAssertFalse((Quaternion<T>(real: 1, imaginary: 1, 1, 1) / Quaternion<T>(real: 0, imaginary: 0, 0, 0)).isFinite)
+    XCTAssertFalse((Quaternion<T>.infinity / Quaternion<T>(real: 0, imaginary: 0, 0, 0)).isFinite)
+    XCTAssertFalse((Quaternion<T>.i / Quaternion<T>(real: 0, imaginary: 0, 0, 0)).isFinite)
+    XCTAssertFalse((Quaternion<T>.j / Quaternion<T>(real: 0, imaginary: 0, 0, 0)).isFinite)
+    XCTAssertFalse((Quaternion<T>.k / Quaternion<T>(real: 0, imaginary: 0, 0, 0)).isFinite)
   }
 
   func testDivisionByZero() {
