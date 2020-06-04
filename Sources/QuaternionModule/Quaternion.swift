@@ -132,7 +132,7 @@ extension Quaternion {
   /// The conjugate of this quaternion.
   @_transparent
   public var conjugate: Quaternion {
-    Quaternion(from: components.replacing(with: -components, where: [true, true, true, false]))
+    Quaternion(from: components * [-1, -1, -1, 1])
   }
 
   /// True if this value is finite.
