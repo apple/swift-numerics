@@ -29,7 +29,7 @@
 //   a square root.
 //
 // - There exist finite values `q` for which the Euclidean norm is not
-//   representable (consider the quaternion with `a`, `b`, `c` and `d` all
+//   representable (consider the quaternion with `r`, `x`, `y` and `z` all
 //   equal to `RealType.greatestFiniteMagnitude`; the Euclidean norm is
 //   `.sqrt(4) * .greatestFiniteMagnitude`, which overflows).
 //
@@ -38,7 +38,7 @@
 // which makes it the obvious choice to bind `.magnitude`.
 extension Quaternion {
 
-  /// The ∞-norm of the value (`max(abs(a), abs(b), abs(c), abs(d))`).
+  /// The ∞-norm of the value (`max(abs(r), abs(x), abs(y), abs(z))`).
   ///
   /// If you need the Euclidean norm (a.k.a. 2-norm) use the `length` or `lengthSquared`
   /// properties instead.
@@ -59,7 +59,7 @@ extension Quaternion {
     return max(abs(components.max()), abs(components.min()))
   }
 
-  /// The Euclidean norm (a.k.a. 2-norm, `sqrt(a*a + b*b + c*c + d*d)`).
+  /// The Euclidean norm (a.k.a. 2-norm, `sqrt(r*r + x*x + y*y + z*z)`).
   ///
   /// This value is highly prone to overflow or underflow.
   ///
@@ -81,7 +81,7 @@ extension Quaternion {
     return .sqrt(lengthSquared)
   }
 
-  /// The squared length `(a*a + b*b + c*c + d*d)`.
+  /// The squared length `(r*r + x*x + y*y + z*z)`.
   ///
   /// This value is highly prone to overflow or underflow.
   /// 
