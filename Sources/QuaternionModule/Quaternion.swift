@@ -87,6 +87,8 @@ extension Quaternion {
   /// -
   /// - .one
   /// - .i
+  /// - .j
+  /// - .k
   /// - .infinity
   @_transparent
   public static var zero: Quaternion {
@@ -99,22 +101,54 @@ extension Quaternion {
   /// -
   /// - .zero
   /// - .i
+  /// - .j
+  /// - .k
   /// - .infinity
   @_transparent
   public static var one: Quaternion {
     Quaternion(from: SIMD4(0,0,0,1))
   }
 
-  /// The imaginary unit.
+  /// The quaternion with the imaginary unit **i** one, i.e. `0 + i + 0j + 0k`.
   ///
   /// See also:
   /// -
   /// - .zero
   /// - .one
+  /// - .j
+  /// - .k
   /// - .infinity
   @_transparent
   public static var i: Quaternion {
-    Quaternion(imaginary: SIMD3(repeating: 1))
+    Quaternion(imaginary: SIMD3(1,0,0))
+  }
+
+  /// The quaternion with the imaginary unit **j** one, i.e. `0 + 0i + j + 0k`.
+  ///
+  /// See also:
+  /// -
+  /// - .zero
+  /// - .one
+  /// - .i
+  /// - .k
+  /// - .infinity
+  @_transparent
+  public static var j: Quaternion {
+    Quaternion(imaginary: SIMD3(0,1,0))
+  }
+
+  /// The quaternion with the imaginary unit **k** one, i.e. `0 + 0i + 0j + k`.
+  ///
+  /// See also:
+  /// -
+  /// - .zero
+  /// - .one
+  /// - .i
+  /// - .j
+  /// - .infinity
+  @_transparent
+  public static var k: Quaternion {
+    Quaternion(imaginary: SIMD3(0,0,1))
   }
 
   /// The point at infinity.
@@ -124,6 +158,8 @@ extension Quaternion {
   /// - .zero
   /// - .one
   /// - .i
+  /// - .j
+  /// - .k
   @_transparent
   public static var infinity: Quaternion {
     Quaternion(.infinity)
