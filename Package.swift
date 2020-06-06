@@ -17,6 +17,7 @@ let package = Package(
   products: [
     .library(name: "ComplexModule", targets: ["ComplexModule"]),
     .library(name: "Numerics", targets: ["Numerics"]),
+    .library(name: "QuaternionModule", targets: ["QuaternionModule"]),
     .library(name: "RealModule", targets: ["RealModule"]),
   ],
   dependencies: [
@@ -25,9 +26,11 @@ let package = Package(
     .target(name: "ComplexModule", dependencies: ["RealModule"]),
     .target(name: "Numerics", dependencies: ["ComplexModule", "RealModule"]),
     .target(name: "_NumericsShims", dependencies: []),
+    .target(name: "QuaternionModule", dependencies: ["RealModule"]),
     .target(name: "RealModule", dependencies: ["_NumericsShims"]),
     
     .testTarget(name: "ComplexTests", dependencies: ["ComplexModule", "_NumericsShims"]),
+    .testTarget(name: "QuaternionTests", dependencies: ["QuaternionModule"]),
     .testTarget(name: "RealTests", dependencies: ["RealModule"]),
   ]
 )
