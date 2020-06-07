@@ -254,23 +254,23 @@ extension Quaternion {
 extension Quaternion {
   /// The quaternion with specified real part and zero imaginary part.
   ///
-  /// Equivalent to `Quaternion(real, SIMD3(repeating: 0))`.
+  /// Equivalent to `Quaternion(real: real, imaginary: SIMD3(repeating: 0))`.
   @inlinable
   public init(_ real: RealType) {
-    self.init(real, SIMD3(repeating: 0))
+    self.init(real: real, imaginary: SIMD3(repeating: 0))
   }
 
   /// The quaternion with specified imaginary part and zero real part.
   ///
-  /// Equivalent to `Quaternion(0, imaginary)`.
+  /// Equivalent to `Quaternion(real: 0, imaginary: imaginary)`.
   @inlinable
   public init(imaginary: SIMD3<RealType>) {
-    self.init(0, imaginary)
+    self.init(real: 0, imaginary: imaginary)
   }
 
   /// The quaternion with specified imaginary part and zero real part.
   ///
-  /// Equivalent to `Quaternion(0, imaginary)`.
+  /// Equivalent to `Quaternion(real: 0, imaginary: imaginary)`.
   @inlinable
   public init(imaginary x: RealType, _ y: RealType, _ z: RealType) {
     self.init(imaginary: SIMD3(x, y, z))
@@ -278,14 +278,14 @@ extension Quaternion {
 
   /// The quaternion with specified real part and imaginary parts.
   @inlinable
-  public init(_ real: RealType, _ imaginary: SIMD3<RealType>) {
+  public init(real: RealType, imaginary: SIMD3<RealType>) {
     self.init(from: SIMD4(imaginary, real))
   }
 
   /// The quaternion with specified real part and imaginary parts.
   @inlinable
   public init(real: RealType, imaginary x: RealType, _ y: RealType, _ z: RealType) {
-    self.init(real, SIMD3(x, y, z))
+    self.init(real: real, imaginary: SIMD3(x, y, z))
   }
 
   /// The quaternion with specified real part and zero imaginary part.
