@@ -29,7 +29,7 @@
 //   a square root.
 //
 // - There exist finite values `q` for which the Euclidean norm is not
-//   representable (consider the quaternion with `r`, `x`, `y` and `z` all
+//   representable (consider the quaternion with `real`, `x`, `y` and `z` all
 //   equal to `RealType.greatestFiniteMagnitude`; the Euclidean norm is
 //   `.sqrt(4) * .greatestFiniteMagnitude`, which overflows).
 //
@@ -38,7 +38,7 @@
 // which makes it the obvious choice to bind `.magnitude`.
 extension Quaternion {
 
-  /// The ∞-norm of the value (`max(abs(r), abs(x), abs(y), abs(z))`).
+  /// The ∞-norm of the value (`max(abs(real), abs(x), abs(y), abs(z))`).
   ///
   /// If you need the Euclidean norm (a.k.a. 2-norm) use the `length` or `lengthSquared`
   /// properties instead.
@@ -56,10 +56,10 @@ extension Quaternion {
   @_transparent
   public var magnitude: RealType {
     guard isFinite else { return .infinity }
-    return max(abs(components.max()), abs(components.min()))
+    return max(abs(x), abs(y), abs(z), abs(w))
   }
 
-  /// The Euclidean norm (a.k.a. 2-norm, `sqrt(r*r + x*x + y*y + z*z)`).
+  /// The Euclidean norm (a.k.a. 2-norm, `sqrt(real*real + x*x + y*y + z*z)`).
   ///
   /// This value is highly prone to overflow or underflow.
   ///
@@ -96,6 +96,13 @@ extension Quaternion {
   /// - `.magnitude`
   @_transparent
   public var lengthSquared: RealType {
-    (components * components).sum()
+    // The following expressions have been split up so the type-check
+    // can resolve them in a reasonable time.
+    
+    let x2 = x*x
+    let y2 = y*y
+    let z2 = z*z
+    let w2 = w*w
+    return x2 + y2 + z2 + w2
   }
 }

@@ -15,12 +15,12 @@ import RealModule
 extension Quaternion: AdditiveArithmetic {
   @_transparent
   public static func + (lhs: Quaternion, rhs: Quaternion) -> Quaternion {
-    Quaternion(from: lhs.components + rhs.components)
+    Quaternion(real: lhs.w+rhs.w, imaginary: lhs.x+rhs.x, lhs.y+rhs.y, lhs.z+rhs.z)
   }
 
   @_transparent
   public static func - (lhs: Quaternion, rhs: Quaternion) -> Quaternion {
-    Quaternion(from: lhs.components - rhs.components)
+    Quaternion(real: lhs.w-rhs.w, imaginary: lhs.x-rhs.x, lhs.y-rhs.y, lhs.z-rhs.z)
   }
 
   @_transparent
@@ -41,12 +41,12 @@ extension Quaternion: AdditiveArithmetic {
 extension Quaternion {
   @usableFromInline @_transparent
   internal func multiplied(by scalar: RealType) -> Quaternion {
-    Quaternion(from: components * scalar)
+    Quaternion(real: w*scalar, imaginary: x*scalar, y*scalar, z*scalar)
   }
 
   @usableFromInline @_transparent
   internal func divided(by scalar: RealType) -> Quaternion {
-    Quaternion(from: components / scalar)
+    Quaternion(real: w/scalar, imaginary: x/scalar, y/scalar, z/scalar)
   }
 }
 
@@ -54,18 +54,34 @@ extension Quaternion {
 extension Quaternion: AlgebraicField {
   @_transparent
   public static func * (lhs: Quaternion, rhs: Quaternion) -> Quaternion {
+    // The following expressions have been split up so the type-check
+    // can resolve them in a reasonable time.
 
-    let rhsX = SIMD4(+rhs.components.w, +rhs.components.z, -rhs.components.y, +rhs.components.x)
-    let rhsY = SIMD4(-rhs.components.z, +rhs.components.w, +rhs.components.x, +rhs.components.y)
-    let rhsZ = SIMD4(+rhs.components.y, -rhs.components.x, +rhs.components.w, +rhs.components.z)
-    let rhsR = SIMD4(-rhs.components.x, -rhs.components.y, -rhs.components.z, +rhs.components.w)
+    let xW = lhs.w * rhs.x
+    let xX = lhs.x * rhs.w
+    let xY = lhs.y * rhs.z
+    let xZ = lhs.z * rhs.y
+    let x = xW + xX + xY - xZ
 
-    let x = (lhs.components * rhsX).sum()
-    let y = (lhs.components * rhsY).sum()
-    let z = (lhs.components * rhsZ).sum()
-    let r = (lhs.components * rhsR).sum()
+    let yW = lhs.w * rhs.y
+    let yX = lhs.x * rhs.z
+    let yY = lhs.y * rhs.w
+    let yZ = lhs.z * rhs.x
+    let y = yW - yX + yY + yZ
 
-    return Quaternion(from: SIMD4(x,y,z,r))
+    let zW = lhs.w * rhs.z
+    let zX = lhs.x * rhs.y
+    let zY = lhs.y * rhs.x
+    let zZ = lhs.z * rhs.w
+    let z = zW + zX - zY + zZ
+
+    let wW = lhs.w * rhs.w
+    let wX = lhs.x * rhs.x
+    let wY = lhs.y * rhs.y
+    let wZ = lhs.z * rhs.z
+    let w = wW - wX - wY - wZ
+
+    return Quaternion(real: w, imaginary: x, y, z)
   }
 
   @_transparent

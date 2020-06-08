@@ -16,7 +16,7 @@ import RealModule
 
 final class PropertyTests: XCTestCase {
 
-  func testProperties<T: Real & SIMDScalar>(_ type: T.Type) {
+  func testProperties<T: Real>(_ type: T.Type) {
     // The real and imaginary parts of a non-finite value should be nan.
     XCTAssertTrue(Quaternion<T>.infinity.real.isNaN)
     XCTAssertTrue(Quaternion<T>.infinity.imaginary.x.isNaN)
@@ -32,16 +32,19 @@ final class PropertyTests: XCTestCase {
     XCTAssertEqual(Quaternion<T>(real: .nan, imaginary: 0, 0, 0).length, .infinity)
     // The length of a zero value should be zero.
     XCTAssertEqual(Quaternion<T>.zero.length, .zero)
-    XCTAssertEqual(Quaternion<T>(.zero, -.zero).length, .zero)
-    XCTAssertEqual(Quaternion<T>(-.zero, -.zero).length, .zero)
+    XCTAssertEqual(Quaternion<T>(real:  .zero, imaginary: -.zero, -.zero, -.zero).length, .zero)
+    XCTAssertEqual(Quaternion<T>(real: -.zero, imaginary: -.zero, -.zero, -.zero).length, .zero)
   }
 
   func testProperties() {
     testProperties(Float32.self)
     testProperties(Float64.self)
+    #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+    testProperties(Float80.self)
+    #endif
   }
 
-  func testEquatableHashable<T: Real & SIMDScalar>(_ type: T.Type) {
+  func testEquatableHashable<T: Real>(_ type: T.Type) {
     // Validate that all zeros compare and hash equal, and all non-finites
     // do too.
     let zeros = [
@@ -105,9 +108,12 @@ final class PropertyTests: XCTestCase {
   func testEquatableHashable() {
     testEquatableHashable(Float32.self)
     testEquatableHashable(Float64.self)
+    #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+    testEquatableHashable(Float80.self)
+    #endif
   }
 
-  func testCodable<T: Real & SIMDScalar>(_ type: T.Type) throws {
+  func testCodable<T: Real & Codable>(_ type: T.Type) throws {
     let encoder = JSONEncoder()
     encoder.nonConformingFloatEncodingStrategy = .convertToString(
       positiveInfinity: "inf",
@@ -132,5 +138,6 @@ final class PropertyTests: XCTestCase {
   func testCodable() throws {
     try testCodable(Float32.self)
     try testCodable(Float64.self)
+    // Float80 doesn't conform to Codable.
   }
 }
