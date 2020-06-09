@@ -57,6 +57,10 @@ final class DifferentiableTests: XCTestCase {
     XCTAssertEqual(φDivide(Complex(1, 0)), Complex(0.25, -0.25))
     XCTAssertEqual(φDivide(Complex(0, 1)), Complex(0.25, 0.25))
   }
+
+  func testZeroTangentVectorInitializer() {
+    XCTAssertEqual(Complex<Float>(-5, 5).zeroTangentVector, Complex(0, 0))
+  }
 }
 
 #endif
