@@ -390,48 +390,70 @@ extension BigInt: BinaryInteger {
   @inlinable
   public static var isSigned: Bool { true }
 
-  // @inlinable
+  @inlinable
   public static func / (lhs: BigInt, rhs: BigInt) -> BigInt {
-    guard rhs._combination != 0 else { fatalError("Division by zero") }
-    guard abs(rhs) <= abs(lhs) else { return 0 }
-    
-    //TODO: Implement division. For now, this is a skeleton placeholder.
-    if lhs._exponent == rhs._exponent {
-      let combination = lhs._signum * rhs._signum
-      let (significand, _) =
-        lhs._significand.quotientAndRemainder(dividingBy: rhs._significand)
-      var result = BigInt(_combination: combination, significand: significand)
-      result._normalize()
-      return result
-    }
-    fatalError("Not implemented")
+    var result = lhs
+    result /= rhs
+    return result
   }
 
   // @inlinable
   public static func /= (lhs: inout BigInt, rhs: BigInt) {
-    lhs = lhs / rhs
+    guard rhs._combination != 0 else { fatalError("Division by zero") }
+    guard lhs._combination != 0 && abs(lhs) >= abs(rhs) else {
+      lhs = 0
+      return
+    }
+    
+    var rhs = rhs
+    let exponents = (lhs._exponent, rhs._exponent)
+    if exponents.0 < exponents.1 {
+      rhs._significand.insert(
+        contentsOf: repeatElement(0, count: exponents.1 &- exponents.0), at: 0)
+    } else if exponents.0 > exponents.1 {
+      lhs._significand.insert(
+        contentsOf: repeatElement(0, count: exponents.0 &- exponents.1), at: 0)
+    }
+    lhs._combination = lhs._signum * rhs._signum
+    
+    if lhs._significand != rhs._significand {
+      lhs._significand.divide(by: rhs._significand)
+    } else {
+      lhs._significand = _Significand(1)
+    }
+    lhs._normalize()
   }
 
-  // @inlinable
+  @inlinable
   public static func % (lhs: BigInt, rhs: BigInt) -> BigInt {
-    guard rhs._combination != 0 else { fatalError("Division by zero") }
-    guard abs(rhs) <= abs(lhs) else { return lhs }
-    
-    //TODO: Implement remainder. For now, this is a skeleton placeholder.
-    if lhs._exponent == rhs._exponent {
-      let combination = lhs._combination * rhs._signum
-      let (_, significand) =
-        lhs._significand.quotientAndRemainder(dividingBy: rhs._significand)
-      var result = BigInt(_combination: combination, significand: significand)
-      result._normalize()
-      return result
-    }
-    fatalError("Not implemented")
+    var result = lhs
+    result %= rhs
+    return result
   }
 
   // @inlinable
   public static func %= (lhs: inout BigInt, rhs: BigInt) {
-    lhs = lhs % rhs
+    guard rhs._combination != 0 else { fatalError("Division by zero") }
+    guard lhs._combination != 0 && abs(lhs) >= abs(rhs) else { return }
+    
+    var rhs = rhs
+    let exponents = (lhs._exponent, rhs._exponent)
+    if exponents.0 < exponents.1 {
+      rhs._significand.insert(
+        contentsOf: repeatElement(0, count: exponents.1 &- exponents.0), at: 0)
+    } else if exponents.0 > exponents.1 {
+      lhs._significand.insert(
+        contentsOf: repeatElement(0, count: exponents.0 &- exponents.1), at: 0)
+    }
+    lhs._combination = lhs._signum
+    
+    if lhs._significand != rhs._significand {
+      var result = lhs._significand.divide(by: rhs._significand)
+      swap(&result, &lhs._significand)
+    } else {
+      lhs._significand = _Significand()
+    }
+    lhs._normalize()
   }
 
   // @inlinable

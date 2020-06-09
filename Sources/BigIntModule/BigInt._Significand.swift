@@ -661,14 +661,108 @@ extension BigInt._Significand {
   
   // @inlinable
   @discardableResult
-  internal func quotientAndRemainder(
-    dividingBy other: Self
-  ) -> (quotient: Self, remainder: Self) {
-    if other.count == 1 {
-      var x = self
-      let remainder = x.divide(by: other._low)
-      return (quotient: x, remainder: remainder)
+  internal mutating func divide(by other: Self) -> /* remainder: */ Self {
+    func shift(_ lhs: inout Self, leftBy rhs: Int) {
+      var carry = 0 as UInt
+      guard rhs != 0 else {
+        lhs.append(0)
+        return
+      }
+      for i in 0..<lhs.count {
+        let temporary = lhs[i]
+        lhs[i] = temporary &<< rhs | carry
+        carry = temporary &>> (UInt.bitWidth &- rhs)
+      }
+      lhs.append(carry)
     }
-    fatalError("Not implemented")
+    
+    func shift(_ lhs: inout Self, rightBy rhs: Int) {
+      var carry = 0 as UInt
+      guard rhs != 0 else {
+        return
+      }
+      for i in (0..<lhs.count).reversed() {
+        let temporary = lhs[i]
+        lhs[i] = temporary &>> rhs | carry
+        carry = temporary &<< (UInt.bitWidth &- rhs)
+      }
+    }
+    
+    // Based on Knuth's Algorithm D.
+    // For details see <https://skanthak.homepage.t-online.de/division.html>.
+    
+    // We'll remove any extraneous leading zero words while determining by how
+    // much to shift our operands.
+    var other = other
+    var n = other.count
+    guard let i = other.lastIndex(where: { $0 != 0 }) else {
+      fatalError("Divide by zero")
+    }
+    if n > i &+ 1 {
+      other.removeLast(n &- (i &+ 1))
+      n = i &+ 1
+    }
+    guard n > 1 else { return divide(by: other._low) }
+    let clz = other[n &- 1].leadingZeroBitCount
+    
+    var m = count - n
+    guard let j = lastIndex(where: { $0 != 0 }) else { return Self() }
+    if m > j &+ 1 {
+      removeLast(m &- (j &+ 1))
+      m = j &+ 1
+    }
+    precondition(m >= 0)
+    
+    // 1. Normalize operands.
+    shift(&other, leftBy: clz)
+    shift(&self, leftBy: clz)
+    
+    // 2. Initialize loop.
+    var result = Self(repeating: 0, count: m &+ 1)
+    let right = (high: other[n &- 1], low: other[n &- 2])
+    for idx in (n...(n &+ m)).reversed() {
+      let left = (high: self[idx], low: self[idx &- 1])
+      
+      // 3. Calculate trial quotient and remainder.
+      var overflow = false
+      var (q̂, r̂): (UInt, UInt)
+      if right.high > left.high {
+        (q̂, r̂) = right.high.dividingFullWidth((left.high, left.low))
+      } else {
+        (q̂, r̂) = right.high < left.high
+          ? right.high.dividingFullWidth((left.high &- right.high, left.low))
+          : left.low.quotientAndRemainder(dividingBy: right.high)
+        overflow = true
+      }
+      while overflow || q̂.multipliedFullWidth(by: right.low) > (r̂, left.low) {
+        q̂ &-= 1
+        r̂ &+= right.high
+        if r̂ < right.high { break }
+        if q̂ == UInt.max { overflow = false }
+      }
+      
+      // 4. Multiply and subtract.
+      let slice = self[(idx &- n)...idx]
+      var x = Self(slice), y = other
+      y.multiply(by: q̂)
+      overflow = x.subtract(y)
+      
+      // 5. Test remainder.
+      if overflow {
+        // 6. Add back.
+        q̂ -= 1
+        x.add(y)
+      }
+      
+      replaceSubrange((idx &- n)...idx, with: x[0...n])
+      result[idx &- n] = q̂
+    } // 7. Loop.
+    
+    // 8. Unnormalize.
+    removeLast(m &+ 1)
+    shift(&self, rightBy: clz)
+    
+    swap(&self, &result)
+    return result
   }
 }

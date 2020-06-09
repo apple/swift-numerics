@@ -165,6 +165,33 @@ final class BigIntModuleTests: XCTestCase {
     }
   }
   
+  func testDivision() {
+    let x = BigInt("327441402998268901582239630362983195839")!
+    let y = BigInt("279240677930711642307518656231691197860")!
+    XCTAssertEqual(x / y, 1)
+
+    for _ in 0..<50 {
+      let a = _randomWords(count: 6)
+      let b = _randomWords(count: 4)
+      
+      XCTAssertEqual(a.0 / b.0, BigInt(a.1 / b.1))
+      XCTAssertEqual(a.0 % b.0, BigInt(a.1 % b.1))
+      XCTAssertEqual(
+        (a.0 << 128) / (b.0 << 42),
+        BigInt((a.1 << 128) / (b.1 << 42)))
+      XCTAssertEqual(
+        (a.0 << 128) % (b.0 << 42),
+        BigInt((a.1 << 128) % (b.1 << 42)))
+      XCTAssertEqual(
+        (a.0 << 42) / (b.0 << 128),
+        BigInt((a.1 << 42) / (b.1 << 128)))
+      XCTAssertEqual(
+        (a.0 << 42) % (b.0 << 128),
+        BigInt((a.1 << 42) % (b.1 << 128)))
+      XCTAssertEqual((a.0 << 128) / (b.0 << 128), a.0 / b.0)
+    }
+  }
+  
   func testBitwiseOperators() {
     for _ in 0..<100 {
       let a = _randomWords(count: 8)
