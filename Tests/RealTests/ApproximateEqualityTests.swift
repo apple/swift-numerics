@@ -40,10 +40,10 @@ final class ElementaryFunctionTests: XCTestCase {
     XCTAssertTrue(T(1).approximatelyEquals(1 - e/2, tolerance: .relative()))
     XCTAssertFalse(T(1).approximatelyEquals(1 + 2*e, tolerance: .relative()))
     XCTAssertFalse(T(1).approximatelyEquals(1 - e, tolerance: .relative()))
-    XCTAssertTrue(T(1).approximatelyEquals((1 + e).nextDown, tolerance: .absolute()))
-    XCTAssertTrue(T(1).approximatelyEquals((1 - e).nextUp, tolerance: .absolute()))
-    XCTAssertFalse(T(1).approximatelyEquals((1 + e).nextUp, tolerance: .absolute()))
-    XCTAssertFalse(T(1).approximatelyEquals((1 - e).nextDown, tolerance: .absolute()))
+    XCTAssertTrue(T(1).approximatelyEquals((1 + e).nextDown, tolerance: .absolute(e)))
+    XCTAssertTrue(T(1).approximatelyEquals((1 - e).nextUp, tolerance: .absolute(e)))
+    XCTAssertFalse(T(1).approximatelyEquals((1 + e).nextUp, tolerance: .absolute(e)))
+    XCTAssertFalse(T(1).approximatelyEquals((1 - e).nextDown, tolerance: .absolute(e)))
   }
   
   func testRandom<T>(_ type: T.Type) where T: FixedWidthFloatingPoint & Real {
