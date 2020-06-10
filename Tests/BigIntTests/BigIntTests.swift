@@ -25,15 +25,17 @@ internal func _randomWords(count: Int) -> (BigInt, AttaswiftBigInt) {
 
 final class BigIntModuleTests: XCTestCase {
   func testLayout() {
+#if false
     XCTAssertEqual(MemoryLayout<BigInt>.size, MemoryLayout<Int>.size * 3)
     XCTAssertEqual(MemoryLayout<BigInt>.stride, MemoryLayout<Int>.size * 3)
+#endif
   }
   
   func testSignificand() {
     let x = BigInt._Significand([1, 2, 3])
-    XCTAssertEqual(x._low, 1)
-    XCTAssertEqual(x._rest[0], 2)
-    XCTAssertEqual(x._rest[1], 3)
+    XCTAssertEqual(x[0], 1)
+    XCTAssertEqual(x[1], 2)
+    XCTAssertEqual(x[2], 3)
   }
   
   func testWords() {
@@ -48,7 +50,7 @@ final class BigIntModuleTests: XCTestCase {
     for i in (-42..<42) {
       let x = BigInt(i)
       XCTAssertEqual(x._combination, i.signum())
-      XCTAssertEqual(x._significand._low, i.magnitude)
+      XCTAssertEqual(x._significand[0], i.magnitude)
       XCTAssertEqual(x.description, i.description)
       let j = Int(x)
       XCTAssertEqual(i, j)
@@ -279,6 +281,58 @@ final class BigIntModuleTests: XCTestCase {
       XCTAssertEqual(
         (-a.0 << 12345).trailingZeroBitCount,
         (-a.1 << 12345).trailingZeroBitCount)
+    }
+  }
+
+  func testPerformancePiDigits() {
+    var acc = 0 as BigInt, num = 1 as BigInt, den = 1 as BigInt
+
+    func extractDigit(_ n: UInt) -> UInt {
+      var tmp = num * BigInt(n)
+      tmp += acc
+      tmp /= den
+      return tmp.words[0]
+    }
+    
+    func eliminateDigit(_ d: UInt) {
+      acc -= den * BigInt(d)
+      acc *= 10
+      num *= 10
+    }
+    
+    func nextTerm(_ k: UInt) {
+      let k2 = BigInt(k * 2 + 1)
+      acc += num * 2
+      acc *= k2
+      den *= k2
+      num *= BigInt(k)
+    }
+    
+    func piDigits(_ n: Int) {
+      acc = 0
+      den = 1
+      num = 1
+      
+      var i = 0
+      var k = 0 as UInt
+      var string = ""
+      while i < n {
+        k += 1
+        nextTerm(k)
+        if num > acc { continue }
+        let d = extractDigit(3)
+        if d != extractDigit(4) { continue }
+        string.append("\(d)")
+        i += 1
+        if i.isMultiple(of: 10) {
+          print("\(string)\t:\(i)")
+          string = ""
+        }
+        eliminateDigit(d)
+      }
+    }
+    measure {
+      piDigits(100)
     }
   }
 }

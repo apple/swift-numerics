@@ -91,7 +91,7 @@ public struct BigInt {
   internal mutating func _normalize() {
     guard let i = _significand.firstIndex(where: { $0 != 0 }) else {
       _combination = 0
-      _significand = _Significand()
+      _significand = _Significand(0)
       return
     }
     assert(_combination != 0)
@@ -163,7 +163,7 @@ extension BigInt: AdditiveArithmetic {
   @inlinable
   public init() {
     _combination = 0
-    _significand = _Significand()
+    _significand = _Significand(0)
   }
   
   @inlinable
@@ -275,7 +275,7 @@ extension BigInt: SignedNumeric {
     let combination =
       lhs._signum * rhs._signum * (lhs._exponent + rhs._exponent + 1)
     let significand =
-      lhs._significand.multiplying(by: rhs._significand, karatsubaThreshold: 8)
+      lhs._significand.multiplying(by: rhs._significand /*, karatsubaThreshold: 8 */)
     var result = BigInt(_combination: combination, significand: significand)
     result._normalize()
     return result
@@ -451,7 +451,7 @@ extension BigInt: BinaryInteger {
       var result = lhs._significand.divide(by: rhs._significand)
       swap(&result, &lhs._significand)
     } else {
-      lhs._significand = _Significand()
+      lhs._significand = _Significand(0)
     }
     lhs._normalize()
   }
@@ -682,7 +682,7 @@ extension BigInt {
     let signum = Int(bitPattern: words.last!) < 0 ? -1 : 1
     guard let exponent = words.firstIndex(where: { $0 != 0 }) else {
       _combination = 0
-      _significand = _Significand()
+      _significand = _Significand(0)
       return
     }
     _combination = signum * (exponent + 1)

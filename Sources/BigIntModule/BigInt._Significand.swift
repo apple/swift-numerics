@@ -9,6 +9,27 @@
 //
 //===----------------------------------------------------------------------===//
 
+#if true
+extension BigInt {
+  /// The significand of a `BigInt` value, a nonempty collection of the
+  /// significant digits of that value's magnitude stored in words of type
+  /// `UInt`.
+  ///
+  /// The first element of the collection is the lowest word.
+  @usableFromInline
+  internal typealias _Significand = [UInt]
+}
+
+extension BigInt._Significand {
+  /// Creates a new significand with the given words.
+  @inlinable
+  internal init(_ low: UInt, _ rest: [UInt] = []) {
+    self = [low]
+    reserveCapacity(rest.count + 1)
+    insert(contentsOf: rest, at: 1)
+  }
+}
+#else
 extension BigInt {
   /// The significand of a `BigInt` value, a nonempty collection of the
   /// significant digits of that value's magnitude stored in words of type
@@ -26,13 +47,6 @@ extension BigInt {
     /// highest.
     @usableFromInline
     internal var _rest: [UInt]
-    
-    /// Creates a new significand with a single low word equal to zero.
-    @inlinable
-    internal init() {
-      _low = 0
-      _rest = []
-    }
 
     /// Creates a new significand with the given words.
     @inlinable
@@ -417,6 +431,7 @@ extension BigInt._Significand {
 }
 
 extension BigInt._Significand: Hashable { }
+#endif
 
 /// Nota bene:
 /// While operations implemented on `BigInt` expect inputs that are normalized
@@ -595,7 +610,7 @@ extension BigInt._Significand {
   
   // @inlinable
   internal func multiplying(by other: Self) -> Self {
-    var result = Self()
+    var result = Self(0)
     result.reserveCapacity(count + other.count)
     for i in 0..<other.count {
       var temporary = self
@@ -609,10 +624,10 @@ extension BigInt._Significand {
   // words) of the lower half of each operand.
   // @inlinable
   internal func multiplying(by other: Self, karatsubaThreshold: Int) -> Self {
-    func add(_ lhs: Slice<Self>, _ rhs: Slice<Self>) -> Self {
+    func add(_ lhs: SubSequence, _ rhs: SubSequence) -> Self {
       // Recall that we have a precondition for `Self<C: Collection>(_: C)` that
       // the argument not be empty.
-      if lhs.isEmpty { return rhs.isEmpty ? Self() : Self(rhs) }
+      if lhs.isEmpty { return rhs.isEmpty ? Self(0) : Self(rhs) }
       if rhs.isEmpty { return Self(lhs) }
       
       var result = Self(lhs)
@@ -620,14 +635,14 @@ extension BigInt._Significand {
       return result
     }
     
-    func multiply(_ lhs: Slice<Self>, _ rhs: Slice<Self>) -> Self {
+    func multiply(_ lhs: SubSequence, _ rhs: SubSequence) -> Self {
       
       // Based on Karatsuba's method. For details see:
       // <https://mathworld.wolfram.com/KaratsubaMultiplication.html>.
       
       let m = (Swift.max(lhs.count, rhs.count) + 1) / 2
       guard m >= karatsubaThreshold else {
-        if lhs.isEmpty || rhs.isEmpty { return Self() }
+        if lhs.isEmpty || rhs.isEmpty { return Self(0) }
         return Self(lhs).multiplying(by: Self(rhs))
       }
       
@@ -655,7 +670,7 @@ extension BigInt._Significand {
   @inlinable
   @discardableResult
   internal mutating func divide(by other: UInt) -> /* remainder: */ Self {
-    if other == 1 { return Self() }
+    if other == 1 { return Self(0) }
     var remainder = 0 as UInt
     for i in (0..<count).reversed() {
       (self[i], remainder) = other.dividingFullWidth((remainder, self[i]))
@@ -706,11 +721,11 @@ extension BigInt._Significand {
       other.removeLast(n &- (i &+ 1))
       n = i &+ 1
     }
-    guard n > 1 else { return divide(by: other._low) }
+    guard n > 1 else { return divide(by: other[0]) }
     let clz = other[n &- 1].leadingZeroBitCount
     
     var m = count - n
-    guard let j = lastIndex(where: { $0 != 0 }) else { return Self() }
+    guard let j = lastIndex(where: { $0 != 0 }) else { return Self(0) }
     if m > j &+ 1 {
       removeLast(m &- (j &+ 1))
       m = j &+ 1
