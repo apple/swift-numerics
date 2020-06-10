@@ -581,7 +581,7 @@ extension BigInt._Significand {
     return overflow
   }
   
-  // @inlinable
+  @inlinable
   internal mutating func multiply(by other: UInt) {
     var carry = 0 as UInt
     for i in 0..<count {
@@ -621,6 +621,10 @@ extension BigInt._Significand {
     }
     
     func multiply(_ lhs: Slice<Self>, _ rhs: Slice<Self>) -> Self {
+      
+      // Based on Karatsuba's method. For details see:
+      // <https://mathworld.wolfram.com/KaratsubaMultiplication.html>.
+      
       let m = (Swift.max(lhs.count, rhs.count) + 1) / 2
       guard m >= karatsubaThreshold else {
         if lhs.isEmpty || rhs.isEmpty { return Self() }
@@ -648,7 +652,7 @@ extension BigInt._Significand {
     return multiply(self[...], other[...])
   }
   
-  // @inlinable
+  @inlinable
   @discardableResult
   internal mutating func divide(by other: UInt) -> /* remainder: */ Self {
     if other == 1 { return Self() }
@@ -688,8 +692,8 @@ extension BigInt._Significand {
       }
     }
     
-    // Based on Knuth's Algorithm D.
-    // For details see <https://skanthak.homepage.t-online.de/division.html>.
+    // Based on Knuth's Algorithm D (section 4.3.1). For details see:
+    // <https://skanthak.homepage.t-online.de/division.html>.
     
     // We'll remove any extraneous leading zero words while determining by how
     // much to shift our operands.
