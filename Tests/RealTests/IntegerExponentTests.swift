@@ -12,9 +12,11 @@
 import XCTest
 import RealModule
 
-internal extension Real where Self: BinaryFloatingPoint,
-                              Self.RawSignificand: FixedWidthInteger {
+internal extension Real where Self: FixedWidthFloatingPoint {
+  
   static func testIntegerExponentCommon() {
+    // TODO: replace with seedable generator, print seed.
+    var g = SystemRandomNumberGenerator()
     // If x is -1, then the result is ±1 with sign chosen by parity of n.
     // Simply converting n to Real will flip parity when n is large, so
     // first check that we get those cases right.
@@ -32,8 +34,9 @@ internal extension Real where Self: BinaryFloatingPoint,
     // underflow; we want to be sure that we get the right ±0 or ±∞
     // result.
     for _ in 0 ..< 10 {
-      let x = Self.random(in: 2 ..< 4)
-      let n = Int.random(in: 1 - Int(Self.leastNonzeroMagnitude.exponent) ..< .max)
+      let x = Self.random(in: 2 ..< 4, using: &g)
+      let nLowerBound = 1 - Int(Self.leastNonzeroMagnitude.exponent)
+      let n = Int.random(in: nLowerBound ..< .max, using: &g)
       let even = n & -2
       let odd = even | 1
       assertClose( .infinity, Self.pow(x, even))
