@@ -83,7 +83,7 @@ extension Numeric where Magnitude: FloatingPoint {
   ///   return (a - b).magnitude < t * scale
   ///   ```
   ///   The tolerance `t` must be in `.ulpOfOne ..< 1`.  The `minimumScale` must
-  ///   be positive and finite.
+  ///   be non-negative and finite.
   ///
   /// - Parameters:
   ///   - other: The value to compare.
@@ -103,7 +103,7 @@ extension Numeric where Magnitude: FloatingPoint {
       return delta < atol
     case let .relative(rtol, floor):
       assert(rtol >= .ulpOfOne && rtol < 1, "Relative tolerance must be in [.ulpOfOne, 1).")
-      assert(floor >= 0 && floor.isFinite, "Minimum scale must be positive and finite.")
+      assert(floor >= 0 && floor.isFinite, "Minimum scale must be non-negative and finite.")
       let scale = max(self.magnitude, other.magnitude, floor)
       return delta < scale*rtol
     }
