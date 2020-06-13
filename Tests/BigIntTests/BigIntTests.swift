@@ -13,7 +13,7 @@ import XCTest
 @testable import BigIntModule
 
 internal func _randomWords(count: Int) -> (BigInt, AttaswiftBigInt) {
-  var words: [UInt] = (0..<Int.random(in: 1..<count)).map { _ in
+  var words: [UInt] = (0..<Int.random(in: 1...count)).map { _ in
     UInt.random(in: 0..<UInt.max)
   }
   words.append(0)
@@ -281,6 +281,38 @@ final class BigIntModuleTests: XCTestCase {
       XCTAssertEqual(
         (-a.0 << 12345).trailingZeroBitCount,
         (-a.1 << 12345).trailingZeroBitCount)
+    }
+  }
+  
+  func testModularOperations() {
+    XCTAssertEqual(0.inverse(modulo: 1), 0)
+    XCTAssertEqual(3.inverse(modulo: 7), 5)
+    
+    for _ in 0..<100 {
+      let a = _randomWords(count: 1)
+      let b = _randomWords(count: 1)
+      if b.0 == 0 { continue }
+      
+      XCTAssertEqual(
+        a.0.inverse(modulo: b.0),
+        a.1.inverse(b.1).map { BigInt($0) })
+      XCTAssertEqual(
+        (-(a.0)).inverse(modulo: b.0),
+        (-(a.1)).inverse(b.1).map { BigInt($0) })
+    }
+    
+    XCTAssertEqual(Int.pow(0, -1, modulo: 1), 0.inverse(modulo: 1))
+    XCTAssertEqual(Int.pow(3, -1, modulo: 5), 3.inverse(modulo: 5))
+    
+    for _ in 0..<20 {
+      let a = _randomWords(count: 2)
+      let b = _randomWords(count: 2)
+      let c = _randomWords(count: 1)
+      if c.0 == 0 { continue }
+      
+      XCTAssertEqual(
+        BigInt.pow(a.0, b.0, modulo: c.0)!,
+        BigInt(a.1.power(b.1, modulus: c.1)))
     }
   }
 

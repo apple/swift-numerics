@@ -669,13 +669,13 @@ extension BigInt._Significand {
   
   @inlinable
   @discardableResult
-  internal mutating func divide(by other: UInt) -> /* remainder: */ Self {
-    if other == 1 { return Self(0) }
+  internal mutating func divide(by other: UInt) -> /* remainder: */ UInt {
+    if other == 1 { return 0 }
     var remainder = 0 as UInt
     for i in (0..<count).reversed() {
       (self[i], remainder) = other.dividingFullWidth((remainder, self[i]))
     }
-    return Self(remainder)
+    return remainder
   }
   
   // @inlinable
@@ -721,7 +721,7 @@ extension BigInt._Significand {
       other.removeLast(n &- (i &+ 1))
       n = i &+ 1
     }
-    guard n > 1 else { return divide(by: other[0]) }
+    guard n > 1 else { return Self(divide(by: other[0])) }
     let clz = other[n &- 1].leadingZeroBitCount
     
     var m = count - n

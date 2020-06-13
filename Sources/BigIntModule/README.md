@@ -16,6 +16,8 @@ The usual arithmetic operators are provided, as well as conversion to and from a
 * `LosslessStringConvertible`
 * `Codable`
 
+Finally, greatest common divisor (gcd), lowest common multiple (lcm), exponentiation (power), and square root operations are implemented provided for all `BinaryInteger` types, as are the modular multiplicative inverse and modular exponentiation operations.
+
 ## Implementation notes
 
 Internally, `BigInt` represents values by their signum function, significand, and exponent using the following notional formula:
