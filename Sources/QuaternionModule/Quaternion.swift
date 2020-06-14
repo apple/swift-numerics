@@ -32,6 +32,10 @@ import RealModule
 /// Using the infinity norm avoids this problem entirely without significant
 /// downsides. You can access the Euclidean norm using the `length` property.
 /// See `Complex` type of the swift-numerics package for additional details.
+///
+/// `==` does not compare rotations in *R³*; it performs a componentwise and
+/// sign sensitive comparison. You can compare the rotations in *R³* of any
+/// two quaternions using `rotationEquals()`
 public struct Quaternion<RealType> where RealType: Real & SIMDScalar {
 
   /// The components of the 4-dimensional vector space of the quaternion.
@@ -339,6 +343,17 @@ extension Quaternion where RealType: BinaryFloatingPoint {
 
 // MARK: - Conformance to Hashable and Equatable
 extension Quaternion: Hashable {
+  /// Returns a Boolean value indicating whether two values are equal.
+  ///
+  /// Equality is the inverse of inequality. For any values *a* and *b*,
+  /// `a == b` implies that `a != b` is `false`.
+  ///
+  /// - Important:
+  ///   This method does not compare rotations in *R³*, but rather performs
+  ///   a sign sensitive componentwise comparison. So for any *finite* value
+  ///   *q*, this method does **not** return `true` for `q == -q`.
+  ///   If you need to compare the rotations in *R³* of any two quaternions
+  ///   use `rotationEquals()`.
   @_transparent
   public static func == (lhs: Quaternion, rhs: Quaternion) -> Bool {
     // Identify all numbers with either component non-finite as a single "point at infinity".
@@ -350,6 +365,22 @@ extension Quaternion: Hashable {
     return lhs.components == rhs.components
   }
 
+  /// Returns a Boolean value indicating whether the rotation in *R³* of this
+  /// quaternion equals the rotation of `other`.
+  ///
+  /// This method tests for rotation-wise equality in *R³*, where both `q == q`
+  /// but also `q == -q` is `true`.
+  @_transparent
+  public func rotationEquals(_ other: Quaternion) -> Bool {
+    // Identify all numbers with either component non-finite as a single "point at infinity".
+    guard isFinite || other.isFinite else { return true }
+    // For finite numbers, equality is defined componentwise. Cases where
+    // only one of lhs or rhs is infinite fall through to here as well, but this
+    // expression correctly returns false for them so we don't need to handle
+    // them explicitly.
+    return components == other.components || components == -other.components
+  }
+
   @_transparent
   public func hash(into hasher: inout Hasher) {
     // There are two equivalence classes to which we owe special attention:
@@ -358,8 +389,18 @@ extension Quaternion: Hashable {
     // representation. The correct behavior for zero falls out for free from
     // the hash behavior of floating-point, but we need to use a
     // representative member for any non-finite values.
+    // For any values not zero and infinity we use a canonical form, so
+    // that q and -q hash to the same value. This allows people who are using
+    // quaternions as rotations to get the expected semantics out of collections
+    // (while unfortunately producing some collisions for people who are not,
+    // but not in too catastrophic of a fashion).
     if isFinite {
-      components.hash(into: &hasher)
+      let absolute = SIMD4(
+        x: abs(components[0]),
+        y: abs(components[1]),
+        z: abs(components[2]),
+        w: abs(components[3]))
+      absolute.hash(into: &hasher)
     } else {
       hasher.combine(RealType.infinity)
     }
