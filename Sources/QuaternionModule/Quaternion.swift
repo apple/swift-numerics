@@ -365,11 +365,15 @@ extension Quaternion: Hashable {
     return lhs.components == rhs.components
   }
 
-  /// Returns a Boolean value indicating whether the rotation in *R³* of this
-  /// quaternion equals the rotation of `other`.
+  /// Rotation equality comparison
   ///
   /// This method tests for rotation-wise equality in *R³*, where both `q == q`
-  /// but also `q == -q` is `true`.
+  /// but also `q == -q` are `true`.
+  ///
+  /// - Parameters:
+  ///   - other: The value to compare.
+  /// - Returns: Boolean value indicating whether the rotation in *R³* of this
+  /// quaternion equals the rotation of `other`.
   @_transparent
   public func rotationEquals(_ other: Quaternion) -> Bool {
     // Identify all numbers with either component non-finite as a single "point at infinity".
