@@ -33,9 +33,11 @@ import RealModule
 /// downsides. You can access the Euclidean norm using the `length` property.
 /// See `Complex` type of the swift-numerics package for additional details.
 ///
-/// `==` does not compare rotations in *R³*; it performs a componentwise and
-/// sign sensitive comparison. You can compare the rotations in *R³* of any
-/// two quaternions using `rotationEquals()`
+/// Quaternions are frequently used to represent 3D transformations. It's
+/// important to be aware that, when used this way, any quaternion and its
+/// negation represent the same transformation, but they do not compare equal
+/// using `==` because they are not the same quaternion.
+/// You can compare quaternions as 3D transformations using `transformEquals()`.
 public struct Quaternion<RealType> where RealType: Real & SIMDScalar {
 
   /// The components of the 4-dimensional vector space of the quaternion.
@@ -349,11 +351,11 @@ extension Quaternion: Hashable {
   /// `a == b` implies that `a != b` is `false`.
   ///
   /// - Important:
-  ///   This method does not compare rotations in *R³*, but rather performs
-  ///   a sign sensitive componentwise comparison. So for any *finite* value
-  ///   *q*, this method does **not** return `true` for `q == -q`.
-  ///   If you need to compare the rotations in *R³* of any two quaternions
-  ///   use `rotationEquals()`.
+  ///   Quaternions are frequently used to represent 3D transformations. It's
+  ///   important to be aware that, when used this way, any quaternion and its
+  ///   negation represent the same transformation, but they do not compare equal
+  ///   using `==` because they are not the same quaternion.
+  ///   You can compare quaternions as 3D transformations using `transformEquals()`.
   @_transparent
   public static func == (lhs: Quaternion, rhs: Quaternion) -> Bool {
     // Identify all numbers with either component non-finite as a single "point at infinity".
