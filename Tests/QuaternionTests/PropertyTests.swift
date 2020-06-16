@@ -161,7 +161,7 @@ final class PropertyTests: XCTestCase {
       ),
     ]
     for (lhs, rhs) in rotations {
-      XCTAssertTrue(lhs.rotationEquals(rhs))
+      XCTAssertTrue(lhs.transformEquals(rhs))
     }
   }
 
