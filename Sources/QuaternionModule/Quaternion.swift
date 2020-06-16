@@ -446,18 +446,13 @@ extension Quaternion: Hashable {
     // representation. The correct behavior for zero falls out for free from
     // the hash behavior of floating-point, but we need to use a
     // representative member for any non-finite values.
-    // For any values not zero and infinity we use a canonical form, so
-    // that q and -q hash to the same value. This allows people who are using
+    // For any normal values we use the "canonical transform" representation,
+    // where real is always non-negative. This allows people who are using
     // quaternions as rotations to get the expected semantics out of collections
     // (while unfortunately producing some collisions for people who are not,
     // but not in too catastrophic of a fashion).
     if isFinite {
-      let absolute = SIMD4(
-        x: abs(components[0]),
-        y: abs(components[1]),
-        z: abs(components[2]),
-        w: abs(components[3]))
-      absolute.hash(into: &hasher)
+      transformCanonicalized.hash(into: &hasher)
     } else {
       hasher.combine(RealType.infinity)
     }
