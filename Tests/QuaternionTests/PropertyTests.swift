@@ -102,27 +102,35 @@ final class PropertyTests: XCTestCase {
     }
     // Validate that all *normal* values hash their absolute components, so
     // that rotations in *R³* of `q` and `-q` will hash to same value.
-    let pis = [
-      Quaternion<T>(real:  .pi, imaginary:  .pi,  .pi,  .pi),
-      Quaternion<T>(real:  .pi, imaginary: -.pi,  .pi,  .pi),
-      Quaternion<T>(real:  .pi, imaginary:  .pi, -.pi,  .pi),
-      Quaternion<T>(real:  .pi, imaginary:  .pi,  .pi, -.pi),
-      Quaternion<T>(real:  .pi, imaginary: -.pi, -.pi,  .pi),
-      Quaternion<T>(real:  .pi, imaginary: -.pi,  .pi, -.pi),
-      Quaternion<T>(real:  .pi, imaginary:  .pi, -.pi, -.pi),
-      Quaternion<T>(real:  .pi, imaginary: -.pi, -.pi, -.pi),
-
-      Quaternion<T>(real: -.pi, imaginary:  .pi,  .pi,  .pi),
-      Quaternion<T>(real: -.pi, imaginary: -.pi,  .pi,  .pi),
-      Quaternion<T>(real: -.pi, imaginary:  .pi, -.pi,  .pi),
-      Quaternion<T>(real: -.pi, imaginary:  .pi,  .pi, -.pi),
-      Quaternion<T>(real: -.pi, imaginary: -.pi, -.pi,  .pi),
-      Quaternion<T>(real: -.pi, imaginary: -.pi,  .pi, -.pi),
-      Quaternion<T>(real: -.pi, imaginary:  .pi, -.pi, -.pi),
-      Quaternion<T>(real: -.pi, imaginary: -.pi, -.pi, -.pi),
+    let pairs: [(lhs: Quaternion<T>, rhs: Quaternion<T>)] = [
+      (
+        Quaternion<T>(real:  .pi, imaginary:  .pi,  .pi,  .pi),
+        Quaternion<T>(real: -.pi, imaginary:  .pi,  .pi,  .pi)
+      ), (
+        Quaternion<T>(real:  .pi, imaginary: -.pi,  .pi,  .pi),
+        Quaternion<T>(real: -.pi, imaginary: -.pi,  .pi,  .pi)
+      ), (
+        Quaternion<T>(real:  .pi, imaginary:  .pi, -.pi,  .pi),
+        Quaternion<T>(real: -.pi, imaginary:  .pi, -.pi,  .pi)
+      ), (
+        Quaternion<T>(real:  .pi, imaginary:  .pi,  .pi, -.pi),
+        Quaternion<T>(real: -.pi, imaginary:  .pi,  .pi, -.pi)
+      ), (
+        Quaternion<T>(real:  .pi, imaginary: -.pi, -.pi,  .pi),
+        Quaternion<T>(real: -.pi, imaginary: -.pi, -.pi,  .pi)
+      ), (
+        Quaternion<T>(real:  .pi, imaginary: -.pi,  .pi, -.pi),
+        Quaternion<T>(real: -.pi, imaginary: -.pi,  .pi, -.pi)
+      ), (
+        Quaternion<T>(real:  .pi, imaginary:  .pi, -.pi, -.pi),
+        Quaternion<T>(real: -.pi, imaginary:  .pi, -.pi, -.pi)
+      ), (
+        Quaternion<T>(real:  .pi, imaginary: -.pi, -.pi, -.pi),
+        Quaternion<T>(real: -.pi, imaginary: -.pi, -.pi, -.pi)
+      )
     ]
-    for pi in pis[1...] {
-      XCTAssertEqual(pis[0].hashValue, pi.hashValue)
+    for pair in pairs {
+      XCTAssertEqual(pair.lhs.hashValue, pair.rhs.hashValue)
     }
   }
 
@@ -131,21 +139,18 @@ final class PropertyTests: XCTestCase {
     testEquatableHashable(Float64.self)
   }
 
-  func testRotationEquals<T: Real & SIMDScalar>(_ type: T.Type) {
+  func testTransformationEquals<T: Real & SIMDScalar>(_ type: T.Type) {
     let rotations: [(lhs: Quaternion<T>, rhs: Quaternion<T>)] = [
       (
         Quaternion<T>(real:  -.pi, imaginary:  -.pi,  -.pi,  -.pi),
         Quaternion<T>(real:   .pi, imaginary:   .pi,   .pi,   .pi)
-      ),
-      (
+      ), (
         Quaternion<T>(real:   .ulpOfOne, imaginary:   .ulpOfOne,   .ulpOfOne,   .ulpOfOne),
         Quaternion<T>(real:  -.ulpOfOne, imaginary:  -.ulpOfOne,  -.ulpOfOne,  -.ulpOfOne)
-      ),
-      (
+      ), (
         Quaternion<T>(real:   .pi, imaginary:  -.pi,   .pi,  -.pi),
         Quaternion<T>(real:  -.pi, imaginary:   .pi,  -.pi,   .pi)
-      ),
-      (
+      ), (
         Quaternion<T>(real:  -.ulpOfOne, imaginary:  -.ulpOfOne,   .ulpOfOne,   .ulpOfOne),
         Quaternion<T>(real:   .ulpOfOne, imaginary:   .ulpOfOne,  -.ulpOfOne,  -.ulpOfOne)
       ),
@@ -154,8 +159,7 @@ final class PropertyTests: XCTestCase {
       (
          Quaternion<T>.zero,
         -Quaternion<T>.zero
-      ),
-      (
+      ), (
         -Quaternion<T>.infinity,
          Quaternion<T>.infinity
       ),
@@ -165,9 +169,9 @@ final class PropertyTests: XCTestCase {
     }
   }
 
-  func testRotationEquals() {
-    testRotationEquals(Float32.self)
-    testRotationEquals(Float64.self)
+  func testTransformationEquals() {
+    testTransformationEquals(Float32.self)
+    testTransformationEquals(Float64.self)
   }
 
   func testCodable<T: Real & SIMDScalar>(_ type: T.Type) throws {
