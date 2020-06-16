@@ -270,11 +270,40 @@ extension Quaternion {
   /// before passing across language boundaries, but it may also be useful
   /// for some serialization tasks. It's also a useful implementation detail for
   /// some primitive operations.
+  ///
+  /// See also:
+  /// -
+  /// - `.transformCanonicalized`
   @_transparent
   public var canonicalized: Self {
     guard !isZero else { return .zero }
     guard isFinite else { return .infinity }
     return self.multiplied(by: 1)
+  }
+
+  /// A "canonical transformation" representation of the value.
+  ///
+  /// For normal quaternion instances with a RealType conforming to
+  /// BinaryFloatingPoint (the common case) and a non-negative real component,
+  /// the result is simply this value unmodified. For instances with a negative
+  /// real component, the result is a quaternion with a positive real component
+  /// of equal magnitude and an unmodified imaginary compontent (-r, x, y, z).
+  /// For zeros, the result has the representation (+0, +0, +0, +0). For
+  /// infinite values, the result has the representation (+inf, +0, +0, +0).
+  ///
+  /// If the RealType admits non-canonical representations, the x, y, z and r
+  /// components are canonicalized in the result.
+  ///
+  /// See also:
+  /// -
+  /// - `.canonicalized`
+  @_transparent
+  public var transformCanonicalized: Self {
+    var canonical = canonicalized
+    if canonical.real.sign == .plus { return canonical }
+    // Clear the signbit of real even for -0
+    canonical.real.negate()
+    return canonical
   }
 }
 
