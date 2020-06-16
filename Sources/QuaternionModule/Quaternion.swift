@@ -404,9 +404,9 @@ extension Quaternion: Hashable {
   /// - Important:
   ///   Quaternions are frequently used to represent 3D transformations. It's
   ///   important to be aware that, when used this way, any quaternion and its
-  ///   negation represent the same transformation, but they do not compare equal
-  ///   using `==` because they are not the same quaternion.
-  ///   You can compare quaternions as 3D transformations using `transformEquals()`.
+  ///   negation represent the same transformation, but they do not compare
+  ///   equal using `==` because they are not the same quaternion. You can
+  ///   compare quaternions as 3D transformations using `transformEquals()`.
   @_transparent
   public static func == (lhs: Quaternion, rhs: Quaternion) -> Bool {
     // Identify all numbers with either component non-finite as a single "point at infinity".
@@ -418,21 +418,19 @@ extension Quaternion: Hashable {
     return lhs.components == rhs.components
   }
 
-  /// Rotation equality comparison
+  /// Transformation equality comparison
   ///
-  /// This method tests for rotation-wise equality in *R³*, where both `q == q`
-  /// but also `q == -q` are `true`.
+  /// Returns a Boolean value indicating whether the 3D transformations of this
+  /// quaternion equals the 3D transformation of `other`.
   ///
-  /// - Parameters:
-  ///   - other: The value to compare.
-  /// - Returns: Boolean value indicating whether the rotation in *R³* of this
-  /// quaternion equals the rotation of `other`.
+  /// - Parameter other: The value to compare.
+  /// - Returns: True if the transformation of this quaternion equals `other`.
   @_transparent
-  public func rotationEquals(_ other: Quaternion) -> Bool {
+  public func transformEquals(_ other: Quaternion) -> Bool {
     // Identify all numbers with either component non-finite as a single "point at infinity".
     guard isFinite || other.isFinite else { return true }
-    // For finite numbers, equality is defined componentwise. Cases where
-    // only one of lhs or rhs is infinite fall through to here as well, but this
+    // For finite numbers, equality is defined componentwise. Cases where only
+    // one of lhs or rhs is infinite fall through to here as well, but this
     // expression correctly returns false for them so we don't need to handle
     // them explicitly.
     return components == other.components || components == -other.components
@@ -452,7 +450,7 @@ extension Quaternion: Hashable {
     // (while unfortunately producing some collisions for people who are not,
     // but not in too catastrophic of a fashion).
     if isFinite {
-      transformCanonicalized.hash(into: &hasher)
+      transformCanonicalized.components.hash(into: &hasher)
     } else {
       hasher.combine(RealType.infinity)
     }
