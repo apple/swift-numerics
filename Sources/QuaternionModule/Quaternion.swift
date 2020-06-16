@@ -254,6 +254,28 @@ extension Quaternion {
   public var isPure: Bool {
     real.isZero
   }
+
+  /// A "canonical" representation of the value.
+  ///
+  /// For normal quaternion instances with a RealType conforming to
+  /// BinaryFloatingPoint (the common case), the result is simply this value
+  /// unmodified. For zeros, the result has the representation (+0, +0, +0, +0).
+  /// For infinite values, the result has the representation (+inf, +0, +0, +0).
+  ///
+  /// If the RealType admits non-canonical representations, the x, y, z and r
+  /// components are canonicalized in the result.
+  ///
+  /// This is mainly useful for interoperation with other languages, where
+  /// you may want to reduce each equivalence class to a single representative
+  /// before passing across language boundaries, but it may also be useful
+  /// for some serialization tasks. It's also a useful implementation detail for
+  /// some primitive operations.
+  @_transparent
+  public var canonicalized: Self {
+    guard !isZero else { return .zero }
+    guard isFinite else { return .infinity }
+    return self.multiplied(by: 1)
+  }
 }
 
 // MARK: - Additional Initializers
