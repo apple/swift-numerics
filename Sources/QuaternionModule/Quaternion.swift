@@ -273,7 +273,7 @@ extension Quaternion {
   ///
   /// See also:
   /// -
-  /// - `.transformCanonicalized`
+  /// - `.canonicalizedTransform`
   @_transparent
   public var canonicalized: Self {
     guard !isZero else { return .zero }
@@ -298,7 +298,7 @@ extension Quaternion {
   /// -
   /// - `.canonicalized`
   @_transparent
-  public var transformCanonicalized: Self {
+  public var canonicalizedTransform: Self {
     var canonical = canonicalized
     if canonical.real.sign == .plus { return canonical }
     // Clear the signbit of real even for -0
@@ -450,7 +450,7 @@ extension Quaternion: Hashable {
     // (while unfortunately producing some collisions for people who are not,
     // but not in too catastrophic of a fashion).
     if isFinite {
-      transformCanonicalized.components.hash(into: &hasher)
+      canonicalizedTransform.components.hash(into: &hasher)
     } else {
       hasher.combine(RealType.infinity)
     }
