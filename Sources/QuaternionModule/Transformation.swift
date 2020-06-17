@@ -308,6 +308,42 @@ extension Quaternion {
       self = Quaternion(length)
     }
   }
+
+  /// Rotates given vector by this quaternion.
+  ///
+  /// As quaternions can be used to represent three-dimensional rotations, it is
+  /// is possible to also rotate a three-dimensional vector by a quaternion. The
+  /// rotation of an arbitrary vector by a quaternion is known as an action.
+  ///
+  /// - Note: This method assumes this quaternion is of unit length.
+  ///
+  /// Edge cases:
+  /// -
+  /// - If `vector` is `.infinity` in any of the lanes or all, the returning
+  /// vector is `.infinity` in all lanes:
+  ///   ```
+  ///   Quaternion(rotation: .zero) == .zero
+  ///   ```
+  ///
+  /// - Parameter vector: A vector to rotate by this quaternion
+  /// - Returns: The vector rotated by this quaternion
+  @inlinable
+  public func act(on vector: SIMD3<RealType>) -> SIMD3<RealType> {
+    guard vector.isFinite else { return SIMD3(repeating: .infinity) }
+
+    // The following expression have been split up so the type-checker
+    // can resolve them in a reasonable time.
+    let p1 = vector * (real*real - imaginary.lengthSquared)
+    let p2 = 2 * imaginary * imaginary.dot(vector)
+    let p3 = 2 * real * imaginary.cross(vector)
+    let rotatedVector = p1 + p2 + p3
+    if rotatedVector.isFinite { return rotatedVector }
+
+    // If the vector is no longer finite after it is rotated, scale it down,
+    // rotate it again and then scale it back-up after the rotation operation
+    let scale = max(abs(vector.max()), abs(vector.min()))
+    return act(on: vector/scale) * scale
+  }
 }
 
 // MARK: - Transformation Helper
@@ -351,19 +387,29 @@ extension Quaternion {
 // and *(x,y,z)* axis representations internally to the module.
 extension SIMD3 where Scalar: FloatingPoint {
 
-  /// Returns the squared length of this SIMD3 instance.
+  /// Returns the squared length of this instance.
   @usableFromInline @inline(__always)
   internal var lengthSquared: Scalar {
-    (self * self).sum()
+    dot(self)
   }
 
-  /// Returns the vector/cross product of this quaternion with `other`.
+  /// True if all values of this instance are finite
   @usableFromInline @inline(__always)
-  internal func vectorProduct(with other: SIMD3<Scalar>) -> SIMD3<Scalar> {
-    let selfYZW = self[SIMD3<Int>(1,2,0)]
-    let otherYZX = other[SIMD3<Int>(1,2,0)]
-    let selfZXY = self[SIMD3<Int>(2,0,1)]
-    let otherZXY = other[SIMD3<Int>(2,0,1)]
-    return (selfYZW * otherZXY) - (selfZXY * otherYZX)
+  internal var isFinite: Bool {
+    x.isFinite && y.isFinite && z.isFinite
+  }
+
+  /// Returns the scalar/dot product of this vector with `other`.
+  @usableFromInline @inline(__always)
+  internal func dot(_ other: SIMD3<Scalar>) -> Scalar {
+    (self * other).sum()
+  }
+
+  /// Returns the vector/cross product of this vector with `other`.
+  @usableFromInline @inline(__always)
+  internal func cross(_ other: SIMD3<Scalar>) -> SIMD3<Scalar> {
+    let yzx = SIMD3<Int>(1,2,0)
+    let zxy = SIMD3<Int>(2,0,1)
+    return (self[yzx] * other[zxy]) - (self[zxy] * other[yzx])
   }
 }
