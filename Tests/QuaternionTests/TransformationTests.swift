@@ -237,15 +237,15 @@ final class TransformationTests: XCTestCase {
       let vrot = (q                     // q
         * Quaternion(imaginary: vector) // v   (pure quaternion)
         * q.conjugate                   // q⁻¹ (as q is of unit length, q⁻¹ == q*)
-      ).imaginary // the result is pure quaternion with v' == imaginary
+      ).imaginary // the result is a pure quaternion with v' == imaginary
 
       XCTAssertTrue(q.act(on: vector).x.isFinite)
       XCTAssertTrue(q.act(on: vector).y.isFinite)
       XCTAssertTrue(q.act(on: vector).z.isFinite)
       // Test for sign equality on the components to see if the vector rotated
-      // to the correct quadrant and if the vector is of equal in length,
-      // instead of testing component equality – as they are hard to compare
-      // with proper tolerance
+      // to the correct quadrant and if the vector is of equal length, instead
+      // of testing component equality – as they are hard to compare with
+      // proper tolerance
       XCTAssertEqual(q.act(on: vector).x.sign, vrot.x.sign)
       XCTAssertEqual(q.act(on: vector).y.sign, vrot.y.sign)
       XCTAssertEqual(q.act(on: vector).z.sign, vrot.z.sign)
@@ -274,7 +274,7 @@ final class TransformationTests: XCTestCase {
 
     // An axis perpendicular to the vector, so all lanes are changing equally
     let axis = SIMD3<T>(1/2,0,-1/2)
-    // Create a value close (somewhat) close to .greatestFiniteMagnitude
+    // Create a value (somewhat) close to .greatestFiniteMagnitude
     let scalar = T(
       sign: .plus, exponent: T.greatestFiniteMagnitude.exponent,
       significand: 1.999999
