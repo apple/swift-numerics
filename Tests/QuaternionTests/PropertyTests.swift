@@ -104,28 +104,28 @@ final class PropertyTests: XCTestCase {
     // that rotations in *R³* of `q` and `-q` will hash to same value.
     let pairs: [(lhs: Quaternion<T>, rhs: Quaternion<T>)] = [
       (
-        Quaternion<T>(real:  .pi, imaginary:  .pi,  .pi,  .pi),
-        Quaternion<T>(real: -.pi, imaginary:  .pi,  .pi,  .pi)
+        Quaternion<T>(real: -.pi, imaginary:  .pi,  .pi,  .pi),
+        Quaternion<T>(real:  .pi, imaginary: -.pi, -.pi, -.pi)
       ), (
         Quaternion<T>(real:  .pi, imaginary: -.pi,  .pi,  .pi),
-        Quaternion<T>(real: -.pi, imaginary: -.pi,  .pi,  .pi)
-      ), (
-        Quaternion<T>(real:  .pi, imaginary:  .pi, -.pi,  .pi),
-        Quaternion<T>(real: -.pi, imaginary:  .pi, -.pi,  .pi)
-      ), (
-        Quaternion<T>(real:  .pi, imaginary:  .pi,  .pi, -.pi),
-        Quaternion<T>(real: -.pi, imaginary:  .pi,  .pi, -.pi)
-      ), (
-        Quaternion<T>(real:  .pi, imaginary: -.pi, -.pi,  .pi),
-        Quaternion<T>(real: -.pi, imaginary: -.pi, -.pi,  .pi)
-      ), (
-        Quaternion<T>(real:  .pi, imaginary: -.pi,  .pi, -.pi),
-        Quaternion<T>(real: -.pi, imaginary: -.pi,  .pi, -.pi)
-      ), (
-        Quaternion<T>(real:  .pi, imaginary:  .pi, -.pi, -.pi),
         Quaternion<T>(real: -.pi, imaginary:  .pi, -.pi, -.pi)
       ), (
-        Quaternion<T>(real:  .pi, imaginary: -.pi, -.pi, -.pi),
+        Quaternion<T>(real:  .pi, imaginary:  .pi, -.pi,  .pi),
+        Quaternion<T>(real: -.pi, imaginary: -.pi,  .pi, -.pi)
+      ), (
+        Quaternion<T>(real:  .pi, imaginary:  .pi,  .pi, -.pi),
+        Quaternion<T>(real: -.pi, imaginary: -.pi, -.pi,  .pi)
+      ), (
+        Quaternion<T>(real: -.pi, imaginary: -.pi,  .pi,  .pi),
+        Quaternion<T>(real:  .pi, imaginary:  .pi, -.pi, -.pi)
+      ), (
+        Quaternion<T>(real:  .pi, imaginary: -.pi, -.pi,  .pi),
+        Quaternion<T>(real: -.pi, imaginary:  .pi,  .pi, -.pi)
+      ), (
+        Quaternion<T>(real:  .pi, imaginary:  .pi, -.pi, -.pi),
+        Quaternion<T>(real: -.pi, imaginary: -.pi,  .pi,  .pi)
+      ), (
+        Quaternion<T>(real:  .pi, imaginary:  .pi,  .pi,  .pi),
         Quaternion<T>(real: -.pi, imaginary: -.pi, -.pi, -.pi)
       )
     ]
