@@ -121,8 +121,8 @@ extension Quaternion {
 
   /// The [polar decomposition][wiki].
   ///
-  /// Returns the length of this quaternion, half rotation angle in radians of
-  /// *[0, π]* range and the rotation axis as SIMD3 vector of unit length.
+  /// Returns the length of this quaternion, phase in radians of range *[0, π]*
+  /// and the rotation axis as SIMD3 vector of unit length.
   ///
   /// Edge cases:
   /// -
@@ -144,7 +144,7 @@ extension Quaternion {
   /// - `init(rotation:)`
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Polar_decomposition#Quaternion_polar_decomposition
-  public var polar: (length: RealType, halfAngle: RealType, axis: SIMD3<RealType>) {
+  public var polar: (length: RealType, phase: RealType, axis: SIMD3<RealType>) {
     (length, halfAngle, axis)
   }
 
@@ -257,11 +257,11 @@ extension Quaternion {
 
   /// Creates a quaternion specified with [polar coordinates][wiki].
   ///
-  /// This initializer reads given `length`, `halfAngle` and `axis` values and
+  /// This initializer reads given `length`, `phase` and `axis` values and
   /// creates a quaternion of equal rotation properties and specified *length*
   /// using the following equation:
   ///
-  ///     Q = (cos(halfAngle), axis * sin(halfAngle)) * length
+  ///     Q = (cos(phase), axis * sin(phase)) * length
   ///
   /// Given `axis` gets normalized if it is not of unit length.
   ///
@@ -293,11 +293,11 @@ extension Quaternion {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Polar_decomposition#Quaternion_polar_decomposition
   @inlinable
-  public init(length: RealType, halfAngle: RealType, axis: SIMD3<RealType>) {
+  public init(length: RealType, phase: RealType, axis: SIMD3<RealType>) {
     let axisLength: RealType = .sqrt(axis.lengthSquared)
-    if halfAngle.isFinite && axisLength.isNormal {
+    if phase.isFinite && axisLength.isNormal {
       self = Quaternion(
-        halfAngle: halfAngle,
+        halfAngle: phase,
         unitAxis: axis/axisLength
       ).multiplied(by: length)
     } else {
