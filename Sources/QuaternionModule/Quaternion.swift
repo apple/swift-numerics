@@ -286,8 +286,8 @@ extension Quaternion {
   /// For normal quaternion instances with a RealType conforming to
   /// BinaryFloatingPoint (the common case) and a non-negative real component,
   /// the result is simply this value unmodified. For instances with a negative
-  /// real component, the result is a quaternion with a positive real component
-  /// of equal magnitude and an unmodified imaginary compontent (-r, x, y, z).
+  /// real component, the result is this quaternion negated -(r, x, y, z); so
+  /// the real component is always positive.
   /// For zeros, the result has the representation (+0, +0, +0, +0). For
   /// infinite values, the result has the representation (+inf, +0, +0, +0).
   ///
@@ -299,11 +299,9 @@ extension Quaternion {
   /// - `.canonicalized`
   @_transparent
   public var canonicalizedTransform: Self {
-    var canonical = canonicalized
+    let canonical = canonicalized
     if canonical.real.sign == .plus { return canonical }
-    // Clear the signbit of real even for -0
-    canonical.real.negate()
-    return canonical
+    return -canonical
   }
 }
 
