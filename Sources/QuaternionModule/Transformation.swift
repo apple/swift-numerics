@@ -25,8 +25,8 @@ extension Quaternion {
   /// - `.angleAxis`
   /// - `.polar`
   /// - `.rotationVector`
-  /// - `init(angle:axis:)`
-  /// - `init(length:angle:axis)`
+  /// - `init(length:angle:axis:)`
+  /// - `init(length:phase:axis)`
   /// - `init(rotation:)`
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
@@ -51,14 +51,14 @@ extension Quaternion {
   /// - `.angleAxis`
   /// - `.polar`
   /// - `.rotationVector`
-  /// - `init(angle:axis:)`
-  /// - `init(length:angle:axis)`
+  /// - `init(length:angle:axis:)`
+  /// - `init(length:phase:axis)`
   /// - `init(rotation:)`
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
   @inlinable
   public var axis: SIMD3<RealType> {
-    guard isFinite && imaginary != .zero && !real.isZero else {
+    guard isFinite, imaginary != .zero, real != .zero else {
       return SIMD3(repeating: .nan)
     }
     return imaginary / .sqrt(imaginary.lengthSquared)
@@ -66,8 +66,8 @@ extension Quaternion {
 
   /// The [Angle-Axis][wiki] representation.
   ///
-  /// Returns the rotation angle in radians within *[0, 2π]* and the rotation
-  /// axis as SIMD3 vector of unit length.
+  /// Returns the length of the quaternion, the rotation angle in radians
+  /// within *[0, 2π]* and the rotation axis as SIMD3 vector of unit length.
   ///
   /// Edge cases:
   /// -
@@ -80,13 +80,13 @@ extension Quaternion {
   /// - `.axis`
   /// - `.polar`
   /// - `.rotationVector`
-  /// - `init(angle:axis:)`
-  /// - `init(length:angle:axis)`
+  /// - `init(length:angle:axis:)`
+  /// - `init(length:phase:axis)`
   /// - `init(rotation:)`
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
-  public var angleAxis: (angle: RealType, axis: SIMD3<RealType>) {
-    (angle, axis)
+  public var angleAxis: (length: RealType, angle: RealType, axis: SIMD3<RealType>) {
+    (length, angle, axis)
   }
 
   /// The [rotation vector][rotvector].
@@ -109,8 +109,8 @@ extension Quaternion {
   /// - `.angle`
   /// - `.axis`
   /// - `.angleAxis`
-  /// - `init(angle:axis:)`
-  /// - `init(length:angle:axis)`
+  /// - `init(length:angle:axis:)`
+  /// - `init(length:phase:axis)`
   /// - `init(rotation:)`
   ///
   /// [rotvector]: https://en.wikipedia.org/wiki/Axis–angle_representation#Rotation_vector
@@ -139,8 +139,8 @@ extension Quaternion {
   /// - `.axis`
   /// - `.angleAxis`
   /// - `.rotationVector`
-  /// - `init(angle:axis:)`
-  /// - `init(length:angle:axis)`
+  /// - `init(length:angle:axis:)`
+  /// - `init(length:phase:axis)`
   /// - `init(rotation:)`
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Polar_decomposition#Quaternion_polar_decomposition
@@ -150,28 +150,31 @@ extension Quaternion {
 
   /// Creates a unit quaternion specified with [Angle-Axis][wiki] values.
   ///
-  /// Angle-Axis is a representation of a 3D rotation using two different
-  /// quantities: an angle describing the magnitude of rotation, and a vector
-  /// of unit length indicating the axis direction to rotate along.
+  /// Angle-Axis is a representation of a three-dimensional rotation using two
+  /// different quantities: an angle describing the magnitude of rotation, and
+  /// a vector of unit length indicating the axis direction to rotate along.
+  /// The optional length parameter scales the quaternion after the conversion.
   ///
-  /// This initializer reads given `angle` and `axis` values and creates a
-  /// quaternion of equal rotation properties using the following equation:
+  /// This initializer reads given `length`, `angle` and `axis` values and
+  /// creates a quaternion of equal rotation properties and of specified length
+  /// using the following equation:
   ///
-  ///     Q = (cos(angle/2), axis * sin(angle/2))
+  ///     Q = (cos(angle/2), axis * sin(angle/2)) * length
   ///
-  /// Given `axis` gets normalized if it is not of unit length.
+  /// If `length` is not specified, it defaults to *1*; and the final
+  /// quaternion is of unit length.
   ///
-  /// The final quaternion is of unit length.
+  /// - Note: `axis` must be of unit length, or an assertion failure occurs.
   ///
   /// Edge cases:
   /// -
   /// - For any `θ`, even `.infinity` or `.nan`:
   ///   ```
-  ///   Quaternion(angle: θ, axis: .zero) == .zero
+  ///   Quaternion(length: .zero, angle: θ, axis: axis) == .zero
   ///   ```
   /// - For any `θ`, even `.infinity` or `.nan`:
   ///   ```
-  ///   Quaternion(angle: θ, axis: .infinity) == .ininfity
+  ///   Quaternion(length: .infinity, angle: θ, axis: axis) == .ininfity
   ///   ```
   /// - Otherwise, `θ` must be finite, or a precondition failure occurs.
   ///
@@ -183,24 +186,36 @@ extension Quaternion {
   /// - `.rotationVector`
   /// - `.polar`
   /// - `init(rotation:)`
-  /// - `init(length:angle:axis)`
+  /// - `init(length:phase:axis)`
   ///
-  /// - Parameter angle: The rotation angle about the rotation axis in radians
-  /// - Parameter axis: The rotation axis
+  /// - Parameter length: The length of the quaternion. Defaults to `1`.
+  /// - Parameter angle: The rotation angle about the rotation axis in radians.
+  /// - Parameter axis: The rotation axis. Must be of unit length.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
   @inlinable
-  public init(angle: RealType, axis: SIMD3<RealType>) {
-    let length: RealType = .sqrt(axis.lengthSquared)
-    if angle.isFinite && length.isNormal {
-      self = Quaternion(halfAngle: angle/2, unitAxis: axis/length)
-    } else {
-      precondition(
-        length.isZero || length.isInfinite,
-        "Either angle must be finite, or axis length must be zero or infinite."
-      )
+  public init(length: RealType = 1, angle: RealType, axis: SIMD3<RealType>) {
+    guard !length.isZero, length.isFinite else {
       self = Quaternion(length)
+      return
     }
+
+    // Length is finite and non-zero, therefore
+    // 1. `angle` must be finite or a precondition failure needs to occur; as
+    //    this is not representable.
+    // 2. `axis` must be of unit length or an assertion failure occurs; while
+    //    "wrong" by definition, it is representable.
+    precondition(
+      angle.isFinite,
+      "Either angle must be finite, or length must be zero or infinite."
+    )
+    assert(
+      // TODO: Replace with `approximateEquality()`
+      abs(.sqrt(axis.lengthSquared)-1) < max(.sqrt(axis.lengthSquared), 1)*RealType.ulpOfOne.squareRoot(),
+      "Given axis must be of unit length."
+    )
+
+    self = Quaternion(halfAngle: angle/2,unitAxis: axis).multiplied(by: length)
   }
 
   /// Creates a unit quaternion specified with given [rotation vector][wiki].
@@ -239,8 +254,8 @@ extension Quaternion {
   /// - `.angleAxis`
   /// - `.polar`
   /// - `.rotationVector`
-  /// - `init(angle:axis:)`
-  /// - `init(length:angle:axis)`
+  /// - `init(length:angle:axis:)`
+  /// - `init(length:phase:axis)`
   ///
   /// - Parameter vector: The rotation vector.
   ///
