@@ -168,13 +168,17 @@ extension Quaternion {
   ///
   /// Edge cases:
   /// -
-  /// - For any `θ`, even `.infinity` or `.nan`:
+  /// - Negative lengths are interpreted as reflecting the point through the origin, i.e.:
+  ///   ```
+  ///   Quaternion(length: -r, angle: θ, axis: axis) == -Quaternion(length: r, angle: θ, axis: axis)
+  ///   ```
+  /// - For any `θ` and any `axis`, even `.infinity` or `.nan`:
   ///   ```
   ///   Quaternion(length: .zero, angle: θ, axis: axis) == .zero
   ///   ```
-  /// - For any `θ`, even `.infinity` or `.nan`:
+  /// - For any `θ` and any `axis`, even `.infinity` or `.nan`:
   ///   ```
-  ///   Quaternion(length: .infinity, angle: θ, axis: axis) == .ininfity
+  ///   Quaternion(length: .infinity, angle: θ, axis: axis) == .infinity
   ///   ```
   /// - Otherwise, `θ` must be finite, or a precondition failure occurs.
   ///
@@ -215,7 +219,7 @@ extension Quaternion {
       "Given axis must be of unit length."
     )
 
-    self = Quaternion(halfAngle: angle/2,unitAxis: axis).multiplied(by: length)
+    self = Quaternion(halfAngle: angle/2, unitAxis: axis).multiplied(by: length)
   }
 
   /// Creates a unit quaternion specified with given [rotation vector][wiki].
@@ -278,23 +282,23 @@ extension Quaternion {
   ///
   ///     Q = (cos(phase), axis * sin(phase)) * length
   ///
-  /// Given `axis` gets normalized if it is not of unit length.
+  /// - Note: `axis` must be of unit length, or an assertion failure occurs.
   ///
   /// Edge cases:
   /// -
   /// - Negative lengths are interpreted as reflecting the point through the origin, i.e.:
   ///   ```
-  ///   Quaternion(length: -r, angle: θ, axis: axis) == Quaternion(length: -r, angle: θ, axis: axis)
+  ///   Quaternion(length: -r, phase: θ, axis: axis) == -Quaternion(length: r, phase: θ, axis: axis)
   ///   ```
   /// - For any `θ` and any `axis`, even `.infinity` or `.nan`:
   ///   ```
-  ///   Quaternion(length: .zero, angle: θ, axis: axis) == .zero
+  ///   Quaternion(length: .zero, phase: θ, axis: axis) == .zero
   ///   ```
   /// - For any `θ` and any `axis`, even `.infinity` or `.nan`:
   ///   ```
-  ///   Quaternion(length: .infinity, angle: θ, axis: axis) == .infinity
+  ///   Quaternion(length: .infinity, phase: θ, axis: axis) == .infinity
   ///   ```
-  /// - Otherwise, `θ` and `axis` must be finite, or a precondition failure occurs.
+  /// - Otherwise, `θ` must be finite, or a precondition failure occurs.
   ///
   /// See also:
   /// -
@@ -303,25 +307,33 @@ extension Quaternion {
   /// - `.angleAxis`
   /// - `.rotationVector`
   /// - `.polar`
-  /// - `init(angle:axis)`
+  /// - `init(length:angle:axis:)`
   /// - `init(rotation:)`
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Polar_decomposition#Quaternion_polar_decomposition
   @inlinable
   public init(length: RealType, phase: RealType, axis: SIMD3<RealType>) {
-    let axisLength: RealType = .sqrt(axis.lengthSquared)
-    if phase.isFinite && axisLength.isNormal {
-      self = Quaternion(
-        halfAngle: phase,
-        unitAxis: axis/axisLength
-      ).multiplied(by: length)
-    } else {
-      precondition(
-        length.isZero || length.isInfinite,
-        "Either angle must be finite, or length must be zero or infinite."
-      )
+    guard !length.isZero, length.isFinite else {
       self = Quaternion(length)
+      return
     }
+
+    // Length is finite and non-zero, therefore
+    // 1. `phase` must be finite or a precondition failure needs to occur; as
+    //    this is not representable.
+    // 2. `axis` must be of unit length or an assertion failure occurs; while
+    //    "wrong" by definition, it is representable.
+    precondition(
+      phase.isFinite,
+      "Either phase must be finite, or length must be zero or infinite."
+    )
+    assert(
+      // TODO: Replace with `approximateEquality()`
+      abs(.sqrt(axis.lengthSquared)-1) < max(.sqrt(axis.lengthSquared), 1)*RealType.ulpOfOne.squareRoot(),
+      "Given axis must be of unit length."
+    )
+
+    self = Quaternion(halfAngle: phase, unitAxis: axis).multiplied(by: length)
   }
 
   /// Transforms a vector by this quaternion.
