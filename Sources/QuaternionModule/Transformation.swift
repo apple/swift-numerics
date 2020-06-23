@@ -309,24 +309,40 @@ extension Quaternion {
     }
   }
 
-  /// Rotates given vector by this quaternion.
+  /// Transforms a vector by this quaternion.
   ///
-  /// As quaternions can be used to represent three-dimensional rotations, it is
-  /// is possible to also rotate a three-dimensional vector by a quaternion. The
-  /// rotation of an arbitrary vector by a quaternion is known as an action.
+  /// Quaternions are frequently used to represent three-dimensional
+  /// transformations, and thus are used to transform vectors in
+  /// three-dimensional space. The transformation of an arbitrary vector
+  /// by a quaternion is known as an action.
+  ///
+  /// The canonical way of transforming an arbitrary three-dimensional vector
+  /// `v` by a quaternion `q` is given by the following [formula][wiki]
+  ///
+  ///     p' = qpq⁻¹
+  ///
+  /// where `p` is a *pure* quaternion (`real == .zero`) with imaginary part equal
+  /// to vector `v`, and where `p'` is another pure quaternion with imaginary
+  /// part equal to the transformed vector `v'`. The implementation uses this
+  /// formular but boils down to a simpler and faster implementation as `p` is
+  /// known to be pure and `q` is assumed to have unit length – which allows
+  /// simplification.
   ///
   /// - Note: This method assumes this quaternion is of unit length.
   ///
   /// Edge cases:
   /// -
-  /// - If `vector` is `.infinity` in any of the lanes or all, the returning
+  /// - For any quaternion `q`, even `.zero` or `.infinity`, if `vector` is
+  /// `.infinity` or `-.infinity` in any of the lanes or all, the returning
   /// vector is `.infinity` in all lanes:
   ///   ```
-  ///   Quaternion(rotation: .zero) == .zero
+  ///   SIMD3(-.infinity,0,0) * q == SIMD3(.infinity,.infinity,.infinity)
   ///   ```
   ///
   /// - Parameter vector: A vector to rotate by this quaternion
   /// - Returns: The vector rotated by this quaternion
+  ///
+  /// [wiki]: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Using_quaternion_as_rotations
   @inlinable
   public func act(on vector: SIMD3<RealType>) -> SIMD3<RealType> {
     guard vector.isFinite else { return SIMD3(repeating: .infinity) }
