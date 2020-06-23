@@ -62,53 +62,53 @@ final class TransformationTests: XCTestCase {
 
   func testAngleAxisEdgeCases<T: Real & SIMDScalar>(_ type: T.Type) {
     // Zero/Zero
-    XCTAssertTrue(Quaternion<T>(angle: .zero, axis: .zero).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: .zero, axis: .zero).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: .zero, axis: .zero), .zero)
+    XCTAssertTrue(Quaternion<T>(length: .zero, angle: .zero, axis: .zero).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: .zero, angle: .zero, axis: .zero).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: .zero, angle: .zero, axis: .zero), .zero)
     // Inf/Zero
-    XCTAssertTrue(Quaternion<T>(angle: .infinity, axis: .zero).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: .infinity, axis: .zero).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: .infinity, axis: .zero), .zero)
+    XCTAssertTrue(Quaternion<T>(length: .zero, angle: .infinity, axis: .infinity).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: .zero, angle: .infinity, axis: .infinity).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: .zero, angle: .infinity, axis: .infinity), .zero)
     // -Inf/Zero
-    XCTAssertTrue(Quaternion<T>(angle: -.infinity, axis: .zero).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: -.infinity, axis: .zero).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: -.infinity, axis: .zero), .zero)
+    XCTAssertTrue(Quaternion<T>(length: .zero, angle: -.infinity, axis: -.infinity).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: .zero, angle: -.infinity, axis: -.infinity).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: .zero, angle: -.infinity, axis: -.infinity), .zero)
     // NaN/Zero
-    XCTAssertTrue(Quaternion<T>(angle: .nan, axis: .zero).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: .nan, axis: .zero).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: .nan, axis: .zero), .zero)
+    XCTAssertTrue(Quaternion<T>(length: .zero, angle: .nan, axis: .nan).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: .zero, angle: .nan, axis: .nan).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: .zero, angle: .nan, axis: .nan), .zero)
     // Zero/Inf
-    XCTAssertTrue(Quaternion<T>(angle: .zero, axis: .infinity).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: .zero, axis: .infinity).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: .zero, axis: .infinity), .infinity)
+    XCTAssertTrue(Quaternion<T>(length: .infinity, angle: .zero, axis: .zero).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: .infinity, angle: .zero, axis: .zero).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, angle: .zero, axis: .zero), .infinity)
     // Inf/Inf
-    XCTAssertTrue(Quaternion<T>(angle: .infinity, axis: .infinity).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: .infinity, axis: .infinity).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: .infinity, axis: .infinity), .infinity)
+    XCTAssertTrue(Quaternion<T>(length: .infinity, angle: .infinity, axis: .infinity).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: .infinity, angle: .infinity, axis: .infinity).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, angle: .infinity, axis: .infinity), .infinity)
     // -Inf/Inf
-    XCTAssertTrue(Quaternion<T>(angle: -.infinity, axis: .infinity).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: -.infinity, axis: .infinity).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: -.infinity, axis: .infinity), .infinity)
+    XCTAssertTrue(Quaternion<T>(length: .infinity, angle: -.infinity, axis: -.infinity).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: .infinity, angle: -.infinity, axis: -.infinity).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, angle: -.infinity, axis: -.infinity), .infinity)
     // NaN/Inf
-    XCTAssertTrue(Quaternion<T>(angle: .nan, axis: .infinity).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: .nan, axis: .infinity).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: .nan, axis: .infinity), .infinity)
+    XCTAssertTrue(Quaternion<T>(length: .infinity, angle: .nan, axis: .nan).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: .infinity, angle: .nan, axis: .nan).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, angle: .nan, axis: .nan), .infinity)
     // Zero/-Inf
-    XCTAssertTrue(Quaternion<T>(angle: .zero, axis: -.infinity).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: .zero, axis: -.infinity).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: .zero, axis: -.infinity), .infinity)
+    XCTAssertTrue(Quaternion<T>(length: -.infinity, angle: .zero, axis: .zero).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: -.infinity, angle: .zero, axis: .zero).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: -.infinity, angle: .zero, axis: .zero), .infinity)
     // Inf/-Inf
-    XCTAssertTrue(Quaternion<T>(angle: .infinity, axis: -.infinity).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: .infinity, axis: -.infinity).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: .infinity, axis: -.infinity), .infinity)
+    XCTAssertTrue(Quaternion<T>(length: -.infinity, angle: .infinity, axis: .infinity).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: -.infinity, angle: .infinity, axis: .infinity).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: -.infinity, angle: .infinity, axis: .infinity), .infinity)
     // -Inf/-Inf
-    XCTAssertTrue(Quaternion<T>(angle: -.infinity, axis: -.infinity).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: -.infinity, axis: -.infinity).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: -.infinity, axis: -.infinity), .infinity)
+    XCTAssertTrue(Quaternion<T>(length: -.infinity, angle: -.infinity, axis: -.infinity).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: -.infinity, angle: -.infinity, axis: -.infinity).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: -.infinity, angle: -.infinity, axis: -.infinity), .infinity)
     // NaN/-Inf
-    XCTAssertTrue(Quaternion<T>(angle: .nan, axis: -.infinity).axis.isNaN)
-    XCTAssertTrue(Quaternion<T>(angle: .nan, axis: -.infinity).angle.isNaN)
-    XCTAssertEqual(Quaternion<T>(angle: .nan, axis: -.infinity), .infinity)
+    XCTAssertTrue(Quaternion<T>(length: -.infinity, angle: .nan, axis: .nan).axis.isNaN)
+    XCTAssertTrue(Quaternion<T>(length: -.infinity, angle: .nan, axis: .nan).angle.isNaN)
+    XCTAssertEqual(Quaternion<T>(length: -.infinity, angle: .nan, axis: .nan), .infinity)
   }
 
   func testAngleAxisEdgeCases() {
@@ -151,12 +151,12 @@ final class TransformationTests: XCTestCase {
   func testPolarDecomposition<T: Real & SIMDScalar>(_ type: T.Type) {
     let axis = SIMD3<T>(0,-1,0)
 
-    let q = Quaternion<T>(length: 5, halfAngle: .pi, axis: axis)
+    let q = Quaternion<T>(length: 5, phase: .pi, axis: axis)
     XCTAssertEqual(q.axis, axis)
     XCTAssertEqual(q.angle, .pi * 2)
 
     XCTAssertEqual(q.polar.length, 5)
-    XCTAssertEqual(q.polar.halfAngle, .pi)
+    XCTAssertEqual(q.polar.phase, .pi)
     XCTAssertEqual(q.polar.axis, axis)
   }
 
@@ -166,15 +166,18 @@ final class TransformationTests: XCTestCase {
   }
 
   func testPolarDecompositionEdgeCases<T: Real & SIMDScalar>(_ type: T.Type) {
-    XCTAssertEqual(Quaternion<T>(length: .zero, halfAngle: .infinity, axis:  .infinity), .zero)
-    XCTAssertEqual(Quaternion<T>(length: .zero, halfAngle:-.infinity, axis: -.infinity), .zero)
-    XCTAssertEqual(Quaternion<T>(length: .zero, halfAngle: .nan     , axis:  .nan     ), .zero)
-    XCTAssertEqual(Quaternion<T>(length: .infinity, halfAngle: .infinity, axis:  .infinity), .infinity)
-    XCTAssertEqual(Quaternion<T>(length: .infinity, halfAngle:-.infinity, axis: -.infinity), .infinity)
-    XCTAssertEqual(Quaternion<T>(length: .infinity, halfAngle: .nan     , axis:  .infinity), .infinity)
-    XCTAssertEqual(Quaternion<T>(length:-.infinity, halfAngle: .infinity, axis:  .infinity), .infinity)
-    XCTAssertEqual(Quaternion<T>(length:-.infinity, halfAngle:-.infinity, axis: -.infinity), .infinity)
-    XCTAssertEqual(Quaternion<T>(length:-.infinity, halfAngle: .nan     , axis:  .infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length: .zero, phase: .zero    , axis:  .zero    ), .zero)
+    XCTAssertEqual(Quaternion<T>(length: .zero, phase: .infinity, axis:  .infinity), .zero)
+    XCTAssertEqual(Quaternion<T>(length: .zero, phase:-.infinity, axis: -.infinity), .zero)
+    XCTAssertEqual(Quaternion<T>(length: .zero, phase: .nan     , axis:  .nan     ), .zero)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, phase: .zero    , axis:  .zero    ), .zero)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, phase: .infinity, axis:  .infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, phase:-.infinity, axis: -.infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, phase: .nan     , axis:  .infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length:-.infinity, phase: .zero    , axis:  .zero    ), .zero)
+    XCTAssertEqual(Quaternion<T>(length:-.infinity, phase: .infinity, axis:  .infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length:-.infinity, phase:-.infinity, axis: -.infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length:-.infinity, phase: .nan     , axis:  .infinity), .infinity)
   }
 
   func testPolarDecompositionEdgeCases() {
@@ -273,7 +276,7 @@ final class TransformationTests: XCTestCase {
     // is rotate by a perpendicular axis with an angle that is a multiple of π
 
     // An axis perpendicular to the vector, so all lanes are changing equally
-    let axis = SIMD3<T>(1/2,0,-1/2)
+    let axis = SIMD3<T>(1,0,-1) / .sqrt(2)
     // Create a value (somewhat) close to .greatestFiniteMagnitude
     let scalar = T(
       sign: .plus, exponent: T.greatestFiniteMagnitude.exponent,
