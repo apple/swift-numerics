@@ -352,12 +352,12 @@ extension Quaternion {
   ///
   ///     p' = qpq⁻¹
   ///
-  /// where `p` is a *pure* quaternion (`real == .zero`) with imaginary part equal
-  /// to vector `v`, and where `p'` is another pure quaternion with imaginary
-  /// part equal to the transformed vector `v'`. The implementation uses this
-  /// formular but boils down to a simpler and faster implementation as `p` is
-  /// known to be pure and `q` is assumed to have unit length – which allows
-  /// simplification.
+  /// where `p` is a *pure* quaternion (`real == .zero`) with imaginary part
+  /// equal to vector `v`, and where `p'` is another pure quaternion with
+  /// imaginary part equal to the transformed vector `v'`. The implementation
+  /// uses this formular but boils down to a simpler and faster implementation
+  /// as `p` is known to be pure and `q` is assumed to have unit length – which
+  /// allows for simplification.
   ///
   /// - Note: This method assumes this quaternion is of unit length.
   ///
@@ -369,6 +369,11 @@ extension Quaternion {
   ///   ```
   ///   SIMD3(-.infinity,0,0) * q == SIMD3(.infinity,.infinity,.infinity)
   ///   ```
+  /// - For any quaternion `q`, even `.zero` or `.infinity`, if `vector` is
+  /// `.zero`, the returning vector is also `.zero`.
+  ///   ```
+  ///   SIMD3(0,0,0) * q == .zero
+  ///   ```
   ///
   /// - Parameter vector: A vector to rotate by this quaternion
   /// - Returns: The vector rotated by this quaternion
@@ -377,6 +382,7 @@ extension Quaternion {
   @inlinable
   public func act(on vector: SIMD3<RealType>) -> SIMD3<RealType> {
     guard vector.isFinite else { return SIMD3(repeating: .infinity) }
+    guard vector != .zero else { return .zero }
 
     // The following expression have been split up so the type-checker
     // can resolve them in a reasonable time.
@@ -384,10 +390,12 @@ extension Quaternion {
     let p2 = 2 * imaginary * imaginary.dot(vector)
     let p3 = 2 * real * imaginary.cross(vector)
     let rotatedVector = p1 + p2 + p3
-    if rotatedVector.isFinite { return rotatedVector }
 
-    // If the vector is no longer finite after it is rotated, scale it down,
-    // rotate it again and then scale it back-up after the rotation operation
+    // If the rotation computes without over/underflow, everything is fine
+    // and the result is correct. If not, we have to do the computation
+    // carefully and first unscale the vector, rotate it again and then
+    // rescale the vector
+    if rotatedVector.isNormal { return rotatedVector }
     let scale = max(abs(vector.max()), abs(vector.min()))
     return act(on: vector/scale) * scale
   }
@@ -449,6 +457,12 @@ extension SIMD3 where Scalar: FloatingPoint {
   @usableFromInline @inline(__always)
   internal var isFinite: Bool {
     x.isFinite && y.isFinite && z.isFinite
+  }
+
+  /// True if all values of this instance are finite
+  @usableFromInline @inline(__always)
+  internal var isNormal: Bool {
+    x.isNormal && y.isNormal && z.isNormal
   }
 
   /// Returns the squared length of this instance.
