@@ -344,9 +344,9 @@ final class TransformationTests: XCTestCase {
     // Perform a 180° rotation on all components
     let pi = Quaternion(angle: .pi, axis: axis).act(on: closeToZero)
     // Must be finite after the rotation
-    XCTAssertTrue(pi.x.isFinite)
-    XCTAssertTrue(pi.y.isFinite)
-    XCTAssertTrue(pi.z.isFinite)
+    XCTAssertTrue(!pi.x.isZero)
+    XCTAssertTrue(!pi.y.isZero)
+    XCTAssertTrue(!pi.z.isZero)
     XCTAssertTrue(closeEnough(pi.x, -scalar, ulps: 2))
     XCTAssertTrue(closeEnough(pi.y, -scalar, ulps: 2))
     XCTAssertTrue(closeEnough(pi.z, -scalar, ulps: 2))
