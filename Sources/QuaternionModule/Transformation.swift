@@ -58,10 +58,14 @@ extension Quaternion {
   /// [wiki]: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
   @inlinable
   public var axis: SIMD3<RealType> {
-    guard isFinite, imaginary != .zero, real != .zero else {
-      return SIMD3(repeating: .nan)
-    }
-    return imaginary / .sqrt(imaginary.lengthSquared)
+    guard isFinite, imaginary != .zero else { return SIMD3(repeating: .nan) }
+
+    // If lengthSquared computes without over/underflow, everything is fine
+    // and the result is correct. If not, we have to do the computation
+    // carefully and unscale the quaternion first.
+    let lenSq = imaginary.lengthSquared
+    guard lenSq.isNormal else { return divided(by: magnitude).axis }
+    return imaginary / .sqrt(lenSq)
   }
 
   /// The [Angle-Axis][wiki] representation.
@@ -267,7 +271,7 @@ extension Quaternion {
   @inlinable
   public init(rotation vector: SIMD3<RealType>) {
     let angle: RealType = .sqrt(vector.lengthSquared)
-    if !angle.isZero && angle.isFinite {
+    if !angle.isZero, angle.isFinite {
       self = Quaternion(halfAngle: angle/2, unitAxis: vector/angle)
     } else {
       self = Quaternion(angle)
@@ -404,8 +408,19 @@ extension Quaternion {
   /// If the quaternion is zero or non-finite, halfAngle is `nan`.
   @usableFromInline @inline(__always)
   internal var halfAngle: RealType {
-    guard !isZero && isFinite else { return .nan }
-    return .atan2(y: .sqrt(imaginary.lengthSquared), x: real)
+    guard isFinite else { return .nan }
+    guard imaginary != .zero else {
+      // A zero quaternion does not encode transformation properties.
+      // If imaginary is zero, real must be non-zero or nan is returned.
+      return real.isZero ? .nan : .zero
+    }
+
+    // If lengthSquared computes without over/underflow, everything is fine
+    // and the result is correct. If not, we have to do the computation
+    // carefully and unscale the quaternion first.
+    let lenSq = imaginary.lengthSquared
+    guard lenSq.isNormal else { return divided(by: magnitude).halfAngle }
+    return .atan2(y: .sqrt(lenSq), x: real)
   }
 
   /// Creates a new quaternion from given half rotation angle about given
@@ -430,16 +445,16 @@ extension Quaternion {
 // and *(x,y,z)* axis representations internally to the module.
 extension SIMD3 where Scalar: FloatingPoint {
 
-  /// Returns the squared length of this instance.
-  @usableFromInline @inline(__always)
-  internal var lengthSquared: Scalar {
-    dot(self)
-  }
-
   /// True if all values of this instance are finite
   @usableFromInline @inline(__always)
   internal var isFinite: Bool {
     x.isFinite && y.isFinite && z.isFinite
+  }
+
+  /// Returns the squared length of this instance.
+  @usableFromInline @inline(__always)
+  internal var lengthSquared: Scalar {
+    dot(self)
   }
 
   /// Returns the scalar/dot product of this vector with `other`.

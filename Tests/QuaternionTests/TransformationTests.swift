@@ -116,6 +116,36 @@ final class TransformationTests: XCTestCase {
     testAngleAxisEdgeCases(Float64.self)
   }
 
+  func testHalfAngleAndAxisOverflow<T: Real & SIMDScalar>(_ type: T.Type) {
+    let unscaled = Quaternion<T>(1, SIMD3(repeating: 1))
+    let scaled = Quaternion<T>(
+      .greatestFiniteMagnitude,
+      SIMD3(repeating: .greatestFiniteMagnitude)
+    )
+    XCTAssertEqual(scaled.angle, unscaled.angle)
+    XCTAssertEqual(scaled.axis, unscaled.axis)
+  }
+
+  func testHalfAngleAndAxisOverflow() {
+    testHalfAngleAndAxisOverflow(Float32.self)
+    testHalfAngleAndAxisOverflow(Float64.self)
+  }
+
+  func testHalfAngleAndAxisUnderflow<T: Real & SIMDScalar>(_ type: T.Type) {
+    let unscaled = Quaternion<T>(1, SIMD3(repeating: 1))
+    let scaled = Quaternion<T>(
+      .leastNormalMagnitude,
+      SIMD3(repeating: .leastNormalMagnitude)
+    )
+    XCTAssertEqual(scaled.angle, unscaled.angle)
+    XCTAssertEqual(scaled.axis, unscaled.axis)
+  }
+
+  func testHalfAngleAndAxisUnderflow() {
+    testHalfAngleAndAxisUnderflow(Float32.self)
+    testHalfAngleAndAxisUnderflow(Float64.self)
+  }
+
   // MARK: Rotation Vector
 
   func testRotationVector<T: Real & SIMDScalar>(_ type: T.Type) {
@@ -170,11 +200,11 @@ final class TransformationTests: XCTestCase {
     XCTAssertEqual(Quaternion<T>(length: .zero, phase: .infinity, axis:  .infinity), .zero)
     XCTAssertEqual(Quaternion<T>(length: .zero, phase:-.infinity, axis: -.infinity), .zero)
     XCTAssertEqual(Quaternion<T>(length: .zero, phase: .nan     , axis:  .nan     ), .zero)
-    XCTAssertEqual(Quaternion<T>(length: .infinity, phase: .zero    , axis:  .zero    ), .zero)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, phase: .zero    , axis:  .zero    ), .infinity)
     XCTAssertEqual(Quaternion<T>(length: .infinity, phase: .infinity, axis:  .infinity), .infinity)
     XCTAssertEqual(Quaternion<T>(length: .infinity, phase:-.infinity, axis: -.infinity), .infinity)
     XCTAssertEqual(Quaternion<T>(length: .infinity, phase: .nan     , axis:  .infinity), .infinity)
-    XCTAssertEqual(Quaternion<T>(length:-.infinity, phase: .zero    , axis:  .zero    ), .zero)
+    XCTAssertEqual(Quaternion<T>(length:-.infinity, phase: .zero    , axis:  .zero    ), .infinity)
     XCTAssertEqual(Quaternion<T>(length:-.infinity, phase: .infinity, axis:  .infinity), .infinity)
     XCTAssertEqual(Quaternion<T>(length:-.infinity, phase:-.infinity, axis: -.infinity), .infinity)
     XCTAssertEqual(Quaternion<T>(length:-.infinity, phase: .nan     , axis:  .infinity), .infinity)
