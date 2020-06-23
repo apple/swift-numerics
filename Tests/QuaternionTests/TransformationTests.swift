@@ -291,30 +291,35 @@ final class TransformationTests: XCTestCase {
     testActOnVectorRandom(Float64.self)
   }
 
-  func testActOnVectorEdgeCase<T: Real & ExpressibleByFloatLiteral & SIMDScalar>(_ type: T.Type) {
+  func testActOnVectorEdgeCase<T: Real & SIMDScalar>(_ type: T.Type) {
 
     /// Test for zero, infinity
     let q = Quaternion(angle: .pi, axis: SIMD3(1,0,0))
     XCTAssertEqual(q.act(on:  .zero), .zero)
     XCTAssertEqual(q.act(on: -.zero), .zero)
+    XCTAssertEqual(q.act(on:  .nan     ), SIMD3(repeating: .infinity))
     XCTAssertEqual(q.act(on:  .infinity), SIMD3(repeating: .infinity))
     XCTAssertEqual(q.act(on: -.infinity), SIMD3(repeating: .infinity))
+  }
 
-    // Rotate a vector with a value close to greatestFiniteMagnitude
-    // in all lanes.
-    // A vector this close to the bounds should not hit infinity when it
-    // is rotate by a perpendicular axis with an angle that is a multiple of π
+  func testActOnVectorEdgeCase() {
+    testActOnVectorEdgeCase(Float32.self)
+    testActOnVectorEdgeCase(Float64.self)
+  }
 
-    // An axis perpendicular to the vector, so all lanes are changing equally
-    let axis = SIMD3<T>(1,0,-1) / .sqrt(2)
-    // Create a value (somewhat) close to .greatestFiniteMagnitude
+  func testActOnVectorOverflow<T: Real & ExpressibleByFloatLiteral & SIMDScalar>(_ type: T.Type) {
+    // Create a vector (somewhat) close to greatestFiniteMagnitude on all lanes.
+    // We can not use greatestFiniteMagnitude here to test the careful rotation
+    // path, as we lose some precision in the process and it will overflow after
+    // rescaling the vector.
     let scalar = T(
       sign: .plus, exponent: T.greatestFiniteMagnitude.exponent,
       significand: 1.999999
     )
-
     let closeToBounds = SIMD3<T>(repeating: scalar)
 
+    // An axis perpendicular to the vector, so all lanes change equally
+    let axis = SIMD3<T>(1,0,-1) / .sqrt(2)
     // Perform a 180° rotation on all components
     let pi = Quaternion(angle: .pi, axis: axis).act(on: closeToBounds)
     // Must be finite after the rotation
@@ -324,21 +329,32 @@ final class TransformationTests: XCTestCase {
     XCTAssertTrue(closeEnough(pi.x, -scalar, ulps: 4))
     XCTAssertTrue(closeEnough(pi.y, -scalar, ulps: 4))
     XCTAssertTrue(closeEnough(pi.z, -scalar, ulps: 4))
-
-    // Perform a 360° rotation on all components
-    let twoPi = Quaternion(angle: 2 * .pi, axis: axis).act(on: closeToBounds)
-    // Must still be finite after the process
-    XCTAssertTrue(twoPi.x.isFinite)
-    XCTAssertTrue(twoPi.y.isFinite)
-    XCTAssertTrue(twoPi.z.isFinite)
-    XCTAssertTrue(closeEnough(twoPi.x, scalar, ulps: 8))
-    XCTAssertTrue(closeEnough(twoPi.y, scalar, ulps: 8))
-    XCTAssertTrue(closeEnough(twoPi.z, scalar, ulps: 8))
   }
 
-  func testActOnVectorEdgeCase() {
-    testActOnVectorEdgeCase(Float32.self)
-    testActOnVectorEdgeCase(Float64.self)
+  func testActOnVectorOverflow() {
+    testActOnVectorOverflow(Float32.self)
+    testActOnVectorOverflow(Float64.self)
+  }
+
+  func testActOnVectorUnderflow<T: Real & ExpressibleByFloatLiteral & SIMDScalar>(_ type: T.Type) {
+    let scalar = T.leastNormalMagnitude
+    let closeToZero = SIMD3<T>(repeating: scalar)
+    // An axis perpendicular to the vector, so all lanes change equally
+    let axis = SIMD3<T>(1,0,-1) / .sqrt(2)
+    // Perform a 180° rotation on all components
+    let pi = Quaternion(angle: .pi, axis: axis).act(on: closeToZero)
+    // Must be finite after the rotation
+    XCTAssertTrue(pi.x.isFinite)
+    XCTAssertTrue(pi.y.isFinite)
+    XCTAssertTrue(pi.z.isFinite)
+    XCTAssertTrue(closeEnough(pi.x, -scalar, ulps: 2))
+    XCTAssertTrue(closeEnough(pi.y, -scalar, ulps: 2))
+    XCTAssertTrue(closeEnough(pi.z, -scalar, ulps: 2))
+  }
+
+  func testActOnVectorUnderflow() {
+    testActOnVectorUnderflow(Float32.self)
+    testActOnVectorUnderflow(Float64.self)
   }
 }
 
