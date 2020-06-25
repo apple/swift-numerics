@@ -443,7 +443,7 @@ extension Quaternion {
   ///   - unitAxis: The rotation axis of unit length
   @usableFromInline @inline(__always)
   internal init(halfAngle: RealType, unitAxis: SIMD3<RealType>) {
-    self.init(.cos(halfAngle), unitAxis * .sin(halfAngle))
+    self.init(real: .cos(halfAngle), imaginary: unitAxis * .sin(halfAngle))
   }
 }
 

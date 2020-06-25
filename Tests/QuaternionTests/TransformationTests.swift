@@ -117,10 +117,10 @@ final class TransformationTests: XCTestCase {
   }
 
   func testHalfAngleAndAxisOverflow<T: Real & SIMDScalar>(_ type: T.Type) {
-    let unscaled = Quaternion<T>(1, SIMD3(repeating: 1))
+    let unscaled = Quaternion<T>(real: 1, imaginary: .one)
     let scaled = Quaternion<T>(
-      .greatestFiniteMagnitude,
-      SIMD3(repeating: .greatestFiniteMagnitude)
+      real: .greatestFiniteMagnitude,
+      imaginary: SIMD3(repeating: .greatestFiniteMagnitude)
     )
     XCTAssertEqual(scaled.angle, unscaled.angle)
     XCTAssertEqual(scaled.axis, unscaled.axis)
@@ -132,10 +132,10 @@ final class TransformationTests: XCTestCase {
   }
 
   func testHalfAngleAndAxisUnderflow<T: Real & SIMDScalar>(_ type: T.Type) {
-    let unscaled = Quaternion<T>(1, SIMD3(repeating: 1))
+    let unscaled = Quaternion<T>(real: 1, imaginary: .one)
     let scaled = Quaternion<T>(
-      .leastNormalMagnitude,
-      SIMD3(repeating: .leastNormalMagnitude)
+      real: .leastNormalMagnitude,
+      imaginary: SIMD3(repeating: .leastNormalMagnitude)
     )
     XCTAssertEqual(scaled.angle, unscaled.angle)
     XCTAssertEqual(scaled.axis, unscaled.axis)
