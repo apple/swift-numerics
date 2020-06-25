@@ -32,8 +32,8 @@ final class PropertyTests: XCTestCase {
     XCTAssertEqual(Quaternion<T>(real: .nan, imaginary: 0, 0, 0).length, .infinity)
     // The length of a zero value should be zero.
     XCTAssertEqual(Quaternion<T>.zero.length, .zero)
-    XCTAssertEqual(Quaternion<T>(.zero, -.zero).length, .zero)
-    XCTAssertEqual(Quaternion<T>(-.zero, -.zero).length, .zero)
+    XCTAssertEqual(Quaternion<T>(real: .zero, imaginary: -.zero).length, .zero)
+    XCTAssertEqual(Quaternion<T>(real: -.zero, imaginary: -.zero).length, .zero)
   }
 
   func testProperties() {
