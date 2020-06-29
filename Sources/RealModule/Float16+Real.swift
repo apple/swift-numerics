@@ -11,7 +11,9 @@
 
 import _NumericsShims
 
-@available(macOS 9999, iOS 9999, tvOS 9999, watchOS 9999, *)
+@available(iOS 14.0, tvOS 14.0, watchOS 7.0, *)
+@available(macOS, unavailable)
+@available(macCatalyst, unavailable)
 extension Float16: Real {
   @_transparent
   public static func cos(_ x: Float16) -> Float16 {
