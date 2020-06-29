@@ -23,7 +23,7 @@ func assertClose<T>(
   _ expected: TestLiteralType,
   _ observed: T,
   allowedError: T = 16,
-  file: StaticString = #file,
+  file: StaticString = #filePath,
   line: UInt = #line
 ) -> T where T: BinaryFloatingPoint {
   // Shortcut relative-error check if we got the sign wrong; it's OK to
@@ -74,7 +74,7 @@ func assertClose<T>(
   _ observed: T,
   allowedError: T = 16,
   worstError: inout T,
-  file: StaticString = #file,
+  file: StaticString = #filePath,
   line: UInt = #line
 ) where T: BinaryFloatingPoint {
   worstError = max(worstError, assertClose(
