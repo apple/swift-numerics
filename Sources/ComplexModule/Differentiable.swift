@@ -15,6 +15,11 @@ import _Differentiation
 extension Complex: Differentiable
 where RealType: Differentiable, RealType.TangentVector == RealType {
   public typealias TangentVector = Self
+
+  @inlinable
+  public var zeroTangentVectorInitializer: () -> Self {
+    { Complex.zero }
+  }
 }
 
 extension Complex
