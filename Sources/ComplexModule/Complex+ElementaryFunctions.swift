@@ -68,9 +68,18 @@ extension Complex:ElementaryFunctions {
     public static func pow(_ lhs: Self, _ rhs: Self) -> Self {
         return exp(log(lhs) * rhs)
     }
-    public static func pow(_ lhs: Self, _ rhs: Int) -> Self {
-        // MARK: - NOT OPTIMAL
-        return pow(lhs, Self(RealType(rhs), 0))
+    public static func pow<I:SignedInteger>(_ z: Self, _ n: I) -> Self {
+        // algorithm:
+        //  https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+        var result = Self(1, 0)
+        var base = z
+        var k = abs(n)
+        while k > 0 {
+            if k & 1 != 0 { result *= base }
+            base *= base
+            k >>= 1
+        }
+        return n < 0 ? 1 / result : result
     }
     public static func sqrt(_ z:Self) -> Self {
         let r = z.length
@@ -78,8 +87,17 @@ extension Complex:ElementaryFunctions {
         let y = RealType.sqrt((r - z.real)/2)
         return Self(x, z.imaginary.sign == .minus ? -y : y)
     }
-    public static func root(_ z: Self, _ n: Int) -> Self {
-        // MARK: - NOT OPTIMAL
-        return pow(z, Self(RealType(1) / RealType(n)))
+    public static func root<I:SignedInteger>(_ z: Self, _ n: I) -> Self {
+        switch n {
+        case  0:    return .infinity
+        case  1:    return z
+        case  2:    return sqrt(z)
+        case -1:    return 1/z
+        case -2:    return 1/sqrt(z)
+        default:
+            let (r, θ) = z.polar
+            let nth = RealType(1) / RealType(n)
+            return Self(length: RealType.pow(r, nth), phase: θ / nth)
+        }
     }
 }
