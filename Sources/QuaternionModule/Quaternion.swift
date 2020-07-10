@@ -421,7 +421,7 @@ extension Quaternion: Hashable {
   /// - Parameter other: The value to compare.
   /// - Returns: True if the transformation of this quaternion equals `other`.
   @_transparent
-  public func transformEquals(_ other: Quaternion) -> Bool {
+  public func equals(as3DTransform other: Quaternion) -> Bool {
     // Identify all numbers with either component non-finite as a single "point at infinity".
     guard isFinite || other.isFinite else { return true }
     // For finite numbers, equality is defined componentwise. Cases where only

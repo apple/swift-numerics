@@ -165,7 +165,26 @@ final class PropertyTests: XCTestCase {
       ),
     ]
     for (lhs, rhs) in rotations {
-      XCTAssertTrue(lhs.transformEquals(rhs))
+      XCTAssertTrue(lhs.equals(as3DTransform: rhs))
+    }
+
+    let signDifferentAxis: [(lhs: Quaternion<T>, rhs: Quaternion<T>)] = [
+      (
+        Quaternion<T>(real:  -.pi, imaginary:  -.pi,  -.pi,  -.pi),
+        Quaternion<T>(real:  -.pi, imaginary:   .pi,   .pi,   .pi)
+      ), (
+        Quaternion<T>(real:  -.ulpOfOne, imaginary:   .ulpOfOne,   .ulpOfOne,   .ulpOfOne),
+        Quaternion<T>(real:  -.ulpOfOne, imaginary:  -.ulpOfOne,  -.ulpOfOne,  -.ulpOfOne)
+      ), (
+        Quaternion<T>(real:  -.pi, imaginary:  -.pi,   .pi,  -.pi),
+        Quaternion<T>(real:  -.pi, imaginary:   .pi,  -.pi,   .pi)
+      ), (
+        Quaternion<T>(real:  -.ulpOfOne, imaginary:  -.ulpOfOne,   .ulpOfOne,   .ulpOfOne),
+        Quaternion<T>(real:  -.ulpOfOne, imaginary:   .ulpOfOne,  -.ulpOfOne,  -.ulpOfOne)
+      )
+    ]
+    for (lhs, rhs) in signDifferentAxis {
+      XCTAssertFalse(lhs.equals(as3DTransform: rhs))
     }
   }
 
