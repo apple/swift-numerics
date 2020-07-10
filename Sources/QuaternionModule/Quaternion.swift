@@ -37,7 +37,7 @@ import RealModule
 /// important to be aware that, when used this way, any quaternion and its
 /// negation represent the same transformation, but they do not compare equal
 /// using `==` because they are not the same quaternion.
-/// You can compare quaternions as 3D transformations using `transformEquals()`.
+/// You can compare quaternions as 3D transformations using `equals(as3DTransform:)`.
 public struct Quaternion<RealType> where RealType: Real & SIMDScalar {
 
   /// The components of the 4-dimensional vector space of the quaternion.
@@ -401,7 +401,7 @@ extension Quaternion: Hashable {
   ///   important to be aware that, when used this way, any quaternion and its
   ///   negation represent the same transformation, but they do not compare
   ///   equal using `==` because they are not the same quaternion. You can
-  ///   compare quaternions as 3D transformations using `transformEquals()`.
+  ///   compare quaternions as 3D transformations using `equals(as3DTransform:)`.
   @_transparent
   public static func == (lhs: Quaternion, rhs: Quaternion) -> Bool {
     // Identify all numbers with either component non-finite as a single "point at infinity".
@@ -413,13 +413,16 @@ extension Quaternion: Hashable {
     return lhs.components == rhs.components
   }
 
-  /// Transformation equality comparison
+  /// Returns a Boolean value indicating whether the 3D transformation of the
+  /// two quaternions are equal.
   ///
-  /// Returns a Boolean value indicating whether the 3D transformations of this
-  /// quaternion equals the 3D transformation of `other`.
+  /// Use this method to test for equality of the 3D transformation properties
+  /// of quaternions; where for any quaternion `q`, its negation represent the
+  /// same 3D transformation; i.e. `q.equals(as3DTransform: q)` as well as
+  /// `q.equals(as3DTransform: -q)` are both `true`.
   ///
   /// - Parameter other: The value to compare.
-  /// - Returns: True if the transformation of this quaternion equals `other`.
+  /// - Returns: True if the 3D transformation of this quaternion equals `other`.
   @_transparent
   public func equals(as3DTransform other: Quaternion) -> Bool {
     // Identify all numbers with either component non-finite as a single "point at infinity".
