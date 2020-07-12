@@ -150,12 +150,21 @@ extension Float: Real {
     // The range of "interesting" n is -1488522191 ... 1744361944; outside
     // of this range, all x != 1 overflow or underflow, so only the parity
     // of x matters. We don't really care about the specific range at all,
-    // only that the bounds fit exactly into two Floats. Mask the low 24
-    // bits of n, get pow with that exponent (this contains the parity),
-    // then get pow with the rest (this may round, but if it does we've
-    // saturated anyway, so it doesn't matter).
-    let low = n & 0xffffff
-    let high = n - low
+    // only that the bounds fit exactly into two Floats.
+    //
+    // We do, however, need to be careful that high and low both have the
+    // same sign as n (consult the Double implementation for details of why
+    // this matters), so we need to be a little bit careful constructing
+    // them.
+    //
+    // Unlike the Double implementation, when n is very large, high will
+    // get rounded here; that's OK because it does not change the sign or
+    // parity, which are the only two bits that matter for such large
+    // exponents in Float.
+    let mask = Int(truncatingIfNeeded: 0xffffff)
+    let round = n < 0 ? mask : 0
+    let high = (n &+ round) & ~mask
+    let low = n &- high
     return libm_powf(x, Float(low)) * libm_powf(x, Float(high))
   }
   
