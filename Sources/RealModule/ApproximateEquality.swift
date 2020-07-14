@@ -67,7 +67,7 @@ extension Numeric where Magnitude: FloatingPoint {
     )
   }
   
-  /// Compares `self` and `other` for approximate equality with a specified tolerances.
+  /// Compares `self` and `other` for approximate equality with specified tolerances.
   ///
   /// `true` if `self` and `other` are equal, or if they are finite and either
   /// ```
