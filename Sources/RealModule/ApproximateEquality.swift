@@ -137,12 +137,12 @@ extension Numeric where Magnitude: FloatingPoint {
   ) -> Bool {
     assert(
       absoluteTolerance >= 0 && absoluteTolerance.isFinite,
-      "absoluteTolerance should be non-negative and finite," +
+      "absoluteTolerance should be non-negative and finite, " +
       "but is \(absoluteTolerance)."
     )
     assert(
       relativeTolerance >= 0 && relativeTolerance <= 1,
-      "relativeTolerance should be non-negative and <= 1," +
+      "relativeTolerance should be non-negative and <= 1, " +
       "but is \(relativeTolerance)."
     )
     if self == other { return true }
