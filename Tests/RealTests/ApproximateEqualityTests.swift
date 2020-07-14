@@ -83,7 +83,7 @@ final class ElementaryFunctionTests: XCTestCase {
         // scale invariance for relative comparisons
         let scale = T(
           sign:.plus,
-          exponent: T.Exponent.random(in: T.leastNormalMagnitude.exponent ... T.greatestFiniteMagnitude.exponent),
+          exponent: T.Exponent.random(in: T.leastNormalMagnitude.exponent ..< T.greatestFiniteMagnitude.exponent),
           significand: 1
         )
         XCTAssertTrue(
