@@ -46,12 +46,15 @@ extension Numeric where Magnitude: FloatingPoint {
   ///   by the scaling.
   ///
   /// - Parameters:
+  ///
   ///   - other: The value to which `self` is compared.
+  ///
   ///   - relativeTolerance: The tolerance to use for the comparison.
-  ///   If no tolerance is provided, `.ulpOfOne.squareRoot()` is used.
-  ///   This value should be non-negative and less than or equal to 1.
-  ///   This constraint on is only checked in debug builds, because a mathematically
-  ///   well-defined result exists for any tolerance, even one out of range.
+  ///     Defaults to `.ulpOfOne.squareRoot()`.
+  ///
+  ///     This value should be non-negative and less than or equal to 1.
+  ///     This constraint on is only checked in debug builds, because a mathematically
+  ///     well-defined result exists for any tolerance, even one out of range.
   @inlinable @inline(__always)
   public func isApproximatelyEqual(
     to other: Self,
@@ -93,24 +96,44 @@ extension Numeric where Magnitude: FloatingPoint {
   ///   by this function.)
   ///
   /// - Parameters:
+  ///
   ///   - other: The value to which `self` is compared.
+  ///
   ///   - absoluteTolerance: The absolute tolerance to use in the comparison.
-  ///   This value should be non-negative and finite.
-  ///   This constraint on is only checked in debug builds, because a mathematically
-  ///   well-defined result exists for any tolerance, even one out of range.
+  ///
+  ///     This value should be non-negative and finite.
+  ///     This constraint on is only checked in debug builds, because a mathematically
+  ///     well-defined result exists for any tolerance, even one out of range.
+  ///
   ///   - relativeTolerance: The relative tolerance to use in the comparison.
-  ///   If no relativeTolerance is provided, zero is used.
-  ///   This value should be non-negative and less than or equal to 1.
-  ///   This constraint on is only checked in debug builds, because a mathematically
-  ///   well-defined result exists for any tolerance, even one out of range.
-  ///   - norm: Allows you to specify what norm to use. Defaults to using the
-  ///   `.magnitude` property.
+  ///     Defaults to zero.
+  ///
+  ///     This value should be non-negative and less than or equal to 1.
+  ///     This constraint on is only checked in debug builds, because a mathematically
+  ///     well-defined result exists for any tolerance, even one out of range.
+  ///
+  ///   - norm: The norm to use for the comparison. Defaults to the `.magnitude`
+  ///     property.
+  ///
+  ///     When porting code or working with specialized algorithms, it may
+  ///     be desirable to override the norm. For example, if we wanted to test if
+  ///     a complex value was inside a circle of radius 0.001 centered at (1 + 0i), we
+  ///     could use:
+  ///     ```
+  ///     z.isApproximatelyEqual(
+  ///       to: 1,
+  ///       absoluteTolerance: 0.001,
+  ///       norm: \.length
+  ///     )
+  ///     ```
+  ///     (if we used the default, we would be testing if `z` were inside a square region
+  ///     instead.)
   @inlinable @inline(__always)
   public func isApproximatelyEqual(
     to other: Self,
     absoluteTolerance: Magnitude,
     relativeTolerance: Magnitude = 0,
-    norm: (Self) -> Magnitude = \.magnitude
+    norm: (Self) -> Magnitude = { $0.magnitude }
   ) -> Bool {
     assert(
       absoluteTolerance >= 0 && absoluteTolerance.isFinite,
