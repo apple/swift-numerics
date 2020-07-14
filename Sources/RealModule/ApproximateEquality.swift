@@ -48,6 +48,28 @@ extension Numeric where Magnitude: FloatingPoint {
   /// Consult the documentation for those methods for a detailed
   /// description of how the comparison is performed, and how to
   /// choose tolerances for your particular situation.
+  ///
+  /// Mathematical Properties:
+  /// -
+  /// - `isApproximatelyEqual(to:relativeTolerance:)` is _reflexive_ for
+  ///   non-exceptional values (such as NaN).
+  ///
+  /// - `isApproximatelyEqual(to:relativeTolerance:)` is _symmetric_.
+  ///
+  /// - `isApproximatelyEqual(to:relativeTolerance:)` is __not__ _transitive_.
+  ///   Because of this, approximately equality is __not an equivalence relation__,
+  ///   even when restricted to non-exceptional values.
+  ///
+  /// - For any point `a`, the set of values that compare approximately equal to `a` is _convex_.
+  ///   (Under the assumption that the `.magnitude` property implements a valid norm.)
+  ///
+  /// - `isApproximatelyEqual(to:relativeTolerance:)` is _scale invariant_,
+  ///   so long as no underflow or overflow occurs, and no exceptional value is produced
+  ///   by the scaling.
+  ///
+  /// - Parameters:
+  ///   - other: The value to which `self` is compared.
+  ///
   @inlinable @inline(__always)
   public func isApproximatelyEqual(
     to other: Self
@@ -89,6 +111,31 @@ extension Numeric where Magnitude: FloatingPoint {
   /// Scale-invariance also breaks down when overflow occurs, but in that case no
   /// useful comparison is recoverable, so we simply do not try; infinity compares
   /// not equal to any finite value with any allowed tolerance.
+  ///
+  /// Mathematical Properties:
+  /// -
+  /// - `isApproximatelyEqual(to:relativeTolerance:)` is _reflexive_ for
+  ///   non-exceptional values (such as NaN).
+  ///
+  /// - `isApproximatelyEqual(to:relativeTolerance:)` is _symmetric_.
+  ///
+  /// - `isApproximatelyEqual(to:relativeTolerance:)` is __not__ _transitive_.
+  ///   Because of this, approximately equality is __not an equivalence relation__,
+  ///   even when restricted to non-exceptional values.
+  ///
+  /// - For any point `a`, the set of values that compare approximately equal to `a` is _convex_.
+  ///   (Under the assumption that the `.magnitude` property implements a valid norm.)
+  ///
+  /// - `isApproximatelyEqual(to:relativeTolerance:)` is _scale invariant_,
+  ///   so long as no underflow or overflow occurs, and no exceptional value is produced
+  ///   by the scaling.
+  ///
+  /// - Parameters:
+  ///   - other: The value to which `self` is compared.
+  ///   - relativeTolerance: The tolerance to use for the comparison.
+  ///   This value should be non-negative and less than or equal to 1.
+  ///   This constraint on is only checked in debug builds, because a mathematically
+  ///   well-defined result exists for any tolerance, even one out of range.
   @inlinable @inline(__always)
   public func isApproximatelyEqual(
     to other: Self,
@@ -108,8 +155,13 @@ extension Numeric where Magnitude: FloatingPoint {
   /// ```
   /// |a - b| ≤ max(atol, rtol * max(|a|,|b|))
   /// ```
+  /// This is equivalent to saying that the comparison satisfies _either_ the absolute tolerance,
+  /// _or_ the relative tolerance; it need not satisfy both:
+  /// ```
+  /// |a - b| ≤ atol OR |a - b| ≤ rtol * max(|a|,|b|)
+  /// ```
   ///
-  /// Note that if `relativeTolerance` is omitted or is zero, a pure absolute tolerance is used:
+  /// If `relativeTolerance` is omitted or is zero, a pure absolute tolerance is used:
   /// ```
   /// |a - b| ≤ atol
   /// ```
@@ -119,8 +171,32 @@ extension Numeric where Magnitude: FloatingPoint {
   /// |a - b| ≤ rtol * max(|a|,|b|)
   /// ```
   ///
-  /// Note that if `absoluteTolerance` is _omitted_,
-  /// `relativeTolerance * .leastNormalMagnitude` is used, _not zero_.
+  /// Mathematical Properties:
+  /// -
+  /// - `isApproximatelyEqual(to:relativeTolerance:absoluteTolerance:)`
+  ///   is _reflexive_ for non-exceptional values (such as NaN).
+  ///
+  /// - `isApproximatelyEqual(to:relativeTolerance:absoluteTolerance:)`
+  ///   is _symmetric_.
+  ///
+  /// - `isApproximatelyEqual(to:relativeTolerance:absoluteTolerance:)`
+  ///   is __not__ _transitive_. Because of this, approximately equality is
+  ///   __not an equivalence relation__, even when restricted to non-exceptional values.
+  ///
+  /// - For any point `a`, the set of values that compare approximately equal to `a` is _convex_.
+  ///   (Under the assumption that the `.magnitude` property implements a valid norm.)
+  ///
+  /// - Parameters:
+  ///   - other: The value to which `self` is compared.
+  ///   - relativeTolerance: The relative tolerance to use in the comparison.
+  ///   If no relativeTolerance is provided, zero is used.
+  ///   This value should be non-negative and less than or equal to 1.
+  ///   This constraint on is only checked in debug builds, because a mathematically
+  ///   well-defined result exists for any tolerance, even one out of range.
+  ///   - absoluteTolerance: The absolute tolerance to use in the comparison.
+  ///   This value should be non-negative and finite.
+  ///   This constraint on is only checked in debug builds, because a mathematically
+  ///   well-defined result exists for any tolerance, even one out of range.
   @inlinable
   public func isApproximatelyEqual(
     to other: Self,
