@@ -203,8 +203,16 @@ extension Numeric where Magnitude: FloatingPoint {
     relativeTolerance: Magnitude = 0,
     absoluteTolerance: Magnitude
   ) -> Bool {
-    assert(absoluteTolerance >= 0 && absoluteTolerance.isFinite)
-    assert(relativeTolerance >= 0 && relativeTolerance <= 1)
+    assert(
+      absoluteTolerance >= 0 && absoluteTolerance.isFinite,
+      "absoluteTolerance should be non-negative and finite," +
+      "but is \(absoluteTolerance)."
+    )
+    assert(
+      relativeTolerance >= 0 && relativeTolerance <= 1,
+      "relativeTolerance should be non-negative and <= 1," +
+      "but is \(relativeTolerance)."
+    )
     if self == other { return true }
     let delta = (self - other).magnitude
     let scale = max(self.magnitude, other.magnitude)
