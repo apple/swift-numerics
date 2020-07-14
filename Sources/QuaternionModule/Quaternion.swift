@@ -32,6 +32,12 @@ import RealModule
 /// Using the infinity norm avoids this problem entirely without significant
 /// downsides. You can access the Euclidean norm using the `length` property.
 /// See `Complex` type of the swift-numerics package for additional details.
+///
+/// Quaternions are frequently used to represent 3D transformations. It's
+/// important to be aware that, when used this way, any quaternion and its
+/// negation represent the same transformation, but they do not compare equal
+/// using `==` because they are not the same quaternion.
+/// You can compare quaternions as 3D transformations using `equals(as3DTransform:)`.
 public struct Quaternion<RealType> where RealType: Real & SIMDScalar {
 
   /// The components of the 4-dimensional vector space of the quaternion.
@@ -248,6 +254,55 @@ extension Quaternion {
   public var isPure: Bool {
     real.isZero
   }
+
+  /// A "canonical" representation of the value.
+  ///
+  /// For normal quaternion instances with a RealType conforming to
+  /// BinaryFloatingPoint (the common case), the result is simply this value
+  /// unmodified. For zeros, the result has the representation (+0, +0, +0, +0).
+  /// For infinite values, the result has the representation (+inf, +0, +0, +0).
+  ///
+  /// If the RealType admits non-canonical representations, the x, y, z and r
+  /// components are canonicalized in the result.
+  ///
+  /// This is mainly useful for interoperation with other languages, where
+  /// you may want to reduce each equivalence class to a single representative
+  /// before passing across language boundaries, but it may also be useful
+  /// for some serialization tasks. It's also a useful implementation detail for
+  /// some primitive operations.
+  ///
+  /// See also:
+  /// -
+  /// - `.canonicalizedTransform`
+  @_transparent
+  public var canonicalized: Self {
+    guard !isZero else { return .zero }
+    guard isFinite else { return .infinity }
+    return self.multiplied(by: 1)
+  }
+
+  /// A "canonical transformation" representation of the value.
+  ///
+  /// For normal quaternion instances with a RealType conforming to
+  /// BinaryFloatingPoint (the common case) and a non-negative real component,
+  /// the result is simply this value unmodified. For instances with a negative
+  /// real component, the result is this quaternion negated -(r, x, y, z); so
+  /// the real component is always positive.
+  /// For zeros, the result has the representation (+0, +0, +0, +0). For
+  /// infinite values, the result has the representation (+inf, +0, +0, +0).
+  ///
+  /// If the RealType admits non-canonical representations, the x, y, z and r
+  /// components are canonicalized in the result.
+  ///
+  /// See also:
+  /// -
+  /// - `.canonicalized`
+  @_transparent
+  public var canonicalizedTransform: Self {
+    let canonical = canonicalized
+    if canonical.real.sign == .plus { return canonical }
+    return -canonical
+  }
 }
 
 // MARK: - Additional Initializers
@@ -339,6 +394,14 @@ extension Quaternion where RealType: BinaryFloatingPoint {
 
 // MARK: - Conformance to Hashable and Equatable
 extension Quaternion: Hashable {
+  /// Returns a Boolean value indicating whether two values are equal.
+  ///
+  /// - Important:
+  ///   Quaternions are frequently used to represent 3D transformations. It's
+  ///   important to be aware that, when used this way, any quaternion and its
+  ///   negation represent the same transformation, but they do not compare
+  ///   equal using `==` because they are not the same quaternion. You can
+  ///   compare quaternions as 3D transformations using `equals(as3DTransform:)`.
   @_transparent
   public static func == (lhs: Quaternion, rhs: Quaternion) -> Bool {
     // Identify all numbers with either component non-finite as a single "point at infinity".
@@ -350,6 +413,27 @@ extension Quaternion: Hashable {
     return lhs.components == rhs.components
   }
 
+  /// Returns a Boolean value indicating whether the 3D transformation of the
+  /// two quaternions are equal.
+  ///
+  /// Use this method to test for equality of the 3D transformation properties
+  /// of quaternions; where for any quaternion `q`, its negation represent the
+  /// same 3D transformation; i.e. `q.equals(as3DTransform: q)` as well as
+  /// `q.equals(as3DTransform: -q)` are both `true`.
+  ///
+  /// - Parameter other: The value to compare.
+  /// - Returns: True if the 3D transformation of this quaternion equals `other`.
+  @_transparent
+  public func equals(as3DTransform other: Quaternion) -> Bool {
+    // Identify all numbers with either component non-finite as a single "point at infinity".
+    guard isFinite || other.isFinite else { return true }
+    // For finite numbers, equality is defined componentwise. Cases where only
+    // one of lhs or rhs is infinite fall through to here as well, but this
+    // expression correctly returns false for them so we don't need to handle
+    // them explicitly.
+    return components == other.components || components == -other.components
+  }
+
   @_transparent
   public func hash(into hasher: inout Hasher) {
     // There are two equivalence classes to which we owe special attention:
@@ -358,8 +442,13 @@ extension Quaternion: Hashable {
     // representation. The correct behavior for zero falls out for free from
     // the hash behavior of floating-point, but we need to use a
     // representative member for any non-finite values.
+    // For any normal values we use the "canonical transform" representation,
+    // where real is always non-negative. This allows people who are using
+    // quaternions as rotations to get the expected semantics out of collections
+    // (while unfortunately producing some collisions for people who are not,
+    // but not in too catastrophic of a fashion).
     if isFinite {
-      components.hash(into: &hasher)
+      canonicalizedTransform.components.hash(into: &hasher)
     } else {
       hasher.combine(RealType.infinity)
     }
