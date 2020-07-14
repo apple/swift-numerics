@@ -110,7 +110,7 @@ extension Numeric where Magnitude: FloatingPoint {
     to other: Self,
     absoluteTolerance: Magnitude,
     relativeTolerance: Magnitude = 0,
-    norm: (Self) -> Magnitude = { $0.magnitude }
+    norm: (Self) -> Magnitude = \.magnitude
   ) -> Bool {
     assert(
       absoluteTolerance >= 0 && absoluteTolerance.isFinite,
