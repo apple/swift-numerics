@@ -26,36 +26,73 @@ final class DifferentiableTests: XCTestCase {
     XCTAssertEqual(
       gradient(at: Complex<Float>(5, 5)) { $0.real * 5 + $0.imaginary * 2 },
       Complex(5, 2))
+
+    XCTAssertEqual(
+      differential(at: Complex<Float>(5, 5), in: { $0.real * 2 })(Complex<Float>(1, 1)),
+      2)
+    XCTAssertEqual(
+      differential(at: Complex<Float>(5, 5), in: { $0.imaginary * 2 })(Complex<Float>(1, 1)),
+      2)
+    XCTAssertEqual(
+      differential(at: Complex<Float>(5, 5), in: { $0.real * 5 + $0.imaginary * 2 })(Complex<Float>(1, 1)),
+      7)
   }
 
   func testConjugate() {
-    let φ = pullback(at: Complex<Float>(20, -4)) { x in x.conjugate }
-    XCTAssertEqual(φ(Complex(1, 0)), Complex(1, 0))
-    XCTAssertEqual(φ(Complex(0, 1)), Complex(0, -1))
-    XCTAssertEqual(φ(Complex(-1, 1)), Complex(-1, -1))
+    let φ_pb = pullback(at: Complex<Float>(20, -4)) { x in x.conjugate }
+    XCTAssertEqual(φ_pb(Complex(1, 0)), Complex(1, 0))
+    XCTAssertEqual(φ_pb(Complex(0, 1)), Complex(0, -1))
+    XCTAssertEqual(φ_pb(Complex(-1, 1)), Complex(-1, -1))
+
+    let φ_df = differential(at: Complex<Float>(20, -4)) { x in x.conjugate }
+    XCTAssertEqual(φ_df(Complex(1, 0)), Complex(1, 0))
+    XCTAssertEqual(φ_df(Complex(0, 1)), Complex(0, -1))
+    XCTAssertEqual(φ_df(Complex(-1, 1)), Complex(-1, -1))
   }
 
   func testArithmetics() {
-    let φAdd = pullback(at: Complex<Float>(2, 3)) { x in
+    let φAdd_pb = pullback(at: Complex<Float>(2, 3)) { x in
       x + Complex(5, 6)
     }
-    XCTAssertEqual(φAdd(Complex(1, 1)), Complex(1, 1))
+    XCTAssertEqual(φAdd_pb(Complex(1, 1)), Complex(1, 1))
 
-    let φSubtract = pullback(at: Complex<Float>(2, 3)) { x in
+    let φAdd_df = differential(at: Complex<Float>(2, 3)) { x in
+      x + Complex(5, 6)
+    }
+    XCTAssertEqual(φAdd_df(Complex(1, 1)), Complex(1, 1))
+
+    let φSubtract_pb = pullback(at: Complex<Float>(2, 3)) { x in
       Complex(5, 6) - x
     }
-    XCTAssertEqual(φSubtract(Complex(1, 1)), Complex(-1, -1))
+    XCTAssertEqual(φSubtract_pb(Complex(1, 1)), Complex(-1, -1))
 
-    let φMultiply = pullback(at: Complex<Float>(2, 3)) { x in x * x }
-    XCTAssertEqual(φMultiply(Complex(1, 0)), Complex(4, 6))
-    XCTAssertEqual(φMultiply(Complex(0, 1)), Complex(-6, 4))
-    XCTAssertEqual(φMultiply(Complex(1, 1)), Complex(-2, 10))
+    let φSubtract_df = differential(at: Complex<Float>(2, 3)) { x in
+      Complex(5, 6) - x
+    }
+    XCTAssertEqual(φSubtract_df(Complex(1, 1)), Complex(-1, -1))
 
-    let φDivide = pullback(at: Complex<Float>(20, -4)) { x in
+    let φMultiply_pb = pullback(at: Complex<Float>(2, 3)) { x in x * x }
+    XCTAssertEqual(φMultiply_pb(Complex(1, 0)), Complex(4, 6))
+    XCTAssertEqual(φMultiply_pb(Complex(0, 1)), Complex(-6, 4))
+    XCTAssertEqual(φMultiply_pb(Complex(1, 1)), Complex(-2, 10))
+
+    let φMultiply_df = differential(at: Complex<Float>(2, 3)) { x in x * x }
+    XCTAssertEqual(φMultiply_df(Complex(1, 1)), 2 * Complex<Float>(2, 3) * Complex(1, 1))
+    XCTAssertEqual(φMultiply_df(Complex(0, 1)), 2 * Complex<Float>(2, 3) * Complex(0, 1))
+    XCTAssertEqual(φMultiply_df(Complex(1, 0)), 2 * Complex<Float>(2, 3) * Complex(1, 0))
+
+    let φDivide_pb = pullback(at: Complex<Float>(20, -4)) { x in
       x / Complex(2, 2)
     }
-    XCTAssertEqual(φDivide(Complex(1, 0)), Complex(0.25, -0.25))
-    XCTAssertEqual(φDivide(Complex(0, 1)), Complex(0.25, 0.25))
+    XCTAssertEqual(φDivide_pb(Complex(1, 0)), Complex(0.25, -0.25))
+    XCTAssertEqual(φDivide_pb(Complex(0, 1)), Complex(0.25, 0.25))
+
+    let φDivide_df = differential(at: Complex<Float>(20, -4)) { x in
+      x / Complex(2, 2)
+    }
+    XCTAssertEqual(φDivide_df(Complex(1, 1)), Complex(1, 1) / Complex(2, 2))
+    XCTAssertEqual(φDivide_df(Complex(0, 1)), Complex(0, 1) / Complex(2, 2))
+    XCTAssertEqual(φDivide_df(Complex(1, 0)), Complex(1, 0) / Complex(2, 2))
   }
 
   func testZeroTangentVectorInitializer() {

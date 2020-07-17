@@ -27,15 +27,21 @@ where RealType: Differentiable, RealType.TangentVector == RealType {
 
   @derivative(of: real)
   @usableFromInline
-  func _derivativeReal() -> (value: RealType, pullback: (RealType) -> Complex) {
+  func _vjpDerivativeReal() -> (value: RealType, pullback: (RealType) -> Complex) {
     (value: real, pullback: { v in
       Complex(v, .zero)
     })
   }
 
+  @derivative(of: real)
+  @usableFromInline
+  func _jvpDerivativeReal() -> (value: RealType, differential: (Complex) -> RealType) {
+    (value: real, differential: { $0.real })
+  }
+
   @derivative(of: imaginary)
   @usableFromInline
-  func _derivativeImaginary() -> (
+  func _vjpDerivativeImaginary() -> (
     value: RealType,
     pullback: (RealType) -> Complex
   ) {
@@ -44,43 +50,93 @@ where RealType: Differentiable, RealType.TangentVector == RealType {
     })
   }
 
+  @derivative(of: imaginary)
+  @usableFromInline
+  func _jvpDerivativeImaginary() -> (
+    value: RealType,
+    differential: (Complex) -> RealType
+  ) {
+    (value: real, differential: { $0.imaginary })
+  }
+
   @derivative(of: +)
   @usableFromInline
-  static func _derivativeAdd(lhs: Complex, rhs: Complex)
+  static func _vjpDerivativeAdd(lhs: Complex, rhs: Complex)
     -> (value: Complex, pullback: (Complex) -> (Complex, Complex))
   {
     (lhs + rhs, { v in (v, v) })
   }
 
+  @derivative(of: +)
+  @usableFromInline
+  static func _jvpDerivativeAdd(lhs: Complex, rhs: Complex)
+    -> (value: Complex, differential: (Complex, Complex) -> Complex)
+  {
+    (lhs + rhs, { $0 + $1 })
+  }
+
   @derivative(of: -)
   @usableFromInline
-  static func _derivativeSubtract(lhs: Complex, rhs: Complex)
+  static func _vjpDerivativeSubtract(lhs: Complex, rhs: Complex)
     -> (value: Complex, pullback: (Complex) -> (Complex, Complex))
   {
     (lhs - rhs, { v in (v, -v) })
   }
 
+  @derivative(of: -)
+  @usableFromInline
+  static func _jvpDerivativeSubtract(lhs: Complex, rhs: Complex)
+    -> (value: Complex, differential: (Complex, Complex) -> Complex)
+  {
+    (lhs - rhs, { $0 - $1 })
+  }
+
   @derivative(of: *)
   @usableFromInline
-  static func _derivativeMultiply(lhs: Complex, rhs: Complex)
+  static func _vjpDerivativeMultiply(lhs: Complex, rhs: Complex)
     -> (value: Complex, pullback: (Complex) -> (Complex, Complex))
   {
     (lhs * rhs, { v in (rhs * v, lhs * v) })
   }
 
+  @derivative(of: *)
+  @usableFromInline
+  static func _jvpDerivativeMultiply(lhs: Complex, rhs: Complex)
+    -> (value: Complex, differential: (Complex, Complex) -> Complex)
+  {
+    (lhs * rhs, { ltan, rtan in lhs * rtan + ltan * rhs })
+  }
+
   @derivative(of: /)
   @usableFromInline
-  static func _derivativeDivide(lhs: Complex, rhs: Complex)
+  static func _vjpDerivativeDivide(lhs: Complex, rhs: Complex)
     -> (value: Complex, pullback: (Complex) -> (Complex, Complex))
   {
     (lhs / rhs, { v in (v / rhs, -lhs / (rhs * rhs) * v) })
   }
 
+  @derivative(of: /)
+  @usableFromInline
+  static func _jvpDerivativeDivide(lhs: Complex, rhs: Complex)
+    -> (value: Complex, differential: (Complex, Complex) -> Complex)
+  {
+    (lhs / rhs, { ltan, rtan in (ltan * rhs - lhs * rtan) / (rhs * rhs) })
+  }
+
   @derivative(of: conjugate)
   @usableFromInline
-  func _derivativeConjugate() -> (
+  func _vjpDerivativeConjugate() -> (
     value: Complex,
     pullback: (Complex) -> Complex
+  ) {
+    (conjugate, { v in v.conjugate })
+  }
+
+  @derivative(of: conjugate)
+  @usableFromInline
+  func _jvpDerivativeConjugate() -> (
+    value: Complex,
+    differential: (Complex) -> Complex
   ) {
     (conjugate, { v in v.conjugate })
   }
