@@ -8,6 +8,7 @@ See https://swift.org/LICENSE.txt for license information
 #]]
 
 add_library(RealTests
+  ApproximateEqualityTests.swift
   IntegerExponentTests.swift
   RealTests.swift
   RealTestSupport.swift)

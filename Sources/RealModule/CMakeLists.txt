@@ -9,6 +9,7 @@ See https://swift.org/LICENSE.txt for license information
 
 add_library(RealModule
   AlgebraicField.swift
+  ApproximateEquality.swift
   Double+Real.swift
   ElementaryFunctions.swift
   Float+Real.swift
