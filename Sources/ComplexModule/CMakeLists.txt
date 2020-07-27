@@ -9,8 +9,7 @@ See https://swift.org/LICENSE.txt for license information
 
 add_library(ComplexModule
   Arithmetic.swift
-  Complex.swift
-  Differentiable.swift)
+  Complex.swift)
 set_target_properties(ComplexModule PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
 target_link_libraries(ComplexModule PUBLIC

@@ -40,16 +40,6 @@ extension ArithmeticTests {
   ])
 }
 
-#if canImport(_Differentiation)
-  extension DifferentiableTests {
-    static var all = testCase([
-      ("testComponentGetter", DifferentiableTests.testComponentGetter),
-      ("testConjugate",  DifferentiableTests.testConjugate),
-      ("testArithmetics", DifferentiableTests.testArithmetics),
-    ])
-  }
-#endif
-
 extension PropertyTests {
   static var all = testCase([
     ("testProperties", PropertyTests.testProperties),
@@ -64,12 +54,6 @@ var testCases = [
   ArithmeticTests.all,
   PropertyTests.all,
 ]
-
-#if canImport(_Differentiation)
-testCases += [
-  DifferentiableTests.all
-]
-#endif
 
 XCTMain(testCases)
 

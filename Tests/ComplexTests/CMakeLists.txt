@@ -9,7 +9,6 @@ See https://swift.org/LICENSE.txt for license information
 
 add_library(ComplexTests
   ArithmeticTests.swift
-  DifferentiableTests.swift
   PropertyTests.swift)
 set_target_properties(ComplexTests PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
