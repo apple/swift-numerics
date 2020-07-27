@@ -110,15 +110,6 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
   
-  @available(iOS 14.0, watchOS 14.0, tvOS 7.0, *)
-  @available(macOS, unavailable)
-  @available(macCatalyst, unavailable)
-  func testFloat16() {
-    testSpecials(Float16.self)
-    testDefaults(Float16.self)
-    testRandom(Float16.self)
-  }
-  
   func testFloat() {
     testSpecials(Float.self)
     testDefaults(Float.self)
