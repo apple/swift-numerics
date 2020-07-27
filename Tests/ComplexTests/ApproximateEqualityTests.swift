@@ -48,7 +48,9 @@ final class ElementaryFunctionTests: XCTestCase {
     testSpecials(Double.self)
   }
   
+  #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     testSpecials(Float80.self)
   }
+  #endif
 }
