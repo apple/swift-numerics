@@ -86,6 +86,13 @@ internal protocol FixedWidthFloatingPoint: BinaryFloatingPoint
 where Exponent: FixedWidthInteger,
       RawSignificand: FixedWidthInteger { }
 
+#if swift(>=5.3)
+@available(iOS 14.0, watchOS 14.0, tvOS 7.0, *)
+@available(macOS, unavailable)
+@available(macCatalyst, unavailable)
+extension Float16: FixedWidthFloatingPoint { }
+#endif
+
 extension Float: FixedWidthFloatingPoint { }
 extension Double: FixedWidthFloatingPoint { }
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)

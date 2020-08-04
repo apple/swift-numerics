@@ -40,16 +40,6 @@ extension ArithmeticTests {
   ])
 }
 
-#if canImport(_Differentiation)
-  extension DifferentiableTests {
-    static var all = testCase([
-      ("testComponentGetter", DifferentiableTests.testComponentGetter),
-      ("testConjugate",  DifferentiableTests.testConjugate),
-      ("testArithmetics", DifferentiableTests.testArithmetics),
-    ])
-  }
-#endif
-
 extension PropertyTests {
   static var all = testCase([
     ("testProperties", PropertyTests.testProperties),
@@ -65,7 +55,15 @@ var testCases = [
   PropertyTests.all,
 ]
 
-#if canImport(_Differentiation)
+#if swift(>=5.3) && canImport(_Differentiation)
+extension DifferentiableTests {
+  static var all = testCase([
+    ("testComponentGetter", DifferentiableTests.testComponentGetter),
+    ("testConjugate",  DifferentiableTests.testConjugate),
+    ("testArithmetics", DifferentiableTests.testArithmetics),
+  ])
+}
+
 testCases += [
   DifferentiableTests.all
 ]

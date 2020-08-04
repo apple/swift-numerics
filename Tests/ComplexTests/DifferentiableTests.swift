@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if canImport(_Differentiation)
+#if swift(>=5.3) && canImport(_Differentiation)
 
 import XCTest
 import ComplexModule
@@ -26,6 +26,18 @@ final class DifferentiableTests: XCTestCase {
     XCTAssertEqual(
       gradient(at: Complex<Float>(5, 5)) { $0.real * 5 + $0.imaginary * 2 },
       Complex(5, 2))
+  }
+
+  func testInitializer() {
+    let φ1 = pullback(at: 4, -3) { r, i in Complex<Float>(r, i) }
+    let tan1 = φ1(Complex(-1, 2))
+    XCTAssertEqual(tan1.0, -1)
+    XCTAssertEqual(tan1.1, 2)
+
+    let φ2 = pullback(at: 4, -3) { r, i in Complex<Float>(r * r, i + i) }
+    let tan2 = φ2(Complex(-1, 1))
+    XCTAssertEqual(tan2.0, -8)
+    XCTAssertEqual(tan2.1, 2)
   }
 
   func testConjugate() {
