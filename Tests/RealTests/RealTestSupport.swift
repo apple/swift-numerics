@@ -23,7 +23,7 @@ func assertClose<T>(
   _ expected: TestLiteralType,
   _ observed: T,
   allowedError: T = 16,
-  file: StaticString = #filePath,
+  file: StaticString = #file,
   line: UInt = #line
 ) -> T where T: BinaryFloatingPoint {
   // Shortcut relative-error check if we got the sign wrong; it's OK to
@@ -74,7 +74,7 @@ func assertClose<T>(
   _ observed: T,
   allowedError: T = 16,
   worstError: inout T,
-  file: StaticString = #filePath,
+  file: StaticString = #file,
   line: UInt = #line
 ) where T: BinaryFloatingPoint {
   worstError = max(worstError, assertClose(
@@ -86,10 +86,12 @@ internal protocol FixedWidthFloatingPoint: BinaryFloatingPoint
 where Exponent: FixedWidthInteger,
       RawSignificand: FixedWidthInteger { }
 
+#if swift(>=5.3)
 @available(iOS 14.0, watchOS 14.0, tvOS 7.0, *)
 @available(macOS, unavailable)
 @available(macCatalyst, unavailable)
 extension Float16: FixedWidthFloatingPoint { }
+#endif
 
 extension Float: FixedWidthFloatingPoint { }
 extension Double: FixedWidthFloatingPoint { }
