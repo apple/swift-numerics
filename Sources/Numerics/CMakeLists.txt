@@ -11,6 +11,13 @@ add_library(Numerics
   Numerics.swift)
 set_target_properties(Numerics PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
+# NOTE: generate the force load symbol to ensure that the import library is
+# generated on Windows for autolinking.
+target_compile_options(Numerics PUBLIC
+  -autolink-force-load
+  # SR-12254: workaround for the swift compiler not properly tracking the force
+  # load symbol when validating the TBD
+  -Xfrontend -validate-tbd-against-ir=none)
 target_link_libraries(Numerics PUBLIC
   ComplexModule
   RealModule)
