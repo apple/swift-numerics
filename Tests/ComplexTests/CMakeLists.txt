@@ -8,6 +8,7 @@ See https://swift.org/LICENSE.txt for license information
 #]]
 
 add_library(ComplexTests
+  ApproximateEqualityTests.swift
   ArithmeticTests.swift
   DifferentiableTests.swift
   PropertyTests.swift)
@@ -18,4 +19,5 @@ target_compile_options(ComplexTests PRIVATE
 target_link_libraries(ComplexTests PUBLIC
   $<$<NOT:$<PLATFORM_ID:Darwin>>:Foundation>
   ComplexModule
+  Numerics
   XCTest)
