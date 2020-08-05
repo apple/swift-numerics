@@ -18,19 +18,53 @@ import RealTests
 @testable
 import ComplexTests
 
+extension ComplexTests.ElementaryFunctionTests {
+  static var all = testCase([
+    ("testFloat", RealTests.ElementaryFunctionTests.testFloat),
+    ("testDouble", RealTests.ElementaryFunctionTests.testDouble),
+  ])
+}
+
+extension RealTests.ElementaryFunctionTests {
+  static var all = testCase([
+    ("testFloat", RealTests.ElementaryFunctionTests.testFloat),
+    ("testDouble", RealTests.ElementaryFunctionTests.testDouble),
+  ])
+}
+
+#if swift(>=5.3)
+extension ElementaryFunctionChecks {
+  static var all = testCase([
+    ("testFloat16", ElementaryFunctionChecks.testFloat16),
+    ("testFloat", ElementaryFunctionChecks.testFloat),
+    ("testDouble", ElementaryFunctionChecks.testDouble),
+  ])
+}
+#else
 extension ElementaryFunctionChecks {
   static var all = testCase([
     ("testFloat", ElementaryFunctionChecks.testFloat),
     ("testDouble", ElementaryFunctionChecks.testDouble),
   ])
 }
+#endif
 
+#if swift(>=5.3)
+extension IntegerExponentTests {
+  static var all = testCase([
+    ("testFloat16", IntegerExponentTests.testFloat16),
+    ("testFloat", IntegerExponentTests.testFloat),
+    ("testDouble", IntegerExponentTests.testDouble),
+  ])
+}
+#else
 extension IntegerExponentTests {
   static var all = testCase([
     ("testFloat", IntegerExponentTests.testFloat),
     ("testDouble", IntegerExponentTests.testDouble),
   ])
 }
+#endif
 
 extension ArithmeticTests {
   static var all = testCase([
@@ -49,6 +83,8 @@ extension PropertyTests {
 }
 
 var testCases = [
+  ComplexTests.ElementaryFunctionTests.all,
+  RealTests.ElementaryFunctionTests.all,
   ElementaryFunctionChecks.all,
   IntegerExponentTests.all,
   ArithmeticTests.all,
@@ -59,6 +95,7 @@ var testCases = [
 extension DifferentiableTests {
   static var all = testCase([
     ("testComponentGetter", DifferentiableTests.testComponentGetter),
+    ("testInitializer", DifferentiableTests.testInitializer),
     ("testConjugate",  DifferentiableTests.testConjugate),
     ("testArithmetics", DifferentiableTests.testArithmetics),
   ])
