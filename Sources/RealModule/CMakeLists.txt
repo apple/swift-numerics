@@ -13,6 +13,7 @@ add_library(RealModule
   Double+Real.swift
   ElementaryFunctions.swift
   Float+Real.swift
+  Float16+Real.swift
   Float80+Real.swift
   Real.swift
   RealFunctions.swift)
