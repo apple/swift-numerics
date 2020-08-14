@@ -18,6 +18,7 @@ let package = Package(
     .library(name: "ComplexModule", targets: ["ComplexModule"]),
     .library(name: "Numerics", targets: ["Numerics"]),
     .library(name: "RealModule", targets: ["RealModule"]),
+    .library(name: "_CComplex", targets: ["_CComplex"]),
   ],
   dependencies: [
   ],
@@ -26,8 +27,8 @@ let package = Package(
     .target(name: "Numerics", dependencies: ["ComplexModule", "RealModule"]),
     .target(name: "_NumericsShims", dependencies: []),
     .target(name: "RealModule", dependencies: ["_NumericsShims"]),
-    
-    .testTarget(name: "ComplexTests", dependencies: ["Numerics"]),
+    .target(name: "_CComplex", dependencies: []),
+    .testTarget(name: "ComplexTests", dependencies: ["Numerics", "_CComplex"]),
     .testTarget(name: "RealTests", dependencies: ["RealModule"]),
   ]
 )
