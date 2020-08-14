@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if canImport(_Differentiation)
+#if swift(>=5.3) && canImport(_Differentiation)
 import _Differentiation
 
 extension Complex: Differentiable
@@ -24,6 +24,16 @@ where RealType: Differentiable, RealType.TangentVector == RealType {
 
 extension Complex
 where RealType: Differentiable, RealType.TangentVector == RealType {
+  @derivative(of: init(_:_:))
+  @usableFromInline
+  static func _derivativeInit(
+    _ real: RealType,
+    _ imaginary: RealType
+  ) -> (value: Complex, pullback: (Complex) -> (RealType, RealType)) {
+    (value: .init(real, imaginary), pullback: { v in
+      (v.real, v.imaginary)
+    })
+  }
 
   @derivative(of: real)
   @usableFromInline
