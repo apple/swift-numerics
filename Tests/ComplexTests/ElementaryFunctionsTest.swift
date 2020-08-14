@@ -34,10 +34,9 @@ final class ElementaryFunctionsTests: XCTestCase {
     typealias CD = Complex<Double>
     func testSC(_ S:(CD)->CD, _ C:(_CCD)->_CCD,
                 _ skip:(Double,Double)->Bool = {_,_ in false} ){
-        loop:
         for r in nums {
             for i in nums {
-                if skip(r, i) { continue loop }
+                if skip(r, i) { continue }
                 let lhs = S(Complex(r, i))
                 let rhs = C(_CCD(real:r, imag:i))
                 if lhs == rhs {
@@ -76,10 +75,9 @@ final class ElementaryFunctionsTests: XCTestCase {
     func testSCF(_ S:(CF)->CF, _ C:(_CCF)->_CCF,
                 _ skip:(Float,Float)->Bool = {_,_ in false} ){
         let numsf = nums.map{ Float($0) }
-        loop:
         for r in numsf {
             for i in numsf {
-                if skip(r, i) { continue loop }
+                if skip(r, i) { continue }
                 let lhs = S(Complex(r, i))
                 let rhs = C(_CCF(real:r, imag:i))
                 if lhs == rhs {
@@ -91,7 +89,7 @@ final class ElementaryFunctionsTests: XCTestCase {
                         XCTAssert(lhs.length.isInfinite, "(\(r), \(i)), \(lhs), \(rhs))")
                     } else {
                         let err = relativeError(lhs, Complex(rhs.real, rhs.imag))
-                        XCTAssert(err <= 4, "(\(r), \(i)), \(err), \(lhs), \(rhs)")
+                        XCTAssert(err <= 8, "(\(r), \(i)), \(err), \(lhs), \(rhs)")
                     }
                 }
             }
