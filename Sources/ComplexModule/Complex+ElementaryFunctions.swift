@@ -65,8 +65,8 @@ extension Complex:ElementaryFunctions {
     public static func atan(_ z:Self) -> Self {
         return (log(1 - z * .i) - log(1 + z * .i)) * .i / 2
     }
-    public static func pow(_ lhs: Self, _ rhs: Self) -> Self {
-        return exp(log(lhs) * rhs)
+    public static func pow(_ z: Self, _ w: Self) -> Self {
+        return exp(log(z) * w)
     }
     public static func pow<I:SignedInteger>(_ z: Self, _ n: I) -> Self {
         // algorithm:
@@ -79,7 +79,7 @@ extension Complex:ElementaryFunctions {
             base *= base
             k >>= 1
         }
-        return n < 0 ? 1 / result : result
+        return n < 0 ? 1/result : result
     }
     public static func sqrt(_ z:Self) -> Self {
         let r = z.length
@@ -95,9 +95,8 @@ extension Complex:ElementaryFunctions {
         case -1:    return 1/z
         case -2:    return 1/sqrt(z)
         default:
-            let (r, θ) = z.polar
-            let nth = RealType(1) / RealType(n)
-            return Self(length: RealType.pow(r, nth), phase: θ / nth)
+            guard let nth = RealType(n).reciprocal else { return .infinity }
+            return pow(z, Complex(nth, 0))
         }
     }
 }
