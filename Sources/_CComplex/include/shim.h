@@ -12,6 +12,10 @@ _CCD _clog(_CCD z) {
     double complex cz = clog(CMPLX(z.real, z.imag));
     return (_CCD){ creal(cz), cimag(cz) };
 }
+_CCD _cpow(_CCD z, _CCD w) {
+    double complex cz = cpow(CMPLX(z.real, z.imag), CMPLX(w.real, w.imag));
+    return (_CCD){ creal(cz), cimag(cz) };
+}
 _CCD _csqrt(_CCD z) {
     double complex cz = csqrt(CMPLX(z.real, z.imag));
     return (_CCD){ creal(cz), cimag(cz) };
@@ -70,62 +74,66 @@ typedef struct {
     float imag;
 } _CCF;
 _CCF _cexpf(_CCF z) {
-    float complex cz = cexp(CMPLXF(z.real, z.imag));
+    float complex cz = cexpf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _clogf(_CCF z) {
-    float complex cz = clog(CMPLXF(z.real, z.imag));
+    float complex cz = clogf(CMPLXF(z.real, z.imag));
+    return (_CCF){ crealf(cz), cimagf(cz) };
+}
+_CCF _cpowf(_CCF z, _CCF w) {
+    float complex cz = cpowf(CMPLXF(z.real, z.imag), CMPLXF(w.real, w.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _csqrtf(_CCF z) {
-    float complex cz = csqrt(CMPLXF(z.real, z.imag));
+    float complex cz = csqrtf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _csinf(_CCF z) {
-    float complex cz = csin(CMPLXF(z.real, z.imag));
+    float complex cz = csinf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _ccosf(_CCF z) {
-    float complex cz = ccos(CMPLXF(z.real, z.imag));
+    float complex cz = ccosf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _ctanf(_CCF z) {
-    float complex cz = ctan(CMPLXF(z.real, z.imag));
+    float complex cz = ctanf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _casinf(_CCF z) {
-    float complex cz = casin(CMPLXF(z.real, z.imag));
+    float complex cz = casinf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _cacosf(_CCF z) {
-    float complex cz = cacos(CMPLXF(z.real, z.imag));
+    float complex cz = cacosf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _catanf(_CCF z) {
-    float complex cz = catan(CMPLXF(z.real, z.imag));
+    float complex cz = catanf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _csinhf(_CCF z) {
-    float complex cz = csinh(CMPLXF(z.real, z.imag));
+    float complex cz = csinhf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _ccoshf(_CCF z) {
-    float complex cz = ccosh(CMPLXF(z.real, z.imag));
+    float complex cz = ccoshf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _ctanhf(_CCF z) {
-    float complex cz = ctanh(CMPLXF(z.real, z.imag));
+    float complex cz = ctanhf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _casinhf(_CCF z) {
-    float complex cz = casinh(CMPLXF(z.real, z.imag));
+    float complex cz = casinhf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _cacoshf(_CCF z) {
-    float complex cz = cacosh(CMPLXF(z.real, z.imag));
+    float complex cz = cacoshf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
 _CCF _catanhf(_CCF z) {
-    float complex cz = catanh(CMPLXF(z.real, z.imag));
+    float complex cz = catanhf(CMPLXF(z.real, z.imag));
     return (_CCF){ crealf(cz), cimagf(cz) };
 }
