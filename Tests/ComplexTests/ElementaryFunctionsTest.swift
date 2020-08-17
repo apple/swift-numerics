@@ -54,7 +54,7 @@ final class ElementaryFunctionsTests: XCTestCase {
                     XCTAssert(true, "(\(r), \(i))")
                 } else {
                     if rhs.real.isNaN || rhs.imag.isNaN {
-                        XCTAssert(true, "(\(r), \(i))")
+                        XCTAssert(lhs.isZero, "(\(r), \(i)), \(lhs), \(rhs)")
                     } else if lhs.length.isInfinite {
                         XCTAssert(lhs.length.isInfinite, "(\(r), \(i)), \(lhs), \(rhs))")
                     } else {
@@ -67,7 +67,17 @@ final class ElementaryFunctionsTests: XCTestCase {
     }
     // {fn($0)} to disambiguate
     func testExp()  { testSC({CD.exp($0)},     _cexp) }
+    func testExpM1()  {   // C99 does not have cexpm1 so we define one
+        testSC({CD.expMinusOne($0)}, {
+                let e = _cexp(_CCD(real:$0.real,imag:$0.imag))
+                return _CCD(real:e.real-1.0, imag:e.imag)
+        })
+    }
     func testLog()  { testSC({CD.log($0)},     _clog) { r,_ in r <= .ulpOfOne } }
+    func testLog1p() {   // C99 does not have clog1p so we define one
+        testSC({CD.log(onePlus:$0)},
+               { _clog(_CCD(real:$0.real+1.0, imag:$0.imag)) })
+    }
     func testSqrt() { testSC({CD.sqrt($0)},   _csqrt) { r,_ in r <= .ulpOfOne } }
     func testSin()  { testSC({CD.sin($0)},     _csin) }
     func testCos()  { testSC({CD.cos($0)},     _ccos) }
@@ -107,7 +117,7 @@ final class ElementaryFunctionsTests: XCTestCase {
                     XCTAssert(true, "(\(r), \(i))")
                 } else {
                     if rhs.real.isNaN || rhs.imag.isNaN {
-                        XCTAssert(true, "(\(r), \(i))")
+                        XCTAssert(lhs.isZero, "(\(r), \(i)), \(lhs), \(rhs)")
                     } else if lhs.length.isInfinite {
                         XCTAssert(lhs.length.isInfinite, "(\(r), \(i)), \(lhs), \(rhs))")
                     } else {
@@ -119,7 +129,17 @@ final class ElementaryFunctionsTests: XCTestCase {
         }
     }
     func testExpf()  { testSCF({CF.exp($0)},     _cexpf) }
+    func testExpM1f()  {   // C99 does not have cexpm1f so we define one
+        testSCF({CF.expMinusOne($0)}, {
+                let e = _cexpf(_CCF(real:$0.real,imag:$0.imag))
+                return _CCF(real:e.real-1.0, imag:e.imag)
+        })
+    }
     func testLogf()  { testSCF({CF.log($0)},     _clogf) { r,_ in r <= .ulpOfOne } }
+    func testLog1pf(){   // C99 does not have clog1pf so we define one
+        testSCF({CF.log(onePlus:$0)},
+               {_clogf(_CCF(real:$0.real+1.0, imag:$0.imag)) })
+    }
     func testSqrtf() { testSCF({CF.sqrt($0)},   _csqrtf) { r,_ in r <= .ulpOfOne } }
     func testSinf()  { testSCF({CF.sin($0)},     _csinf) }
     func testCosf()  { testSCF({CF.cos($0)},     _ccosf) }
