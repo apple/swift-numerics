@@ -18,16 +18,22 @@ extension Complex:ElementaryFunctions {
         return Self(r * .cos(a), r * .sin(a))
     }
     public static func expMinusOne(_ z: Self) -> Self {
-        return -exp(z/2) * 2 * sin(z * .i / 2) * .i
+        -exp(z/2) * 2 * sin(z * .i / 2) * .i
     }
     public static func cosh(_ z: Self) -> Self {
-        return cos(z * .i)
+        Self(
+            .cosh(z.real) * .cos(z.imaginary),
+            .sinh(z.real) * .sin(z.imaginary)
+        )
     }
     public static func sinh(_ z: Self) -> Self {
-        return -sin(z * .i) * .i
+        Self(
+            .sinh(z.real) * .cos(z.imaginary),
+            .cosh(z.real) * .sin(z.imaginary)
+        )
     }
     public static func tanh(_ z: Self) -> Self {
-        return sinh(z) / cosh(z)
+        sinh(z) / cosh(z)
     }
     public static func cos(_ z: Self) -> Self {
         let (x, y) = (z.real, z.imaginary)
@@ -38,35 +44,41 @@ extension Complex:ElementaryFunctions {
         return Self(+.sin(x) * .cosh(y), +.cos(x) * .sinh(y))
     }
     public static func tan(_ z: Self) -> Self {
-        return sin(z) / cos(z)
+        sin(z) / cos(z)
     }
     public static func log(_ z: Self) -> Self {
         let (r, a) = z.polar
         return Self(RealType.log(r), a)
     }
     public static func log(onePlus z: Self) -> Self {
-        return 2 * atanh(z / (z + 2))
+        // return 2 * atanh(z / (z + 2))
+        // the following implementation by HaydenMcCabe
+        let (x, y) = (z.real, z.imaginary)
+        let a = x*x + y*y + 2*x
+        let u = RealType.log(onePlus: a) / 2
+        let v = RealType.atan2(y: y, x: x+1)
+        return Self(u, v)
     }
     public static func acosh(_ z:Self) -> Self {
-        return log(z + sqrt(z + 1) * sqrt(z - 1))
+        log(z + sqrt(z + 1) * sqrt(z - 1))
     }
     public static func asinh(_ z:Self) -> Self {
-        return log(z + sqrt(z * z + 1))
+        log(z + sqrt(z * z + 1))
     }
     public static func atanh(_ z:Self) -> Self {
-        return (log(1 + z) - log(1 - z)) / 2
+        (log(1 + z) - log(1 - z)) / 2
     }
     public static func acos(_ z:Self) -> Self {
-         return log(z - sqrt(1 - z * z) * .i) * .i
+        log(z - sqrt(1 - z * z) * .i) * .i
     }
     public static func asin(_ z:Self) -> Self {
-        return -log(z * .i + sqrt(1 - z * z)) * .i
+        -log(z * .i + sqrt(1 - z * z)) * .i
     }
     public static func atan(_ z:Self) -> Self {
-        return (log(1 - z * .i) - log(1 + z * .i)) * .i / 2
+        (log(1 - z * .i) - log(1 + z * .i)) * .i / 2
     }
     public static func pow(_ z: Self, _ w: Self) -> Self {
-        return exp(log(z) * w)
+        exp(log(z) * w)
     }
     public static func pow<I:SignedInteger>(_ z: Self, _ n: I) -> Self {
         // algorithm:
