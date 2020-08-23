@@ -87,7 +87,8 @@ extension Float16 {
     let u = Float16(1).nextUp
     let d = Float16(1).nextDown
     // Smallest exponents not exactly representable as Float16.
-    assertClose(-7.3890572722436554354625993393835304, Float16.pow(-u, 0x801))
+    assertClose(-7.3890572722436554354625993393835304, Float16.pow(-u, 0x801 as Int))
+    print(Float16.pow(-u, 0x801))
     assertClose(-0.3676100238077049750885141244927184, Float16.pow(-d, 0x801))
     // Exponents close to overflow boundary.
     assertClose( 65403.86633107, Float16.pow(-u, 11360))
