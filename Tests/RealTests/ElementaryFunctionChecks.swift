@@ -11,6 +11,7 @@
 
 import XCTest
 import RealModule
+import _TestSupport
 
 internal extension ElementaryFunctions where Self: BinaryFloatingPoint {
   static func elementaryFunctionChecks() {
