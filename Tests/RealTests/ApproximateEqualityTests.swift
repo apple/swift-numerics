@@ -12,6 +12,7 @@
 
 import RealModule
 import XCTest
+import _TestSupport
 
 final class ApproximateEqualityTests: XCTestCase {
   
