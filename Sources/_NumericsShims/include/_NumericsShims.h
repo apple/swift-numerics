@@ -382,6 +382,28 @@ HEADER_SHIM long double libm_lgammal(long double x, int *signp) {
 }
 #endif
 
+// MARK: - fast mul-add inlines
+/// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
+HEADER_SHIM _Float16 _numerics_muladdf16(_Float16 a, _Float16 b, _Float16 c) {
+#pragma STDC FP_CONTRACT ON
+  return a*b + c;
+}
+
+/// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
+HEADER_SHIM float _numerics_muladdf(float a, float b, float c) {
+#pragma STDC FP_CONTRACT ON
+  return a*b + c;
+}
+
+/// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
+HEADER_SHIM double _numerics_muladd(double a, double b, double c) {
+#pragma STDC FP_CONTRACT ON
+  return a*b + c;
+}
+
+// No long-double muladd operation, because no one has built an FMA for it
+// (except for Itanium, which Swift doesn't support).
+
 // MARK: - shims to import C complex operations for timing purposes
 // Clang doesn't provide complex arithmetic on Windows (because MSVC
 // doesn't), so we can't define these there, or we'll get link errors.

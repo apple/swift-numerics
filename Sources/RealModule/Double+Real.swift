@@ -218,4 +218,9 @@ extension Double: Real {
     return libm_lgamma(x, &dontCare)
   }
   #endif
+  
+  @_transparent
+  public static func _mulAdd(_ a: Double, _ b: Double, _ c: Double) -> Double {
+    _numerics_muladd(a, b, c)
+  }
 }
