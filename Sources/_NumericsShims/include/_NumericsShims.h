@@ -402,7 +402,7 @@ HEADER_SHIM double _numerics_muladd(double a, double b, double c) {
 }
 
 // No long-double muladd operation, because no one has built an FMA for it
-// (except for itanium, which Swift doesn't support).
+// (except for Itanium, which Swift doesn't support).
 
 // MARK: - shims to import C complex operations for timing purposes
 // Clang doesn't provide complex arithmetic on Windows (because MSVC
