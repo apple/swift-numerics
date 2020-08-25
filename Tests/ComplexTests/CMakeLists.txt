@@ -20,4 +20,5 @@ target_link_libraries(ComplexTests PUBLIC
   $<$<NOT:$<PLATFORM_ID:Darwin>>:Foundation>
   ComplexModule
   Numerics
+  _TestSupport
   XCTest)

@@ -9,12 +9,12 @@ See https://swift.org/LICENSE.txt for license information
 
 add_library(RealTests
   ApproximateEqualityTests.swift
-  IntegerExponentTests.swift
-  RealTests.swift
-  RealTestSupport.swift)
+  ElementaryFunctionChecks.swift
+  IntegerExponentTests.swift)
 target_compile_options(RealTests PRIVATE
   -enable-testing)
 target_link_libraries(RealTests PUBLIC
   $<$<NOT:$<PLATFORM_ID:Darwin>>:Foundation>
   RealModule
+  _TestSupport
   XCTest)

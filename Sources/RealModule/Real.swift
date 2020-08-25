@@ -40,6 +40,17 @@ extension Real {
     return pow(10, x)
   }
   
+  /// cos(x) - 1, computed in such a way as to maintain accuracy for small x.
+  ///
+  /// See also:
+  /// -
+  /// - `ElementaryFunctions.expMinusOne()`
+  @_transparent
+  public static func cosMinusOne(_ x: Self) -> Self {
+    let sinxOver2 = sin(x/2)
+    return -2*sinxOver2*sinxOver2
+  }
+  
   #if !os(Windows)
   public static func signGamma(_ x: Self) -> FloatingPointSign {
     // Gamma is strictly positive for x >= 0.
@@ -75,6 +86,11 @@ extension Real {
     }
   }
   #endif
+  
+  @_transparent
+  public static func _mulAdd(_ a: Self, _ b: Self, _ c: Self) -> Self {
+    a*b + c
+  }
   
   @_transparent
   public static func sqrt(_ x: Self) -> Self {

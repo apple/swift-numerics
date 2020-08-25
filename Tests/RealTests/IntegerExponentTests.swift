@@ -11,6 +11,7 @@
 
 import XCTest
 import RealModule
+import _TestSupport
 
 internal extension Real where Self: FixedWidthFloatingPoint {
   
@@ -174,10 +175,7 @@ extension Double {
 
 final class IntegerExponentTests: XCTestCase {
 
-  #if swift(>=5.3)
-  @available(iOS 14.0, watchOS 14.0, tvOS 7.0, *)
-  @available(macOS, unavailable)
-  @available(macCatalyst, unavailable)
+  #if swift(>=5.3) && !os(macOS)
   func testFloat16() {
     Float16.testIntegerExponent()
   }

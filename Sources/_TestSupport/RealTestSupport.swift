@@ -13,13 +13,13 @@ import XCTest
 import RealModule
 
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
-typealias TestLiteralType = Float80
+public typealias TestLiteralType = Float80
 #else
-typealias TestLiteralType = Double
+public typealias TestLiteralType = Double
 #endif
 
 @discardableResult
-func assertClose<T>(
+public func assertClose<T>(
   _ expected: TestLiteralType,
   _ observed: T,
   allowedError: T = 16,
@@ -69,7 +69,7 @@ func assertClose<T>(
   return ulps
 }
 
-func assertClose<T>(
+public func assertClose<T>(
   _ expected: TestLiteralType,
   _ observed: T,
   allowedError: T = 16,
@@ -82,7 +82,7 @@ func assertClose<T>(
   ))
 }
 
-internal protocol FixedWidthFloatingPoint: BinaryFloatingPoint
+public protocol FixedWidthFloatingPoint: BinaryFloatingPoint
 where Exponent: FixedWidthInteger,
       RawSignificand: FixedWidthInteger { }
 

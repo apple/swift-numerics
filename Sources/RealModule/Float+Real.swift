@@ -191,4 +191,9 @@ extension Float: Real {
     return libm_lgammaf(x, &dontCare)
   }
   #endif
+  
+  @_transparent
+  public static func _mulAdd(_ a: Float, _ b: Float, _ c: Float) -> Float {
+    _numerics_muladdf(a, b, c)
+  }
 }

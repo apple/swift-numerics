@@ -18,17 +18,17 @@ import RealTests
 @testable
 import ComplexTests
 
-extension ComplexTests.ElementaryFunctionTests {
+extension ComplexTests.ApproximateEqualityTests {
   static var all = testCase([
-    ("testFloat", RealTests.ElementaryFunctionTests.testFloat),
-    ("testDouble", RealTests.ElementaryFunctionTests.testDouble),
+    ("testFloat", ComplexTests.ApproximateEqualityTests.testFloat),
+    ("testDouble", ComplexTests.ApproximateEqualityTests.testDouble),
   ])
 }
 
-extension RealTests.ElementaryFunctionTests {
+extension RealTests.ApproximateEqualityTests {
   static var all = testCase([
-    ("testFloat", RealTests.ElementaryFunctionTests.testFloat),
-    ("testDouble", RealTests.ElementaryFunctionTests.testDouble),
+    ("testFloat", RealTests.ApproximateEqualityTests.testFloat),
+    ("testDouble", RealTests.ApproximateEqualityTests.testDouble),
   ])
 }
 
@@ -83,8 +83,8 @@ extension PropertyTests {
 }
 
 var testCases = [
-  ComplexTests.ElementaryFunctionTests.all,
-  RealTests.ElementaryFunctionTests.all,
+  ComplexTests.ApproximateEqualityTests.all,
+  RealTests.ApproximateEqualityTests.all,
   ElementaryFunctionChecks.all,
   IntegerExponentTests.all,
   ArithmeticTests.all,
