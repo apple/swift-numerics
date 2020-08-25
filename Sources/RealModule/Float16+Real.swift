@@ -172,10 +172,5 @@ extension Float16: Real {
     Float16(.logGamma(Float(x)))
   }
   #endif
-  
-  @_transparent
-  public static func _mulAdd(_ a: Float16, _ b: Float16, _ c: Float16) -> Float16 {
-    _numerics_muladdf16(a, b, c)
-  }
 }
 #endif

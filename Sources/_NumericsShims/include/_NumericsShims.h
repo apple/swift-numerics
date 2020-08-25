@@ -384,12 +384,6 @@ HEADER_SHIM long double libm_lgammal(long double x, int *signp) {
 
 // MARK: - fast mul-add inlines
 /// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
-HEADER_SHIM _Float16 _numerics_muladdf16(_Float16 a, _Float16 b, _Float16 c) {
-#pragma STDC FP_CONTRACT ON
-  return a*b + c;
-}
-
-/// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
 HEADER_SHIM float _numerics_muladdf(float a, float b, float c) {
 #pragma STDC FP_CONTRACT ON
   return a*b + c;
