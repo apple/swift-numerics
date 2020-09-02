@@ -11,6 +11,7 @@
 
 import XCTest
 import RealModule
+import _TestSupport
 
 internal extension ElementaryFunctions where Self: BinaryFloatingPoint {
   static func elementaryFunctionChecks() {
@@ -58,6 +59,15 @@ internal extension Real where Self: BinaryFloatingPoint {
 }
 
 final class ElementaryFunctionChecks: XCTestCase {
+  
+  #if swift(>=5.3) && !os(macOS)
+  func testFloat16() {
+    if #available(iOS 14.0, watchOS 14.0, tvOS 7.0, *) {
+      Float16.elementaryFunctionChecks()
+      Float16.realFunctionChecks()
+    }
+  }
+  #endif
   
   func testFloat() {
     Float.elementaryFunctionChecks()

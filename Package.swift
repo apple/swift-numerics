@@ -24,13 +24,15 @@ let package = Package(
   ],
   targets: [
     .target(name: "ComplexModule", dependencies: ["RealModule"]),
-    .target(name: "Numerics", dependencies: ["ComplexModule", "RealModule"]),
-    .target(name: "_NumericsShims", dependencies: []),
+    .target(name: "Numerics", dependencies: ["ComplexModule", "QuaternionModule", "RealModule"]),
     .target(name: "QuaternionModule", dependencies: ["RealModule"]),
     .target(name: "RealModule", dependencies: ["_NumericsShims"]),
     
-    .testTarget(name: "ComplexTests", dependencies: ["ComplexModule", "_NumericsShims"]),
-    .testTarget(name: "QuaternionTests", dependencies: ["QuaternionModule"]),
-    .testTarget(name: "RealTests", dependencies: ["RealModule"]),
+    .target(name: "_NumericsShims", dependencies: []),
+    .target(name: "_TestSupport", dependencies: ["Numerics"]),
+    
+    .testTarget(name: "ComplexTests", dependencies: ["_TestSupport"]),
+    .testTarget(name: "QuaternionTests", dependencies: ["_TestSupport"]),
+    .testTarget(name: "RealTests", dependencies: ["_TestSupport"]),
   ]
 )
