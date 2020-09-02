@@ -165,12 +165,10 @@ final class ArithmeticTests: XCTestCase {
       let a: Complex<Double>
       let b: Complex<Double>
       let c: Complex<Double>
-      let allowSmallError: Bool
-      init(_ a: Complex<Double>, _ b: Complex<Double>, _ c: Complex<Double>, allowSmallError: Bool = false) {
+      init(_ a: Complex<Double>, _ b: Complex<Double>, _ c: Complex<Double>) {
         self.a = a
         self.b = b
         self.c = c
-        self.allowSmallError = allowSmallError
       }
     }
     // The ten test cases from Baudin & Smith's paper. These only apply to
