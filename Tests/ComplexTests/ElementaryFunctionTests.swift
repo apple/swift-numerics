@@ -112,70 +112,6 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
   
-  // TODO: pull this out into a separate binary target, not run as part of the
-  // normal tests.
-  func testExpMinusOne_FloatVsDouble() {
-    // Walk grid points of the form (n + nπ/16 i) comparing Float and Double,
-    // finding the worst componentwise and normwise errors for Float.
-    let reals = (-100 ... 100).map { Float($0) }
-    let imags = (-100 ... 100).map { Float($0) * .pi / 16 }
-    var componentError = Double(Float.ulpOfOne)
-    var complexError = Double(Float.ulpOfOne)
-    var componentMaxInput = Complex<Float>.zero
-    var complexMaxInput = Complex<Float>.zero
-    for x in reals {
-      for y in imags {
-        let tst = Complex.expMinusOne(Complex(x,y))
-        let ref = Complex.expMinusOne(Complex(Double(x), Double(y)))
-        if tst == Complex<Float>(ref) { continue }
-        let thisError = relativeError(tst, ref)
-        if thisError > complexError {
-          complexMaxInput = Complex(x,y)
-          complexError = thisError
-        }
-        let thisComponentError = max(
-          relativeError(tst.real, ref.real),
-          relativeError(tst.imaginary, ref.imaginary)
-        )
-        if thisComponentError > componentError {
-          componentMaxInput = Complex(x,y)
-          componentError = thisComponentError
-        }
-      }
-    }
-    // Now sample randomly-generated points in an interesting strip along
-    // the real axis.
-    var g = SystemRandomNumberGenerator()
-    for _ in 0 ..< 10_000 {
-      let z = Complex(Float.random(in: -100 ... 100, using: &g),
-                      Float.random(in: -2 * .pi ... 2 * .pi, using: &g))
-      let tst = Complex.expMinusOne(z)
-      let ref = Complex.expMinusOne(Complex<Double>(z))
-      if tst == Complex<Float>(ref) { continue }
-      let thisError = relativeError(tst, ref)
-      if thisError > complexError {
-        complexMaxInput = z
-        complexError = thisError
-      }
-      let thisComponentError = max(
-        relativeError(tst.real, ref.real),
-        relativeError(tst.imaginary, ref.imaginary)
-      )
-      if thisComponentError > componentError {
-        componentMaxInput = z
-        componentError = thisComponentError
-      }
-    }
-    print("Worst complex norm error seen for expMinusOne was \(complexError)")
-    print("For input \(complexMaxInput).")
-    print("Reference result: \(Complex.expMinusOne(Complex<Double>(complexMaxInput)))")
-    print(" Observed result: \(Complex.expMinusOne(complexMaxInput))")
-    print("Worst componentwise error seen for expMinusOne was \(componentError)")
-    print("For input \(componentMaxInput).")
-    print("Reference result: \(Complex.expMinusOne(Complex<Double>(componentMaxInput)))")
-    print(" Observed result: \(Complex.expMinusOne(componentMaxInput))")
-  }
-  
   func testFloat() {
     testExp(Float.self)
     testExpMinusOne(Float.self)
@@ -192,16 +128,4 @@ final class ElementaryFunctionTests: XCTestCase {
     testExpMinusOne(Float80.self)
   }
   #endif
-}
-
-func relativeError(_ tst: Float, _ ref: Double) -> Double {
-  let scale = max(ref.magnitude, Double(Float.leastNormalMagnitude))
-  let error = (Double(tst) - ref).magnitude
-  return error / scale
-}
-
-func relativeError(_ tst: Complex<Float>, _ ref: Complex<Double>) -> Double {
-  let scale = max(ref.magnitude, Double(Float.leastNormalMagnitude))
-  let error = (Complex<Double>(tst) - ref).magnitude
-  return error / scale
 }
