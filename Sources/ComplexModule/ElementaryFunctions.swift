@@ -146,7 +146,7 @@ extension Complex /*: ElementaryFunctions */ {
     )
   }
   
-  // tanh z = sinh z / cosh z
+  // tanh(z) = sinh(z) / cosh(z)
   @inlinable
   public static func tanh(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
@@ -160,6 +160,13 @@ extension Complex /*: ElementaryFunctions */ {
     }
     // Now we have z in a vertical strip where exp(x) is reasonable,
     // and y is finite, so we can simply evaluate sinh(z) and cosh(z).
+    //
+    // TODO: Kahan uses a different expression for evaluation here; it
+    // isn't strictly necessary for numerics reasons--it's to avoid
+    // doing the complex division, but it probably provides better
+    // componentwise error bounds, and is likely more efficient (because
+    // it avoids the complex division, which is painful even when well-
+    // scaled). This suffices to get us up and running.
     return sinh(z) / cosh(z)
   }
   
