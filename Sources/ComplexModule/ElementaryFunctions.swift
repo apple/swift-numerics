@@ -31,42 +31,19 @@ import RealModule
 extension Complex /*: ElementaryFunctions */ {
   
   // MARK: - exp-like functions
-  /// Checks if x is bounded away overflowing exp(x).
-  ///
-  /// This is a conservative (imprecise) check; if it returns `true`, `exp(x)` is definitely safe, but
-  /// it will return `false` even in some cases where `exp(x)` would not overflow.
-  @usableFromInline @inline(__always)
-  internal static func expIsSafe(_ x: RealType) -> Bool {
-    // If x < log(greatestFiniteMagnitude), then exp(x) does not overflow.
-    // To protect ourselves against sketchy log or exp implementations in
-    // an unknown host library, we round down to the nearest integer to get
-    // some margin of safety.
-    return x < RealType.log(.greatestFiniteMagnitude).rounded(.down)
-  }
-  
-  /// Computes exp(z) with extra care near the overflow boundary.
-  ///
-  /// When x = z.real is large, exp(x) may overflow even when exp(z) is finite,
-  /// because exp(z) = exp(x) * (cos(y) + i sin(y)), and max(cos(y),sin(y)) may
-  /// be as small as 1/sqrt(2).
-  ///
-  /// - Parameter z: a complex number with large real part.
-  @usableFromInline
-  internal static func expNearOverflow(_ z: Complex) -> Complex {
-    let xm1 = z.x - 1
-    let y = z.y
-    let r = Complex(.cos(y), .sin(y)).multiplied(by: .exp(1))
-    return r.multiplied(by: .exp(xm1))
-  }
-  
   // exp(x + iy) = exp(x)(cos(y) + i sin(y))
   @inlinable
   public static func exp(_ z: Complex) -> Complex {
-    // Naively we would let exp(-∞,0) fall out as 0, matching the real
-    // type behavior, but that breaks the single-point-at-infinity
-    // semantics, because exp has an essential singularity at infinity.
-    guard z.x != -.infinity else { return .infinity }
-    guard expIsSafe(z.x) else { return expNearOverflow(z) }
+    guard z.isFinite else { return z }
+    // If x < log(greatestFiniteMagnitude), then exp(x) does not overflow.
+    // To protect ourselves against sketchy log or exp implementations in
+    // an unknown host library, subtract one from the bound for a little
+    // safety margin.
+    guard z.x < RealType.log(.greatestFiniteMagnitude) - 1 else {
+      let halfScale = RealType.exp(z.x/2)
+      let phase = Complex(RealType.cos(z.y), RealType.sin(z.y))
+      return phase.multiplied(by: halfScale).multiplied(by: halfScale)
+    }
     return Complex(.cos(z.y), .sin(z.y)).multiplied(by: .exp(z.x))
   }
   
@@ -102,16 +79,12 @@ extension Complex /*: ElementaryFunctions */ {
   // while the reference result would be (-0.22, 6.57e7).
   @inlinable
   public static func expMinusOne(_ z: Complex) -> Complex {
-    // Naively we would let exp(-∞,0) fall out as 0, matching the real
-    // type behavior, but that breaks the single-point-at-infinity
-    // semantics, because exp has an essential singularity at infinity.
-    guard z.x != -.infinity else { return .infinity }
-    // If exp(z) is close to the overflow boundary, we don't need to
-    // worry about the m1 part; we're just computing exp(z). (Even when
-    // z.y is near a multiple of π/2, it can't be close enough to
-    // overcome the scaling from exp(z.x), so the -1 term is _always_
-    // negligable).
-    guard expIsSafe(z.x) else { return expNearOverflow(z) }
+    guard z.isFinite else { return z }
+    guard z.x < RealType.log(.greatestFiniteMagnitude) - 1 else {
+      let halfScale = RealType.exp(z.x/2)
+      let phase = Complex(RealType.cos(z.y), RealType.sin(z.y))
+      return phase.multiplied(by: halfScale).multiplied(by: halfScale)
+    }
     // Special cases out of the way, evaluate as discussed above.
     return Complex(
       RealType._mulAdd(.cos(z.y), .expMinusOne(z.x), .cosMinusOne(z.y)),
@@ -119,16 +92,75 @@ extension Complex /*: ElementaryFunctions */ {
     )
   }
   
+  // cosh(x + iy) = cosh(x) cos(y) + i sinh(x) sin(y).
+  //
+  // Like exp, cosh is entire, so we do not need to worry about where
+  // branch cuts fall. Also like exp, cancellation never occurs in the
+  // evaluation of the naive expression, so all we need to be careful
+  // about is the behavior near the overflow boundary.
+  //
+  // Fortunately, if |x| >= -log(ulpOfOne), cosh(x) and sinh(x) are
+  // both just exp(|x|)/2, and we already know how to compute that.
+  @inlinable @inline(__always)
   public static func cosh(_ z: Complex) -> Complex {
-    fatalError()
+    guard z.isFinite else { return z }
+    guard z.x.magnitude < -RealType.log(.ulpOfOne) else {
+      let phase = Complex(RealType.cos(z.y), RealType.sin(z.y))
+      let firstScale = RealType.exp(z.x.magnitude/2)
+      let secondScale = firstScale/2
+      return phase.multiplied(by: firstScale).multiplied(by: secondScale)
+    }
+    // Future optimization opportunity: expm1 is faster than cosh/sinh
+    // on most platforms, and division is now commonly pipelined, so we
+    // might replace the check above with a much more conservative one,
+    // and then evaluate cosh(x) and sinh(x) as
+    //
+    // cosh(x) = 1 + 0.5*expm1(x)*expm1(x) / (1 + expm1(x))
+    // sinh(x) = expm1(x) + 0.5*expm1(x) / (1 + expm1(x))
+    //
+    // This won't be a _big_ win except on platforms with a crappy sinh
+    // and cosh, and for those we should probably just provide our own
+    // implementations of _those_, so for now let's keep it simple and
+    // obviously correct.
+    return Complex(
+      RealType.cosh(z.x) * RealType.cos(z.y),
+      RealType.sinh(z.x) * RealType.sin(z.y)
+    )
   }
   
+  // sinh(x + iy) = sinh(x) cos(y) + i cosh(x) sinh(y)
+  //
+  // See cosh above for algorithm details.
+  @inlinable @inline(__always)
   public static func sinh(_ z: Complex) -> Complex {
-    fatalError()
+    guard z.isFinite else { return z }
+    guard z.x.magnitude < -RealType.log(.ulpOfOne) else {
+      let phase = Complex(RealType.cos(z.y), RealType.sin(z.y))
+      let firstScale = RealType.exp(z.x.magnitude/2)
+      let secondScale = RealType(signOf: z.x, magnitudeOf: firstScale/2)
+      return phase.multiplied(by: firstScale).multiplied(by: secondScale)
+    }
+    return Complex(
+      RealType.sinh(z.x) * RealType.cos(z.y),
+      RealType.cosh(z.x) * RealType.sin(z.y)
+    )
   }
   
+  // tanh z = sinh z / cosh z
+  @inlinable
   public static func tanh(_ z: Complex) -> Complex {
-    fatalError()
+    guard z.isFinite else { return z }
+    // Note that when |x| is larger than -log(.ulpOfOne),
+    // sinh(x + iy) == ±cosh(x + iy), so tanh(x + iy) is just ±1.
+    guard z.x.magnitude < -RealType.log(.ulpOfOne) else {
+      return Complex(
+        RealType(signOf: z.x, magnitudeOf: 1),
+        RealType(signOf: z.y, magnitudeOf: 0)
+      )
+    }
+    // Now we have z in a vertical strip where exp(x) is reasonable,
+    // and y is finite, so we can simply evaluate sinh(z) and cosh(z).
+    return sinh(z) / cosh(z)
   }
   
   // cos(z) = cosh(iz)

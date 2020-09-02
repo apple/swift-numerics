@@ -112,20 +112,55 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
   
+  func testCosh<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
+    // cosh(0) = 1
+    XCTAssertEqual(1, Complex<T>.cosh(Complex( 0, 0)))
+    XCTAssertEqual(1, Complex<T>.cosh(Complex(-0, 0)))
+    XCTAssertEqual(1, Complex<T>.cosh(Complex(-0,-0)))
+    XCTAssertEqual(1, Complex<T>.cosh(Complex( 0,-0)))
+    // cosh is the identity at infinity.
+    XCTAssertFalse(Complex<T>.cosh(Complex( .infinity, 0)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex( .infinity, .infinity)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex(         0, .infinity)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex(-.infinity, .infinity)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex(-.infinity, 0)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex(-.infinity,-.infinity)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex(         0,-.infinity)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex( .infinity,-.infinity)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex(      .nan, .nan)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex( .infinity, .nan)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex(      .nan, .infinity)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex(-.infinity, .nan)).isFinite)
+    XCTAssertFalse(Complex<T>.cosh(Complex(      .nan,-.infinity)).isFinite)
+    // Near-overflow test, same as exp() above, but it happens later, because
+    // for large x, cosh(x + iy) ~ exp(x + iy)/2.
+    let x = T.log(.greatestFiniteMagnitude) + T.log(18/8)
+    let mag = T.greatestFiniteMagnitude/T.sqrt(2) * (9/8)
+    var huge = Complex<T>.cosh(Complex(x, .pi/4))
+    XCTAssert(huge.real.isApproximatelyEqual(to: mag))
+    XCTAssert(huge.imaginary.isApproximatelyEqual(to: mag))
+    huge = Complex<T>.cosh(Complex(-x, .pi/4))
+    XCTAssert(huge.real.isApproximatelyEqual(to: mag))
+    XCTAssert(huge.imaginary.isApproximatelyEqual(to: mag))
+  }
+  
   func testFloat() {
     testExp(Float.self)
     testExpMinusOne(Float.self)
+    testCosh(Float.self)
   }
   
   func testDouble() {
     testExp(Double.self)
     testExpMinusOne(Double.self)
+    testCosh(Double.self)
   }
   
   #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     testExp(Float80.self)
     testExpMinusOne(Float80.self)
+    testCosh(Float80.self)
   }
   #endif
 }
