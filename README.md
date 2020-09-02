@@ -66,14 +66,14 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 
 ## Modules
 1. [RealModule](Sources/RealModule/README.md)
+    - [Approximate Equality](Sources/RealModule/ApproximateEquality.swift)
 2. [ComplexModule](Sources/ComplexModule/README.md)
 
 ## Future expansion
-1. [Approximate Equality](https://github.com/apple/swift-numerics/issues/3)
-2. [Large Fixed-Width Integers](https://github.com/apple/swift-numerics/issues/4)
-3. [Arbitrary-Precision Integers](https://github.com/apple/swift-numerics/issues/5)
-4. [Shaped Arrays](https://github.com/apple/swift-numerics/issues/6)
-5. [Decimal Floating-point](https://github.com/apple/swift-numerics/issues/7)
+1. [Large Fixed-Width Integers](https://github.com/apple/swift-numerics/issues/4)
+2. [Arbitrary-Precision Integers](https://github.com/apple/swift-numerics/issues/5)
+3. [Shaped Arrays](https://github.com/apple/swift-numerics/issues/6)
+4. [Decimal Floating-point](https://github.com/apple/swift-numerics/issues/7)
 
 ## Notes
 ¹ Swift is currently unable to use the fully-qualified name for types when a type and module have the same name (discussion here: https://forums.swift.org/t/pitch-fully-qualified-name-syntax/28482).
