@@ -48,7 +48,7 @@ final class ElementaryFunctionTests: XCTestCase {
     //   exp((log(gfm) + log(9/8), π/4) = exp((log(gfm*9/8), π/4))
     //                                  = gfm*9/8 * (1/sqrt(2), 1/(sqrt(2))
     let x = T.log(.greatestFiniteMagnitude) + T.log(9/8)
-    let huge = Complex<T>.expMinusOne(Complex(x, .pi/4))
+    let huge = Complex<T>.exp(Complex(x, .pi/4))
     let mag = T.greatestFiniteMagnitude/T.sqrt(2) * (9/8)
     XCTAssert(huge.real.isApproximatelyEqual(to: mag))
     XCTAssert(huge.imaginary.isApproximatelyEqual(to: mag))
