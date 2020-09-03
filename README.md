@@ -24,12 +24,12 @@ let z = Complex<Double>.i
 ```
 
 There is also a top-level `Numerics` module that re-exports the complete public
-interface of swift-numerics:
+interface of Swift Numerics:
 
 ```swift
 import Numerics
 
-// The entire `swift-numerics` API is now available
+// The entire Swift Numerics API is now available
 ```
 
 Swift Numerics modules have minimal dependencies on other projects.
@@ -43,9 +43,9 @@ and [LAPACK (Linear Algebra Package)](https://en.wikipedia.org/wiki/LAPACK). But
 modules with more specialized dependencies (or dependencies that are not
 available on all platforms supported by Swift) belong in a separate package.
 
-The Swift Numerics project is intended to be adopted in the standard library
-in future. Therefore, it uses the same license and contribution guidelines as
-the Swift project.
+Because we intend to make it possible to adopt Swift Numerics modules in the
+standard library at some future point, Swift Numerics uses the same license and
+contribution guidelines as the Swift project.
 
 ## Using Swift Numerics in your project
 
@@ -110,7 +110,6 @@ forums](https://forums.swift.org/c/related-projects/swift-numerics).
 ## Modules
 
 1. About [`RealModule`](Sources/RealModule/README.md)
-    - [`ApproximateEquality`](Sources/RealModule/ApproximateEquality.swift)
 2. About [`ComplexModule`](Sources/ComplexModule/README.md)
 
 ## Future expansion
@@ -130,7 +129,7 @@ such as:
 
 ```swift
 import Complex
-// You only ever want Complex<Double>, so you shouldn't need the generic parameter.
+// I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
 typealias Complex = Complex.Complex<Double> // This doesn't work, because name lookup fails.
 ```
 
@@ -139,10 +138,9 @@ For this reason, modules that would have this ambiguity are suffixed with
 
 ```swift
 import ComplexModule
-// You only ever want Complex<Double>, so I shouldn't need the generic parameter.
+// I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
 typealias Complex = ComplexModule.Complex<Double>
-// But you can still refer to the generic type by qualifying the name 
-// if you need it occasionally:
+// But I can still refer to the generic type by qualifying the name if I need it occasionally:
 let a = ComplexModule.Complex<Float>
 ```
 
