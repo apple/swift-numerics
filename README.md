@@ -7,7 +7,7 @@ Swift Numerics provides a set of modules that support numerical computing in Swi
 - API that is too specialized to go into the standard library, but which is sufficiently general to be centralized in a single common package.
 - API that is under active development toward possible future inclusion in the standard library.
 
-There is some overlap between these two categories, and an API that begins in the first category may migrate into the second as it matures and more users start using Swift Numerics.
+There is some overlap between these two categories, and an API that begins in the first category may migrate into the second as it matures and new uses are discovered.
 
 Swift Numerics modules are fine-grained. For example, if you need support for Complex numbers, you can import ComplexModule¹ as a standalone module:
 
