@@ -13,3 +13,4 @@
 @_exported import ComplexModule
 @_exported import IntegerUtilities
 @_exported import RealModule
+@_exported import QuaternionModule
