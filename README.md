@@ -55,7 +55,7 @@ To use Swift Numerics in a SwiftPM project:
 dependencies in your `Package.swift` file:
 
 ```swift
-.package(url: "https://github.com/apple/swift-numerics", from: "0.0.5"),
+.package(url: "https://github.com/apple/swift-numerics", from: "0.0.7"),
 ```
 
 2. Add `Numerics` as a dependency for your target:
