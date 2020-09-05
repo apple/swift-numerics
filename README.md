@@ -2,14 +2,16 @@
   
 ## Introduction
 
-Swift Numerics provides a set of modules that support numerical computing in Swift. These modules fall broadly into two categories:
+Swift Numerics provides a set of modules that support numerical computing in Swift.
+These modules fall broadly into two categories:
 
 - API that is too specialized to go into the standard library, but which is sufficiently general to be centralized in a single common package.
 - API that is under active development toward possible future inclusion in the standard library.
 
 There is some overlap between these two categories, and an API that begins in the first category may migrate into the second as it matures and new uses are discovered.
 
-Swift Numerics modules are fine-grained. For example, if you need support for Complex numbers, you can import ComplexModule¹ as a standalone module:
+Swift Numerics modules are fine-grained.
+For example, if you need support for Complex numbers, you can import ComplexModule¹ as a standalone module:
 
 ```swift
 import ComplexModule
@@ -29,7 +31,8 @@ Swift Numerics modules have minimal dependencies on other projects.
 
 The current modules assume only the availability of the Swift and C standard libraries and the runtime support provided by compiler-rt.
 
-Future expansion may assume the availability of other standard interfaces, such as [BLAS (Basic Linear Algebra Subprograms)](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) and [LAPACK (Linear Algebra Package)](https://en.wikipedia.org/wiki/LAPACK). But modules with more specialized dependencies (or dependencies that are not available on all platforms supported by Swift) belong in a separate package.
+Future expansion may assume the availability of other standard interfaces, such as [BLAS (Basic Linear Algebra Subprograms)](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) and [LAPACK (Linear Algebra Package)](https://en.wikipedia.org/wiki/LAPACK).
+But modules with more specialized dependencies (or dependencies that are not available on all platforms supported by Swift) belong in a separate package.
 
 Because we intend to make it possible to adopt Swift Numerics modules in the standard library at some future point, Swift Numerics uses the same license and contribution guidelines as the Swift project.
 
@@ -56,7 +59,8 @@ To use Swift Numerics in a SwiftPM project:
 
 ## Contributing to Swift Numerics
 
-Swift Numerics is a standalone library that is separate from the core Swift project. In practice, it will act as a staging ground for some APIs that may eventually be incorporated into the Swift Standard Library. When that happens, such changes will be proposed to the Swift Standard Library using the established evolution process of the Swift project.
+Swift Numerics is a standalone library that is separate from the core Swift project, but it will sometimes act as a staging ground for APIs that will later be incorporated into the Swift Standard Library.
+When that happens, such changes will be proposed to the Swift Standard Library using the established evolution process of the Swift project.
 
 Swift Numerics uses GitHub issues to track bugs and features. We use pull requests for development.
 
@@ -84,8 +88,8 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 
 ## Modules
 
-1. About [`RealModule`](Sources/RealModule/README.md)
-2. About [`ComplexModule`](Sources/ComplexModule/README.md)
+1. [`RealModule`](Sources/RealModule/README.md)
+2. [`ComplexModule`](Sources/ComplexModule/README.md)
 
 ## Future expansion
 
@@ -96,7 +100,8 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 
 ## Notes
 
-¹ Swift is currently unable to use the fully-qualified name for types when a type and module have the same name (discussion here: https://forums.swift.org/t/pitch-fully-qualified-name-syntax/28482). This would prevent users of Swift Numerics who don't need generic types from doing things, such as:
+¹ Swift is currently unable to use the fully-qualified name for types when a type and module have the same name (discussion here: https://forums.swift.org/t/pitch-fully-qualified-name-syntax/28482).
+This would prevent users of Swift Numerics who don't need generic types from doing things, such as:
 
 ```swift
 import Complex
@@ -114,4 +119,7 @@ typealias Complex = ComplexModule.Complex<Double>
 let a = ComplexModule.Complex<Float>
 ```
 
-The `Real` module does not contain a `Real` type, but does contain a `Real` protocol, and users may want to define their own `Real` type (and possibly re-export the `Real` module) - that is why the suffix is also applied there. New modules have to evaluate this decision carefully, but can err on the side of adding the suffix. It's expected that most users will simply `import Numerics`, so this isn't an issue for them.
+The `Real` module does not contain a `Real` type, but does contain a `Real` protocol.
+Users may want to define their own `Real` type (and possibly re-export the `Real` module)--that is why the suffix is also applied there.
+New modules have to evaluate this decision carefully, but can err on the side of adding the suffix.
+It's expected that most users will simply `import Numerics`, so this isn't an issue for them.
