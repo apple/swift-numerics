@@ -31,8 +31,7 @@ Swift Numerics modules have minimal dependencies on other projects.
 
 The current modules assume only the availability of the Swift and C standard libraries and the runtime support provided by compiler-rt.
 
-Future expansion may assume the availability of other standard interfaces, such as [BLAS (Basic Linear Algebra Subprograms)](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) and [LAPACK (Linear Algebra Package)](https://en.wikipedia.org/wiki/LAPACK).
-But modules with more specialized dependencies (or dependencies that are not available on all platforms supported by Swift) belong in a separate package.
+Future expansion may assume the availability of other standard interfaces, such as [BLAS (Basic Linear Algebra Subprograms)](https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms) and [LAPACK (Linear Algebra Package)](https://en.wikipedia.org/wiki/LAPACK), but modules with more specialized dependencies (or dependencies that are not available on all platforms supported by Swift) belong in a separate package.
 
 Because we intend to make it possible to adopt Swift Numerics modules in the standard library at some future point, Swift Numerics uses the same license and contribution guidelines as the Swift project.
 
@@ -101,7 +100,7 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 ## Notes
 
 ¹ Swift is currently unable to use the fully-qualified name for types when a type and module have the same name (discussion here: https://forums.swift.org/t/pitch-fully-qualified-name-syntax/28482).
-This would prevent users of Swift Numerics who don't need generic types from doing things, such as:
+This would prevent users of Swift Numerics who don't need generic types from doing things such as:
 
 ```swift
 import Complex
