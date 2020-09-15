@@ -22,6 +22,10 @@
 //    to do that for all of these functions off the top of my head, and
 //    I don't think that other libraries have tried to do so in general,
 //    so this is a research project. We should not sacrifice 1-4 for it.
+//    Note that multiplication and division don't even provide good
+//    componentwise relative accuracy, so it's _totally OK_ to not get
+//    it for these functions too. But: it's a dynamite long-term research
+//    project.
 // 6. Give the best performance we can. We should care about performance,
 //    but with lower precedence than the other considerations.
 
@@ -31,14 +35,25 @@ import RealModule
 extension Complex /*: ElementaryFunctions */ {
   
   // MARK: - exp-like functions
-  // exp(x + iy) = exp(x)(cos(y) + i sin(y))
+  
+  /// The complex exponential function e^z whose base `e` is the base of the natural logarithm.
+  ///
+  /// Mathematically, this operation can be expanded in terms of the `Real` operations `exp`,
+  /// `cos` and `sin` as follows:
+  /// ```
+  /// exp(x + iy) = exp(x) exp(iy)
+  ///             = exp(x) cos(y) + i exp(x) sin(y)
+  /// ```
+  /// Note that naive evaluation of this expression in floating-point would be prone to premature
+  /// overflow, since `cos` and `sin` both have magnitude less than 1 for most inputs (i.e.
+  /// `exp(x)` may be infinity when `exp(x) cos(y)` would not be.
   @inlinable
   public static func exp(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
     // If x < log(greatestFiniteMagnitude), then exp(x) does not overflow.
     // To protect ourselves against sketchy log or exp implementations in
-    // an unknown host library, subtract one from the bound for a little
-    // safety margin.
+    // an unknown host library, or slight rounding disagreements between
+    // the two, subtract one from the bound for a little safety margin.
     guard z.x < RealType.log(.greatestFiniteMagnitude) - 1 else {
       let halfScale = RealType.exp(z.x/2)
       let phase = Complex(RealType.cos(z.y), RealType.sin(z.y))
@@ -47,39 +62,51 @@ extension Complex /*: ElementaryFunctions */ {
     return Complex(.cos(z.y), .sin(z.y)).multiplied(by: .exp(z.x))
   }
   
-  // exp(x + iy) - 1 = (exp(x) cos(y) - 1) + i exp(x) sin(y)
-  //                   -------- u --------
-  // Note that the imaginary part is just the usual exp(x) sin(y);
-  // the only trick is computing the real part ("u"):
-  //
-  // u = exp(x) cos(y) - 1
-  //   = exp(x) cos(y) - cos(y) + cos(y) - 1
-  //   = (exp(x) - 1) cos(y) + (cos(y) - 1)
-  //   = expMinusOne(x) cos(y) + cosMinusOne(y)
-  //
-  // Note: most implementations of expm1 for complex (e.g. Julia's)
-  // factor the real part as follows instead:
-  //
-  //     exp(x) cosMinuxOne(y) + expMinusOne(y)
-  //
-  // This expression gives good accuracy close to zero, but suffers from
-  // catastrophic cancellation when z.x is large and z.y is near an odd
-  // multiple of π/2. This is _OK_ (the componentwise error is bad, but
-  // the error in a complex norm is acceptable), but we can do better by
-  // factoring on cosine instead of exp.
-  //
-  // The other implementation that is sometimes seen, 2*exp(z/2)*sinh(z/2),
-  // has the same weaknesses.
-  //
-  // The approach used here achieves good componentwise worst-case error
-  // (7e-5 for Float) as well as normwise error (2.9e-7) in structured
-  // and randomized tests. The alternative factorization achieves
-  // comparable normwise error (3.9e-7), but dramatically worse
-  // componentwise errors, e.g. Complex(18, -3π/2) produces (4.0, 6.57e7)
-  // while the reference result would be (-0.22, 6.57e7).
   @inlinable
   public static func expMinusOne(_ z: Complex) -> Complex {
+    // exp(x + iy) - 1 = (exp(x) cos(y) - 1) + i exp(x) sin(y)
+    //                   -------- u --------
+    // Note that the imaginary part is just the usual exp(x) sin(y);
+    // the only trick is computing the real part ("u"):
+    //
+    // u = exp(x) cos(y) - 1
+    //   = exp(x) cos(y) - cos(y) + cos(y) - 1
+    //   = (exp(x) - 1) cos(y) + (cos(y) - 1)
+    //   = expMinusOne(x) cos(y) + cosMinusOne(y)
+    //
+    // Note: most implementations of expm1 for complex (e.g. Julia's)
+    // factor the real part as follows instead:
+    //
+    //     exp(x) cosMinuxOne(y) + expMinusOne(x)
+    //
+    // The other implementation that is sometimes seen is:
+    //
+    //     expMinusOne(z) = 2*exp(z/2)*sinh(z/2)
+    //
+    // All three of these implementations provide good relative error
+    // bounds _in the complex norm_, but the cosineMinusOne-based
+    // implementation has the best _componentwise_ error characteristics,
+    // which is why we use it here:
+    //
+    //     Implementation |        Real        |    Imaginary   |
+    //     ---------------+--------------------+----------------+
+    //          Ours      |    Hybrid bound    | Relative bound |
+    //        Standard    |      No bound      | Relative bound |
+    //       Half Angle   |    Hybrid bound    |  Hybrid bound  |
+    //
+    // FUTURE WORK: devise an algorithm that achieves good _relative_ error
+    // in the real component as well. Doing this efficiently is a research
+    // project--exp(x) cos(y) - 1 can be very nearly zero along a curve in
+    // the complex plane, not only at zero. Evaluating it accurately
+    // _without_ depending on arbitrary-precision exp and cos is an
+    // interesting challenge.
     guard z.isFinite else { return z }
+    // If exp(z) is close to the overflow boundary, we don't need to
+    // worry about the "MinusOne" part of this function; we're just
+    // computing exp(z). (Even when z.y is near a multiple of π/2,
+    // it can't be close enough to overcome the scaling from exp(z.x),
+    // so the -1 term is _always_ negligable). So we simply handle
+    // these cases exactly the same as exp(z).
     guard z.x < RealType.log(.greatestFiniteMagnitude) - 1 else {
       let halfScale = RealType.exp(z.x/2)
       let phase = Complex(RealType.cos(z.y), RealType.sin(z.y))
@@ -101,6 +128,10 @@ extension Complex /*: ElementaryFunctions */ {
   //
   // Fortunately, if |x| >= -log(ulpOfOne), cosh(x) and sinh(x) are
   // both just exp(|x|)/2, and we already know how to compute that.
+  //
+  // This function and sinh should stay in sync; if you make a
+  // modification here, you should almost surely make a parallel
+  // modification to sinh below.
   @inlinable @inline(__always)
   public static func cosh(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
