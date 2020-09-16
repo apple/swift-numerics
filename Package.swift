@@ -21,10 +21,6 @@ let package = Package(
     .library(name: "RealModule", targets: ["RealModule"]),
   ],
   
-  dependencies: [
-    .package(url: "https://github.com/apple/swift-argument-parser", from: "0.1.0"),
-  ],
-  
   targets: [
     // User-facing modules
     .target(name: "ComplexModule", dependencies: ["RealModule"]),
@@ -40,13 +36,7 @@ let package = Package(
     .testTarget(name: "RealTests", dependencies: ["_TestSupport"]),
     
     // Test executables
-    .target(
-      name: "ComplexElementaryFunctions",
-      dependencies: [
-        "Numerics", "_TestSupport",
-        .product(name: "ArgumentParser", package: "swift-argument-parser"),
-      ],
-      path: "Tests/Executable"
-    )
+    .target(name: "ComplexLog", dependencies: ["Numerics", "_TestSupport"], path: "Tests/Executable/ComplexLog"),
+    .target(name: "ComplexLog1p", dependencies: ["Numerics", "_TestSupport"], path: "Tests/Executable/ComplexLog1p")
   ]
 )
