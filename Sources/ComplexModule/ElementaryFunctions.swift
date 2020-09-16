@@ -219,6 +219,7 @@ extension Complex /*: ElementaryFunctions */ {
   }
   
   // MARK: - log-like functions
+  @inlinable
   public static func log(_ z: Complex) -> Complex {
     // If z is zero or infinite, the phase is undefined, so the result is
     // the single exceptional value.
@@ -233,8 +234,68 @@ extension Complex /*: ElementaryFunctions */ {
     return Complex(.log(z.magnitude) + .log(w.lengthSquared)/2, θ)
   }
   
+  @inlinable
   public static func log(onePlus z: Complex) -> Complex {
-    fatalError()
+    // Nevin proposed the idea for this implementation on the Swift forums:
+    // https://forums.swift.org/t/elementaryfunctions-compliance-for-complex/37903/3
+    //
+    // Here's a quick explainer on why it works: in exact arithmetic,
+    //
+    //      log(1+z) = (log |1+z|, atan2(y, 1+x))
+    //
+    // where x and y are the real and imaginary parts of z, respectively.
+    //
+    // The first thing to note is that the expression for the imaginary
+    // part works fine as is. If cancellation occurs (because x ≈ -1),
+    // then 1+x is exact, and so we have good componentwise relative
+    // accuracy. Otherwise, x is bounded away from -1 and 1+x has good
+    // relative accuracy, and therefore so does atan2(y, 1+x).
+    //
+    // So the real part is the hard part (no surprise, just like expPlusOne).
+    // Nevin's clever idea is simply to take advantage of the expansion:
+    //
+    //     Re(log 1+z) = (log 1+z + Conj(log 1+z))/2
+    //
+    // Log commutes with conjugation, so this becomes:
+    //
+    //     Re(log 1+z) = (log 1+z + log 1+z̅)/2
+    //                 = log((1+z)(1+z̅)/2
+    //                 = log(1+z+z̅+zz̅)/2
+    //
+    // This behaves well close to zero, because the z+z̅ term dominates
+    // and is computed exactly. Away from zero, cancellation occurs near
+    // the circle x(x+2) + y^2 = 0, but everywhere along this curve we
+    // have |Im(log 1+z)| >= π/2, so the relative error in the complex
+    // norm is well-controlled. We can take advantage of FMA to further
+    // reduce the cancellation error and recover a good error bound.
+    //
+    // The other common implementation choice for log1p is Kahan's trick:
+    //
+    //     w := 1+z
+    //     return z/(w-1) * log(w)
+    //
+    // But this actually doesn't do as well as Nevin's approach does,
+    // and requires a complex division, which we want to avoid when we
+    // can do so.
+    var a = 2*z.x
+    // We want to add the larger term first (contra usual guidance for
+    // floating-point error optimization), because we're optimizing for
+    // the catastrophic cancellation case; when that happens adding the
+    // larger term via FMA is always exact. When cancellation doesn't
+    // happen, the simple relative error bound carries through the
+    // rest of the computation.
+    let large = max(z.x.magnitude, z.y.magnitude)
+    let small = min(z.x.magnitude, z.y.magnitude)
+    a.addProduct(large, large)
+    a.addProduct(small, small)
+    // If r2 overflowed, then |z| ≫ 1, and so log(1+z) = log(z).
+    guard a.isFinite else { return log(z) }
+    // Unlike log(z), we do not need to worry about what happens if a
+    // underflows.
+    return Complex(
+      RealType.log(onePlus: a)/2,
+      RealType.atan2(y: z.y, x: 1+z.x)
+    )
   }
   
   public static func acos(_ z: Complex) -> Complex {
