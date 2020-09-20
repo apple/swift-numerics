@@ -9,12 +9,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if swift(>=5.3)
+#if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
 import _NumericsShims
 
 @available(iOS 14.0, tvOS 14.0, watchOS 7.0, *)
-@available(macOS, unavailable)
-@available(macCatalyst, unavailable)
 extension Float16: Real {
   @_transparent
   public static func cos(_ x: Float16) -> Float16 {
@@ -172,10 +170,5 @@ extension Float16: Real {
     Float16(.logGamma(Float(x)))
   }
   #endif
-  
-  @_transparent
-  public static func _mulAdd(_ a: Float16, _ b: Float16, _ c: Float16) -> Float16 {
-    _numerics_muladdf16(a, b, c)
-  }
 }
 #endif
