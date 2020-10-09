@@ -11,10 +11,13 @@
 
 import XCTest
 import RealModule
+import _TestSupport
 
-internal extension Real where Self: BinaryFloatingPoint,
-                              Self.RawSignificand: FixedWidthInteger {
+internal extension Real where Self: FixedWidthFloatingPoint {
+  
   static func testIntegerExponentCommon() {
+    // TODO: replace with seedable generator, print seed.
+    var g = SystemRandomNumberGenerator()
     // If x is -1, then the result is ±1 with sign chosen by parity of n.
     // Simply converting n to Real will flip parity when n is large, so
     // first check that we get those cases right.
@@ -32,8 +35,9 @@ internal extension Real where Self: BinaryFloatingPoint,
     // underflow; we want to be sure that we get the right ±0 or ±∞
     // result.
     for _ in 0 ..< 10 {
-      let x = Self.random(in: 2 ..< 4)
-      let n = Int.random(in: 1 - Int(Self.leastNonzeroMagnitude.exponent) ..< .max)
+      let x = Self.random(in: 2 ..< 4, using: &g)
+      let nLowerBound = 1 - Int(Self.leastNonzeroMagnitude.exponent)
+      let n = Int.random(in: nLowerBound ..< .max, using: &g)
       let even = n & -2
       let odd = even | 1
       assertClose( .infinity, Self.pow(x, even))
@@ -72,6 +76,35 @@ internal extension Real where Self: BinaryFloatingPoint,
     assertClose( .infinity, Self.pow(-d,  Int.min))
   }
 }
+
+#if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
+@available(iOS 14.0, watchOS 14.0, tvOS 7.0, *)
+extension Float16 {
+  static func testIntegerExponent() {
+    testIntegerExponentCommon()
+    testIntegerExponentDoubleAndSmaller()
+    let u = Float16(1).nextUp
+    let d = Float16(1).nextDown
+    // Smallest exponents not exactly representable as Float16.
+    assertClose(-7.3890572722436554354625993393835304, Float16.pow(-u, 0x801))
+    assertClose(-0.3676100238077049750885141244927184, Float16.pow(-d, 0x801))
+    // Exponents close to overflow boundary.
+    assertClose( 65403.86633107, Float16.pow(-u, 11360))
+    assertClose(-65467.73729429, Float16.pow(-u, 11361))
+    assertClose( 65531.67063149, Float16.pow(-u, 11362))
+    assertClose( 65487.96799785, Float16.pow(-d, -22706))
+    assertClose(-65519.96016590, Float16.pow(-d, -22707))
+    assertClose( 65551.96796276, Float16.pow(-d, -22708))
+    // Exponents close to underflow boundary.
+    assertClose( 5.966876499900e-8, Float16.pow(-u, -17042))
+    assertClose(-5.961055156973e-8, Float16.pow(-u, -17043))
+    assertClose( 5.955239493405e-8, Float16.pow(-u, -17044))
+    assertClose( 5.964109628044e-8, Float16.pow(-d, 34060))
+    assertClose(-5.961197465140e-8, Float16.pow(-d, 34061))
+    assertClose( 5.958286724190e-8, Float16.pow(-d, 34062))
+  }
+}
+#endif
 
 extension Float {
   static func testIntegerExponent() {
@@ -113,12 +146,21 @@ extension Double {
     assertClose(-0.3678794411714422603312898889458068, Double.pow(-d, 0x20000000000001))
     assertClose(-2.7182818284590456880451484776630468, Double.pow(-d, -0x20000000000001))
     // Exponents close to overflow boundary.
-    assertClose( 1.7976931348623151738531864721534215e308, Double.pow(-u, 3196577161300664268))
-    assertClose(-1.7976931348623155730212483790972209e308, Double.pow(-u, 3196577161300664269))
-    assertClose( 1.7976931348623159721893102860411089e308, Double.pow(-u, 3196577161300664270))
-    assertClose( 1.7976931348623157075547244136070910e308, Double.pow(-d, -6393154322601327474))
-    assertClose(-1.7976931348623159071387553670790721e308, Double.pow(-d, -6393154322601327475))
-    assertClose( 1.7976931348623161067227863205510754e308, Double.pow(-d, -6393154322601327476))
+#if os(Windows)
+    // TODO: It appears that the Windows pow doesn't carry enough precision
+    // through the computation of log(1.nextDown) to produce a good result
+    // for these cases; we'll want to provide a better implementation at some
+    // point in the future. It's acceptable in the short term, however.
+    let tol: Double = 360
+#else
+    let tol: Double = 16
+#endif
+    assertClose( 1.7976931348623151738531864721534215e308, Double.pow(-u, 3196577161300664268), allowedError: tol)
+    assertClose(-1.7976931348623155730212483790972209e308, Double.pow(-u, 3196577161300664269), allowedError: tol)
+    assertClose( 1.7976931348623159721893102860411089e308, Double.pow(-u, 3196577161300664270), allowedError: tol)
+    assertClose( 1.7976931348623157075547244136070910e308, Double.pow(-d, -6393154322601327474), allowedError: tol)
+    assertClose(-1.7976931348623159071387553670790721e308, Double.pow(-d, -6393154322601327475), allowedError: tol)
+    assertClose( 1.7976931348623161067227863205510754e308, Double.pow(-d, -6393154322601327476), allowedError: tol)
     // Exponents close to underflow boundary.
     assertClose( 2.4703282292062334560337346683707907e-324, Double.pow(-u, -3355781687888880946))
     assertClose(-2.4703282292062329075106789791206172e-324, Double.pow(-u, -3355781687888880947))
@@ -131,6 +173,13 @@ extension Double {
 }
 
 final class IntegerExponentTests: XCTestCase {
+  
+  #if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
+  func testFloat16() {
+    Float16.testIntegerExponent()
+  }
+  #endif
+  
   func testFloat() {
     Float.testIntegerExponent()
   }

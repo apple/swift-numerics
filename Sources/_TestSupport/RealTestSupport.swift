@@ -13,13 +13,13 @@ import XCTest
 import RealModule
 
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
-typealias TestLiteralType = Float80
+public typealias TestLiteralType = Float80
 #else
-typealias TestLiteralType = Double
+public typealias TestLiteralType = Double
 #endif
 
 @discardableResult
-func assertClose<T>(
+public func assertClose<T>(
   _ expected: TestLiteralType,
   _ observed: T,
   allowedError: T = 16,
@@ -69,7 +69,7 @@ func assertClose<T>(
   return ulps
 }
 
-func assertClose<T>(
+public func assertClose<T>(
   _ expected: TestLiteralType,
   _ observed: T,
   allowedError: T = 16,
@@ -80,4 +80,25 @@ func assertClose<T>(
   worstError = max(worstError, assertClose(
     expected, observed, allowedError: allowedError, file: file, line: line
   ))
+}
+
+public protocol FixedWidthFloatingPoint: BinaryFloatingPoint
+where Exponent: FixedWidthInteger,
+      RawSignificand: FixedWidthInteger { }
+
+#if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
+@available(iOS 14.0, watchOS 14.0, tvOS 7.0, *)
+extension Float16: FixedWidthFloatingPoint { }
+#endif
+
+extension Float: FixedWidthFloatingPoint { }
+extension Double: FixedWidthFloatingPoint { }
+#if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+extension Float80: FixedWidthFloatingPoint { }
+#endif
+
+extension FloatingPointSign {
+  static func random<G: RandomNumberGenerator>(using g: inout G) -> FloatingPointSign {
+    [.plus,.minus].randomElement(using: &g)!
+  }
 }

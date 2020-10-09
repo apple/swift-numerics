@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2020 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -382,12 +382,26 @@ HEADER_SHIM long double libm_lgammal(long double x, int *signp) {
 }
 #endif
 
-// MARK: - shims to import C complex operations for timing purposes
-#if !defined _WIN32
-// Clang doesn't have support for complex arithmetic on Windows, so
-// it doesn't make sense to benchmark against it (and these will
-// fail to link if used there).
+// MARK: - fast mul-add inlines
+/// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
+HEADER_SHIM float _numerics_muladdf(float a, float b, float c) {
+#pragma STDC FP_CONTRACT ON
+  return a*b + c;
+}
 
+/// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
+HEADER_SHIM double _numerics_muladd(double a, double b, double c) {
+#pragma STDC FP_CONTRACT ON
+  return a*b + c;
+}
+
+// No long-double muladd operation, because no one has built an FMA for it
+// (except for Itanium, which Swift doesn't support).
+
+// MARK: - shims to import C complex operations for timing purposes
+// Clang doesn't provide complex arithmetic on Windows (because MSVC
+// doesn't), so we can't define these there, or we'll get link errors.
+#if !defined _WIN32
 typedef struct { double real; double imag; } CComplex;
 
 HEADER_SHIM CComplex libm_cdiv(CComplex z, CComplex w) {
@@ -403,5 +417,4 @@ HEADER_SHIM CComplex libm_cmul(CComplex z, CComplex w) {
   double _Complex c = a*b;
   return (CComplex){ __real__ c, __imag__ c };
 }
-
-#endif
+#endif // !defined _WIN32
