@@ -753,7 +753,8 @@ extension BigInt._Significand {
           : left.low.quotientAndRemainder(dividingBy: right.high)
         overflow = true
       }
-      while overflow || q̂.multipliedFullWidth(by: right.low) > (r̂, left.low) {
+      while overflow
+        || q̂.multipliedFullWidth(by: right.low) > (r̂, self[idx &- 2]) {
         q̂ &-= 1
         r̂ &+= right.high
         if r̂ < right.high { break }
