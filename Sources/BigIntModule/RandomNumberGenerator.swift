@@ -28,10 +28,10 @@ extension RandomNumberGenerator {
       if wordCount > 1 {
         rest.reserveCapacity(wordCount &- 1)
         for _ in 1..<(wordCount &- 1) { rest.append(next()) }
-        rest.append(mask == 0 ? next() : next() | mask)
+        rest.append(mask == 0 ? next() : next() & mask)
       } else if mask != 0 {
         assert(UInt.bitWidth > UInt64.bitWidth)
-        low |= mask
+        low &= mask
       }
       result =
         BigInt(_combination: 1, significand: BigInt._Significand(low, rest))

@@ -319,6 +319,11 @@ final class BigIntModuleTests: XCTestCase {
         BigInt(a.1.power(b.1, modulus: c.1)))
     }
   }
+  
+  func testRandom() {
+    let x = BigInt.random(in: 0...BigInt("98765432109876543210")!)
+    XCTAssertLessThanOrEqual(x, BigInt("98765432109876543210")!)
+  }
 
   func testPerformancePiDigits() {
     var acc = 0 as BigInt, num = 1 as BigInt, den = 1 as BigInt
