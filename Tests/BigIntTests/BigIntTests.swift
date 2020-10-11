@@ -23,13 +23,6 @@ internal func _randomWords(count: Int) -> (BigInt, AttaswiftBigInt) {
 }
 
 final class BigIntModuleTests: XCTestCase {
-  func testLayout() {
-#if false
-    XCTAssertEqual(MemoryLayout<BigInt>.size, MemoryLayout<Int>.size * 3)
-    XCTAssertEqual(MemoryLayout<BigInt>.stride, MemoryLayout<Int>.size * 3)
-#endif
-  }
-  
   func testSignificand() {
     let x = BigInt._Significand([1, 2, 3])
     XCTAssertEqual(x[0], 1)
