@@ -32,7 +32,7 @@ final class BigIntModuleTests: XCTestCase {
   
   func testWords() {
     let i = BigInt(_combination: 1, significand:
-      BigInt._Significand(10284089032038000429, [1319478378503944518]))
+      BigInt._Significand([10284089032038000429, 1319478378503944518]))
     XCTAssertEqual(i.words.count, 2)
     XCTAssertEqual(i.words[0], 10284089032038000429)
     XCTAssertEqual(i.words[1], 1319478378503944518)

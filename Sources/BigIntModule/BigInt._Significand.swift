@@ -19,16 +19,6 @@ extension BigInt {
   internal typealias _Significand = [UInt]
 }
 
-extension BigInt._Significand {
-  /// Creates a new significand with the given words.
-  @inlinable
-  internal init(_ low: UInt, _ rest: [UInt] = []) {
-    self = [low]
-    reserveCapacity(rest.count + 1)
-    insert(contentsOf: rest, at: 1)
-  }
-}
-
 /// Nota bene:
 /// While operations implemented on `BigInt` expect inputs that are normalized
 /// and produce outputs that are normalized, operations implemented here should
@@ -206,7 +196,7 @@ extension BigInt._Significand {
   
   // @inlinable
   internal func multiplying(by other: Self) -> Self {
-    var result = Self(0)
+    var result = [0] as Self
     result.reserveCapacity(count + other.count)
     for i in 0..<other.count {
       var temporary = self
@@ -223,7 +213,7 @@ extension BigInt._Significand {
     func add(_ lhs: SubSequence, _ rhs: SubSequence) -> Self {
       // Recall that we have a precondition for `Self<C: Collection>(_: C)` that
       // the argument not be empty.
-      if lhs.isEmpty { return rhs.isEmpty ? Self(0) : Self(rhs) }
+      if lhs.isEmpty { return rhs.isEmpty ? [0] as Self : Self(rhs) }
       if rhs.isEmpty { return Self(lhs) }
       
       var result = Self(lhs)
@@ -238,7 +228,7 @@ extension BigInt._Significand {
       
       let m = (Swift.max(lhs.count, rhs.count) + 1) / 2
       guard m >= karatsubaThreshold else {
-        if lhs.isEmpty || rhs.isEmpty { return Self(0) }
+        if lhs.isEmpty || rhs.isEmpty { return [0] as Self }
         return Self(lhs).multiplying(by: Self(rhs))
       }
       
@@ -317,11 +307,11 @@ extension BigInt._Significand {
       other.removeLast(n &- (i &+ 1))
       n = i &+ 1
     }
-    guard n > 1 else { return Self(divide(by: other[0])) }
+    guard n > 1 else { return [divide(by: other[0])] as Self }
     let clz = other[n &- 1].leadingZeroBitCount
     
     var m = count - n
-    guard let j = lastIndex(where: { $0 != 0 }) else { return Self(0) }
+    guard let j = lastIndex(where: { $0 != 0 }) else { return [0] as Self }
     if m > j &+ 1 {
       removeLast(m &- (j &+ 1))
       m = j &+ 1

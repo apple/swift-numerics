@@ -95,7 +95,7 @@ public struct BigInt {
   internal mutating func _normalize() {
     guard let i = _significand.firstIndex(where: { $0 != 0 }) else {
       _combination = 0
-      _significand = _Significand(0)
+      _significand = [0]
       return
     }
     assert(!_isZero)
@@ -157,7 +157,7 @@ extension BigInt: ExpressibleByIntegerLiteral {
   @inlinable
   public init(integerLiteral value: Int) {
     _combination = value.signum()
-    _significand = _Significand(value.magnitude)
+    _significand = [value.magnitude]
   }
 }
 
@@ -165,7 +165,7 @@ extension BigInt: AdditiveArithmetic {
   @inlinable
   public init() {
     _combination = 0
-    _significand = _Significand(0)
+    _significand = [0]
   }
   
   @inlinable
@@ -325,14 +325,14 @@ extension BigInt: BinaryInteger {
   
   @inlinable
   public init<T: BinaryInteger>(_ source: T) {
-    if let temporary = UInt(exactly: source) {
-      _combination = temporary == 0 ? 0 : 1
-      _significand = _Significand(temporary)
-    } else {
-      _combination = Int(source.signum())
-      _significand = _Significand(source.magnitude.words)
-      _normalize()
+    guard let temporary = UInt(exactly: source) else {
+      self = BigInt(
+        _combination: Int(source.signum()),
+        significand: _Significand(source.magnitude.words))
+      return
     }
+    _combination = temporary == 0 ? 0 : 1
+    _significand = [temporary]
   }
   
   @inlinable
@@ -417,7 +417,7 @@ extension BigInt: BinaryInteger {
     if lhs._significand != rhs._significand {
       lhs._significand.divide(by: rhs._significand)
     } else {
-      lhs._significand = _Significand(1)
+      lhs._significand = [1]
     }
     lhs._normalize()
   }
@@ -449,7 +449,7 @@ extension BigInt: BinaryInteger {
       var result = lhs._significand.divide(by: rhs._significand)
       swap(&result, &lhs._significand)
     } else {
-      lhs._significand = _Significand(0)
+      lhs._significand = [0]
     }
     lhs._normalize()
   }
@@ -467,12 +467,9 @@ extension BigInt: BinaryInteger {
       : Swift.max(words.0.count, words.1.count)
     
     guard exponent < count else { return 0 }
-    var rest: [UInt] = (exponent..<count).map { idx in
+    var significand = _Significand((exponent..<count).map { idx in
       words.0[idx] & words.1[idx]
-    }
-    let low = rest.removeFirst()
-    
-    var significand = _Significand(low, rest)
+    })
     if signum < 0 {
       let overflow = significand.complement(radix: 2)
       assert(!overflow)
@@ -501,12 +498,9 @@ extension BigInt: BinaryInteger {
       : Swift.max(words.0.count, words.1.count)
     
     assert(exponent < count)
-    var rest: [UInt] = (exponent..<count).map { idx in
+    var significand = _Significand((exponent..<count).map { idx in
       words.0[idx] | words.1[idx]
-    }
-    let low = rest.removeFirst()
-    
-    var significand = _Significand(low, rest)
+    })
     if signum < 0 {
       let overflow = significand.complement(radix: 2)
       assert(!overflow)
@@ -533,12 +527,9 @@ extension BigInt: BinaryInteger {
     let count = Swift.max(words.0.count, words.1.count)
     
     assert(exponent < count)
-    var rest: [UInt] = (exponent..<count).map { idx in
+    var significand = _Significand((exponent..<count).map { idx in
       words.0[idx] ^ words.1[idx]
-    }
-    let low = rest.removeFirst()
-    
-    var significand = _Significand(low, rest)
+    })
     if signum < 0 {
       let overflow = significand.complement(radix: 2)
       assert(!overflow)
@@ -674,26 +665,24 @@ extension BigInt {
     let signum = Int(bitPattern: words.last!) < 0 ? -1 : 1
     guard let exponent = words.firstIndex(where: { $0 != 0 }) else {
       _combination = 0
-      _significand = _Significand(0)
+      _significand = [0]
       return
     }
     _combination = signum * (exponent + 1)
     
     let count = words.count &- exponent
-    let low = signum < 0 ? ~words[exponent] &+ 1 : words[exponent]
-    var rest = [UInt]()
+    var temporary = [signum < 0 ? ~words[exponent] &+ 1 : words[exponent]]
     if count > 1 {
-      rest.reserveCapacity(count &- 1)
+      temporary.reserveCapacity(count)
       if signum < 0 {
-        for offset in 1..<count { rest.append(~words[exponent &+ offset]) }
+        for offset in 1..<count { temporary.append(~words[exponent &+ offset]) }
       } else {
-        for offset in 1..<count { rest.append(words[exponent &+ offset]) }
+        for offset in 1..<count { temporary.append(words[exponent &+ offset]) }
       }
     }
-    _significand = _Significand(low, rest)
-    
-    let j = 1 &+ _significand.lastIndex(where: { $0 != 0 })!
-    _significand.removeLast(_significand.count &- j)
+    let j = 1 &+ temporary.lastIndex(where: { $0 != 0 })!
+    temporary.removeLast(count &- j)
+    _significand = _Significand(temporary)
   }
   
   /// Creates a `BigInt` from the given words.

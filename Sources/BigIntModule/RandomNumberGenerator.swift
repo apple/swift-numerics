@@ -23,18 +23,12 @@ extension RandomNumberGenerator {
     
     var result: BigInt
     repeat {
-      var low = next() as UInt
-      var rest = [UInt]()
-      if wordCount > 1 {
-        rest.reserveCapacity(wordCount &- 1)
-        for _ in 1..<(wordCount &- 1) { rest.append(next()) }
-        rest.append(mask == 0 ? next() : next() & mask)
-      } else if mask != 0 {
-        assert(UInt.bitWidth > UInt64.bitWidth)
-        low &= mask
-      }
+      var temporary = [UInt]()
+      temporary.reserveCapacity(wordCount)
+      for _ in 0..<(wordCount &- 1) { temporary.append(next()) }
+      temporary.append(mask == 0 ? next() : next() & mask)
       result =
-        BigInt(_combination: 1, significand: BigInt._Significand(low, rest))
+        BigInt(_combination: 1, significand: BigInt._Significand(temporary))
     } while result >= upperBound
     return result
   }
