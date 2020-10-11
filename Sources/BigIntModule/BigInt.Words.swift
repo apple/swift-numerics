@@ -33,7 +33,7 @@ extension BigInt {
 extension BigInt.Words: RandomAccessCollection {
   @inlinable
   public var count: Int {
-    if _value._combination == 0 { return 1 }
+    if _value._isZero { return 1 }
     let temporary = _value._exponent + _value._significand.count
     let lastIndex = _value._significand.count &- 1
     let highWord = _value._significand[lastIndex]

@@ -35,7 +35,6 @@ extension RandomNumberGenerator {
       }
       result =
         BigInt(_combination: 1, significand: BigInt._Significand(low, rest))
-      result._normalize()
     } while result >= upperBound
     return result
   }

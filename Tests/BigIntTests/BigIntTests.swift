@@ -17,9 +17,8 @@ internal func _randomWords(count: Int) -> (BigInt, AttaswiftBigInt) {
     UInt.random(in: 0..<UInt.max)
   }
   words.append(0)
-  var temporary
+  let temporary
     = BigInt(_combination: 1, significand: BigInt._Significand(words))
-  temporary._normalize()
   return (temporary, AttaswiftBigInt(words: words))
 }
 

@@ -77,6 +77,10 @@ public struct BigInt {
   @usableFromInline
   internal var _significand: _Significand
   
+  /// A Boolean value indicating whether this value is zero.
+  @inlinable
+  internal var _isZero: Bool { _combination == 0 }
+  
   /// Normalizes the internal representation of this value.
   ///
   /// When a value is normalized, `_signum` is set to zero if `_significand`
@@ -94,7 +98,7 @@ public struct BigInt {
       _significand = _Significand(0)
       return
     }
-    assert(_combination != 0)
+    assert(!_isZero)
     
     let j = 1 &+ _significand.lastIndex(where: { $0 != 0 })!
     _significand.removeLast(_significand.count &- j)
@@ -105,19 +109,17 @@ public struct BigInt {
   
   /// Creates a `BigInt` with the given combination field and significand.
   ///
-  /// Nota bene:
-  /// No normalization is performed for the created value.
-  ///
   /// - Parameters:
-  ///   - _combination: The combination field of the created value, equivalent
-  ///     to `_signum * (_exponent + 1)`.
+  ///   - combination: The combination field of the created value, equivalent to
+  ///     `_signum * (_exponent + 1)`.
   ///     If the significand is nonzero, then the signum (and therefore the
   ///     combination field) must also be nonzero.
   ///   - significand: The significand of the created value.
   @inlinable
-  internal init(_combination: Int, significand: _Significand) {
-    self._combination = _combination
+  internal init(_combination combination: Int, significand: _Significand) {
+    _combination = combination
     _significand = significand
+    _normalize()
   }
 }
 
@@ -127,13 +129,13 @@ extension BigInt: Hashable, Comparable {
   @inlinable
   public static func == (lhs: BigInt, rhs: BigInt) -> Bool {
     lhs._combination == rhs._combination &&
-      (lhs._combination == 0 || lhs._significand == rhs._significand)
+      (lhs._isZero || lhs._significand == rhs._significand)
   }
   
   @inlinable
   public static func < (lhs: BigInt, rhs: BigInt) -> Bool {
-    if lhs._combination == 0 { return rhs._combination > 0 }
-    if rhs._combination == 0 { return lhs._combination < 0 }
+    if lhs._isZero { return rhs._combination > 0 }
+    if rhs._isZero { return lhs._combination < 0 }
     if lhs._signum != rhs._signum { return lhs._signum < rhs._signum }
 
     let words = (lhs.words, rhs.words)
@@ -171,11 +173,11 @@ extension BigInt: AdditiveArithmetic {
   
   // @inlinable
   public static func += (lhs: inout BigInt, rhs: BigInt) {
-    guard lhs._combination != 0 else {
+    guard !lhs._isZero else {
       lhs = rhs
       return
     }
-    guard rhs._combination != 0 else { return }
+    guard !rhs._isZero else { return }
     guard lhs._signum == rhs._signum else {
       lhs -= -rhs
       return
@@ -211,11 +213,11 @@ extension BigInt: AdditiveArithmetic {
 
   // @inlinable
   public static func -= (lhs: inout BigInt, rhs: BigInt) {
-    guard lhs._combination != 0 else {
+    guard !lhs._isZero else {
       lhs = -rhs
       return
     }
-    guard rhs._combination != 0 else { return }
+    guard !rhs._isZero else { return }
     guard lhs._signum == rhs._signum else {
       lhs += -rhs
       return
@@ -269,16 +271,12 @@ extension BigInt: SignedNumeric {
 
   // @inlinable
   public static func * (lhs: BigInt, rhs: BigInt) -> BigInt {
-    guard lhs._combination != 0 && rhs._combination != 0 else {
-      return BigInt()
-    }
+    guard !lhs._isZero && !rhs._isZero else { return BigInt() }
     let combination =
       lhs._signum * rhs._signum * (lhs._exponent + rhs._exponent + 1)
     let significand =
       lhs._significand.multiplying(by: rhs._significand /*, karatsubaThreshold: 8 */)
-    var result = BigInt(_combination: combination, significand: significand)
-    result._normalize()
-    return result
+    return BigInt(_combination: combination, significand: significand)
   }
 
   @inlinable
@@ -293,7 +291,7 @@ extension BigInt: BinaryInteger {
 
   @inlinable
   public var bitWidth: Int {
-    if _combination == 0 { return 0 }
+    if _isZero { return 0 }
     let lastIndex = _significand.count &- 1
     let highWord = _significand[lastIndex]
     let magnitudeBitWidth =
@@ -316,7 +314,7 @@ extension BigInt: BinaryInteger {
 
   @inlinable
   public var trailingZeroBitCount: Int {
-    if _combination == 0 { return 0 }
+    if _isZero { return 0 }
     // The trailing zero bit count of a value and its two's complement are
     // always the same.
     return _exponent * UInt.bitWidth + _significand[0].trailingZeroBitCount
@@ -399,8 +397,8 @@ extension BigInt: BinaryInteger {
 
   // @inlinable
   public static func /= (lhs: inout BigInt, rhs: BigInt) {
-    guard rhs._combination != 0 else { fatalError("Division by zero") }
-    guard lhs._combination != 0 && abs(lhs) >= abs(rhs) else {
+    guard !rhs._isZero else { fatalError("Division by zero") }
+    guard !lhs._isZero && abs(lhs) >= abs(rhs) else {
       lhs = 0
       return
     }
@@ -433,8 +431,8 @@ extension BigInt: BinaryInteger {
 
   // @inlinable
   public static func %= (lhs: inout BigInt, rhs: BigInt) {
-    guard rhs._combination != 0 else { fatalError("Division by zero") }
-    guard lhs._combination != 0 && abs(lhs) >= abs(rhs) else { return }
+    guard !rhs._isZero else { fatalError("Division by zero") }
+    guard !lhs._isZero && abs(lhs) >= abs(rhs) else { return }
     
     var rhs = rhs
     let exponents = (lhs._exponent, rhs._exponent)
@@ -458,7 +456,7 @@ extension BigInt: BinaryInteger {
 
   // @inlinable
   public static func & (lhs: BigInt, rhs: BigInt) -> BigInt {
-    guard lhs._combination != 0 && rhs._combination != 0 else { return 0 }
+    guard !lhs._isZero && !rhs._isZero else { return 0 }
     
     let signum = lhs._signum < 0 && rhs._signum < 0 ? -1 : 1
     let exponent = Swift.max(lhs._exponent, rhs._exponent)
@@ -480,10 +478,8 @@ extension BigInt: BinaryInteger {
       assert(!overflow)
     }
     
-    var result =
-      BigInt(_combination: signum * (exponent + 1), significand: significand)
-    result._normalize()
-    return result
+    return BigInt(
+      _combination: signum * (exponent + 1), significand: significand)
   }
   
   @inlinable
@@ -493,8 +489,8 @@ extension BigInt: BinaryInteger {
 
   // @inlinable
   public static func | (lhs: BigInt, rhs: BigInt) -> BigInt {
-    guard lhs._combination != 0 else { return rhs._signum == 0 ? 0 : rhs }
-    guard rhs._combination != 0 else { return lhs }
+    guard !lhs._isZero else { return rhs._signum == 0 ? 0 : rhs }
+    guard !rhs._isZero else { return lhs }
     
     let signum = (lhs._signum > 0 && rhs._signum > 0) ? 1 : -1
     let exponent = Swift.min(lhs._exponent, rhs._exponent)
@@ -516,10 +512,8 @@ extension BigInt: BinaryInteger {
       assert(!overflow)
     }
     
-    var result =
-      BigInt(_combination: signum * (exponent + 1), significand: significand)
-    result._normalize()
-    return result
+    return BigInt(
+      _combination: signum * (exponent + 1), significand: significand)
   }
   
   @inlinable
@@ -529,8 +523,8 @@ extension BigInt: BinaryInteger {
 
   // @inlinable
   public static func ^ (lhs: BigInt, rhs: BigInt) -> BigInt {
-    guard lhs._combination != 0 else { return rhs._signum == 0 ? 0 : rhs }
-    guard rhs._combination != 0 else { return lhs }
+    guard !lhs._isZero else { return rhs._signum == 0 ? 0 : rhs }
+    guard !rhs._isZero else { return lhs }
     
     let signum = (lhs._signum < 0) != (rhs._signum < 0) ? -1 : 1
     let exponent = Swift.min(lhs._exponent, rhs._exponent)
@@ -550,10 +544,8 @@ extension BigInt: BinaryInteger {
       assert(!overflow)
     }
     
-    var result =
-      BigInt(_combination: signum * (exponent + 1), significand: significand)
-    result._normalize()
-    return result
+    return BigInt(
+      _combination: signum * (exponent + 1), significand: significand)
   }
   
   @inlinable
@@ -563,7 +555,7 @@ extension BigInt: BinaryInteger {
   
   // @inlinable
   public static func <<= <RHS: BinaryInteger>(lhs: inout BigInt, rhs: RHS) {
-    guard lhs._combination != 0 && rhs != 0 else { return }
+    guard !lhs._isZero && rhs != 0 else { return }
     guard rhs > 0 else {
       lhs >>= 0 - rhs
       return
@@ -598,7 +590,7 @@ extension BigInt: BinaryInteger {
   
   // @inlinable
   public static func >>= <RHS: BinaryInteger>(lhs: inout BigInt, rhs: RHS) {
-    guard lhs._combination != 0 && rhs != 0 else { return }
+    guard !lhs._isZero && rhs != 0 else { return }
     guard rhs > 0 else {
       lhs <<= 0 - rhs
       return
