@@ -128,7 +128,7 @@ extension BinaryInteger {
   /// modular multiplicative inverse `x`, the modulus divides `ax - 1` evenly:
   ///
   ///     let a = 3
-  ///     let x = a.inverse(mod: 7)
+  ///     let x = a.inverse(modulo: 7)
   ///     // x == 5
   ///
   ///     let ax = a * x
