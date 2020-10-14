@@ -14,7 +14,7 @@ set_target_properties(Numerics PROPERTIES
 # NOTE: generate the force load symbol to ensure that the import library is
 # generated on Windows for autolinking.
 target_compile_options(Numerics PUBLIC
-  -autolink-force-load
+  $<$<NOT:$<PLATFORM_ID:Darwin>>:-autolink-force-load>
   # SR-12254: workaround for the swift compiler not properly tracking the force
   # load symbol when validating the TBD
   -Xfrontend -validate-tbd-against-ir=none)
