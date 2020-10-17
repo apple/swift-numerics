@@ -26,9 +26,9 @@
 /// ```
 ///
 /// Each integer value has exactly one normalized representation, where the
-/// significand--a nonempty collection of the significant digits of the value's
-/// magnitude stored in words of type `UInt`--is trimmed of all leading and
-/// trailing words that are zero to a minimum count of one word.
+/// significand--a collection of the significant digits of the value's magnitude
+/// stored in words of type `UInt`--is trimmed of all leading and trailing words
+/// that are zero.
 @frozen
 public struct BigInt {
   /// The combination field.
@@ -46,10 +46,6 @@ public struct BigInt {
   ///
   /// Given a value `x`, `x._signum` is `-1` if `x` is less than zero and `1` if
   /// `x` is greater than zero; otherwise, `0`.
-  ///
-  /// It is an internal invariant that a value with nonzero significand should
-  /// not have `_signum` equal to zero, even when it is not normalized, since a
-  /// nonzero magnitude with unknown sign does not represent a unique value.
   @inlinable
   internal var _signum: Int { _combination.signum() }
   
@@ -70,41 +66,42 @@ public struct BigInt {
   @inlinable
   internal var _exponent: Int { abs(_combination) &- 1 }
   
-  /// The significand, a nonempty collection of the significant digits of this
-  /// value's magnitude stored in words of type `UInt`.
+  /// The significand, a collection of the significant digits of this value's
+  /// magnitude stored in words of type `UInt`.
   ///
   /// The first element of the collection is the lowest word.
   @usableFromInline
   internal var _significand: _Significand
   
   /// A Boolean value indicating whether this value is zero.
+  ///
+  /// A value is zero if and only if its combination field is zero.
   @inlinable
   internal var _isZero: Bool { _combination == 0 }
   
   /// Normalizes the internal representation of this value.
   ///
-  /// When a value is normalized, `_signum` is set to zero if `_significand`
-  /// contains only words that are zero. Otherwise, leading (i.e., the highest)
-  /// zero words are trimmed. Then, trailing (i.e., the lowest) zero words are
-  /// trimmed and `_exponent` is incremented for each word removed.
+  /// When a value is normalized, leading (i.e., the highest) zero words are
+  /// trimmed. Then, trailing (i.e., the lowest) zero words are trimmed and
+  /// `_exponent` is incremented for each word removed.
   ///
-  /// It is an internal invariant that a value with nonzero significand should
-  /// not have `_signum` equal to zero, even when it is not normalized, since a
-  /// nonzero magnitude with unknown sign does not represent a unique value.
+  /// A value is zero if and only if its combination field is zero. Its
+  /// internal representation, therefore, is normalized when its significand is
+  /// an empty collection.
   @inlinable
   internal mutating func _normalize() {
-    guard let i = _significand.firstIndex(where: { $0 != 0 }) else {
+    guard _combination != 0,
+      let i = _significand.firstIndex(where: { $0 != 0 }) else {
       _combination = 0
-      _significand = [0]
+      _significand = []
       return
     }
-    assert(!_isZero)
     
     let j = 1 &+ _significand.lastIndex(where: { $0 != 0 })!
     _significand.removeLast(_significand.count &- j)
     
     _significand.removeFirst(i)
-    if _combination < 0 { _combination -= i } else { _combination += i }
+    _combination += _combination < 0 ? -i : i
   }
   
   /// Creates a `BigInt` with the given combination field and significand.
@@ -128,25 +125,25 @@ extension BigInt: Hashable, Comparable {
   // `Strideable` conformance. (`BinaryInteger` refines `Strideable`.)
   @inlinable
   public static func == (lhs: BigInt, rhs: BigInt) -> Bool {
-    lhs._combination == rhs._combination &&
-      (lhs._isZero || lhs._significand == rhs._significand)
+    lhs._combination == rhs._combination && lhs._significand == rhs._significand
   }
   
   @inlinable
   public static func < (lhs: BigInt, rhs: BigInt) -> Bool {
     if lhs._isZero { return rhs._combination > 0 }
     if rhs._isZero { return lhs._combination < 0 }
-    if lhs._signum != rhs._signum { return lhs._signum < rhs._signum }
-
-    let words = (lhs.words, rhs.words)
-    let counts = (words.0.count, words.1.count)
-    if counts.0 != counts.1 {
-      return (lhs._signum < 0) != (counts.0 < counts.1)
+    if (lhs._combination < 0) != (rhs._combination < 0) {
+      return lhs._combination < rhs._combination
     }
-    
+
+    let words = (left: lhs.words, right: rhs.words)
+    let counts = (left: words.left.count, right: words.right.count)
+    if counts.left != counts.right {
+      return (lhs._combination < 0) != (counts.left < counts.right)
+    }
     let exponent = Swift.min(lhs._exponent, rhs._exponent)
-    for i in (exponent..<counts.0).reversed() {
-      let (left, right) = (words.0[i], words.1[i])
+    for i in (exponent..<counts.left).reversed() {
+      let (left, right) = (words.left[i], words.right[i])
       if left != right { return left < right }
     }
     return false
@@ -157,7 +154,7 @@ extension BigInt: ExpressibleByIntegerLiteral {
   @inlinable
   public init(integerLiteral value: Int) {
     _combination = value.signum()
-    _significand = [value.magnitude]
+    _significand = value == 0 ? [] : [value.magnitude]
   }
 }
 
@@ -165,7 +162,7 @@ extension BigInt: AdditiveArithmetic {
   @inlinable
   public init() {
     _combination = 0
-    _significand = [0]
+    _significand = []
   }
   
   @inlinable
@@ -178,28 +175,28 @@ extension BigInt: AdditiveArithmetic {
       return
     }
     guard !rhs._isZero else { return }
-    guard lhs._signum == rhs._signum else {
+    guard (lhs._combination < 0) == (rhs._combination < 0) else {
       lhs -= -rhs
       return
     }
     
-    let exponents = (lhs._exponent, rhs._exponent)
+    let exponents = (left: lhs._exponent, right: rhs._exponent)
     let counts =
-      (lhs._significand.count + exponents.0,
-       rhs._significand.count + exponents.1)
-    if counts.0 < counts.1 {
+      (left: lhs._significand.count + exponents.left,
+      right: rhs._significand.count + exponents.right)
+    if counts.left < counts.right {
       lhs._significand.reserveCapacity(
-        lhs._significand.count + (counts.1 &- counts.0) + 1)
+        lhs._significand.count + (counts.right &- counts.left) + 1)
     }
-    
-    if exponents.0 > exponents.1 {
-      lhs._combination = lhs._signum * (exponents.1 + 1)
+    if exponents.left > exponents.right {
+      lhs._combination = lhs._signum * (exponents.right + 1)
       lhs._significand.insert(
-        contentsOf: repeatElement(0, count: exponents.0 &- exponents.1), at: 0)
+        contentsOf: repeatElement(0, count: exponents.left &- exponents.right),
+        at: 0)
       lhs._significand.add(rhs._significand, exponent: 0)
     } else {
       lhs._significand.add(
-        rhs._significand, exponent: exponents.1 &- exponents.0)
+        rhs._significand, exponent: exponents.right &- exponents.left)
     }
     lhs._normalize()
   }
@@ -218,29 +215,29 @@ extension BigInt: AdditiveArithmetic {
       return
     }
     guard !rhs._isZero else { return }
-    guard lhs._signum == rhs._signum else {
+    guard (lhs._combination < 0) == (rhs._combination < 0) else {
       lhs += -rhs
       return
     }
     
-    let exponents = (lhs._exponent, rhs._exponent)
+    let exponents = (left: lhs._exponent, right: rhs._exponent)
     let counts =
-      (lhs._significand.count + exponents.0,
-       rhs._significand.count + exponents.1)
-    if counts.0 < counts.1 {
+      (left: lhs._significand.count + exponents.left,
+      right: rhs._significand.count + exponents.right)
+    if counts.left < counts.right {
       lhs._significand.reserveCapacity(
-        lhs._significand.count + (counts.1 &- counts.0))
+        lhs._significand.count + (counts.right &- counts.left))
     }
-    
     let overflow: Bool
-    if exponents.0 > exponents.1 {
-      lhs._combination = lhs._signum * (exponents.1 + 1)
+    if exponents.left > exponents.right {
+      lhs._combination = lhs._signum * (exponents.right + 1)
       lhs._significand.insert(
-        contentsOf: repeatElement(0, count: exponents.0 &- exponents.1), at: 0)
+        contentsOf: repeatElement(0, count: exponents.left &- exponents.right),
+        at: 0)
       overflow = lhs._significand.subtract(rhs._significand, exponent: 0)
     } else {
       overflow = lhs._significand.subtract(
-        rhs._significand, exponent: exponents.1 &- exponents.0)
+        rhs._significand, exponent: exponents.right &- exponents.left)
     }
     if overflow {
       lhs._combination.negate()
@@ -291,7 +288,7 @@ extension BigInt: BinaryInteger {
 
   @inlinable
   public var bitWidth: Int {
-    if _isZero { return 0 }
+    guard !_isZero else { return 0 }
     let lastIndex = _significand.count &- 1
     let highWord = _significand[lastIndex]
     let magnitudeBitWidth =
@@ -314,7 +311,7 @@ extension BigInt: BinaryInteger {
 
   @inlinable
   public var trailingZeroBitCount: Int {
-    if _isZero { return 0 }
+    guard !_isZero else { return 0 }
     // The trailing zero bit count of a value and its two's complement are
     // always the same.
     return _exponent * UInt.bitWidth + _significand[0].trailingZeroBitCount
@@ -325,14 +322,18 @@ extension BigInt: BinaryInteger {
   
   @inlinable
   public init<T: BinaryInteger>(_ source: T) {
-    guard let temporary = UInt(exactly: source) else {
-      self = BigInt(
-        _combination: Int(source.signum()),
-        significand: _Significand(source.magnitude.words))
+    guard source != (0 as T) else {
+      self = BigInt()
       return
     }
-    _combination = temporary == 0 ? 0 : 1
-    _significand = [temporary]
+    if let temporary = UInt(exactly: source) {
+      _combination = 1
+      _significand = [temporary]
+      return
+    }
+    self = BigInt(
+      _combination: Int(source.signum()),
+      significand: _Significand(source.magnitude.words))
   }
   
   @inlinable
@@ -350,7 +351,7 @@ extension BigInt: BinaryInteger {
     from source: T
   ) -> (value: BigInt?, exact: Bool) {
     // This implementation is adapted from its counterpart implemented for
-    // `FixedWidthInteger` types in the standard library by the present author.
+    // `FixedWidthInteger` types in the standard library.
     guard !source.isZero else { return (0, true) }
     guard source.isFinite else { return (nil, false) }
     let exponent = source.exponent
@@ -370,9 +371,7 @@ extension BigInt: BinaryInteger {
   @inlinable
   public init?<T: BinaryFloatingPoint>(exactly source: T) {
     let (temporary, exact) = BigInt._convert(from: source)
-    guard exact, let value = temporary else {
-      return nil
-    }
+    guard exact, let value = temporary else { return nil }
     self = value
   }
 
@@ -403,14 +402,13 @@ extension BigInt: BinaryInteger {
       return
     }
     
-    var rhs = rhs
-    let exponents = (lhs._exponent, rhs._exponent)
-    if exponents.0 < exponents.1 {
-      rhs._significand.insert(
-        contentsOf: repeatElement(0, count: exponents.1 &- exponents.0), at: 0)
-    } else if exponents.0 > exponents.1 {
+    let exponents = (left: lhs._exponent, right: rhs._exponent)
+    if exponents.left < exponents.right {
+      lhs._significand.removeFirst(exponents.right &- exponents.left)
+    } else if exponents.left > exponents.right {
       lhs._significand.insert(
-        contentsOf: repeatElement(0, count: exponents.0 &- exponents.1), at: 0)
+        contentsOf: repeatElement(0, count: exponents.left &- exponents.right),
+        at: 0)
     }
     lhs._combination = lhs._signum * rhs._signum
     
@@ -434,23 +432,25 @@ extension BigInt: BinaryInteger {
     guard !rhs._isZero else { fatalError("Division by zero") }
     guard !lhs._isZero && abs(lhs) >= abs(rhs) else { return }
     
-    var rhs = rhs
-    let exponents = (lhs._exponent, rhs._exponent)
-    if exponents.0 < exponents.1 {
-      rhs._significand.insert(
-        contentsOf: repeatElement(0, count: exponents.1 &- exponents.0), at: 0)
-    } else if exponents.0 > exponents.1 {
+    var result = _Significand()
+    let exponents = (left: lhs._exponent, right: rhs._exponent)
+    if exponents.left < exponents.right {
+      let i = exponents.right &- exponents.left
+      result.insert(contentsOf: lhs._significand[..<i], at: 0)
+      lhs._significand.removeFirst(i)
+    } else if exponents.left > exponents.right {
       lhs._significand.insert(
-        contentsOf: repeatElement(0, count: exponents.0 &- exponents.1), at: 0)
+        contentsOf: repeatElement(0, count: exponents.left &- exponents.right),
+        at: 0)
     }
     lhs._combination = lhs._signum
     
     if lhs._significand != rhs._significand {
-      var result = lhs._significand.divide(by: rhs._significand)
-      swap(&result, &lhs._significand)
-    } else {
-      lhs._significand = [0]
+      result.insert(
+        contentsOf: lhs._significand.divide(by: rhs._significand),
+        at: result.endIndex)
     }
+    swap(&result, &lhs._significand)
     lhs._normalize()
   }
 
@@ -458,17 +458,17 @@ extension BigInt: BinaryInteger {
   public static func & (lhs: BigInt, rhs: BigInt) -> BigInt {
     guard !lhs._isZero && !rhs._isZero else { return 0 }
     
-    let signum = lhs._signum < 0 && rhs._signum < 0 ? -1 : 1
+    let signum = lhs._combination < 0 && rhs._combination < 0 ? -1 : 1
     let exponent = Swift.max(lhs._exponent, rhs._exponent)
     
-    let words = (lhs.words, rhs.words)
-    let count = lhs._signum > 0 && rhs._signum > 0
-      ? Swift.min(words.0.count, words.1.count)
-      : Swift.max(words.0.count, words.1.count)
+    let words = (left: lhs.words, right: rhs.words)
+    let count = lhs._combination > 0 && rhs._combination > 0
+      ? Swift.min(words.left.count, words.right.count)
+      : Swift.max(words.left.count, words.right.count)
     
     guard exponent < count else { return 0 }
     var significand = _Significand((exponent..<count).map { idx in
-      words.0[idx] & words.1[idx]
+      words.left[idx] & words.right[idx]
     })
     if signum < 0 {
       let overflow = significand.complement(radix: 2)
@@ -486,20 +486,20 @@ extension BigInt: BinaryInteger {
 
   // @inlinable
   public static func | (lhs: BigInt, rhs: BigInt) -> BigInt {
-    guard !lhs._isZero else { return rhs._signum == 0 ? 0 : rhs }
+    guard !lhs._isZero else { return rhs._isZero ? 0 : rhs }
     guard !rhs._isZero else { return lhs }
     
-    let signum = (lhs._signum > 0 && rhs._signum > 0) ? 1 : -1
+    let signum = (lhs._combination > 0 && rhs._combination > 0) ? 1 : -1
     let exponent = Swift.min(lhs._exponent, rhs._exponent)
     
-    let words = (lhs.words, rhs.words)
-    let count = lhs._signum < 0 && rhs._signum < 0
-      ? Swift.min(words.0.count, words.1.count)
-      : Swift.max(words.0.count, words.1.count)
+    let words = (left: lhs.words, right: rhs.words)
+    let count = lhs._combination < 0 && rhs._combination < 0
+      ? Swift.min(words.left.count, words.right.count)
+      : Swift.max(words.left.count, words.right.count)
     
     assert(exponent < count)
     var significand = _Significand((exponent..<count).map { idx in
-      words.0[idx] | words.1[idx]
+      words.left[idx] | words.right[idx]
     })
     if signum < 0 {
       let overflow = significand.complement(radix: 2)
@@ -517,18 +517,18 @@ extension BigInt: BinaryInteger {
 
   // @inlinable
   public static func ^ (lhs: BigInt, rhs: BigInt) -> BigInt {
-    guard !lhs._isZero else { return rhs._signum == 0 ? 0 : rhs }
+    guard !lhs._isZero else { return rhs._isZero ? 0 : rhs }
     guard !rhs._isZero else { return lhs }
     
-    let signum = (lhs._signum < 0) != (rhs._signum < 0) ? -1 : 1
+    let signum = (lhs._combination < 0) != (rhs._combination < 0) ? -1 : 1
     let exponent = Swift.min(lhs._exponent, rhs._exponent)
     
-    let words = (lhs.words, rhs.words)
-    let count = Swift.max(words.0.count, words.1.count)
+    let words = (left: lhs.words, right: rhs.words)
+    let count = Swift.max(words.left.count, words.right.count)
     
     assert(exponent < count)
     var significand = _Significand((exponent..<count).map { idx in
-      words.0[idx] ^ words.1[idx]
+      words.left[idx] ^ words.right[idx]
     })
     if signum < 0 {
       let overflow = significand.complement(radix: 2)
@@ -571,11 +571,7 @@ extension BigInt: BinaryInteger {
       if carry != 0 { lhs._significand.append(carry) }
     }
     
-    if lhs._combination < 0 {
-      lhs._combination -= quotient
-    } else {
-      lhs._combination += quotient
-    }
+    lhs._combination += lhs._combination < 0 ? -quotient : quotient
     lhs._normalize()
   }
   
@@ -612,11 +608,7 @@ extension BigInt: BinaryInteger {
       lhs._combination = lhs._signum
       rounding = lhs._combination < 0
     } else {
-      if lhs._combination < 0 {
-        lhs._combination += quotient
-      } else {
-        lhs._combination -= quotient
-      }
+      lhs._combination += lhs._combination < 0 ? quotient : -quotient
       rounding = false
     }
 
@@ -630,11 +622,7 @@ extension BigInt: BinaryInteger {
       if carry != 0 {
         if lhs._exponent != 0 {
           lhs._significand.insert(carry, at: 0)
-          if lhs._combination < 0 {
-            lhs._combination += 1
-          } else {
-            lhs._combination -= 1
-          }
+          lhs._combination += lhs._combination < 0 ? 1 : -1
         } else if lhs._combination < 0 {
           rounding = true
         }
@@ -665,7 +653,7 @@ extension BigInt {
     let signum = Int(bitPattern: words.last!) < 0 ? -1 : 1
     guard let exponent = words.firstIndex(where: { $0 != 0 }) else {
       _combination = 0
-      _significand = [0]
+      _significand = []
       return
     }
     _combination = signum * (exponent + 1)

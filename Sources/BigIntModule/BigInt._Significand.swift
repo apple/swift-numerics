@@ -10,9 +10,8 @@
 //===----------------------------------------------------------------------===//
 
 extension BigInt {
-  /// The significand of a `BigInt` value, a nonempty collection of the
-  /// significant digits of that value's magnitude stored in words of type
-  /// `UInt`.
+  /// The significand of a `BigInt` value, a collection of the significant
+  /// digits of that value's magnitude stored in words of type `UInt`.
   ///
   /// The first element of the collection is the lowest word.
   @usableFromInline

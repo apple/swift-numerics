@@ -24,7 +24,7 @@ extension BigInt {
     ///
     /// - Parameter value: The arbitrarily large signed integer.
     @inlinable
-    public init(_ value: BigInt) {
+    internal init(_ value: BigInt) {
       _value = value
     }
   }
@@ -33,13 +33,11 @@ extension BigInt {
 extension BigInt.Words: RandomAccessCollection {
   @inlinable
   public var count: Int {
-    if _value._isZero { return 1 }
+    guard !_value._isZero else { return 1 }
     let temporary = _value._exponent + _value._significand.count
     let lastIndex = _value._significand.count &- 1
     let highWord = _value._significand[lastIndex]
-    guard Int(bitPattern: highWord) < 0 else {
-      return temporary
-    }
+    guard Int(bitPattern: highWord) < 0 else { return temporary }
     // If the leading bit is set, then--
     //
     // For a positive value:

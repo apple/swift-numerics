@@ -42,7 +42,7 @@ final class BigIntModuleTests: XCTestCase {
     for i in (-42..<42) {
       let x = BigInt(i)
       XCTAssertEqual(x._combination, i.signum())
-      XCTAssertEqual(x._significand[0], i.magnitude)
+      if i != 0 { XCTAssertEqual(x._significand[0], i.magnitude) }
       XCTAssertEqual(x.description, i.description)
       let j = Int(x)
       XCTAssertEqual(i, j)
