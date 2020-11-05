@@ -224,78 +224,131 @@ extension Complex /*: ElementaryFunctions */ {
     // If z is zero or infinite, the phase is undefined, so the result is
     // the single exceptional value.
     guard z.isFinite && !z.isZero else { return .infinity }
-    // Otherwise, try computing lengthSquared; if the result is normal,
-    // we can just take its log to get the real part of the result.
-    let r2 = z.lengthSquared
+    // Having eliminated non-finite values and zero, the imaginary part is
+    // easy; it's just the phase, which is always computed with good
+    // relative accuracy via atan2.
     let θ = z.phase
-    if r2.isNormal { return Complex(.log(r2)/2, θ) }
-    // z is finite, but z.lengthSquared is not normal. Rescale and recompute.
-    let w = z.divided(by: z.magnitude)
-    return Complex(.log(z.magnitude) + .log(w.lengthSquared)/2, θ)
+    // The real part of the result is trickier. In exact arithmetic, the
+    // real part is just log |z|--many implementations of complex functions
+    // simply use this expression as is. However, there are two problems
+    // lurking here:
+    //
+    //   - length can overflow even when log(z) is finite.
+    //
+    //   - when length is close to 1, catastrophic cancellation is hidden
+    //     in this expression. Consider, e.g. z = 1 + δi for small δ.
+    //
+    //     Because δ ≪ 1, |z| rounds to 1, and so log |z| produces zero.
+    //     We can expand using Taylor series to see that the result should
+    //     be:
+    //
+    //         log |z| = log √(1 + δ²)
+    //                 = log(1 + δ²)/2
+    //                 = δ²/2 + O(δ⁴)
+    //
+    //     So naively using log |z| results in a total loss of relative
+    //     accuracy for this case. Note that this is _not_ constrained near
+    //     a single point; it occurs everywhere close to the circle |z| = 1.
+    //
+    //     Note that this case still _does_ deliver a result with acceptable
+    //     relative accuracy in the complex norm, because
+    //
+    //         Im(log z) ≈ δ ≫ δ²/2 ≈ Re(log z).
+    //
+    // There are a number of ways to try to tackle this problem. I'll begin
+    // with a simple one that solves the first issue, and _sometimes_ the
+    // second, then analyze when it doesn't work for the second case.
+    //
+    // To handle very large arguments without overflow, the standard
+    // approach is to _rescale_ the problem. We can do this by finding
+    // whichever of x and y has greater magnitude, and dividing through
+    // by it. You can think of this as changing coordinates by reflections
+    // so that we get a new value w = u + iv with |w| = |z| (and hence
+    // Re(log w) = Re(log z), and 0 ≤ u, 0 ≤ v ≤ u.
+    let u = max(z.x.magnitude, z.y.magnitude)
+    let v = min(z.x.magnitude, z.y.magnitude)
+    // Now expand out log |w|:
+    //
+    //     log |w| = log(u² + v²)/2
+    //             = log u + log(onePlus: (v/u)²)/2
+    //
+    // This looks promising! It handles overflow well, because log(u) is
+    // finite for every finite u, and we have 0 ≤ v/u ≤ 1, so the second
+    // term is bounded by 0 ≤ log(1 + (v/u)²)/2 ≤ (log 2)/2. It also
+    // handles the example I gave above well: we have u = 1, v = δ, and
+    //
+    //     log(1) + log(onePlus: δ²)/2 = 0 + δ²/2
+    //
+    // as expected.
+    //
+    // Unfortunately, it does not handle all points close to the unit
+    // circle so well; it's easy to see why if we look at the two terms
+    // that contribute to the result. Cancellation occurs when the result
+    // is close to zero and the terms have opposing signs. By construction,
+    // the second term is always positive, so the easiest observation is
+    // that cancellation is only a problem for u < 1 (because otherwise
+    // log u is also positive, and there can be no cancellation).
+    //
+    // We are not trying for sub-ulp accuracy, just a good relative error
+    // bound, so for our purposes it suffices to have log u dominate the
+    // result:
+    if u >= 1 || u >= RealType._mulAdd(u,u,v*v) {
+      let r = v / u
+      return Complex(.log(u) + .log(onePlus: r*r)/2, θ)
+    }
+    // Here we're in the tricky case; cancellation is likely to occur.
+    // Instead of the factorization used above, we will want to evaluate
+    // log(onePlus: u² + v² - 1)/2. This all boils down to accurately
+    // evaluating u² + v² - 1. To begin, calculate both squared terms
+    // as exact head-tail products (u is guaranteed to be well scaled,
+    // v may underflow, but if it does it doesn't matter, the u term is
+    // all we need).
+    let (a,b) = Augmented.twoProdFMA(u, u)
+    let (c,d) = Augmented.twoProdFMA(v, v)
+    // It would be nice if we could simply use a - 1, but unfortunately
+    // we don't have a tight enough bound to guarantee that that expression
+    // is exact; a may be as small as 1/4, so we could lose a single bit
+    // to rounding if we did that.
+    var (s,e) = Augmented.fastTwoSum(-1, a)
+    // Now we are ready to assemble the result. If cancellation happens,
+    // then |c| > |e| > |b|, |d|, so this assembly order is safe. It's
+    // also possible that |c| and |d| are small, but if that happens then
+    // there is no significant cancellation, and the exact assembly doesn't
+    // matter.
+    s = (s + c) + e + b + d
+    return Complex(.log(onePlus: s)/2, θ)
   }
   
   @inlinable
   public static func log(onePlus z: Complex) -> Complex {
-    // Nevin proposed the idea for this implementation on the Swift forums:
-    // https://forums.swift.org/t/elementaryfunctions-compliance-for-complex/37903/3
-    //
-    // Here's a quick explainer on why it works: in exact arithmetic,
-    //
-    //      log(1+z) = (log |1+z|, atan2(y, 1+x))
-    //
-    // where x and y are the real and imaginary parts of z, respectively.
-    //
-    // The first thing to note is that the expression for the imaginary
-    // part works fine as is. If cancellation occurs (because x ≈ -1),
-    // then 1+x is exact, and so we have good componentwise relative
-    // accuracy. Otherwise, x is bounded away from -1 and 1+x has good
-    // relative accuracy, and therefore so does atan2(y, 1+x).
-    //
-    // So the real part is the hard part (no surprise, just like expPlusOne).
-    // Nevin's clever idea is simply to take advantage of the expansion:
-    //
-    //     Re(log 1+z) = (log 1+z + Conj(log 1+z))/2
-    //
-    // Log commutes with conjugation, so this becomes:
+    // If either |x| or |y| is bounded away from the origin, we don't need
+    // any extra precision, and can just literally compute log(1+z). Note
+    // that this includes part of the circle |1+z| = 1 where log(onePlus:)
+    // vanishes (where x <= -0.5), but on this portion of the circle 1+x
+    // is always exact by Sterbenz' lemma, so as long as log( ) produces
+    // a good result, log(1+z) will too.
+    guard 2*z.x.magnitude < 1 && z.y.magnitude < 1 else { return log(1+z) }
+    // z is in (±0.5, ±1), so we need to evaluate more carefully.
+    // The imaginary part is straightforward:
+    let θ = z.phase
+    // For the real part, we _could_ use the same approach that we do for
+    // log( ), but we'd need an extra-precise (1+x)², which can potentially
+    // be quite painful to calculate. Instead, we can use an approach that
+    // NevinBR suggested on the Swift forums:
     //
     //     Re(log 1+z) = (log 1+z + log 1+z̅)/2
     //                 = log((1+z)(1+z̅)/2
     //                 = log(1+z+z̅+zz̅)/2
+    //                 = log((2+x)x + y²)/2
     //
-    // This behaves well close to zero, because the z+z̅ term dominates
-    // and is computed exactly. Away from zero, cancellation occurs near
-    // the circle x(x+2) + y^2 = 0, but everywhere along this curve we
-    // have |Im(log 1+z)| >= π/2, so the relative error in the complex
-    // norm is well-controlled. We can take advantage of FMA to further
-    // reduce the cancellation error and recover a good error bound.
-    //
-    // The other common implementation choice for log1p is Kahan's trick:
-    //
-    //     w := 1+z
-    //     return z/(w-1) * log(w)
-    //
-    // But this actually doesn't do as well as Nevin's approach does,
-    // and requires a complex division, which we want to avoid when we
-    // can do so.
-    var a = 2*z.x
-    // We want to add the larger term first (contra usual guidance for
-    // floating-point error optimization), because we're optimizing for
-    // the catastrophic cancellation case; when that happens adding the
-    // larger term via FMA is always exact. When cancellation doesn't
-    // happen, the simple relative error bound carries through the
-    // rest of the computation.
-    let large = max(z.x.magnitude, z.y.magnitude)
-    let small = min(z.x.magnitude, z.y.magnitude)
-    a.addProduct(large, large)
-    a.addProduct(small, small)
-    // If r2 overflowed, then |z| ≫ 1, and so log(1+z) = log(z).
-    guard a.isFinite else { return log(z) }
-    // Unlike log(z), we do not need to worry about what happens if a
-    // underflows.
-    return Complex(
-      RealType.log(onePlus: a)/2,
-      RealType.atan2(y: z.y, x: 1+z.x)
-    )
+    // So now we need to evaluate (2+x)x + y² accurately. To do this,
+    // we employ augmented arithmetic; the key observation here is that
+    // cancellation is only a problem when y² ≈ -(2+x)x
+    let xp2 = Augmented.fastTwoSum(2, z.x) // Known that 2 > |x|.
+    let a = Augmented.twoProdFMA(z.x, xp2.head)
+    let y² = Augmented.twoProdFMA(z.y, z.y)
+    let s = (a.head + y².head + a.tail + y².tail).addingProduct(z.x, xp2.tail)
+    return Complex(.log(onePlus: s)/2, θ)
   }
   
   public static func acos(_ z: Complex) -> Complex {

@@ -10,21 +10,22 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Numerics
+import ComplexModule
 
-func relativeError(_ tst: Float, _ ref: Double) -> Double {
+public func relativeError(_ tst: Float, _ ref: Double) -> Double {
   let scale = max(ref.magnitude, Double(Float.leastNormalMagnitude))
   let error = (Double(tst) - ref).magnitude
   return error / scale
 }
 
-func componentwiseError(_ tst: Complex<Float>, _ ref: Complex<Double>) -> Double {
+public func componentwiseError(_ tst: Complex<Float>, _ ref: Complex<Double>) -> Double {
   return max(relativeError(tst.real, ref.real),
              relativeError(tst.imaginary, ref.imaginary))
 }
 
-func relativeError(_ tst: Complex<Float>, _ ref: Complex<Double>) -> Double {
+public func relativeError(_ tst: Complex<Float>, _ ref: Complex<Double>) -> Double {
   let scale = max(ref.magnitude, Double(Float.leastNormalMagnitude))
-  let error = (Complex<Double>(tst) - ref).magnitude
+  let dtst = Complex(Double(tst.real), Double(tst.imaginary))
+  let error = (dtst - ref).magnitude
   return error / scale
 }
