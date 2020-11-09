@@ -135,9 +135,9 @@ extension Float {
 extension Double {
   static func testIntegerExponent() {
     testIntegerExponentCommon()
-    testIntegerExponentDoubleAndSmaller()
     // Following tests only make sense (and are only necessary) on 64b platforms.
 #if arch(arm64) || arch(x86_64)
+    testIntegerExponentDoubleAndSmaller()
     let u: Double = 1.nextUp
     let d: Double = 1.nextDown
     // Smallest exponent not exactly representable as Double.

@@ -51,6 +51,7 @@ extension Complex: ElementaryFunctions {
   /// Note that naive evaluation of this expression in floating-point would be prone to premature
   /// overflow, since `cos` and `sin` both have magnitude less than 1 for most inputs (i.e.
   /// `exp(x)` may be infinity when `exp(x) cos(y)` would not be.
+  @inlinable
   public static func exp(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
     // If x < log(greatestFiniteMagnitude), then exp(x) does not overflow.
@@ -65,6 +66,7 @@ extension Complex: ElementaryFunctions {
     return Complex(.cos(z.y), .sin(z.y)).multiplied(by: .exp(z.x))
   }
   
+  @inlinable
   public static func expMinusOne(_ z: Complex) -> Complex {
     // exp(x + iy) - 1 = (exp(x) cos(y) - 1) + i exp(x) sin(y)
     //                   -------- u --------
@@ -134,6 +136,7 @@ extension Complex: ElementaryFunctions {
   // This function and sinh should stay in sync; if you make a
   // modification here, you should almost surely make a parallel
   // modification to sinh below.
+  @inlinable
   public static func cosh(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
     guard z.x.magnitude < -RealType.log(.ulpOfOne) else {
@@ -163,6 +166,7 @@ extension Complex: ElementaryFunctions {
   // sinh(x + iy) = sinh(x) cos(y) + i cosh(x) sinh(y)
   //
   // See cosh above for algorithm details.
+  @inlinable
   public static func sinh(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
     guard z.x.magnitude < -RealType.log(.ulpOfOne) else {
@@ -178,6 +182,7 @@ extension Complex: ElementaryFunctions {
   }
   
   // tanh(z) = sinh(z) / cosh(z)
+  @inlinable
   public static func tanh(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
     // Note that when |x| is larger than -log(.ulpOfOne),
@@ -201,23 +206,27 @@ extension Complex: ElementaryFunctions {
   }
   
   // cos(z) = cosh(iz)
+  @inlinable
   public static func cos(_ z: Complex) -> Complex {
     return cosh(Complex(-z.y, z.x))
   }
   
   // sin(z) = -i*sinh(iz)
+  @inlinable
   public static func sin(_ z: Complex) -> Complex {
     let w = sinh(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
   
   // tan(z) = -i*tanh(iz)
+  @inlinable
   public static func tan(_ z: Complex) -> Complex {
     let w = tanh(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
   
   // MARK: - log-like functions
+  @inlinable
   public static func log(_ z: Complex) -> Complex {
     // If z is zero or infinite, the phase is undefined, so the result is
     // the single exceptional value.
@@ -317,6 +326,7 @@ extension Complex: ElementaryFunctions {
     return Complex(.log(onePlus: s)/2, θ)
   }
   
+  @inlinable
   public static func log(onePlus z: Complex) -> Complex {
     // If either |x| or |y| is bounded away from the origin, we don't need
     // any extra precision, and can just literally compute log(1+z). Note
@@ -348,6 +358,7 @@ extension Complex: ElementaryFunctions {
     return Complex(.log(onePlus: s)/2, θ)
   }
   
+  @inlinable
   public static func acos(_ z: Complex) -> Complex {
     Complex(
       2*RealType.atan2(y: sqrt(1-z).real, x: sqrt(1+z).real),
@@ -355,6 +366,7 @@ extension Complex: ElementaryFunctions {
     )
   }
   
+  @inlinable
   public static func asin(_ z: Complex) -> Complex {
     Complex(
       RealType.atan2(y: z.x, x: (sqrt(1-z) * sqrt(1+z)).real),
@@ -363,11 +375,13 @@ extension Complex: ElementaryFunctions {
   }
   
   // atan(z) = -i*atanh(iz)
+  @inlinable
   public static func atan(_ z: Complex) -> Complex {
     let w = atanh(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
   
+  @inlinable
   public static func acosh(_ z: Complex) -> Complex {
     Complex(
       RealType.asinh((sqrt(z-1).conjugate * sqrt(z+1)).real),
@@ -376,11 +390,13 @@ extension Complex: ElementaryFunctions {
   }
   
   // asinh(z) = -i*asin(iz)
+  @inlinable
   public static func asinh(_ z: Complex) -> Complex {
     let w = asin(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
   
+  @inlinable
   public static func atanh(_ z: Complex) -> Complex {
     // TODO: Kahan uses a much more complicated expression here; possibly
     // simply because he didn't have a complex log(1+z) with good
@@ -395,10 +411,12 @@ extension Complex: ElementaryFunctions {
   }
   
   // MARK: - pow-like functions
+  @inlinable
   public static func pow(_ z: Complex, _ w: Complex) -> Complex {
     return exp(w * log(z))
   }
   
+  @inlinable
   public static func pow(_ z: Complex, _ n: Int) -> Complex {
     if z.isZero { return .zero }
     // TODO: this implementation is not quite correct, because n may be
@@ -411,6 +429,7 @@ extension Complex: ElementaryFunctions {
     return exp(log(z).multiplied(by: RealType(n)))
   }
   
+  @inlinable
   public static func sqrt(_ z: Complex) -> Complex {
     let lengthSquared = z.lengthSquared
     if lengthSquared.isNormal {
@@ -439,6 +458,7 @@ extension Complex: ElementaryFunctions {
     return Complex.sqrt(z.divided(by: scale)).multiplied(by: .sqrt(scale))
   }
   
+  @inlinable
   public static func root(_ z: Complex, _ n: Int) -> Complex {
     if z.isZero { return .zero }
     // TODO: this implementation is not quite correct, because n may be
