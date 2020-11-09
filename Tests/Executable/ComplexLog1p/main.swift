@@ -15,7 +15,7 @@ import _TestSupport
 
 #if DEBUG
 fatalError("Run this test in Release configuration")
-#endif
+#else
 
 var componentError = Double(Float.ulpOfOne/2)
 var complexError = Double(Float.ulpOfOne/2)
@@ -105,3 +105,4 @@ print("For input \(componentMaxInput).")
 print("Reference result: \(Complex.log(onePlus: Complex<Double>(componentMaxInput)))")
 print(" Observed result: \(Complex.log(onePlus: componentMaxInput))")
 
+#endif
