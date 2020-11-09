@@ -8,6 +8,8 @@ See https://swift.org/LICENSE.txt for license information
 #]]
 
 add_library(_TestSupport
+  Error.swift
+  Interval.swift
   RealTestSupport.swift)
 set_target_properties(_TestSupport PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
