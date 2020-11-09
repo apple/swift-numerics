@@ -417,4 +417,10 @@ HEADER_SHIM CComplex libm_cmul(CComplex z, CComplex w) {
   double _Complex c = a*b;
   return (CComplex){ __real__ c, __imag__ c };
 }
+
+HEADER_SHIM CComplex libm_catanh(CComplex z) {
+  double _Complex a = { z.real, z.imag };
+  double _Complex w = __builtin_catanh(a);
+  return (CComplex){ __real__ w, __imag__ w };
+}
 #endif // !defined _WIN32
