@@ -35,7 +35,6 @@
 
 import RealModule
 
-// TODO: uncomment conformance once all implementations are provided.
 extension Complex: ElementaryFunctions {
   
   // MARK: - exp-like functions
@@ -343,10 +342,11 @@ extension Complex: ElementaryFunctions {
     // be quite painful to calculate. Instead, we can use an approach that
     // NevinBR suggested on the Swift forums:
     //
-    //     Re(log 1+z) = (log 1+z + log 1+z̅)/2
-    //                 = log((1+z)(1+z̅)/2
-    //                 = log(1+z+z̅+zz̅)/2
-    //                 = log((2+x)x + y²)/2
+    //     Re(log(1+z)) = (log(1+z) + log(1+z̅)) / 2
+    //                  = log((1+z)(1+z̅)) / 2
+    //                  = log(1 + z + z̅ + zz̅) / 2
+    //                  = log(1 + 2x + x² + y²) / 2
+    //                  = log(onePlus: (2+x)x + y²) / 2
     //
     // So now we need to evaluate (2+x)x + y² accurately. To do this,
     // we employ augmented arithmetic; the key observation here is that
