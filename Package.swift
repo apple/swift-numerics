@@ -25,7 +25,7 @@ let package = Package(
   targets: [
     // User-facing modules
     .target(name: "ComplexModule", dependencies: ["RealModule"]),
-    .target(name: "Numerics", dependencies: ["ComplexModule", "RealModule"]),
+    .target(name: "Numerics", dependencies: ["ComplexModule", "QuaternionModule", "RealModule"]),
     .target(name: "QuaternionModule", dependencies: ["RealModule"]),
     .target(name: "RealModule", dependencies: ["_NumericsShims"]),
     
@@ -35,8 +35,8 @@ let package = Package(
     
     // Unit test bundles
     .testTarget(name: "ComplexTests", dependencies: ["_TestSupport"]),
+    .testTarget(name: "QuaternionTests", dependencies: ["_TestSupport"]),
     .testTarget(name: "RealTests", dependencies: ["_TestSupport"]),
-    .testTarget(name: "QuaternionTests", dependencies: ["QuaternionModule"]),
     
     // Test executables
     .target(name: "ComplexLog", dependencies: ["Numerics", "_TestSupport"], path: "Tests/Executable/ComplexLog"),
