@@ -27,21 +27,6 @@ public struct Angle<T: Real> {
 public extension Angle {
     /// See also:
     /// -
-    /// `ElementaryFunctions.cosh()`
-    var cosh: T { T.cosh(radians) }
-    
-    /// See also:
-    /// -
-    /// `ElementaryFunctions.sinh()`
-    var sinh: T { T.sinh(radians) }
-    
-    /// See also:
-    /// -
-    /// `ElementaryFunctions.tanh()`
-    var tanh: T { T.tanh(radians) }
-    
-    /// See also:
-    /// -
     /// `ElementaryFunctions.cos()`
     var cos: T { T.cos(radians) }
     
@@ -54,22 +39,7 @@ public extension Angle {
     /// -
     /// `ElementaryFunctions.tan()`
     var tan: T { T.tan(radians) }
-    
-    /// See also:
-    /// -
-    /// `ElementaryFunctions.acosh()`
-    static func acosh(_ x: T) -> Self { Angle.radians(T.acosh(x)) }
-    
-    /// See also:
-    /// -
-    /// `ElementaryFunctions.asinh()`
-    static func asinh(_ x: T) -> Self { Angle.radians(T.asinh(x)) }
-    
-    /// See also:
-    /// -
-    /// `ElementaryFunctions.atanh()`
-    static func atanh(_ x: T) -> Self { Angle.radians(T.atanh(x)) }
-    
+     
     /// See also:
     /// -
     /// `ElementaryFunctions.acos()`

@@ -36,15 +36,6 @@ where Self: BinaryFloatingPoint {
         assertClose(0.3662725290860475613729093517162641571, Angle<Self>(radians: 0.375).sin)
         assertClose(0.3936265759256327582294137871012180981, Angle<Self>(radians: 0.375).tan)
     }
-    
-    static func hyperbolicTrigonometricFunctionChecks() {
-        assertClose(0.4949329230945269058895630995767185785, Angle<Self>.acosh(1.125).radians)
-        assertClose(0.9670596312833237113713762009167286709, Angle<Self>.asinh(1.125).radians)
-        assertClose(0.7331685343967135223291211023213964500, Angle<Self>.atanh(0.625).radians)
-        assertClose(1.0711403467045867672994980155670160493, Angle<Self>(radians: 0.375).cosh)
-        assertClose(0.3838510679136145687542956764205024589, Angle<Self>(radians: 0.375).sinh)
-        assertClose(0.3583573983507859463193602315531580424, Angle<Self>(radians: 0.375).tanh)
-    }
 }
 
 final class AngleTests: XCTestCase {
@@ -53,7 +44,6 @@ final class AngleTests: XCTestCase {
         if #available(iOS 14.0, watchOS 14.0, tvOS 7.0, *) {
             Float16.conversionBetweenRadiansAndDegreesChecks()
             Float16.trigonometricFunctionChecks()
-            Float16.hyperbolicTrigonometricFunctionChecks()
         }
     }
     #endif
@@ -61,20 +51,17 @@ final class AngleTests: XCTestCase {
     func testFloat() {
         Float.conversionBetweenRadiansAndDegreesChecks()
         Float.trigonometricFunctionChecks()
-        Float.hyperbolicTrigonometricFunctionChecks()
     }
     
     func testDouble() {
         Double.conversionBetweenRadiansAndDegreesChecks()
         Double.trigonometricFunctionChecks()
-        Double.hyperbolicTrigonometricFunctionChecks()
     }
     
     #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
     func testFloat80() {
         Float80.conversionBetweenRadiansAndDegreesChecks()
         Float80.trigonometricFunctionChecks()
-        Float80.hyperbolicTrigonometricFunctionChecks()
     }
     #endif
 }
