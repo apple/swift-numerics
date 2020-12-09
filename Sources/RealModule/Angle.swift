@@ -78,7 +78,20 @@ where Self: Real & BinaryFloatingPoint {
     /// See also:
     /// -
     /// `ElementaryFunctions.tan()`
-    static func tan(_ angle: Angle<Self>) -> Self { Self.tan(angle.radians) }
+    static func tan(_ angle: Angle<Self>) -> Self {
+        let sine = sin(angle)
+        let cosine = cos(angle)
+        
+        guard cosine != 0 else {
+            var result = Self.infinity
+            if sine.sign == .minus {
+                result.negate()
+            }
+            return result
+        }
+        
+        return sine / cosine
+    }
 }
 
 public extension Angle {
