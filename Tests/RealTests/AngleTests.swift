@@ -38,6 +38,10 @@ where Self: BinaryFloatingPoint {
     }
     
     static func specialDegreesTrigonometricFunctionChecks() {
+        assertClose(1, cos(Angle<Self>(degrees: -360)))
+        assertClose(0, cos(Angle<Self>(degrees: -270)))
+        assertClose(-1, cos(Angle<Self>(degrees: -180)))
+        assertClose(0, cos(Angle<Self>(degrees: -90)))
         assertClose(1, cos(Angle<Self>(degrees: 0)))
         assertClose(0.86602540378443864676372317075293618347, cos(Angle<Self>(degrees: 30)))
         assertClose(0.70710678118654752440084436210484903929, cos(Angle<Self>(degrees: 45)))
@@ -49,9 +53,11 @@ where Self: BinaryFloatingPoint {
         assertClose(-1, cos(Angle<Self>(degrees: 180)))
         assertClose(0, cos(Angle<Self>(degrees: 270)))
         assertClose(1, cos(Angle<Self>(degrees: 360)))
-        assertClose(0, cos(Angle<Self>(degrees: -90)))
-        assertClose(-1, cos(Angle<Self>(degrees: -180)))
         
+        assertClose(0, sin(Angle<Self>(degrees: -360)))
+        assertClose(1, sin(Angle<Self>(degrees: -270)))
+        assertClose(0, sin(Angle<Self>(degrees: -180)))
+        assertClose(-1, sin(Angle<Self>(degrees: -90)))
         assertClose(0, sin(Angle<Self>(degrees: 0)))
         assertClose(0.5, sin(Angle<Self>(degrees: 30)))
         assertClose(0.70710678118654752440084436210484903929, sin(Angle<Self>(degrees: 45)))
@@ -63,8 +69,6 @@ where Self: BinaryFloatingPoint {
         assertClose(0, sin(Angle<Self>(degrees: 180)))
         assertClose(-1, sin(Angle<Self>(degrees: 270)))
         assertClose(0, sin(Angle<Self>(degrees: 360)))
-        assertClose(-1, sin(Angle<Self>(degrees: -90)))
-        assertClose(0, sin(Angle<Self>(degrees: -180)))
 //
 //        assertClose(0, tan(Angle<Self>(degrees: 0)))
 //        assertClose(0.57735026918962576450914878050195745565, tan(Angle<Self>(degrees: 30)))
