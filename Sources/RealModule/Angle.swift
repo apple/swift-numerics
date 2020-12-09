@@ -53,7 +53,28 @@ where Self: Real & BinaryFloatingPoint {
     /// See also:
     /// -
     /// `ElementaryFunctions.sin()`
-    static func sin(_ angle: Angle<Self>) -> Self { Self.sin(angle.radians) }
+    static func sin(_ angle: Angle<Self>) -> Self {
+        let normalizedRadians = normalize(angle.radians, limit: .pi)
+        
+        if .pi / 4 < normalizedRadians && normalizedRadians < 3 * .pi / 4 {
+            return Self.sin(normalizedRadians)
+        }
+        
+        if -3 * .pi / 4 < normalizedRadians && normalizedRadians < -.pi / 4 {
+            return -Self.sin(-normalizedRadians)
+        }
+
+        if normalizedRadians > 3 * .pi / 4 {
+            return Self.sin(.pi - normalizedRadians)
+        }
+        
+        if normalizedRadians < -3 * .pi / 4 {
+            return -Self.sin(.pi + normalizedRadians)
+        }
+        
+        
+        return Self.sin(normalizedRadians)
+    }
     
     /// See also:
     /// -
