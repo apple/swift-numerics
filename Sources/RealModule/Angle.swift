@@ -18,28 +18,61 @@ public struct Angle<T: Real> {
     public var radians: T
     public init(radians: T) { self.radians = radians }
     public static func radians(_ val: T) -> Angle<T> { .init(radians: val) }
-
+    
     public var degrees: T { radians * 180 / .pi }
     public init(degrees: T) { self.init(radians: degrees * .pi / 180) }
     public static func degrees(_ val: T) -> Angle<T> { .init(degrees: val) }
 }
 
-public extension Angle {
+public extension ElementaryFunctions
+where Self: Real {
     /// See also:
     /// -
     /// `ElementaryFunctions.cos()`
-    var cos: T { T.cos(radians) }
+    static func cos(_ angle: Angle<Self>) -> Self {
+        let normalizedRadians = normalized(angle.radians)
+        
+        if -.pi/4 < normalizedRadians && normalizedRadians < .pi/4 {
+            return Self.cos(normalizedRadians)
+        }
+        
+        if normalizedRadians > 3 * .pi / 4 || normalizedRadians < -3 * .pi / 4 {
+            return -Self.cos(.pi - normalizedRadians)
+        }
+        
+        if normalizedRadians >= 0 {
+            return Self.sin(.pi/2 - normalizedRadians)
+        }
+        
+        return Self.sin(normalizedRadians + .pi / 2)
+    }
     
     /// See also:
     /// -
     /// `ElementaryFunctions.sin()`
-    var sin: T { T.sin(radians) }
+    static func sin(_ angle: Angle<Self>) -> Self { Self.sin(angle.radians) }
     
     /// See also:
     /// -
     /// `ElementaryFunctions.tan()`
-    var tan: T { T.tan(radians) }
-     
+    static func tan(_ angle: Angle<Self>) -> Self { Self.tan(angle.radians) }
+    
+    private static func normalized(_ radians: Self) -> Self {
+        var normalizedRadians = radians
+
+        while normalizedRadians > Self.pi {
+            normalizedRadians -= 2 * Self.pi
+        }
+
+        while normalizedRadians < -Self.pi {
+            normalizedRadians += 2 * Self.pi
+        }
+
+        return normalizedRadians
+    }
+}
+
+public extension Angle {
     /// See also:
     /// -
     /// `ElementaryFunctions.acos()`
