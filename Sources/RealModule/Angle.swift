@@ -14,23 +14,26 @@
 ///
 /// All trigonometric functions expect the argument to be passed as radians (Real), but this is not enforced by the type system.
 /// This type serves exactly this purpose, and can be seen as an alternative to the underlying Real implementation.
-public struct Angle<T: Real> {
+public struct Angle<T: Real & BinaryFloatingPoint> {
     public var radians: T
     public init(radians: T) { self.radians = radians }
     public static func radians(_ val: T) -> Angle<T> { .init(radians: val) }
     
     public var degrees: T { radians * 180 / .pi }
-    public init(degrees: T) { self.init(radians: degrees * .pi / 180) }
+    public init(degrees: T) {
+        let normalized = normalize(degrees, limit: 180)
+        self.init(radians: normalized * .pi / 180)
+    }
     public static func degrees(_ val: T) -> Angle<T> { .init(degrees: val) }
 }
 
 public extension ElementaryFunctions
-where Self: Real {
+where Self: Real & BinaryFloatingPoint {
     /// See also:
     /// -
     /// `ElementaryFunctions.cos()`
     static func cos(_ angle: Angle<Self>) -> Self {
-        let normalizedRadians = normalized(angle.radians)
+        let normalizedRadians = normalize(angle.radians, limit: .pi)
         
         if -.pi/4 < normalizedRadians && normalizedRadians < .pi/4 {
             return Self.cos(normalizedRadians)
@@ -56,20 +59,6 @@ where Self: Real {
     /// -
     /// `ElementaryFunctions.tan()`
     static func tan(_ angle: Angle<Self>) -> Self { Self.tan(angle.radians) }
-    
-    private static func normalized(_ radians: Self) -> Self {
-        var normalizedRadians = radians
-
-        while normalizedRadians > Self.pi {
-            normalizedRadians -= 2 * Self.pi
-        }
-
-        while normalizedRadians < -Self.pi {
-            normalizedRadians += 2 * Self.pi
-        }
-
-        return normalizedRadians
-    }
 }
 
 public extension Angle {
@@ -92,4 +81,19 @@ public extension Angle {
     /// -
     /// `RealFunctions.atan2()`
     static func atan2(y: T, x: T) -> Self { Angle.radians(T.atan2(y: y, x: x)) }
+}
+
+private func normalize<T>(_ input: T, limit: T) -> T
+where T: Real & BinaryFloatingPoint {
+    var normalized = input
+    
+    while normalized > limit {
+        normalized -= 2 * limit
+    }
+    
+    while normalized < -limit {
+        normalized += 2 * limit
+    }
+    
+    return normalized
 }
