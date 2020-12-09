@@ -72,7 +72,6 @@ where Self: Real & BinaryFloatingPoint {
             return -Self.sin(.pi + normalizedRadians)
         }
         
-        
         return Self.sin(normalizedRadians)
     }
     
