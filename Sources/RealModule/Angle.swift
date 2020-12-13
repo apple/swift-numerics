@@ -14,7 +14,7 @@
 ///
 /// All trigonometric functions expect the argument to be passed as radians (Real), but this is not enforced by the type system.
 /// This type serves exactly this purpose, and can be seen as an alternative to the underlying Real implementation.
-public struct Angle<T: Real & BinaryFloatingPoint> {
+public struct Angle<T: Real> {
     public var radians: T
     public init(radians: T) { self.radians = radians }
     public static func radians(_ val: T) -> Angle<T> { .init(radians: val) }
@@ -28,7 +28,7 @@ public struct Angle<T: Real & BinaryFloatingPoint> {
 }
 
 public extension ElementaryFunctions
-where Self: Real & BinaryFloatingPoint {
+where Self: Real {
     /// See also:
     /// -
     /// `ElementaryFunctions.cos()`
@@ -117,7 +117,7 @@ public extension Angle {
 }
 
 private func normalize<T>(_ input: T, limit: T) -> T
-where T: Real & BinaryFloatingPoint {
+where T: Real {
     var normalized = input
     
     while normalized > limit {
