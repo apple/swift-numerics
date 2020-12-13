@@ -116,6 +116,50 @@ public extension Angle {
     static func atan2(y: T, x: T) -> Self { Angle.radians(T.atan2(y: y, x: x)) }
 }
 
+extension Angle: AdditiveArithmetic {
+    public static var zero: Angle<T> { .radians(0) }
+    
+    public static func + (lhs: Angle<T>, rhs: Angle<T>) -> Angle<T> {
+        Angle(radians: lhs.radians + rhs.radians)
+    }
+    
+    public static func += (lhs: inout Angle<T>, rhs: Angle<T>) {
+        lhs.radians += rhs.radians
+    }
+    
+    public static func - (lhs: Angle<T>, rhs: Angle<T>) -> Angle<T> {
+        Angle(radians: lhs.radians - rhs.radians)
+    }
+    
+    public static func -= (lhs: inout Angle<T>, rhs: Angle<T>) {
+        lhs.radians -= rhs.radians
+    }
+}
+
+public extension Angle {
+    static func * (lhs: Angle<T>, rhs: T) -> Angle<T> {
+        Angle(radians: lhs.radians * rhs)
+    }
+    
+    static func *= (lhs: inout Angle<T>, rhs: T) {
+        lhs.radians *= rhs
+    }
+    
+    static func * (lhs: T, rhs: Angle<T>) -> Angle<T> {
+        Angle(radians: rhs.radians * lhs)
+    }
+    
+    static func / (lhs: Angle<T>, rhs: T) -> Angle<T> {
+        assert(rhs != 0)
+        return Angle(radians: lhs.radians / rhs)
+    }
+    
+    static func /= (lhs: inout Angle<T>, rhs: T) {
+        assert(rhs != 0)
+        lhs.radians /= rhs
+    }
+}
+
 private func normalize<T>(_ input: T, limit: T) -> T
 where T: Real {
     var normalized = input
