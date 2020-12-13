@@ -160,6 +160,12 @@ public extension Angle {
     }
 }
 
+extension Angle: Equatable {
+    public static func == (lhs: Angle<T>, rhs: Angle<T>) -> Bool {
+        lhs.radians.isApproximatelyEqual(to: rhs.radians)
+    }
+}
+
 private func normalize<T>(_ input: T, limit: T) -> T
 where T: Real {
     var normalized = input

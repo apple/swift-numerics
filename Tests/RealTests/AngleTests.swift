@@ -103,7 +103,23 @@ where Self: BinaryFloatingPoint {
         XCTAssertEqual(0, tan(Angle<Self>(degrees: 180)))
         XCTAssertEqual(-.infinity, tan(Angle<Self>(degrees: 270)))
         XCTAssertEqual(0, tan(Angle<Self>(degrees: 360)))
-        
+    }
+    
+    static func additiveArithmeticTests() {
+        var angle = Angle(degrees: 30)
+        XCTAssertEqual(Angle(degrees: 50), angle + Angle(degrees: 20))
+        XCTAssertEqual(Angle(degrees: 10), angle - Angle(degrees: 20))
+        XCTAssertEqual(Angle(degrees: 60), angle * 2)
+        XCTAssertEqual(Angle(degrees: 60), 2 * angle)
+        XCTAssertEqual(Angle(degrees: 15), angle / 2)
+        angle += Angle(degrees: 10)
+        XCTAssertEqual(Angle(degrees: 40), angle)
+        angle -= Angle(degrees: 20)
+        XCTAssertEqual(Angle(degrees: 20), angle)
+        angle *= 3
+        XCTAssertEqual(Angle(degrees: 60), angle)
+        angle /= 6
+        XCTAssertEqual(Angle(degrees: 10), angle)
     }
 }
 
@@ -114,6 +130,7 @@ final class AngleTests: XCTestCase {
             Float16.conversionBetweenRadiansAndDegreesChecks()
             Float16.trigonometricFunctionChecks()
             Float16.specialDegreesTrigonometricFunctionChecks()
+            Float16.additiveArithmeticTests()
         }
     }
     #endif
@@ -122,12 +139,14 @@ final class AngleTests: XCTestCase {
         Float.conversionBetweenRadiansAndDegreesChecks()
         Float.trigonometricFunctionChecks()
         Float.specialDegreesTrigonometricFunctionChecks()
+        Float.additiveArithmeticTests()
     }
     
     func testDouble() {
         Double.conversionBetweenRadiansAndDegreesChecks()
         Double.trigonometricFunctionChecks()
         Double.specialDegreesTrigonometricFunctionChecks()
+        Double.additiveArithmeticTests()
     }
     
     #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
@@ -135,6 +154,7 @@ final class AngleTests: XCTestCase {
         Float80.conversionBetweenRadiansAndDegreesChecks()
         Float80.trigonometricFunctionChecks()
         Float80.specialDegreesTrigonometricFunctionChecks()
+        Float80.additiveArithmeticTests()
     }
     #endif
 }
