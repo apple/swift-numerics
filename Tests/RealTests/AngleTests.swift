@@ -107,8 +107,8 @@ where Self: BinaryFloatingPoint {
     
     static func additiveArithmeticTests() {
         var angle = Angle(degrees: 30)
-        XCTAssertEqual(Angle(degrees: 50), angle + Angle(degrees: 20))
-        XCTAssertEqual(Angle(degrees: 10), angle - Angle(degrees: 20))
+        assertClose(50, (angle + Angle(degrees: 20)).degrees)
+        assertClose(10, (angle - Angle(degrees: 20)).degrees)
         XCTAssertEqual(Angle(degrees: 60), angle * 2)
         XCTAssertEqual(Angle(degrees: 60), 2 * angle)
         XCTAssertEqual(Angle(degrees: 15), angle / 2)
@@ -121,6 +121,18 @@ where Self: BinaryFloatingPoint {
         angle /= 6
         XCTAssertEqual(Angle(degrees: 10), angle)
     }
+    
+    static func rangeContainmentTests() {
+        let angle = Angle(degrees: 30)
+        XCTAssertTrue(angle.contained(in: Angle(degrees: 10)...Angle(degrees: 40)))
+        XCTAssertTrue(angle.contained(in: Angle(degrees: 10)...Angle(degrees: 30)))
+        XCTAssertTrue(angle.contained(in: Angle(degrees: 30)...Angle(degrees: 40)))
+        XCTAssertFalse(angle.contained(in: Angle(degrees: 10)...Angle(degrees: 20)))
+        XCTAssertFalse(angle.contained(in: Angle(degrees: 50)...Angle(degrees: 60)))
+        XCTAssertTrue(angle.contained(in: Angle(degrees: 30)..<Angle(degrees: 40)))
+        XCTAssertFalse(angle.contained(in: Angle(degrees: 10)..<Angle(degrees: 30)))
+        XCTAssertTrue(angle.contained(in: Angle(degrees: 10)..<Angle(degrees: 40)))
+    }
 }
 
 final class AngleTests: XCTestCase {
@@ -131,6 +143,7 @@ final class AngleTests: XCTestCase {
             Float16.trigonometricFunctionChecks()
             Float16.specialDegreesTrigonometricFunctionChecks()
             Float16.additiveArithmeticTests()
+            Float16.rangeContainmentTests()
         }
     }
     #endif
@@ -140,6 +153,7 @@ final class AngleTests: XCTestCase {
         Float.trigonometricFunctionChecks()
         Float.specialDegreesTrigonometricFunctionChecks()
         Float.additiveArithmeticTests()
+        Float.rangeContainmentTests()
     }
     
     func testDouble() {
@@ -147,6 +161,7 @@ final class AngleTests: XCTestCase {
         Double.trigonometricFunctionChecks()
         Double.specialDegreesTrigonometricFunctionChecks()
         Double.additiveArithmeticTests()
+        Double.rangeContainmentTests()
     }
     
     #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
@@ -155,6 +170,7 @@ final class AngleTests: XCTestCase {
         Float80.trigonometricFunctionChecks()
         Float80.specialDegreesTrigonometricFunctionChecks()
         Float80.additiveArithmeticTests()
+        Float80.rangeContainmentTests()
     }
     #endif
 }

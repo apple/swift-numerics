@@ -14,7 +14,7 @@
 ///
 /// All trigonometric functions expect the argument to be passed as radians (Real), but this is not enforced by the type system.
 /// This type serves exactly this purpose, and can be seen as an alternative to the underlying Real implementation.
-public struct Angle<T: Real> {
+public struct Angle<T: Real>: Equatable {
     public var radians: T
     public init(radians: T) { self.radians = radians }
     public static func radians(_ val: T) -> Angle<T> { .init(radians: val) }
@@ -160,9 +160,32 @@ public extension Angle {
     }
 }
 
-extension Angle: Equatable {
-    public static func == (lhs: Angle<T>, rhs: Angle<T>) -> Bool {
-        lhs.radians.isApproximatelyEqual(to: rhs.radians)
+public extension Angle {
+    /// Checks whether the current angle is contained within a given closed range.
+    ///
+    /// - Parameters:
+    ///
+    ///     - range: The closed angular range within which containment is checked.
+    func contained(in range: ClosedRange<Angle<T>>) -> Bool {
+        range.contains(self)
+    }
+    
+    /// Checks whether the current angle is contained within a given half-open range.
+    ///
+    /// - Parameters:
+    ///
+    ///     - range: The half-open angular range within which containment is checked.
+    func contained(in range: Range<Angle<T>>) -> Bool {
+        range.contains(self)
+    }
+}
+
+extension Angle: Comparable {
+    public static func < (lhs: Angle<T>, rhs: Angle<T>) -> Bool {
+        guard lhs != rhs else {
+            return false
+        }
+        return lhs.radians < rhs.radians
     }
 }
 
