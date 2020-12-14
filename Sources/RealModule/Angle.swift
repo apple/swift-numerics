@@ -27,12 +27,12 @@ public struct Angle<T: Real>: Equatable {
     public static func degrees(_ val: T) -> Angle<T> { .init(degrees: val) }
 }
 
-public extension ElementaryFunctions
+extension ElementaryFunctions
 where Self: Real {
     /// See also:
     /// -
     /// `ElementaryFunctions.cos()`
-    static func cos(_ angle: Angle<Self>) -> Self {
+    public static func cos(_ angle: Angle<Self>) -> Self {
         let normalizedRadians = normalize(angle.radians, limit: .pi)
         
         if -.pi/4 < normalizedRadians && normalizedRadians < .pi/4 {
@@ -53,7 +53,7 @@ where Self: Real {
     /// See also:
     /// -
     /// `ElementaryFunctions.sin()`
-    static func sin(_ angle: Angle<Self>) -> Self {
+    public static func sin(_ angle: Angle<Self>) -> Self {
         let normalizedRadians = normalize(angle.radians, limit: .pi)
         
         if .pi / 4 < normalizedRadians && normalizedRadians < 3 * .pi / 4 {
@@ -78,7 +78,7 @@ where Self: Real {
     /// See also:
     /// -
     /// `ElementaryFunctions.tan()`
-    static func tan(_ angle: Angle<Self>) -> Self {
+    public static func tan(_ angle: Angle<Self>) -> Self {
         let sine = sin(angle)
         let cosine = cos(angle)
         
@@ -94,26 +94,26 @@ where Self: Real {
     }
 }
 
-public extension Angle {
+extension Angle {
     /// See also:
     /// -
     /// `ElementaryFunctions.acos()`
-    static func acos(_ x: T) -> Self { Angle.radians(T.acos(x)) }
+    public static func acos(_ x: T) -> Self { Angle.radians(T.acos(x)) }
     
     /// See also:
     /// -
     /// `ElementaryFunctions.asin()`
-    static func asin(_ x: T) -> Self { Angle.radians(T.asin(x)) }
+    public static func asin(_ x: T) -> Self { Angle.radians(T.asin(x)) }
     
     /// See also:
     /// -
     /// `ElementaryFunctions.atan()`
-    static func atan(_ x: T) -> Self { Angle.radians(T.atan(x)) }
+    public static func atan(_ x: T) -> Self { Angle.radians(T.atan(x)) }
     
     /// See also:
     /// -
     /// `RealFunctions.atan2()`
-    static func atan2(y: T, x: T) -> Self { Angle.radians(T.atan2(y: y, x: x)) }
+    public static func atan2(y: T, x: T) -> Self { Angle.radians(T.atan2(y: y, x: x)) }
 }
 
 extension Angle: AdditiveArithmetic {
@@ -136,37 +136,37 @@ extension Angle: AdditiveArithmetic {
     }
 }
 
-public extension Angle {
-    static func * (lhs: Angle<T>, rhs: T) -> Angle<T> {
+extension Angle {
+    public static func * (lhs: Angle<T>, rhs: T) -> Angle<T> {
         Angle(radians: lhs.radians * rhs)
     }
     
-    static func *= (lhs: inout Angle<T>, rhs: T) {
+    public static func *= (lhs: inout Angle<T>, rhs: T) {
         lhs.radians *= rhs
     }
     
-    static func * (lhs: T, rhs: Angle<T>) -> Angle<T> {
+    public static func * (lhs: T, rhs: Angle<T>) -> Angle<T> {
         Angle(radians: rhs.radians * lhs)
     }
     
-    static func / (lhs: Angle<T>, rhs: T) -> Angle<T> {
+    public static func / (lhs: Angle<T>, rhs: T) -> Angle<T> {
         assert(rhs != 0)
         return Angle(radians: lhs.radians / rhs)
     }
     
-    static func /= (lhs: inout Angle<T>, rhs: T) {
+    public static func /= (lhs: inout Angle<T>, rhs: T) {
         assert(rhs != 0)
         lhs.radians /= rhs
     }
 }
 
-public extension Angle {
+extension Angle {
     /// Checks whether the current angle is contained within a given closed range.
     ///
     /// - Parameters:
     ///
     ///     - range: The closed angular range within which containment is checked.
-    func contained(in range: ClosedRange<Angle<T>>) -> Bool {
+    public func contained(in range: ClosedRange<Angle<T>>) -> Bool {
         range.contains(self)
     }
     
@@ -175,7 +175,7 @@ public extension Angle {
     /// - Parameters:
     ///
     ///     - range: The half-open angular range within which containment is checked.
-    func contained(in range: Range<Angle<T>>) -> Bool {
+    public func contained(in range: Range<Angle<T>>) -> Bool {
         range.contains(self)
     }
 }
