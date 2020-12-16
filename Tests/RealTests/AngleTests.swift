@@ -136,41 +136,34 @@ where Self: BinaryFloatingPoint {
 }
 
 final class AngleTests: XCTestCase {
+    private func execute<T: Real & BinaryFloatingPoint>(`for` Type: T.Type) {
+        Type.conversionBetweenRadiansAndDegreesChecks()
+        Type.trigonometricFunctionChecks()
+        Type.specialDegreesTrigonometricFunctionChecks()
+        Type.additiveArithmeticTests()
+        Type.rangeContainmentTests()
+    }
+    
+    
     #if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
     func testFloat16() {
         if #available(iOS 14.0, watchOS 14.0, tvOS 7.0, *) {
-            Float16.conversionBetweenRadiansAndDegreesChecks()
-            Float16.trigonometricFunctionChecks()
-            Float16.specialDegreesTrigonometricFunctionChecks()
-            Float16.additiveArithmeticTests()
-            Float16.rangeContainmentTests()
+            execute(for: Float16.self)
         }
     }
     #endif
     
     func testFloat() {
-        Float.conversionBetweenRadiansAndDegreesChecks()
-        Float.trigonometricFunctionChecks()
-        Float.specialDegreesTrigonometricFunctionChecks()
-        Float.additiveArithmeticTests()
-        Float.rangeContainmentTests()
+        execute(for: Float.self)
     }
     
     func testDouble() {
-        Double.conversionBetweenRadiansAndDegreesChecks()
-        Double.trigonometricFunctionChecks()
-        Double.specialDegreesTrigonometricFunctionChecks()
-        Double.additiveArithmeticTests()
-        Double.rangeContainmentTests()
+        execute(for: Double.self)
     }
     
     #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
     func testFloat80() {
-        Float80.conversionBetweenRadiansAndDegreesChecks()
-        Float80.trigonometricFunctionChecks()
-        Float80.specialDegreesTrigonometricFunctionChecks()
-        Float80.additiveArithmeticTests()
-        Float80.rangeContainmentTests()
+        execute(for: Float80.self)
     }
     #endif
 }
