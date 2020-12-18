@@ -15,16 +15,92 @@
 /// All trigonometric functions expect the argument to be passed as radians (Real), but this is not enforced by the type system.
 /// This type serves exactly this purpose, and can be seen as an alternative to the underlying Real implementation.
 public struct Angle<T: Real>: Equatable {
-    public var radians: T
-    public init(radians: T) { self.radians = radians }
-    public static func radians(_ val: T) -> Angle<T> { .init(radians: val) }
+    fileprivate init() {}
     
-    public var degrees: T { radians * 180 / .pi }
-    public init(degrees: T) {
-        let normalized = normalize(degrees, limit: 180)
-        self.init(radians: normalized * .pi / 180)
+    fileprivate init(degreesPart: T, radiansPart: T) {
+        self.degreesPart = degreesPart
+        self.radiansPart = radiansPart
     }
-    public static func degrees(_ val: T) -> Angle<T> { .init(degrees: val) }
+    
+    public init(radians: T) {
+        radiansPart = radians
+    }
+    
+    public static func radians(_ value: T) -> Angle<T> {
+        .init(radians: value)
+    }
+    
+    public init(degrees: T) {
+        degreesPart = degrees
+    }
+    
+    public static func degrees(_ value: T) -> Angle<T> {
+        .init(degrees: value)
+    }
+    
+    public var radians: T {
+        radiansPart + degreesPart.asRadians
+    }
+    
+    public var degrees: T {
+        radiansPart.asDegrees + degreesPart
+    }
+    
+    fileprivate var degreesPart: T = 0
+    
+    fileprivate var radiansPart: T = 0
+}
+
+extension Angle: AdditiveArithmetic {
+    public static var zero: Angle<T> { .init() }
+    
+    public static func + (lhs: Angle<T>, rhs: Angle<T>) -> Angle<T> {
+        .init(degreesPart: lhs.degreesPart + rhs.degreesPart,
+              radiansPart: lhs.radiansPart + rhs.radiansPart)
+    }
+    
+    public static func += (lhs: inout Angle<T>, rhs: Angle<T>) {
+        lhs.degreesPart += rhs.degreesPart
+        lhs.radiansPart += rhs.radiansPart
+    }
+    
+    public static func - (lhs: Angle<T>, rhs: Angle<T>) -> Angle<T> {
+        .init(degreesPart: lhs.degreesPart - rhs.degreesPart,
+              radiansPart: lhs.radiansPart - rhs.radiansPart)
+    }
+    
+    public static func -= (lhs: inout Angle<T>, rhs: Angle<T>) {
+        lhs.degreesPart -= rhs.degreesPart
+        lhs.radiansPart -= rhs.radiansPart
+    }
+}
+
+extension Angle {
+    public static func * (lhs: Angle<T>, rhs: T) -> Angle<T> {
+        .init(degreesPart: lhs.degreesPart * rhs,
+              radiansPart: lhs.radiansPart * rhs)
+    }
+    
+    public static func *= (lhs: inout Angle<T>, rhs: T) {
+        lhs.degreesPart *= rhs
+        lhs.radiansPart *= rhs
+    }
+    
+    public static func * (lhs: T, rhs: Angle<T>) -> Angle<T> {
+        return rhs * lhs
+    }
+    
+    public static func / (lhs: Angle<T>, rhs: T) -> Angle<T> {
+        assert(rhs != 0)
+        return .init(degreesPart: lhs.degreesPart / rhs,
+                     radiansPart: lhs.radiansPart / rhs)
+    }
+    
+    public static func /= (lhs: inout Angle<T>, rhs: T) {
+        assert(rhs != 0)
+        lhs.degreesPart /= rhs
+        lhs.radiansPart /= rhs
+    }
 }
 
 extension ElementaryFunctions
@@ -33,173 +109,229 @@ where Self: Real {
     /// -
     /// `ElementaryFunctions.cos()`
     public static func cos(_ angle: Angle<Self>) -> Self {
-        let normalizedRadians = normalize(angle.radians, limit: .pi)
-        
-        if -.pi/4 < normalizedRadians && normalizedRadians < .pi/4 {
-            return Self.cos(normalizedRadians)
-        }
-        
-        if normalizedRadians > 3 * .pi / 4 || normalizedRadians < -3 * .pi / 4 {
-            return -Self.cos(.pi - normalizedRadians)
-        }
-        
-        if normalizedRadians >= 0 {
-            return Self.sin(.pi/2 - normalizedRadians)
-        }
-        
-        return Self.sin(normalizedRadians + .pi / 2)
+        let degrees = angle.normalizedDegrees()
+        let cosa = cosd(degrees)
+        let cosb = cos(angle.radiansPart)
+        let sina = sind(degrees)
+        let sinb = sin(angle.radiansPart)
+        return cosa * cosb - sina * sinb
     }
     
+    private static func cosd(_ degrees: Self) -> Self {
+        let (exactPart, rest) = degrees.extractParts()
+        guard let knownAngle = exactPart else {
+            return cos(rest.asRadians)
+        }
+        let (cosa, sina) = getKnownTrigonometry(for: knownAngle)
+        let cosb = cosd(rest)
+        let sinb = sind(rest)
+        return cosa * cosb - sina * sinb
+    }
+}
+
+extension ElementaryFunctions
+where Self: Real {
     /// See also:
     /// -
     /// `ElementaryFunctions.sin()`
     public static func sin(_ angle: Angle<Self>) -> Self {
-        let normalizedRadians = normalize(angle.radians, limit: .pi)
-        
-        if .pi / 4 < normalizedRadians && normalizedRadians < 3 * .pi / 4 {
-            return Self.sin(normalizedRadians)
-        }
-        
-        if -3 * .pi / 4 < normalizedRadians && normalizedRadians < -.pi / 4 {
-            return -Self.sin(-normalizedRadians)
-        }
-
-        if normalizedRadians > 3 * .pi / 4 {
-            return Self.sin(.pi - normalizedRadians)
-        }
-        
-        if normalizedRadians < -3 * .pi / 4 {
-            return -Self.sin(.pi + normalizedRadians)
-        }
-        
-        return Self.sin(normalizedRadians)
+        let degrees = angle.normalizedDegrees()
+        let cosa = cosd(degrees)
+        let cosb = cos(angle.radiansPart)
+        let sina = sind(degrees)
+        let sinb = sin(angle.radiansPart)
+        return sina * cosb + cosa * sinb
     }
     
-    /// See also:
-    /// -
-    /// `ElementaryFunctions.tan()`
-    public static func tan(_ angle: Angle<Self>) -> Self {
-        let sine = sin(angle)
-        let cosine = cos(angle)
-        
-        guard cosine != 0 else {
-            var result = Self.infinity
-            if sine.sign == .minus {
-                result.negate()
-            }
-            return result
+    private static func sind(_ degrees: Self) -> Self {
+        let (exactPart, rest) = degrees.extractParts()
+        guard let knownAngle = exactPart else {
+            return sin(rest.asRadians)
         }
-        
-        return sine / cosine
+        let (cosa, sina) = getKnownTrigonometry(for: knownAngle)
+        let cosb = cosd(rest)
+        let sinb = sind(rest)
+        return sina * cosb + cosa * sinb
     }
+    
+    //
+    //    /// See also:
+    //    /// -
+    //    /// `ElementaryFunctions.tan()`
+    //    public static func tan(_ angle: Angle<Self>) -> Self {
+    //        let sine = sin(angle)
+    //        let cosine = cos(angle)
+    //
+    //        guard cosine != 0 else {
+    //            var result = Self.infinity
+    //            if sine.sign == .minus {
+    //                result.negate()
+    //            }
+    //            return result
+    //        }
+    //
+    //        return sine / cosine
+    //    }
+}
+
+extension ElementaryFunctions
+where Self: Real {
+    fileprivate static func getKnownTrigonometry(`for` degrees: Self) -> (cos: Self, sin: Self) {
+        let knownTrigonometry = commonAngleConversions().first(where: { $0.degrees == degrees.magnitude })!
+        return (knownTrigonometry.cos, knownTrigonometry.sin * degrees.realSign)
+    }
+}
+
+//extension Angle {
+//    /// See also:
+//    /// -
+//    /// `ElementaryFunctions.acos()`
+//    public static func acos(_ x: T) -> Self { Angle.radians(T.acos(x)) }
+//
+//    /// See also:
+//    /// -
+//    /// `ElementaryFunctions.asin()`
+//    public static func asin(_ x: T) -> Self { Angle.radians(T.asin(x)) }
+//
+//    /// See also:
+//    /// -
+//    /// `ElementaryFunctions.atan()`
+//    public static func atan(_ x: T) -> Self { Angle.radians(T.atan(x)) }
+//
+//    /// See also:
+//    /// -
+//    /// `RealFunctions.atan2()`
+//    public static func atan2(y: T, x: T) -> Self { Angle.radians(T.atan2(y: y, x: x)) }
+//}
+//
+//
+//extension Angle {
+//    /// Checks whether the current angle is contained within a given closed range.
+//    ///
+//    /// - Parameters:
+//    ///
+//    ///     - range: The closed angular range within which containment is checked.
+//    public func contained(in range: ClosedRange<Angle<T>>) -> Bool {
+//        range.contains(self)
+//    }
+//
+//    /// Checks whether the current angle is contained within a given half-open range.
+//    ///
+//    /// - Parameters:
+//    ///
+//    ///     - range: The half-open angular range within which containment is checked.
+//    public func contained(in range: Range<Angle<T>>) -> Bool {
+//        range.contains(self)
+//    }
+//}
+//
+//extension Angle {
+//    // “Is angle δ no more than angle ε away from angle ζ?”
+//}
+//
+//extension Angle: Comparable {
+//    public static func < (lhs: Angle<T>, rhs: Angle<T>) -> Bool {
+//        guard lhs != rhs else {
+//            return false
+//        }
+//        return lhs.radians < rhs.radians
+//    }
+//}
+//
+
+extension Real {
+    fileprivate var asRadians: Self { self * .pi / 180 }
+    
+    fileprivate var asDegrees: Self { self * 180 / .pi }
+    
+    fileprivate func extractParts()  -> (common: Self?, rest: Self) {
+        if let summandsAbove90 = extractParts(limit: 90) {
+            return (summandsAbove90.common, summandsAbove90.rest)
+        }
+        if let summandsAbove60 = extractParts(limit: 60) {
+            return (summandsAbove60.common, summandsAbove60.rest)
+        }
+        if let summandsAbove45 = extractParts(limit: 45) {
+            return (summandsAbove45.common, summandsAbove45.rest)
+        }
+        if let summandsAbove30 = extractParts(limit: 30) {
+            return (summandsAbove30.common, summandsAbove30.rest)
+        }
+        return (nil, self)
+    }
+    
+    private func extractParts(limit: Self)  -> DegreesSummands<Self>? {
+        guard self.magnitude >= limit else {
+            return nil
+        }
+        return DegreesSummands(common: realSign * limit,
+                               rest: realSign * (self.magnitude - limit))
+    }
+}
+
+private struct DegreesSummands<T: Real> {
+    let common: T
+    let rest: T
 }
 
 extension Angle {
-    /// See also:
-    /// -
-    /// `ElementaryFunctions.acos()`
-    public static func acos(_ x: T) -> Self { Angle.radians(T.acos(x)) }
-    
-    /// See also:
-    /// -
-    /// `ElementaryFunctions.asin()`
-    public static func asin(_ x: T) -> Self { Angle.radians(T.asin(x)) }
-    
-    /// See also:
-    /// -
-    /// `ElementaryFunctions.atan()`
-    public static func atan(_ x: T) -> Self { Angle.radians(T.atan(x)) }
-    
-    /// See also:
-    /// -
-    /// `RealFunctions.atan2()`
-    public static func atan2(y: T, x: T) -> Self { Angle.radians(T.atan2(y: y, x: x)) }
-}
-
-extension Angle: AdditiveArithmetic {
-    public static var zero: Angle<T> { .radians(0) }
-    
-    public static func + (lhs: Angle<T>, rhs: Angle<T>) -> Angle<T> {
-        Angle(radians: lhs.radians + rhs.radians)
+    fileprivate func normalizedDegrees() -> T {
+        normalize(\.degreesPart, limit: 180)
     }
     
-    public static func += (lhs: inout Angle<T>, rhs: Angle<T>) {
-        lhs.radians += rhs.radians
+    fileprivate func normalizedRadians() -> T {
+        normalize(\.radiansPart, limit: .pi)
     }
     
-    public static func - (lhs: Angle<T>, rhs: Angle<T>) -> Angle<T> {
-        Angle(radians: lhs.radians - rhs.radians)
-    }
-    
-    public static func -= (lhs: inout Angle<T>, rhs: Angle<T>) {
-        lhs.radians -= rhs.radians
-    }
-}
-
-extension Angle {
-    public static func * (lhs: Angle<T>, rhs: T) -> Angle<T> {
-        Angle(radians: lhs.radians * rhs)
-    }
-    
-    public static func *= (lhs: inout Angle<T>, rhs: T) {
-        lhs.radians *= rhs
-    }
-    
-    public static func * (lhs: T, rhs: Angle<T>) -> Angle<T> {
-        Angle(radians: rhs.radians * lhs)
-    }
-    
-    public static func / (lhs: Angle<T>, rhs: T) -> Angle<T> {
-        assert(rhs != 0)
-        return Angle(radians: lhs.radians / rhs)
-    }
-    
-    public static func /= (lhs: inout Angle<T>, rhs: T) {
-        assert(rhs != 0)
-        lhs.radians /= rhs
-    }
-}
-
-extension Angle {
-    /// Checks whether the current angle is contained within a given closed range.
-    ///
-    /// - Parameters:
-    ///
-    ///     - range: The closed angular range within which containment is checked.
-    public func contained(in range: ClosedRange<Angle<T>>) -> Bool {
-        range.contains(self)
-    }
-    
-    /// Checks whether the current angle is contained within a given half-open range.
-    ///
-    /// - Parameters:
-    ///
-    ///     - range: The half-open angular range within which containment is checked.
-    public func contained(in range: Range<Angle<T>>) -> Bool {
-        range.contains(self)
-    }
-}
-
-extension Angle: Comparable {
-    public static func < (lhs: Angle<T>, rhs: Angle<T>) -> Bool {
-        guard lhs != rhs else {
-            return false
+    private func normalize(_ path: KeyPath<Self, T>, limit: T) -> T {
+        var normalized = self[keyPath: path]
+        
+        while normalized > limit {
+            normalized -= 2 * limit
         }
-        return lhs.radians < rhs.radians
+        
+        while normalized < -limit {
+            normalized += 2 * limit
+        }
+        
+        return normalized
     }
 }
 
-private func normalize<T>(_ input: T, limit: T) -> T
-where T: Real {
-    var normalized = input
-    
-    while normalized > limit {
-        normalized -= 2 * limit
+private struct AccurateTrigonometry<T: Real> {
+    let degrees: T
+    let cos: T
+    let sin: T
+    let tan: T
+}
+
+private func commonAngleConversions<T: Real>() -> [AccurateTrigonometry<T>] {
+    [
+        AccurateTrigonometry(degrees:  0,
+                             cos: 1,
+                             sin: 0,
+                             tan: 0),
+        AccurateTrigonometry(degrees: 30,
+                             cos: T.sqrt(3)/2,
+                             sin: 1 / 2,
+                             tan: T.sqrt(3) / 3),
+        AccurateTrigonometry(degrees: 45,
+                             cos: T.sqrt(2) / 2,
+                             sin: T.sqrt(2) / 2,
+                             tan: 1),
+        AccurateTrigonometry(degrees: 60,
+                             cos: 1 / 2,
+                             sin: T.sqrt(3) / 2,
+                             tan: T.sqrt(3)),
+        AccurateTrigonometry(degrees: 90,
+                             cos: 0,
+                             sin: 1,
+                             tan: T.infinity),
+    ]
+}
+
+extension Real {
+    fileprivate var realSign: Self {
+        self > 0 ? 1 : -1
     }
-    
-    while normalized < -limit {
-        normalized += 2 * limit
-    }
-    
-    return normalized
 }
