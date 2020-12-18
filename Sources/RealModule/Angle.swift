@@ -109,22 +109,26 @@ where Self: Real {
     /// -
     /// `ElementaryFunctions.cos()`
     public static func cos(_ angle: Angle<Self>) -> Self {
-        let degrees = angle.normalizedDegrees()
+        let degrees = angle.normalizedDegreesPart()
         let cosa = cosd(degrees)
         let cosb = cos(angle.radiansPart)
         let sina = sind(degrees)
         let sinb = sin(angle.radiansPart)
-        return cosa * cosb - sina * sinb
+        return cossum(cosa, cosb, sina, sinb)
     }
     
     private static func cosd(_ degrees: Self) -> Self {
         let (exactPart, rest) = degrees.extractParts()
-        guard let knownAngle = exactPart else {
+        guard let exactAngle = exactPart else {
             return cos(rest.asRadians)
         }
-        let (cosa, sina) = getKnownTrigonometry(for: knownAngle)
+        let (cosa, sina) = getExactCosAndSin(for: exactAngle)
         let cosb = cosd(rest)
         let sinb = sind(rest)
+        return cossum(cosa, cosb, sina, sinb)
+    }
+    
+    private static func cossum(_ cosa: Self, _ cosb: Self, _ sina: Self, _ sinb: Self) -> Self {
         return cosa * cosb - sina * sinb
     }
 }
@@ -135,75 +139,99 @@ where Self: Real {
     /// -
     /// `ElementaryFunctions.sin()`
     public static func sin(_ angle: Angle<Self>) -> Self {
-        let degrees = angle.normalizedDegrees()
+        let degrees = angle.normalizedDegreesPart()
         let cosa = cosd(degrees)
         let cosb = cos(angle.radiansPart)
         let sina = sind(degrees)
         let sinb = sin(angle.radiansPart)
-        return sina * cosb + cosa * sinb
+        return sinsum(cosa, cosb, sina, sinb)
     }
     
     private static func sind(_ degrees: Self) -> Self {
         let (exactPart, rest) = degrees.extractParts()
-        guard let knownAngle = exactPart else {
+        guard let exactAngle = exactPart else {
             return sin(rest.asRadians)
         }
-        let (cosa, sina) = getKnownTrigonometry(for: knownAngle)
+        let (cosa, sina) = getExactCosAndSin(for: exactAngle)
         let cosb = cosd(rest)
         let sinb = sind(rest)
-        return sina * cosb + cosa * sinb
+        return sinsum(cosa, cosb, sina, sinb)
     }
     
-    //
-    //    /// See also:
-    //    /// -
-    //    /// `ElementaryFunctions.tan()`
-    //    public static func tan(_ angle: Angle<Self>) -> Self {
-    //        let sine = sin(angle)
-    //        let cosine = cos(angle)
-    //
-    //        guard cosine != 0 else {
-    //            var result = Self.infinity
-    //            if sine.sign == .minus {
-    //                result.negate()
-    //            }
-    //            return result
-    //        }
-    //
-    //        return sine / cosine
-    //    }
+    private static func sinsum(_ cosa: Self, _ cosb: Self, _ sina: Self, _ sinb: Self) -> Self {
+        return sina * cosb + cosa * sinb
+    }
 }
 
 extension ElementaryFunctions
 where Self: Real {
-    fileprivate static func getKnownTrigonometry(`for` degrees: Self) -> (cos: Self, sin: Self) {
-        let knownTrigonometry = commonAngleConversions().first(where: { $0.degrees == degrees.magnitude })!
-        return (knownTrigonometry.cos, knownTrigonometry.sin * degrees.realSign)
+    /// See also:
+    /// -
+    /// `ElementaryFunctions.tan()`
+    public static func tan(_ angle: Angle<Self>) -> Self {
+        let degrees = angle.normalizedDegreesPart()
+        let tana = tand(degrees)
+        let tanb = tan(angle.radiansPart)
+        return tansum(tana, tanb)
+    }
+    
+    private static func tand(_ degrees: Self) -> Self {
+        let (exactPart, rest) = degrees.extractParts()
+        guard let exactAngle = exactPart else {
+            return tan(rest.asRadians)
+        }
+        let tana = getExactTan(for: exactAngle)
+        let tanb = tand(rest)
+        return tansum(tana, tanb)
+    }
+    
+    private static func tansum(_ tana: Self, _ tanb: Self) -> Self {
+        switch (tana.isFinite, tanb) {
+        case (false, 0):
+            return tana
+        case (false, _):
+            return -1 / tanb
+        default:
+            return (tana + tanb) / (1 - tana * tanb)
+        }
     }
 }
 
-//extension Angle {
-//    /// See also:
-//    /// -
-//    /// `ElementaryFunctions.acos()`
-//    public static func acos(_ x: T) -> Self { Angle.radians(T.acos(x)) }
-//
-//    /// See also:
-//    /// -
-//    /// `ElementaryFunctions.asin()`
-//    public static func asin(_ x: T) -> Self { Angle.radians(T.asin(x)) }
-//
-//    /// See also:
-//    /// -
-//    /// `ElementaryFunctions.atan()`
-//    public static func atan(_ x: T) -> Self { Angle.radians(T.atan(x)) }
-//
-//    /// See also:
-//    /// -
-//    /// `RealFunctions.atan2()`
-//    public static func atan2(y: T, x: T) -> Self { Angle.radians(T.atan2(y: y, x: x)) }
-//}
-//
+extension ElementaryFunctions
+where Self: Real {
+    fileprivate static func getExactCosAndSin(for degrees: Self) -> (cos: Self, sin: Self) {
+        let knownTrigonometry = exactAngleConversions().first(where: { $0.degrees == degrees.magnitude })!
+        return (knownTrigonometry.cos, knownTrigonometry.sin * degrees.realSign)
+    }
+    
+    fileprivate static func getExactTan(for degrees: Self) -> Self {
+        let knownTrigonometry = exactAngleConversions().first(where: { $0.degrees == degrees.magnitude })!
+        return knownTrigonometry.tan * degrees.realSign
+    }
+}
+
+extension Angle {
+    /// See also:
+    /// -
+    /// `ElementaryFunctions.acos()`
+    public static func acos(_ x: T) -> Self { Angle.radians(T.acos(x)) }
+
+    /// See also:
+    /// -
+    /// `ElementaryFunctions.asin()`
+    public static func asin(_ x: T) -> Self { Angle.radians(T.asin(x)) }
+
+    /// See also:
+    /// -
+    /// `ElementaryFunctions.atan()`
+    public static func atan(_ x: T) -> Self { Angle.radians(T.atan(x)) }
+
+    /// See also:
+    /// -
+    /// `RealFunctions.atan2()`
+    public static func atan2(y: T, x: T) -> Self { Angle.radians(T.atan2(y: y, x: x)) }
+}
+
 //
 //extension Angle {
 //    /// Checks whether the current angle is contained within a given closed range.
@@ -228,16 +256,15 @@ where Self: Real {
 //extension Angle {
 //    // “Is angle δ no more than angle ε away from angle ζ?”
 //}
-//
-//extension Angle: Comparable {
-//    public static func < (lhs: Angle<T>, rhs: Angle<T>) -> Bool {
-//        guard lhs != rhs else {
-//            return false
-//        }
-//        return lhs.radians < rhs.radians
-//    }
-//}
-//
+
+extension Angle: Comparable {
+    public static func < (lhs: Angle<T>, rhs: Angle<T>) -> Bool {
+        guard lhs != rhs else {
+            return false
+        }
+        return lhs.radians < rhs.radians
+    }
+}
 
 extension Real {
     fileprivate var asRadians: Self { self * .pi / 180 }
@@ -246,16 +273,16 @@ extension Real {
     
     fileprivate func extractParts()  -> (common: Self?, rest: Self) {
         if let summandsAbove90 = extractParts(limit: 90) {
-            return (summandsAbove90.common, summandsAbove90.rest)
+            return (summandsAbove90.exact, summandsAbove90.rest)
         }
         if let summandsAbove60 = extractParts(limit: 60) {
-            return (summandsAbove60.common, summandsAbove60.rest)
+            return (summandsAbove60.exact, summandsAbove60.rest)
         }
         if let summandsAbove45 = extractParts(limit: 45) {
-            return (summandsAbove45.common, summandsAbove45.rest)
+            return (summandsAbove45.exact, summandsAbove45.rest)
         }
         if let summandsAbove30 = extractParts(limit: 30) {
-            return (summandsAbove30.common, summandsAbove30.rest)
+            return (summandsAbove30.exact, summandsAbove30.rest)
         }
         return (nil, self)
     }
@@ -264,22 +291,22 @@ extension Real {
         guard self.magnitude >= limit else {
             return nil
         }
-        return DegreesSummands(common: realSign * limit,
+        return DegreesSummands(exact: realSign * limit,
                                rest: realSign * (self.magnitude - limit))
     }
 }
 
 private struct DegreesSummands<T: Real> {
-    let common: T
+    let exact: T
     let rest: T
 }
 
 extension Angle {
-    fileprivate func normalizedDegrees() -> T {
+    fileprivate func normalizedDegreesPart() -> T {
         normalize(\.degreesPart, limit: 180)
     }
     
-    fileprivate func normalizedRadians() -> T {
+    fileprivate func normalizedRadiansPart() -> T {
         normalize(\.radiansPart, limit: .pi)
     }
     
@@ -298,32 +325,32 @@ extension Angle {
     }
 }
 
-private struct AccurateTrigonometry<T: Real> {
+private struct ExactTrigonometry<T: Real> {
     let degrees: T
     let cos: T
     let sin: T
     let tan: T
 }
 
-private func commonAngleConversions<T: Real>() -> [AccurateTrigonometry<T>] {
+private func exactAngleConversions<T: Real>() -> [ExactTrigonometry<T>] {
     [
-        AccurateTrigonometry(degrees:  0,
+        ExactTrigonometry(degrees:  0,
                              cos: 1,
                              sin: 0,
                              tan: 0),
-        AccurateTrigonometry(degrees: 30,
+        ExactTrigonometry(degrees: 30,
                              cos: T.sqrt(3)/2,
                              sin: 1 / 2,
                              tan: T.sqrt(3) / 3),
-        AccurateTrigonometry(degrees: 45,
+        ExactTrigonometry(degrees: 45,
                              cos: T.sqrt(2) / 2,
                              sin: T.sqrt(2) / 2,
                              tan: 1),
-        AccurateTrigonometry(degrees: 60,
+        ExactTrigonometry(degrees: 60,
                              cos: 1 / 2,
                              sin: T.sqrt(3) / 2,
                              tan: T.sqrt(3)),
-        AccurateTrigonometry(degrees: 90,
+        ExactTrigonometry(degrees: 90,
                              cos: 0,
                              sin: 1,
                              tan: T.infinity),
@@ -332,6 +359,9 @@ private func commonAngleConversions<T: Real>() -> [AccurateTrigonometry<T>] {
 
 extension Real {
     fileprivate var realSign: Self {
-        self > 0 ? 1 : -1
+        guard self.isFinite else {
+            return self == .infinity ? 1 : -1
+        }
+        return self > 0 ? 1 : -1
     }
 }
