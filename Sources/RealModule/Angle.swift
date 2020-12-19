@@ -214,22 +214,59 @@ extension Angle {
     /// See also:
     /// -
     /// `ElementaryFunctions.acos()`
-    public static func acos(_ x: T) -> Self { Angle.radians(T.acos(x)) }
+    public static func acos(_ x: T) -> Self {
+        guard let exactSolution = exactAngleConversions().first(where: {$0.cos == x.magnitude }) else {
+            return .radians(T.acos(x))
+        }
+        let degrees = x > 0
+            ?  exactSolution.degrees
+            : 180 - exactSolution.degrees
+        return .degrees(degrees)
+    }
 
     /// See also:
     /// -
     /// `ElementaryFunctions.asin()`
-    public static func asin(_ x: T) -> Self { Angle.radians(T.asin(x)) }
+    public static func asin(_ x: T) -> Self {
+        guard let exactSolution = exactAngleConversions().first(where: { $0.sin == x.magnitude }) else {
+            return .radians(T.asin(x))
+        }
+        return .degrees(exactSolution.degrees * x.realSign)
+    }
 
     /// See also:
     /// -
     /// `ElementaryFunctions.atan()`
-    public static func atan(_ x: T) -> Self { Angle.radians(T.atan(x)) }
+    public static func atan(_ x: T) -> Self {
+        guard let exactSolution = exactAngleConversions().first(where: { $0.tan == x.magnitude }) else {
+            return .radians(T.atan(x))
+        }
+        return .degrees(exactSolution.degrees * x.realSign)
+    }
 
     /// See also:
     /// -
     /// `RealFunctions.atan2()`
-    public static func atan2(y: T, x: T) -> Self { Angle.radians(T.atan2(y: y, x: x)) }
+    public static func atan2(y: T, x: T) -> Self {
+        let norm = (x*x + y*y).squareRoot()
+        assert(norm != 0)
+        let sin = y / norm
+        let cos = x / norm
+        guard let exactSolution = exactAngleConversions().first(where: { cos.magnitude.isApproximatelyEqual(to: $0.cos)
+                                                                    && sin.magnitude.isApproximatelyEqual(to:$0.sin) }) else {
+            return .radians(T.atan2(y: y, x: x))
+        }
+        if y >= 0 && x >= 0 {
+            return .degrees(exactSolution.degrees)
+        }
+        if y >= 0 && x < 0 {
+            return .degrees(180 - exactSolution.degrees)
+        }
+        if y < 0 && x >= 0 {
+            return .degrees(-exactSolution.degrees)
+        }
+        return .degrees(-180 + exactSolution.degrees)
+    }
 }
 
 //

@@ -26,18 +26,61 @@ where Self: BinaryFloatingPoint {
         assertClose(2 * Double(Self.pi) / 3, angleFromDegrees.radians)
     }
     
-//    static func trigonometricFunctionChecks() {
-//        assertClose(1.1863995522992575361931268186727044683, Angle<Self>.acos(0.375).radians)
-//        assertClose(0.3843967744956390830381948729670469737, Angle<Self>.asin(0.375).radians)
-//        assertClose(0.3587706702705722203959200639264604997, Angle<Self>.atan(0.375).radians)
-//        assertClose(0.54041950027058415544357836460859991,   Angle<Self>.atan2(y: 0.375, x: 0.625).radians)
-//
-//        assertClose(0.9305076219123142911494767922295555080, cos(Angle<Self>(radians: 0.375)))
-//        assertClose(0.3662725290860475613729093517162641571, sin(Angle<Self>(radians: 0.375)))
-//        assertClose(0.3936265759256327582294137871012180981, tan(Angle<Self>(radians: 0.375)))
-//    }
-//
-    static func specialDegreesTrigonometricFunctionChecks() {
+    static func inverseTrigonometricFunctionChecks() {
+        XCTAssertEqual(0, Angle<Self>.acos(1).degrees)
+        XCTAssertEqual(30, Angle<Self>.acos(sqrt(3)/2).degrees)
+        XCTAssertEqual(45, Angle<Self>.acos(sqrt(2)/2).degrees)
+        XCTAssertEqual(60, Angle<Self>.acos(0.5).degrees)
+        XCTAssertEqual(90, Angle<Self>.acos(0).degrees)
+        XCTAssertEqual(120, Angle<Self>.acos(-0.5).degrees)
+        XCTAssertEqual(135, Angle<Self>.acos(-sqrt(2)/2).degrees)
+        XCTAssertEqual(150, Angle<Self>.acos(-sqrt(3)/2).degrees)
+        XCTAssertEqual(180, Angle<Self>.acos(-1).degrees)
+        
+        XCTAssertEqual(-90, Angle<Self>.asin(-1).degrees)
+        XCTAssertEqual(-60, Angle<Self>.asin(-sqrt(3)/2).degrees)
+        XCTAssertEqual(-45, Angle<Self>.asin(-sqrt(2)/2).degrees)
+        XCTAssertEqual(-30, Angle<Self>.asin(-0.5).degrees)
+        XCTAssertEqual(0, Angle<Self>.asin(0).degrees)
+        XCTAssertEqual(30, Angle<Self>.asin(0.5).degrees)
+        XCTAssertEqual(45, Angle<Self>.asin(sqrt(2)/2).degrees)
+        XCTAssertEqual(60, Angle<Self>.asin(sqrt(3)/2).degrees)
+        XCTAssertEqual(90, Angle<Self>.asin(1).degrees)
+        
+        XCTAssertEqual(-90, Angle<Self>.atan(-.infinity).degrees)
+        XCTAssertEqual(-60, Angle<Self>.atan(-sqrt(3)).degrees)
+        XCTAssertEqual(-45, Angle<Self>.atan(-1).degrees)
+        XCTAssertEqual(-30, Angle<Self>.atan(-sqrt(3)/3).degrees)
+        XCTAssertEqual(0, Angle<Self>.atan(0).degrees)
+        XCTAssertEqual(30, Angle<Self>.atan(sqrt(3)/3).degrees)
+        XCTAssertEqual(45, Angle<Self>.atan(1).degrees)
+        XCTAssertEqual(60, Angle<Self>.atan(sqrt(3)).degrees)
+        XCTAssertEqual(90, Angle<Self>.atan(.infinity).degrees)
+        
+        XCTAssertEqual(-150, Angle<Self>.atan2(y:-sqrt(3), x:-3).degrees)
+        XCTAssertEqual(-135, Angle<Self>.atan2(y:-1, x:-1).degrees)
+        XCTAssertEqual(-120, Angle<Self>.atan2(y:-sqrt(3), x:-1).degrees)
+        XCTAssertEqual(-90, Angle<Self>.atan2(y:-1, x:0).degrees)
+        XCTAssertEqual(-60, Angle<Self>.atan2(y:-sqrt(3), x:1).degrees)
+        XCTAssertEqual(-45, Angle<Self>.atan2(y:-1, x:1).degrees)
+        XCTAssertEqual(-30, Angle<Self>.atan2(y:-sqrt(3), x:3).degrees)
+        XCTAssertEqual(0, Angle<Self>.atan2(y:0, x:1).degrees)
+        XCTAssertEqual(30, Angle<Self>.atan2(y:sqrt(3), x:3).degrees)
+        XCTAssertEqual(45, Angle<Self>.atan2(y:1, x:1).degrees)
+        XCTAssertEqual(60, Angle<Self>.atan2(y:sqrt(3), x:1).degrees)
+        XCTAssertEqual(90, Angle<Self>.atan2(y:1, x:0).degrees)
+        XCTAssertEqual(120, Angle<Self>.atan2(y:sqrt(3), x:-1).degrees)
+        XCTAssertEqual(135, Angle<Self>.atan2(y:1, x:-1).degrees)
+        XCTAssertEqual(150, Angle<Self>.atan2(y:sqrt(3), x:-3).degrees)
+        XCTAssertEqual(180, Angle<Self>.atan2(y:0, x:-1).degrees)
+        
+        assertClose(1.1863995522992575361931268186727044683, Angle<Self>.acos(0.375).radians)
+        assertClose(0.3843967744956390830381948729670469737, Angle<Self>.asin(0.375).radians)
+        assertClose(0.3587706702705722203959200639264604997, Angle<Self>.atan(0.375).radians)
+        assertClose(0.54041950027058415544357836460859991,   Angle<Self>.atan2(y: 0.375, x: 0.625).radians)
+    }
+
+    static func trigonometricFunctionChecks() {
         XCTAssertEqual(1, cos(Angle<Self>(degrees: -360)))
         XCTAssertEqual(0, cos(Angle<Self>(degrees: -270)))
         XCTAssertEqual(-1, cos(Angle<Self>(degrees: -180)))
@@ -103,6 +146,10 @@ where Self: BinaryFloatingPoint {
         XCTAssertEqual(0, tan(Angle<Self>(degrees: 180)))
         XCTAssertEqual(-.infinity, tan(Angle<Self>(degrees: 270)))
         XCTAssertEqual(0, tan(Angle<Self>(degrees: 360)))
+        
+        assertClose(0.9305076219123142911494767922295555080, cos(Angle<Self>(radians: 0.375)))
+        assertClose(0.3662725290860475613729093517162641571, sin(Angle<Self>(radians: 0.375)))
+        assertClose(0.3936265759256327582294137871012180981, tan(Angle<Self>(radians: 0.375)))
     }
 
     static func additiveArithmeticTests() {
@@ -145,8 +192,8 @@ where Self: BinaryFloatingPoint {
 final class AngleTests: XCTestCase {
     private func execute<T: Real & BinaryFloatingPoint>(`for` Type: T.Type) {
         Type.conversionBetweenRadiansAndDegreesChecks()
-//        Type.trigonometricFunctionChecks()
-        Type.specialDegreesTrigonometricFunctionChecks()
+        Type.inverseTrigonometricFunctionChecks()
+        Type.trigonometricFunctionChecks()
         Type.additiveArithmeticTests()
 //        Type.rangeContainmentTests()
     }
