@@ -269,30 +269,64 @@ extension Angle {
     }
 }
 
-//
-//extension Angle {
-//    /// Checks whether the current angle is contained within a given closed range.
-//    ///
-//    /// - Parameters:
-//    ///
-//    ///     - range: The closed angular range within which containment is checked.
-//    public func contained(in range: ClosedRange<Angle<T>>) -> Bool {
-//        range.contains(self)
-//    }
-//
-//    /// Checks whether the current angle is contained within a given half-open range.
-//    ///
-//    /// - Parameters:
-//    ///
-//    ///     - range: The half-open angular range within which containment is checked.
-//    public func contained(in range: Range<Angle<T>>) -> Bool {
-//        range.contains(self)
-//    }
-//}
-//
-//extension Angle {
-//    // “Is angle δ no more than angle ε away from angle ζ?”
-//}
+
+extension Angle {
+    /// Checks whether the current angle is contained within a range, defined from a start and end angle.
+    ///
+    /// The comparison is performed based on the equivalent normalized angles in [-π, π].
+    ///
+    /// Examples:
+    ///
+    /// ```swift
+    /// let angle = Angle(degrees: 175)
+    ///
+    /// // returns true
+    /// angle.isInRange(start: Angle(degrees: 170), end:Angle(degrees: -170))
+    ///
+    /// // returns false
+    /// angle.isInRange(start: Angle(degrees: -170), end:Angle(degrees: 170))
+    ///
+    /// // returns true
+    /// angle.isInRange(start: Angle(degrees: 170), end:Angle(degrees: 180))
+    ///
+    /// // returns false
+    /// angle.isInRange(start: Angle(degrees: 30), end:Angle(degrees: 60))
+    /// ```
+    ///
+    /// - Parameters:
+    ///
+    ///     - start: The start of the range, within which containment is checked.
+    ///
+    ///     - end: The end of the range, within which containment is checked.
+    public func isInRange(start: Angle<T>, end: Angle<T>) -> Bool {
+        let fullNormalized = normalize(value: degrees, limit: 180)
+        let normalizedStart = normalize(value: start.degrees, limit: 180)
+        var normalizedEnd = normalize(value: end.degrees, limit: 180)
+        if normalizedEnd < normalizedStart {
+            normalizedEnd += 360
+        }
+        return (normalizedStart <= fullNormalized && fullNormalized <= normalizedEnd)
+        || (normalizedStart <= fullNormalized + 360 && fullNormalized + 360 <= normalizedEnd)
+    }
+}
+
+extension Angle {
+    /// Checks whether the current angle is close to another angle within a given tolerance
+    ///
+    /// - Precondition: `tolerance` must positive, otherwise the return value is always  false
+    ///
+    /// - Parameters:
+    ///
+    ///     - other: the angle from which the distance is controlled.
+    ///
+    ///     - tolerance: the tolerance around `other` for which the result will be true
+    ///
+    /// - Returns: `true` if the current angle falls within the range ```[self - tolerance, self + tolerance]```, otherwise false
+    public func isClose(to other: Angle<T>, tolerance: Angle<T>) -> Bool {
+        precondition(tolerance.degrees >= 0)
+        return isInRange(start: other - tolerance, end: other + tolerance)
+    }
+}
 
 extension Angle: Comparable {
     public static func < (lhs: Angle<T>, rhs: Angle<T>) -> Bool {
@@ -340,15 +374,11 @@ private struct DegreesSummands<T: Real> {
 
 extension Angle {
     fileprivate func normalizedDegreesPart() -> T {
-        normalize(\.degreesPart, limit: 180)
+        normalize(value: degreesPart, limit: 180)
     }
     
-    fileprivate func normalizedRadiansPart() -> T {
-        normalize(\.radiansPart, limit: .pi)
-    }
-    
-    private func normalize(_ path: KeyPath<Self, T>, limit: T) -> T {
-        var normalized = self[keyPath: path]
+    fileprivate func normalize(value: T, limit: T) -> T {
+        var normalized = value
         
         while normalized > limit {
             normalized -= 2 * limit

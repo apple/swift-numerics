@@ -175,18 +175,40 @@ where Self: BinaryFloatingPoint {
         angle /= 6
         XCTAssertEqual(Angle(degrees: 10), angle)
     }
-//
-//    static func rangeContainmentTests() {
-//        let angle = Angle(degrees: 30)
-//        XCTAssertTrue(angle.contained(in: Angle(degrees: 10)...Angle(degrees: 40)))
-//        XCTAssertTrue(angle.contained(in: Angle(degrees: 10)...Angle(degrees: 30)))
-//        XCTAssertTrue(angle.contained(in: Angle(degrees: 30)...Angle(degrees: 40)))
-//        XCTAssertFalse(angle.contained(in: Angle(degrees: 10)...Angle(degrees: 20)))
-//        XCTAssertFalse(angle.contained(in: Angle(degrees: 50)...Angle(degrees: 60)))
-//        XCTAssertTrue(angle.contained(in: Angle(degrees: 30)..<Angle(degrees: 40)))
-//        XCTAssertFalse(angle.contained(in: Angle(degrees: 10)..<Angle(degrees: 30)))
-//        XCTAssertTrue(angle.contained(in: Angle(degrees: 10)..<Angle(degrees: 40)))
-//    }
+
+    static func rangeContainmentTests() {
+        let angle175Deg = Angle(degrees: -5) + Angle.radians(Self.pi)
+        let angle170Deg = Angle(degrees: 350) + Angle.radians(-Self.pi)
+        let angleMinus170Deg = Angle(degrees: -350) + Angle.radians(Self.pi)
+        
+        XCTAssertTrue(angle175Deg.isInRange(start: angle170Deg, end: angleMinus170Deg))
+        XCTAssertTrue(Angle(degrees: -175).isInRange(start: angle170Deg, end: angleMinus170Deg))
+        
+        XCTAssertFalse(angle175Deg.isInRange(start: angleMinus170Deg, end: angle170Deg))
+        XCTAssertFalse(Angle(degrees: -175).isInRange(start: angleMinus170Deg, end: angle170Deg))
+        
+        XCTAssertTrue(Angle(degrees: 10).isInRange(start: Angle(degrees: 10), end: Angle(degrees: 60)))
+        XCTAssertTrue(Angle(degrees: 60).isInRange(start: Angle(degrees: 10), end: Angle(degrees: 60)))
+        XCTAssertTrue(Angle(degrees: 30).isInRange(start: Angle(degrees: 10), end: Angle(degrees: 60)))
+        
+        XCTAssertFalse(Angle(degrees: 0).isInRange(start: Angle(degrees: 10), end: Angle(degrees: 60)))
+        XCTAssertFalse(Angle(degrees: 70).isInRange(start: Angle(degrees: 10), end: Angle(degrees: 60)))
+    }
+    
+    static func distanceChecks() {
+        let angle175Deg = Angle(degrees: -5) + Angle.radians(Self.pi)
+        let angle170Deg = Angle(degrees: 350) + Angle.radians(-Self.pi)
+        let angleMinus170Deg = Angle(degrees: -350) + Angle.radians(Self.pi)
+        
+        XCTAssertFalse(angle170Deg.isClose(to: angle175Deg, tolerance: Angle<Self>(degrees: 2)))
+        XCTAssertFalse(angle175Deg.isClose(to: angle170Deg, tolerance: Angle<Self>(degrees: 2)))
+        
+        XCTAssertTrue(angle170Deg.isClose(to: angle175Deg, tolerance: Angle<Self>(degrees: 10)))
+        XCTAssertTrue(angle175Deg.isClose(to: angle170Deg, tolerance: Angle<Self>(degrees: 5)))
+        
+        XCTAssertTrue(angleMinus170Deg.isClose(to: angle175Deg, tolerance: Angle<Self>(degrees: 20)))
+        XCTAssertFalse(angleMinus170Deg.isClose(to: angle175Deg, tolerance: Angle<Self>(degrees: 10)))
+    }
 }
 
 final class AngleTests: XCTestCase {
@@ -195,7 +217,8 @@ final class AngleTests: XCTestCase {
         Type.inverseTrigonometricFunctionChecks()
         Type.trigonometricFunctionChecks()
         Type.additiveArithmeticTests()
-//        Type.rangeContainmentTests()
+        Type.rangeContainmentTests()
+        Type.distanceChecks()
     }
     
     
