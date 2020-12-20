@@ -105,9 +105,26 @@ extension Angle {
 
 extension ElementaryFunctions
 where Self: Real {
+    /// The cos of the angle.
+    ///
+    /// The degrees and radians parts are treated separately and then combined together
+    /// using standard trigonometric [identities].
+    ///
+    /// If possible, the degrees part is split into two subparts; one with exact trigonometric results
+    /// and another one, whose trigonometric value is calculated by using the equivalent radians
+    /// representation.
+    ///
+    /// This is done recursively, until the only subpart left is the one for which no known, exact
+    /// trigonometric value exists.
+    ///
+    /// Examples:
+    /// ```cos(Angle(degrees: 126)```
+    /// is split recursively in 90° (exact results), 30° (exact results) and 6° (0.10471975512 radians)
+    ///
     /// See also:
     /// -
     /// `ElementaryFunctions.cos()`
+    /// [identities]: https://en.wikipedia.org/wiki/List_of_trigonometric_identities#Angle_sum_and_difference_identities
     public static func cos(_ angle: Angle<Self>) -> Self {
         let degrees = angle.normalizedDegreesPart()
         let cosa = cosd(degrees)
@@ -117,6 +134,7 @@ where Self: Real {
         return cossum(cosa, cosb, sina, sinb)
     }
     
+    /// The cos of an angle in degrees, recursively searching in exact, tabulated results.
     private static func cosd(_ degrees: Self) -> Self {
         let (exactPart, rest) = degrees.extractParts()
         guard let exactAngle = exactPart else {
@@ -135,9 +153,26 @@ where Self: Real {
 
 extension ElementaryFunctions
 where Self: Real {
+    /// The cosine of the angle.
+    ///
+    /// The degrees and radians parts are treated separately and then combined together
+    /// using standard trigonometric [identities].
+    ///
+    /// If possible, the degrees part is split into two subparts; one with exact trigonometric results
+    /// and another one, whose trigonometric value is calculated by using the equivalent radians
+    /// representation.
+    ///
+    /// This is done recursively, until the only subpart left is the one for which no known, exact
+    /// trigonometric value exists.
+    ///
+    /// Examples:
+    /// ```cos(Angle(degrees: 126)```
+    /// is split recursively in 90° (exact results), 30° (exact results) and 6° (0.10471975512 radians)
+    ///
     /// See also:
     /// -
     /// `ElementaryFunctions.sin()`
+    /// [identities]: https://en.wikipedia.org/wiki/List_of_trigonometric_identities#Angle_sum_and_difference_identities
     public static func sin(_ angle: Angle<Self>) -> Self {
         let degrees = angle.normalizedDegreesPart()
         let cosa = cosd(degrees)
@@ -147,6 +182,7 @@ where Self: Real {
         return sinsum(cosa, cosb, sina, sinb)
     }
     
+    /// The sin of an angle in degrees, recursively searching in exact, tabulated results.
     private static func sind(_ degrees: Self) -> Self {
         let (exactPart, rest) = degrees.extractParts()
         guard let exactAngle = exactPart else {
@@ -165,9 +201,26 @@ where Self: Real {
 
 extension ElementaryFunctions
 where Self: Real {
+    /// The cosine of the angle.
+    ///
+    /// The degrees and radians parts are treated separately and then combined together
+    /// using standard trigonometric [identities].
+    ///
+    /// If possible, the degrees part is split into two subparts; one with exact trigonometric results
+    /// and another one, whose trigonometric value is calculated by using the equivalent radians
+    /// representation.
+    ///
+    /// This is done recursively, until the only subpart left is the one for which no known, exact
+    /// trigonometric value exists.
+    ///
+    /// Examples:
+    /// ```cos(Angle(degrees: 126)```
+    /// is split recursively in 90° (exact results), 30° (exact results) and 6° (0.10471975512 radians)
+    ///
     /// See also:
     /// -
     /// `ElementaryFunctions.tan()`
+    /// [identities]: https://en.wikipedia.org/wiki/List_of_trigonometric_identities#Angle_sum_and_difference_identities
     public static func tan(_ angle: Angle<Self>) -> Self {
         let degrees = angle.normalizedDegreesPart()
         let tana = tand(degrees)
@@ -175,6 +228,7 @@ where Self: Real {
         return tansum(tana, tanb)
     }
     
+    /// The tan of an angle in degrees, recursively searching in exact, tabulated results.
     private static func tand(_ degrees: Self) -> Self {
         let (exactPart, rest) = degrees.extractParts()
         guard let exactAngle = exactPart else {
@@ -244,12 +298,16 @@ extension Angle {
         return .degrees(exactSolution.degrees * x.realSign)
     }
 
+    /// The 2-argument atan function.
+    ///
+    ///- Precondition: `x` and `y` cannot be both 0 at the same time
+    ///
     /// See also:
     /// -
     /// `RealFunctions.atan2()`
     public static func atan2(y: T, x: T) -> Self {
-        let norm = (x*x + y*y).squareRoot()
-        assert(norm != 0)
+        let norm = (x * x + y * y).squareRoot()
+        precondition(norm != 0)
         let sin = y / norm
         let cos = x / norm
         guard let exactSolution = exactAngleConversions().first(where: { cos.magnitude.isApproximatelyEqual(to: $0.cos)
