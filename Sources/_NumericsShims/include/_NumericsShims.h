@@ -116,6 +116,21 @@ HEADER_SHIM float libm_exp2f(float x) {
 }
 
 #if __APPLE__
+HEADER_SHIM float libm_cospif(float x) {
+  extern float __cospif(float);
+  return __cospif(x);
+}
+
+HEADER_SHIM float libm_sinpif(float x) {
+  extern float __sinpif(float);
+  return __sinpif(x);
+}
+
+HEADER_SHIM float libm_tanpif(float x) {
+  extern float __tanpif(float);
+  return __tanpif(x);
+}
+
 HEADER_SHIM float libm_exp10f(float x) {
   extern float __exp10f(float);
   return __exp10f(x);
@@ -241,6 +256,21 @@ HEADER_SHIM double libm_exp2(double x) {
 }
 
 #if __APPLE__
+HEADER_SHIM double libm_cospi(double x) {
+  extern double __cospi(double);
+  return __cospi(x);
+}
+
+HEADER_SHIM double libm_sinpi(double x) {
+  extern double __sinpi(double);
+  return __sinpi(x);
+}
+
+HEADER_SHIM double libm_tanpi(double x) {
+  extern double __tanpi(double);
+  return __tanpi(x);
+}
+
 HEADER_SHIM double libm_exp10(double x) {
   extern double __exp10(double);
   return __exp10(x);

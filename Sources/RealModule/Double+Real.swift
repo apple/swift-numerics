@@ -109,6 +109,21 @@ extension Double: Real {
   
   #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
   @_transparent
+  public static func cos(piTimes x: Double) -> Double {
+    libm_cospi(x)
+  }
+  
+  @_transparent
+  public static func sin(piTimes x: Double) -> Double {
+    libm_sinpi(x)
+  }
+  
+  @_transparent
+  public static func tan(piTimes x: Double) -> Double {
+    libm_tanpi(x)
+  }
+  
+  @_transparent
   public static func exp10(_ x: Double) -> Double {
     libm_exp10(x)
   }

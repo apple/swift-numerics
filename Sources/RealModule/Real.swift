@@ -34,7 +34,92 @@ public protocol Real: FloatingPoint, RealFunctions, AlgebraicField {
 //  it does allow us to default the implementation of a few operations,
 //  and also provides `signGamma`.
 extension Real {
-  // Most math libraries do not provide exp10, so we need a default implementation.
+  
+  @_transparent
+  public static func cos(piTimes x: Self) -> Self {
+    // Cosine is even, so all we need is the magnitude.
+    let x = x.magnitude
+    // If x is not finite, the result is nan.
+    guard x.isFinite else { return .nan }
+    // If x is finite and at least .radix / .ulpOfOne, it is an even
+    // integer, which means that cos(piTimes: x) is 1.0
+    if x >= Self(Self.radix) / .ulpOfOne { return 1 }
+    // Break x up as x = n/2 + f where n is an integer. In binary, the
+    // following computation is always exact, and trivially gives the
+    // correct result.
+    // TODO: analyze and fixup for decimal types
+    let n = (2*x).rounded(.toNearestOrEven)
+    let f = x.addingProduct(-1/2, n)
+    // Because cosine is 2π-periodic, we don't actually care about
+    // most of n; we only need the two least significant bits of n
+    // represented as an integer:
+    let quadrant = n._lowWord & 0x3
+    switch quadrant {
+    case 0: return  cos(.pi * f)
+    case 1: return -sin(.pi * f)
+    case 2: return -cos(.pi * f)
+    case 3: return  sin(.pi * f)
+    default: fatalError()
+    }
+  }
+  
+  @_transparent
+  public static func sin(piTimes x: Self) -> Self {
+    // If x is not finite, the result is nan.
+    guard x.isFinite else { return .nan }
+    // If x.magnitude is finite and at least 1 / .ulpOfOne, it is an
+    // integer, which means that sin(piTimes: x) is ±0.0
+    if x.magnitude >= 1 / .ulpOfOne {
+      return Self(signOf: x, magnitudeOf: 0)
+    }
+    // Break x up as x = n/2 + f where n is an integer. In binary, the
+    // following computation is always exact, and trivially gives the
+    // correct result.
+    // TODO: analyze and fixup for decimal types
+    let n = (2*x).rounded(.toNearestOrEven)
+    let f = x.addingProduct(-1/2, n)
+    // Because sine is 2π-periodic, we don't actually care about
+    // most of n; we only need the two least significant bits of n
+    // represented as an integer:
+    let quadrant = n._lowWord & 0x3
+    switch quadrant {
+    case 0: return  sin(.pi * f)
+    case 1: return  cos(.pi * f)
+    case 2: return -sin(.pi * f)
+    case 3: return -cos(.pi * f)
+    default: fatalError()
+    }
+  }
+  
+  @_transparent
+  public static func tan(piTimes x: Self) -> Self {
+    // If x is not finite, the result is nan.
+    guard x.isFinite else { return .nan }
+    // TODO: choose policy for exact 0, 1, infinity cases and implement as
+    // appropriate.
+    // If x.magnitude is finite and at least .radix / .ulpOfOne, it is an
+    // even integer, which means that sin(piTimes: x) is ±0.0 and
+    // cos(piTimes: x) is 1.0.
+    if x.magnitude >= Self(Self.radix) / .ulpOfOne {
+      return Self(signOf: x, magnitudeOf: 0)
+    }
+    // Break x up as x = n/2 + f where n is an integer. In binary, the
+    // following computation is always exact, and trivially gives the
+    // correct result.
+    // TODO: analyze and fixup for decimal types
+    let n = (2*x).rounded(.toNearestOrEven)
+    let f = x.addingProduct(-1/2, n)
+    // Because tangent is π-periodic, we don't actually care about
+    // most of n; we only need the least significant bit of n represented
+    // as an integer:
+    let sector = n._lowWord & 0x1
+    switch sector {
+    case 0: return    tan(.pi * f)
+    case 1: return -1/tan(.pi * f)
+    default: fatalError()
+    }
+  }
+  
   @_transparent
   public static func exp10(_ x: Self) -> Self {
     return pow(10, x)
@@ -57,10 +142,10 @@ extension Real {
     if x >= 0 { return .plus }
     // For negative x, we arbitrarily choose to assign a sign of .plus to the
     // poles.
-    let trunc = x.rounded(.towardZero)
-    if x == trunc { return .plus }
+    let integralPart = x.rounded(.towardZero)
+    if x == integralPart { return .plus }
     // Otherwise, signGamma is .minus if the integral part of x is even.
-    return trunc.isEven ? .minus : .plus
+    return integralPart.isEven ? .minus : .plus
   }
   
   //  Determines if this value is even, assuming that it is an integer.
@@ -104,5 +189,26 @@ extension Real {
       return recip
     }
     return nil
+  }
+}
+
+// MARK: Implementation details
+extension Real where Self: BinaryFloatingPoint {
+  @_transparent
+  public var _lowWord: UInt {
+    // If magnitude is small enough, we can simply convert to Int64 and then
+    // wrap to UInt.
+    if magnitude < 0x1.0p63 {
+      return UInt(truncatingIfNeeded: Int64(self.rounded(.down)))
+    }
+    precondition(isFinite)
+    // Clear any bits above bit 63; the result of this expression is
+    // strictly in the range [0, 0x1p64). (Note that if we had not eliminated
+    // small magnitudes already, the range would include tiny negative values
+    // which would then produce the wrong result; the branch above is not
+    // only for performance.
+    let cleared = self - 0x1p64*(self * 0x1p-64).rounded(.down)
+    // Now we can unconditionally convert to UInt64, and then wrap to UInt.
+    return UInt(truncatingIfNeeded: UInt64(cleared))
   }
 }
