@@ -32,7 +32,7 @@ extension RealTests.ApproximateEqualityTests {
   ])
 }
 
-#if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
+#if swift(>=5.4) && !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
 extension ElementaryFunctionChecks {
   static var all = testCase([
     ("testFloat16", ElementaryFunctionChecks.testFloat16),
@@ -40,16 +40,7 @@ extension ElementaryFunctionChecks {
     ("testDouble", ElementaryFunctionChecks.testDouble),
   ])
 }
-#else
-extension ElementaryFunctionChecks {
-  static var all = testCase([
-    ("testFloat", ElementaryFunctionChecks.testFloat),
-    ("testDouble", ElementaryFunctionChecks.testDouble),
-  ])
-}
-#endif
 
-#if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
 extension IntegerExponentTests {
   static var all = testCase([
     ("testFloat16", IntegerExponentTests.testFloat16),
@@ -58,6 +49,13 @@ extension IntegerExponentTests {
   ])
 }
 #else
+extension ElementaryFunctionChecks {
+  static var all = testCase([
+    ("testFloat", ElementaryFunctionChecks.testFloat),
+    ("testDouble", ElementaryFunctionChecks.testDouble),
+  ])
+}
+
 extension IntegerExponentTests {
   static var all = testCase([
     ("testFloat", IntegerExponentTests.testFloat),
