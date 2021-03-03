@@ -11,11 +11,12 @@
 
 /// A type that models the real numbers.
 ///
-/// Types conforming to this protocol provide the arithmetic and utility operations defined by
-/// the `FloatingPoint` protocol, and provide all of the math functions defined by the
-/// `ElementaryFunctions` and `RealFunctions` protocols. This protocol does not
-/// add any additional conformances itself, but is very useful as a protocol against which to
-/// write generic code. For example, we can naturally write a generic version of the a sigmoid
+/// Types conforming to this protocol provide the arithmetic and utility
+/// operations defined by the `FloatingPoint` protocol, and provide all of the
+/// math functions defined by the `ElementaryFunctions` and `RealFunctions`
+/// protocols. This protocol does not add any additional conformances itself,
+/// but is very useful as a protocol against which to write generic code. For
+/// example, we can naturally write a generic implementation of a sigmoid
 /// function:
 /// ```
 /// func sigmoid<T: Real>(_ x: T) -> T {
@@ -34,7 +35,8 @@ public protocol Real: FloatingPoint, RealFunctions, AlgebraicField {
 //  it does allow us to default the implementation of a few operations,
 //  and also provides `signGamma`.
 extension Real {
-  // Most math libraries do not provide exp10, so we need a default implementation.
+  // Most math libraries do not provide exp10, so we need a default
+  // implementation.
   @_transparent
   public static func exp10(_ x: Self) -> Self {
     return pow(10, x)

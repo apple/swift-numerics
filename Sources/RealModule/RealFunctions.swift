@@ -53,7 +53,8 @@ public protocol RealFunctions: ElementaryFunctions {
   /// - `pow()`
   static func exp10(_ x: Self) -> Self
   
-  /// `sqrt(x*x + y*y)`, computed in a manner that avoids spurious overflow or underflow.
+  /// `sqrt(x*x + y*y)`, computed in a manner that avoids spurious overflow or
+  /// underflow.
   static func hypot(_ x: Self, _ y: Self) -> Self
   
   /// The gamma function Γ(x).
@@ -97,12 +98,12 @@ public protocol RealFunctions: ElementaryFunctions {
   
   /// The sign of the gamma function, Γ(x).
   ///
-  /// For `x >= 0`, `signGamma(x)` is `.plus`. For negative `x`, `signGamma(x)` is `.plus`
-  /// when `x` is an integer, and otherwise it is `.minus` whenever `trunc(x)` is even, and `.plus`
-  /// when `trunc(x)` is odd.
+  /// For `x >= 0`, `signGamma(x)` is `.plus`. For negative `x`, `signGamma(x)`
+  /// is `.plus` when `x` is an integer, and otherwise it is `.minus` whenever
+  /// `trunc(x)` is even, and `.plus` when `trunc(x)` is odd.
   ///
-  /// This function is used together with `logGamma`, which computes the logarithm of the
-  /// absolute value of Γ(x), to recover the sign information.
+  /// This function is used together with `logGamma`, which computes the
+  /// logarithm of the absolute value of Γ(x), to recover the sign information.
   ///
   /// Not available on Windows targets.
   ///

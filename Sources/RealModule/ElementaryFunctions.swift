@@ -24,18 +24,21 @@
 /// let y = Float.sin(x) // 0.84147096
 /// ```
 ///
-/// There are three broad families of functions defined by `ElementaryFunctions`:
+/// There are three broad families of functions defined by
+/// `ElementaryFunctions`:
 /// - Exponential, trigonometric, and hyperbolic functions:
 ///   `exp`, `expMinusOne`, `cos`, `sin`, `tan`, `cosh`, `sinh`, and `tanh`.
 /// - Logarithmic, inverse trigonometric, and inverse hyperbolic functions:
-///   `log`, `log(onePlus:)`, `acos`, `asin`, `atan`, `acosh`, `asinh`, and `atanh`.
+///   `log`, `log(onePlus:)`, `acos`, `asin`, `atan`, `acosh`, `asinh`, and
+///   `atanh`.
 /// - Power and root functions:
 ///   `pow`, `sqrt`, and `root`.
 ///
 /// `ElementaryFunctions` conformance implies `AdditiveArithmetic`, so addition
 /// and subtraction and the `.zero` property are also available.
 ///
-/// There are two other protocols that you are more likely to want to use directly:
+/// There are two other protocols that you are more likely to want to use
+/// directly:
 ///
 /// `RealFunctions` refines `ElementaryFunctions` and includes
 /// additional functions specific to real number types.
@@ -50,7 +53,8 @@
 ///
 /// [elfn]: http://en.wikipedia.org/wiki/Elementary_function
 public protocol ElementaryFunctions: AdditiveArithmetic {
-  /// The [exponential function][wiki] e^x whose base `e` is the base of the natural logarithm.
+  /// The [exponential function][wiki] e^x whose base `e` is the base of the
+  /// natural logarithm.
   ///
   /// See also:
   /// -
@@ -63,19 +67,20 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   
   /// exp(x) - 1, computed in such a way as to maintain accuracy for small x.
   ///
-  /// When `x` is close to zero, the expression `.exp(x) - 1` suffers from catastrophic
-  /// cancellation and the result will not have full accuracy. The `.expMinusOne(x)` function gives
-  /// you a means to address this problem.
+  /// When `x` is close to zero, the expression `.exp(x) - 1` suffers from
+  /// catastrophic cancellation and the result will not have full accuracy.
+  /// The `.expMinusOne(x)` function gives you a means to address this problem.
   ///
-  /// As an example, consider the expression `(x + 1)*exp(x) - 1`.  When `x` is smaller
-  /// than `.ulpOfOne`, this expression evaluates to `0.0`, when it should actually round to
-  /// `2*x`. We can get a full-accuracy result by using the following instead:
+  /// As an example, consider the expression `(x + 1)*exp(x) - 1`.  When `x`
+  /// is smaller than `.ulpOfOne`, this expression evaluates to `0.0`, when it
+  /// should actually round to `2*x`. We can get a full-accuracy result by
+  /// using the following instead:
   /// ```
   /// let t = .expMinusOne(x)
   /// return x*(t+1) + t       // x*exp(x) + (exp(x)-1) = (x+1)*exp(x) - 1
   /// ```
-  /// This re-written expression delivers an accurate result for all values of `x`, not just for
-  /// small values.
+  /// This re-written expression delivers an accurate result for all values
+  /// of `x`, not just for small values.
   ///
   /// See also:
   /// -
@@ -238,7 +243,8 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   
   /// The [arccosine][wiki] (inverse cosine) of `x`.
   ///
-  /// For real types, the result may be interpreted as an angle measured in radians.
+  /// For real types, the result may be interpreted as an angle measured in
+  /// radians.
   /// ```
   /// cos(acos(x)) ≅ x
   /// ```
@@ -253,7 +259,8 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   
   /// The [arcsine][wiki]  (inverse sine) of `x`.
   ///
-  /// For real types, the result may be interpreted as an angle measured in radians.
+  /// For real types, the result may be interpreted as an angle measured in
+  /// radians.
   /// ```
   /// sin(asin(x)) ≅ x
   /// ```
@@ -268,7 +275,8 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   
   /// The [arctangent][wiki]  (inverse tangent) of `x`.
   ///
-  /// For real types, the result may be interpreted as an angle measured in radians.
+  /// For real types, the result may be interpreted as an angle measured in
+  /// radians.
   /// ```
   /// tan(atan(x)) ≅ x
   /// ```

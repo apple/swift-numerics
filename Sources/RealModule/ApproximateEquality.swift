@@ -22,9 +22,10 @@ extension Numeric where Magnitude: FloatingPoint {
   /// ```
   ///
   /// The default value of `relativeTolerance` is `.ulpOfOne.squareRoot()`,
-  /// which corresponds to expecting "about half the digits" in the computed results to be good.
-  /// This is the usual guidance in numerical analysis, if you don't know anything about the
-  /// computation being performed, but is not suitable for all use cases.
+  /// which corresponds to expecting "about half the digits" in the computed
+  /// results to be good. This is the usual guidance in numerical analysis,
+  /// if you don't know anything about the computation being performed, but
+  /// is not suitable for all use cases.
   ///
   /// Mathematical Properties:
   /// ------------------------
@@ -34,16 +35,21 @@ extension Numeric where Magnitude: FloatingPoint {
   ///
   /// - `isApproximatelyEqual(to:relativeTolerance:norm:)` is _symmetric_.
   ///
-  /// - `isApproximatelyEqual(to:relativeTolerance:norm:)` is __not__ _transitive_.
-  ///   Because of this, approximately equality is __not an equivalence relation__,
-  ///   even when restricted to non-exceptional values.
+  /// - `isApproximatelyEqual(to:relativeTolerance:norm:)` is __not__
+  ///   _transitive_. Because of this, approximately equality is __not an
+  ///   equivalence relation__, even when restricted to non-exceptional values.
   ///
-  /// - For any point `a`, the set of values that compare approximately equal to `a` is _convex_.
-  ///   (Under the assumption that the `.magnitude` property implements a valid norm.)
+  ///   This means that you must not use approximate equality to implement
+  ///   a conformance to Equatable, as it will violate the invariants of
+  ///   code written against that protocol.
+  ///
+  /// - For any point `a`, the set of values that compare approximately equal
+  ///   to `a` is _convex_. (Under the assumption that the `.magnitude`
+  ///   property implements a valid norm.)
   ///
   /// - `isApproximatelyEqual(to:relativeTolerance:norm:)` is _scale invariant_,
-  ///   so long as no underflow or overflow has occured, and no exceptional value is produced
-  ///   by the scaling.
+  ///   so long as no underflow or overflow has occured, and no exceptional
+  ///   value is produced by the scaling.
   ///
   /// See Also:
   /// -------
@@ -57,8 +63,9 @@ extension Numeric where Magnitude: FloatingPoint {
   ///     Defaults to `.ulpOfOne.squareRoot()`.
   ///
   ///     This value should be non-negative and less than or equal to 1.
-  ///     This constraint on is only checked in debug builds, because a mathematically
-  ///     well-defined result exists for any tolerance, even one out of range.
+  ///     This constraint on is only checked in debug builds, because a
+  ///     mathematically well-defined result exists for any tolerance,
+  ///     even one out of range.
   ///
   ///   - norm: The [norm] to use for the comparison.
   ///     Defaults to `\.magnitude`.
@@ -99,13 +106,17 @@ extension Numeric where Magnitude: FloatingPoint {
   /// - `isApproximatelyEqual(to:absoluteTolerance:relativeTolerance:)`
   ///   is _symmetric_.
   ///
-  /// - `isApproximatelyEqual(to:absoluteTolerance:relativeTolerance:)`
-  ///   is __not__ _transitive_. Because of this, approximately equality is
-  ///   __not an equivalence relation__, even when restricted to non-exceptional values.
+  /// - `isApproximatelyEqual(to:relativeTolerance:norm:)` is __not__
+  ///   _transitive_. Because of this, approximately equality is __not an
+  ///   equivalence relation__, even when restricted to non-exceptional values.
   ///
-  /// - For any point `a`, the set of values that compare approximately equal to `a` is _convex_.
-  ///   (Under the assumption that `norm` implements a valid norm, which cannot be checked
-  ///   by this function.)
+  ///   This means that you must not use approximate equality to implement
+  ///   a conformance to Equatable, as it will violate the invariants of
+  ///   code written against that protocol.
+  ///
+  /// - For any point `a`, the set of values that compare approximately equal
+  ///   to `a` is _convex_. (Under the assumption that `norm` implements a
+  ///   valid norm, which cannot be checked by this function.)
   ///
   /// See Also:
   /// -------
@@ -118,15 +129,17 @@ extension Numeric where Magnitude: FloatingPoint {
   ///   - absoluteTolerance: The absolute tolerance to use in the comparison.
   ///
   ///     This value should be non-negative and finite.
-  ///     This constraint on is only checked in debug builds, because a mathematically
-  ///     well-defined result exists for any tolerance, even one out of range.
+  ///     This constraint on is only checked in debug builds, because a
+  ///     mathematically well-defined result exists for any tolerance,
+  ///     even one out of range.
   ///
   ///   - relativeTolerance: The relative tolerance to use in the comparison.
   ///     Defaults to zero.
   ///
   ///     This value should be non-negative and less than or equal to 1.
-  ///     This constraint on is only checked in debug builds, because a mathematically
-  ///     well-defined result exists for any tolerance, even one out of range.
+  ///     This constraint on is only checked in debug builds, because a
+  ///     mathematically well-defined result exists for any tolerance,
+  ///     even one out of range.
   @inlinable @inline(__always)
   public func isApproximatelyEqual(
     to other: Self,
@@ -143,7 +156,8 @@ extension Numeric where Magnitude: FloatingPoint {
 }
 
 extension AdditiveArithmetic {
-  /// Test if `self` and `other` are approximately equal with specified tolerances and norm.
+  /// Test if `self` and `other` are approximately equal with specified
+  /// tolerances and norm.
   ///
   /// `true` if `self` and `other` are equal, or if they are finite and either
   /// ```
@@ -166,11 +180,16 @@ extension AdditiveArithmetic {
   ///
   /// - `isApproximatelyEqual(to:absoluteTolerance:relativeTolerance:norm:)`
   ///   is __not__ _transitive_. Because of this, approximately equality is
-  ///   __not an equivalence relation__, even when restricted to non-exceptional values.
+  ///   __not an equivalence relation__, even when restricted to
+  ///   non-exceptional values.
   ///
-  /// - For any point `a`, the set of values that compare approximately equal to `a` is _convex_.
-  ///   (Under the assumption that `norm` implements a valid norm, which cannot be checked
-  ///   by this function.)
+  ///   This means that you must not use approximate equality to implement
+  ///   a conformance to Equatable, as it will violate the invariants of
+  ///   code written against that protocol.
+  ///
+  /// - For any point `a`, the set of values that compare approximately equal
+  ///   to `a` is _convex_ (under the assumption that `norm` implements a
+  ///   valid norm, which cannot be checked by this function or a protocol).
   ///
   /// See Also:
   /// -------
@@ -184,21 +203,23 @@ extension AdditiveArithmetic {
   ///   - absoluteTolerance: The absolute tolerance to use in the comparison.
   ///
   ///     This value should be non-negative and finite.
-  ///     This constraint on is only checked in debug builds, because a mathematically
-  ///     well-defined result exists for any tolerance, even one out of range.
+  ///     This constraint on is only checked in debug builds, because a
+  ///     mathematically well-defined result exists for any tolerance, even
+  ///     one out of range.
   ///
   ///   - relativeTolerance: The relative tolerance to use in the comparison.
   ///     Defaults to zero.
   ///
   ///     This value should be non-negative and less than or equal to 1.
-  ///     This constraint on is only checked in debug builds, because a mathematically
-  ///     well-defined result exists for any tolerance, even one out of range.
+  ///     This constraint on is only checked in debug builds, because a
+  ///     mathematically well-defined result exists for any tolerance,
+  ///     even one out of range.
   ///
   ///   - norm: The norm to use for the comparison.
   ///     Defaults to `\.magnitude`.
   ///
-  ///     For example, if we wanted to test if a complex value was inside a circle of
-  ///     radius 0.001 centered at (1 + 0i), we could use:
+  ///     For example, if we wanted to test if a complex value was inside a
+  ///     circle of radius 0.001 centered at (1 + 0i), we could use:
   ///     ```
   ///     z.isApproximatelyEqual(
   ///       to: 1,
@@ -206,8 +227,8 @@ extension AdditiveArithmetic {
   ///       norm: \.length
   ///     )
   ///     ```
-  ///     (if we used the default, we would be testing if `z` were inside a square region
-  ///     instead.)
+  ///     (if we used the default norm, `.magnitude`, we would be testing if
+  ///     `z` were inside a square region instead.)
   @inlinable
   public func isApproximatelyEqual<Magnitude>(
     to other: Self,
