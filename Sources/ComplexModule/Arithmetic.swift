@@ -126,8 +126,8 @@ extension Complex: AlgebraicField {
   
   /// A normalized complex number with the same phase as this value.
   ///
-  /// If such a value cannot be produced (because the phase of zero and infinity is undefined),
-  /// `nil` is returned.
+  /// If such a value cannot be produced (because the phase of zero and
+  /// infinity is undefined), `nil` is returned.
   @inlinable
   public var normalized: Complex? {
     if length.isNormal {
@@ -139,10 +139,12 @@ extension Complex: AlgebraicField {
     return self.divided(by: magnitude).normalized
   }
   
-  /// The reciprocal of this value, if it can be computed without undue overflow or underflow.
+  /// The reciprocal of this value, if it can be computed without undue
+  /// overflow or underflow.
   ///
-  /// If z.reciprocal is non-nil, you can safely replace division by z with multiplication by this value. It is
-  /// not advantageous to do this for an isolated division, but if you are dividing many values by a single
+  /// If z.reciprocal is non-nil, you can safely replace division by z with
+  /// multiplication by this value. It is not advantageous to do this for an
+  /// isolated division, but if you are dividing many values by a single
   /// denominator, this will often be a significant performance win.
   ///
   /// Typical use looks like this:

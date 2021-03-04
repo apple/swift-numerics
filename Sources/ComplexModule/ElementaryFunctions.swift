@@ -39,17 +39,19 @@ extension Complex: ElementaryFunctions {
   
   // MARK: - exp-like functions
   
-  /// The complex exponential function e^z whose base `e` is the base of the natural logarithm.
+  /// The complex exponential function e^z whose base `e` is the base of the
+  /// natural logarithm.
   ///
-  /// Mathematically, this operation can be expanded in terms of the `Real` operations `exp`,
-  /// `cos` and `sin` as follows:
+  /// Mathematically, this operation can be expanded in terms of the `Real`
+  /// operations `exp`, `cos` and `sin` as follows:
   /// ```
   /// exp(x + iy) = exp(x) exp(iy)
   ///             = exp(x) cos(y) + i exp(x) sin(y)
   /// ```
-  /// Note that naive evaluation of this expression in floating-point would be prone to premature
-  /// overflow, since `cos` and `sin` both have magnitude less than 1 for most inputs (i.e.
-  /// `exp(x)` may be infinity when `exp(x) cos(y)` would not be.
+  /// Note that naive evaluation of this expression in floating-point would be
+  /// prone to premature overflow, since `cos` and `sin` both have magnitude
+  /// less than 1 for most inputs (i.e. `exp(x)` may be infinity when
+  /// `exp(x) cos(y)` would not be).
   @inlinable
   public static func exp(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
