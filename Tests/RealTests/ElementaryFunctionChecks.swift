@@ -27,6 +27,11 @@ internal func assertClose<T>(
   file: StaticString = #file,
   line: UInt = #line
 ) -> T where T: BinaryFloatingPoint {
+  // we need to first check if the values are zero before we check the signs
+  // otherwise, "0" and "-0" compare as unequal (eg. sin(-180) == 0)
+  let expectedT = T(expected)
+  if observed.isZero && expectedT.isZero { return 0 }
+    
   // Shortcut relative-error check if we got the sign wrong; it's OK to
   // underflow to zero, but we do not want to allow going right through
   // zero and getting the sign wrong.
@@ -38,8 +43,7 @@ internal func assertClose<T>(
   if observed.isNaN && expected.isNaN { return 0 }
   // If T(expected) is zero or infinite, and matches observed, the error
   // is zero.
-  let expectedT = T(expected)
-  if observed.isZero && expectedT.isZero { return 0 }
+  
   if observed.isInfinite && expectedT.isInfinite { return 0 }
   // Special-case where only one of expectedT or observed is infinity.
   // Artificially knock everything down a binade, treat actual infinity as
