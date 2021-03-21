@@ -1,4 +1,4 @@
-//===--- ElementaryFunctionChecks.swift ------------------------*- swift -*-===//
+//===--- ElementaryFunctionChecks.swift -----------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -87,6 +87,11 @@ internal func assertClose<T>(
   ))
 }
 
+extension FloatingPoint {
+  var isPositiveZero: Bool { self == 0 && sign == .plus }
+  var isNegativeZero: Bool { self == 0 && sign == .minus }
+}
+
 internal extension ElementaryFunctions where Self: BinaryFloatingPoint {
   static func elementaryFunctionChecks() {
     assertClose(1.1863995522992575361931268186727044683, Self.acos(0.375))
@@ -157,6 +162,7 @@ final class ElementaryFunctionChecks: XCTestCase {
   func testFloat80() {
     Float80.elementaryFunctionChecks()
     Float80.realFunctionChecks()
+    Float80.cosPiTests()
   }
   #endif
 }

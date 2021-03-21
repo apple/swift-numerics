@@ -15,6 +15,9 @@
 /// All trigonometric functions expect the argument to be passed as radians (Real), but this is not enforced by the type system.
 /// This type serves exactly this purpose, and can be seen as an alternative to the underlying Real implementation.
 public struct Angle<T: Real>: Equatable {
+    fileprivate var degreesPart: T = 0
+    fileprivate var radiansPart: T = 0
+    
     fileprivate init() {}
     
     fileprivate init(degreesPart: T, radiansPart: T) {
@@ -39,16 +42,12 @@ public struct Angle<T: Real>: Equatable {
     }
     
     public var radians: T {
-        radiansPart + degreesPart.asRadians
+        radiansPart + degreesPart * .pi / 180
     }
     
     public var degrees: T {
-        radiansPart.asDegrees + degreesPart
+        radiansPart * 180 / .pi + degreesPart
     }
-    
-    fileprivate var degreesPart: T = 0
-    
-    fileprivate var radiansPart: T = 0
 }
 
 extension Angle: AdditiveArithmetic {
@@ -103,143 +102,88 @@ extension Angle {
     }
 }
 
+private extension Angle {
+    var piTimesFromDegrees: T {
+        if degreesPart.magnitude <= 180 {
+            return degreesPart / 180
+        }
+        let remainder = degreesPart.remainder(dividingBy: 180)
+        return remainder / 180
+    }
+    
+    var piTimesFromRadians: T {
+        if radiansPart.magnitude <= .pi {
+            return radiansPart / .pi
+        }
+        let remainder = radiansPart.remainder(dividingBy: .pi)
+        return remainder / .pi
+    }
+}
+
 extension ElementaryFunctions
 where Self: Real {
     /// The cos of the angle.
     ///
     /// The degrees and radians parts are treated separately and then combined together
-    /// using standard trigonometric [identities].
-    ///
-    /// If possible, the degrees part is split into two subparts; one with exact trigonometric results
-    /// and another one, whose trigonometric value is calculated by using the equivalent radians
-    /// representation.
-    ///
-    /// This is done recursively, until the only subpart left is the one for which no known, exact
-    /// trigonometric value exists.
-    ///
-    /// Examples:
-    /// ```cos(Angle(degrees: 126)```
-    /// is split recursively in 90° (exact results), 30° (exact results) and 6° (0.10471975512 radians)
+    /// using standard trigonometric [identities]. For each part, the corresponding remainder
+    /// by  pi or 180° is found, and the higher precision `cos(piTimes:)` function is used
     ///
     /// See also:
     /// -
     /// `ElementaryFunctions.cos()`
     /// [identities]: https://en.wikipedia.org/wiki/List_of_trigonometric_identities#Angle_sum_and_difference_identities
     public static func cos(_ angle: Angle<Self>) -> Self {
-        let degrees = angle.normalizedDegreesPart()
-        let cosa = cosd(degrees)
-        let cosb = cos(angle.radiansPart)
-        let sina = sind(degrees)
-        let sinb = sin(angle.radiansPart)
-        return cossum(cosa, cosb, sina, sinb)
-    }
-    
-    /// The cos of an angle in degrees, recursively searching in exact, tabulated results.
-    private static func cosd(_ degrees: Self) -> Self {
-        let (exactPart, rest) = degrees.extractParts()
-        guard let exactAngle = exactPart else {
-            return cos(rest.asRadians)
-        }
-        let (cosa, sina) = getExactCosAndSin(for: exactAngle)
-        let cosb = cosd(rest)
-        let sinb = sind(rest)
-        return cossum(cosa, cosb, sina, sinb)
-    }
-    
-    private static func cossum(_ cosa: Self, _ cosb: Self, _ sina: Self, _ sinb: Self) -> Self {
+        let piTimesDegrees = angle.piTimesFromDegrees
+        let piTimesRadians = angle.piTimesFromRadians
+        let cosa = cos(piTimes: piTimesDegrees)
+        let cosb = cos(piTimes: piTimesRadians)
+        let sina = sin(piTimes: piTimesDegrees)
+        let sinb = sin(piTimes: piTimesRadians)
         return cosa * cosb - sina * sinb
     }
 }
 
 extension ElementaryFunctions
 where Self: Real {
-    /// The cosine of the angle.
+    /// The sine of the angle.
+    ///
     ///
     /// The degrees and radians parts are treated separately and then combined together
-    /// using standard trigonometric [identities].
-    ///
-    /// If possible, the degrees part is split into two subparts; one with exact trigonometric results
-    /// and another one, whose trigonometric value is calculated by using the equivalent radians
-    /// representation.
-    ///
-    /// This is done recursively, until the only subpart left is the one for which no known, exact
-    /// trigonometric value exists.
-    ///
-    /// Examples:
-    /// ```cos(Angle(degrees: 126)```
-    /// is split recursively in 90° (exact results), 30° (exact results) and 6° (0.10471975512 radians)
+    /// using standard trigonometric [identities]. For each part, the corresponding remainder
+    /// by  pi or 180° is found, and the higher precision `sin(piTimes:)` function is used
     ///
     /// See also:
     /// -
     /// `ElementaryFunctions.sin()`
     /// [identities]: https://en.wikipedia.org/wiki/List_of_trigonometric_identities#Angle_sum_and_difference_identities
     public static func sin(_ angle: Angle<Self>) -> Self {
-        let degrees = angle.normalizedDegreesPart()
-        let cosa = cosd(degrees)
-        let cosb = cos(angle.radiansPart)
-        let sina = sind(degrees)
-        let sinb = sin(angle.radiansPart)
-        return sinsum(cosa, cosb, sina, sinb)
-    }
-    
-    /// The sin of an angle in degrees, recursively searching in exact, tabulated results.
-    private static func sind(_ degrees: Self) -> Self {
-        let (exactPart, rest) = degrees.extractParts()
-        guard let exactAngle = exactPart else {
-            return sin(rest.asRadians)
-        }
-        let (cosa, sina) = getExactCosAndSin(for: exactAngle)
-        let cosb = cosd(rest)
-        let sinb = sind(rest)
-        return sinsum(cosa, cosb, sina, sinb)
-    }
-    
-    private static func sinsum(_ cosa: Self, _ cosb: Self, _ sina: Self, _ sinb: Self) -> Self {
+        let piTimesDegrees = angle.piTimesFromDegrees
+        let piTimesRadians = angle.piTimesFromRadians
+        let cosa = cos(piTimes: piTimesDegrees)
+        let cosb = cos(piTimes: piTimesRadians)
+        let sina = sin(piTimes: piTimesDegrees)
+        let sinb = sin(piTimes: piTimesRadians)
         return sina * cosb + cosa * sinb
     }
 }
 
 extension ElementaryFunctions
 where Self: Real {
-    /// The cosine of the angle.
+    /// The tangent of the angle.
     ///
     /// The degrees and radians parts are treated separately and then combined together
-    /// using standard trigonometric [identities].
-    ///
-    /// If possible, the degrees part is split into two subparts; one with exact trigonometric results
-    /// and another one, whose trigonometric value is calculated by using the equivalent radians
-    /// representation.
-    ///
-    /// This is done recursively, until the only subpart left is the one for which no known, exact
-    /// trigonometric value exists.
-    ///
-    /// Examples:
-    /// ```cos(Angle(degrees: 126)```
-    /// is split recursively in 90° (exact results), 30° (exact results) and 6° (0.10471975512 radians)
+    /// using standard trigonometric [identities]. For each part, the corresponding remainder
+    /// by  pi or 180° is found, and the higher precision `tan(piTimes:)` function is used
     ///
     /// See also:
     /// -
     /// `ElementaryFunctions.tan()`
     /// [identities]: https://en.wikipedia.org/wiki/List_of_trigonometric_identities#Angle_sum_and_difference_identities
     public static func tan(_ angle: Angle<Self>) -> Self {
-        let degrees = angle.normalizedDegreesPart()
-        let tana = tand(degrees)
-        let tanb = tan(angle.radiansPart)
-        return tansum(tana, tanb)
-    }
-    
-    /// The tan of an angle in degrees, recursively searching in exact, tabulated results.
-    private static func tand(_ degrees: Self) -> Self {
-        let (exactPart, rest) = degrees.extractParts()
-        guard let exactAngle = exactPart else {
-            return tan(rest.asRadians)
-        }
-        let tana = getExactTan(for: exactAngle)
-        let tanb = tand(rest)
-        return tansum(tana, tanb)
-    }
-    
-    private static func tansum(_ tana: Self, _ tanb: Self) -> Self {
+        let piTimesDegrees = angle.piTimesFromDegrees
+        let piTimesRadians = angle.piTimesFromRadians
+        let tana = tan(piTimes: piTimesDegrees)
+        let tanb = tan(piTimes: piTimesRadians)
         switch (tana.isFinite, tanb) {
         case (false, 0):
             return tana
@@ -251,51 +195,26 @@ where Self: Real {
     }
 }
 
-extension ElementaryFunctions
-where Self: Real {
-    fileprivate static func getExactCosAndSin(for degrees: Self) -> (cos: Self, sin: Self) {
-        let knownTrigonometry = exactAngleConversions().first(where: { $0.degrees == degrees.magnitude })!
-        return (knownTrigonometry.cos, knownTrigonometry.sin * degrees.realSign)
-    }
-    
-    fileprivate static func getExactTan(for degrees: Self) -> Self {
-        let knownTrigonometry = exactAngleConversions().first(where: { $0.degrees == degrees.magnitude })!
-        return knownTrigonometry.tan * degrees.realSign
-    }
-}
-
 extension Angle {
     /// See also:
     /// -
     /// `ElementaryFunctions.acos()`
     public static func acos(_ x: T) -> Self {
-        guard let exactSolution = exactAngleConversions().first(where: {$0.cos == x.magnitude }) else {
-            return .radians(T.acos(x))
-        }
-        let degrees = x > 0
-            ?  exactSolution.degrees
-            : 180 - exactSolution.degrees
-        return .degrees(degrees)
+        .radians(T.acos(x))
     }
 
     /// See also:
     /// -
     /// `ElementaryFunctions.asin()`
     public static func asin(_ x: T) -> Self {
-        guard let exactSolution = exactAngleConversions().first(where: { $0.sin == x.magnitude }) else {
-            return .radians(T.asin(x))
-        }
-        return .degrees(exactSolution.degrees * x.realSign)
+        .radians(T.asin(x))
     }
 
     /// See also:
     /// -
     /// `ElementaryFunctions.atan()`
     public static func atan(_ x: T) -> Self {
-        guard let exactSolution = exactAngleConversions().first(where: { $0.tan == x.magnitude }) else {
-            return .radians(T.atan(x))
-        }
-        return .degrees(exactSolution.degrees * x.realSign)
+        .radians(T.atan(x))
     }
 
     /// The 2-argument atan function.
@@ -306,32 +225,14 @@ extension Angle {
     /// -
     /// `RealFunctions.atan2()`
     public static func atan2(y: T, x: T) -> Self {
-        let norm = (x * x + y * y).squareRoot()
-        precondition(norm != 0)
-        let sin = y / norm
-        let cos = x / norm
-        guard let exactSolution = exactAngleConversions().first(where: { cos.magnitude.isApproximatelyEqual(to: $0.cos)
-                                                                    && sin.magnitude.isApproximatelyEqual(to:$0.sin) }) else {
-            return .radians(T.atan2(y: y, x: x))
-        }
-        if y >= 0 && x >= 0 {
-            return .degrees(exactSolution.degrees)
-        }
-        if y >= 0 && x < 0 {
-            return .degrees(180 - exactSolution.degrees)
-        }
-        if y < 0 && x >= 0 {
-            return .degrees(-exactSolution.degrees)
-        }
-        return .degrees(-180 + exactSolution.degrees)
+        .radians(T.atan2(y: y, x: x))
     }
 }
-
 
 extension Angle {
     /// Checks whether the current angle is contained within a range, defined from a start and end angle.
     ///
-    /// The comparison is performed based on the equivalent normalized angles in [-π, π].
+    /// The comparison is performed based on the equivalent normalized angles in [-pi, pi].
     ///
     /// Examples:
     ///
@@ -364,7 +265,7 @@ extension Angle {
             normalizedEnd += 360
         }
         return (normalizedStart <= fullNormalized && fullNormalized <= normalizedEnd)
-        || (normalizedStart <= fullNormalized + 360 && fullNormalized + 360 <= normalizedEnd)
+            || (normalizedStart <= fullNormalized + 360 && fullNormalized + 360 <= normalizedEnd)
     }
 }
 
@@ -380,7 +281,7 @@ extension Angle {
     ///     - tolerance: the tolerance around `other` for which the result will be true
     ///
     /// - Returns: `true` if the current angle falls within the range ```[self - tolerance, self + tolerance]```, otherwise false
-    public func isClose(to other: Angle<T>, tolerance: Angle<T>) -> Bool {
+    public func isClose(to other: Angle<T>, within tolerance: Angle<T>) -> Bool {
         precondition(tolerance.degrees >= 0)
         return isInRange(start: other - tolerance, end: other + tolerance)
     }
@@ -395,46 +296,7 @@ extension Angle: Comparable {
     }
 }
 
-extension Real {
-    fileprivate var asRadians: Self { self * .pi / 180 }
-    
-    fileprivate var asDegrees: Self { self * 180 / .pi }
-    
-    fileprivate func extractParts()  -> (common: Self?, rest: Self) {
-        if let summandsAbove90 = extractParts(limit: 90) {
-            return (summandsAbove90.exact, summandsAbove90.rest)
-        }
-        if let summandsAbove60 = extractParts(limit: 60) {
-            return (summandsAbove60.exact, summandsAbove60.rest)
-        }
-        if let summandsAbove45 = extractParts(limit: 45) {
-            return (summandsAbove45.exact, summandsAbove45.rest)
-        }
-        if let summandsAbove30 = extractParts(limit: 30) {
-            return (summandsAbove30.exact, summandsAbove30.rest)
-        }
-        return (nil, self)
-    }
-    
-    private func extractParts(limit: Self)  -> DegreesSummands<Self>? {
-        guard self.magnitude >= limit else {
-            return nil
-        }
-        return DegreesSummands(exact: realSign * limit,
-                               rest: realSign * (self.magnitude - limit))
-    }
-}
-
-private struct DegreesSummands<T: Real> {
-    let exact: T
-    let rest: T
-}
-
 extension Angle {
-    fileprivate func normalizedDegreesPart() -> T {
-        normalize(value: degreesPart, limit: 180)
-    }
-    
     fileprivate func normalize(value: T, limit: T) -> T {
         var normalized = value
         
@@ -447,46 +309,5 @@ extension Angle {
         }
         
         return normalized
-    }
-}
-
-private struct ExactTrigonometry<T: Real> {
-    let degrees: T
-    let cos: T
-    let sin: T
-    let tan: T
-}
-
-private func exactAngleConversions<T: Real>() -> [ExactTrigonometry<T>] {
-    [
-        ExactTrigonometry(degrees:  0,
-                             cos: 1,
-                             sin: 0,
-                             tan: 0),
-        ExactTrigonometry(degrees: 30,
-                             cos: T.sqrt(3)/2,
-                             sin: 1 / 2,
-                             tan: T.sqrt(3) / 3),
-        ExactTrigonometry(degrees: 45,
-                             cos: T.sqrt(2) / 2,
-                             sin: T.sqrt(2) / 2,
-                             tan: 1),
-        ExactTrigonometry(degrees: 60,
-                             cos: 1 / 2,
-                             sin: T.sqrt(3) / 2,
-                             tan: T.sqrt(3)),
-        ExactTrigonometry(degrees: 90,
-                             cos: 0,
-                             sin: 1,
-                             tan: T.infinity),
-    ]
-}
-
-extension Real {
-    fileprivate var realSign: Self {
-        guard self.isFinite else {
-            return self == .infinity ? 1 : -1
-        }
-        return self > 0 ? 1 : -1
     }
 }
