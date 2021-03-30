@@ -67,9 +67,11 @@ extension RangeReplaceableCollection {
 
     var result = Self()
     let interspersedCount = newElements.count
-    let insertCount = (currentCount / n) - (remainder == 0 ? 0 : 1)
+    let insertCount = (currentCount / n) - (remainder == 0 ? 1 : 0)
     let newCount = currentCount + interspersedCount * insertCount
-    defer { assert(result.count == newCount) }
+    defer {
+      assert(result.count == newCount)
+    }
     result.reserveCapacity(newCount)
 
     var selfConsumer = self[...]
