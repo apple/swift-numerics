@@ -25,16 +25,18 @@ let package = Package(
     // User-facing modules
     .target(name: "ComplexModule", dependencies: ["RealModule"]),
     .target(name: "Numerics", dependencies: ["ComplexModule", "RealModule"]),
-    .target(name: "RealModule", dependencies: ["_NumericsShims"]),
-    
+    .target(name: "RealModule", dependencies: ["_NumericsShims", "FormattersModule"]),
+    .target(name: "FormattersModule", dependencies: []),
+
     // Implementation details
     .target(name: "_NumericsShims", dependencies: []),
     .target(name: "_TestSupport", dependencies: ["Numerics"]),
-    
+
     // Unit test bundles
     .testTarget(name: "ComplexTests", dependencies: ["_TestSupport"]),
     .testTarget(name: "RealTests", dependencies: ["_TestSupport"]),
-    
+    .testTarget(name: "FormattersTests", dependencies: ["_TestSupport"]),
+
     // Test executables
     .target(name: "ComplexLog", dependencies: ["Numerics", "_TestSupport"], path: "Tests/Executable/ComplexLog"),
     .target(name: "ComplexLog1p", dependencies: ["Numerics", "_TestSupport"], path: "Tests/Executable/ComplexLog1p")
