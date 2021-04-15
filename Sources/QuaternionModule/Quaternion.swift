@@ -186,6 +186,7 @@ extension Quaternion {
   /// - `.isNormal`
   /// - `.isSubnormal`
   /// - `.isZero`
+  /// - `.isReal`
   /// - `.isPure`
   @_transparent
   public var isFinite: Bool {
@@ -206,6 +207,7 @@ extension Quaternion {
   /// - `.isFinite`
   /// - `.isSubnormal`
   /// - `.isZero`
+  /// - `.isReal`
   /// - `.isPure`
   @_transparent
   public var isNormal: Bool {
@@ -228,6 +230,7 @@ extension Quaternion {
   /// - `.isFinite`
   /// - `.isNormal`
   /// - `.isZero`
+  /// - `.isReal`
   /// - `.isPure`
   @_transparent
   public var isSubnormal: Bool {
@@ -243,13 +246,40 @@ extension Quaternion {
   /// - `.isFinite`
   /// - `.isNormal`
   /// - `.isSubnormal`
+  /// - `.isReal`
   /// - `.isPure`
   @_transparent
   public var isZero: Bool {
     components == .zero
   }
 
-  /// True if this value is only defined by the imaginary part (`real == .zero`)
+  /// True if this quaternion is real.
+  ///
+  /// A quaternion is real if *all* imaginary components are zero.
+  ///
+  /// See also:
+  /// -
+  /// - `.isFinite`
+  /// - `.isNormal`
+  /// - `.isSubnormal`
+  /// - `.isZero`
+  /// - `.isPure`
+  @_transparent
+  public var isReal: Bool {
+    imaginary == .zero
+  }
+
+  /// True if this quaternion is pure.
+  ///
+  /// A quaternion is pure if the real component is zero.
+  ///
+  /// See also:
+  /// -
+  /// - `.isFinite`
+  /// - `.isNormal`
+  /// - `.isSubnormal`
+  /// - `.isZero`
+  /// - `.isReal`
   @_transparent
   public var isPure: Bool {
     real.isZero
