@@ -39,6 +39,15 @@ final class PropertyTests: XCTestCase {
     XCTAssertEqual(Quaternion<T>(real: 0, imaginary: -.greatestFiniteMagnitude, 0, 0).length, .greatestFiniteMagnitude)
     XCTAssertEqual(Quaternion<T>(real: 0, imaginary: 0, .leastNormalMagnitude, 0).length, .leastNormalMagnitude)
     XCTAssertEqual(Quaternion<T>(real: 0, imaginary: 0, 0, -.leastNormalMagnitude).length, .leastNormalMagnitude)
+    // The properties of pure and real
+    XCTAssertTrue(Quaternion<T>.zero.isPure) // zero quaternion is both, pure...
+    XCTAssertTrue(Quaternion<T>.zero.isReal) // and real
+    XCTAssertFalse(Quaternion<T>(1).isPure)
+    XCTAssertTrue(Quaternion<T>(1).isReal)
+    XCTAssertTrue(Quaternion<T>(real: .zero, imaginary: 1, 0, 0).isPure)
+    XCTAssertFalse(Quaternion<T>(real: .zero, imaginary: 1, 0, 0).isReal)
+    XCTAssertFalse(Quaternion<T>(from: SIMD4(repeating: 1)).isPure)
+    XCTAssertFalse(Quaternion<T>(from: SIMD4(repeating: 1)).isReal)
   }
 
   func testProperties() {
