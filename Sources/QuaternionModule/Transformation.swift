@@ -387,15 +387,21 @@ extension Quaternion {
     // The following expression have been split up so the type-checker
     // can resolve them in a reasonable time.
     let p1 = vector * (real*real - imaginary.lengthSquared)
-    let p2 = 2 * imaginary * imaginary.dot(vector)
-    let p3 = 2 * real * imaginary.cross(vector)
-    let rotatedVector = p1 + p2 + p3
+    let p2 = imaginary * imaginary.dot(vector)
+    let p3 = imaginary.cross(vector) * real 
+    let rotatedVector = p1 + (p2 + p3) * 2
 
     // If the rotation computes without over/underflow, everything is fine
     // and the result is correct. If not, we have to do the computation
     // carefully and first unscale the vector, rotate it again and then
     // rescale the vector
-    if rotatedVector.isNormal { return rotatedVector }
+    if
+        (rotatedVector.x.isNormal || rotatedVector.x.isZero) &&
+        (rotatedVector.y.isNormal || rotatedVector.y.isZero) &&
+        (rotatedVector.z.isNormal || rotatedVector.z.isZero)
+    {
+        return rotatedVector
+    }
     let scale = max(abs(vector.max()), abs(vector.min()))
     return act(on: vector/scale) * scale
   }
@@ -457,12 +463,6 @@ extension SIMD3 where Scalar: FloatingPoint {
   @usableFromInline @inline(__always)
   internal var isFinite: Bool {
     x.isFinite && y.isFinite && z.isFinite
-  }
-
-  /// True if all values of this instance are finite
-  @usableFromInline @inline(__always)
-  internal var isNormal: Bool {
-    x.isNormal && y.isNormal && z.isNormal
   }
 
   /// Returns the squared length of this instance.
