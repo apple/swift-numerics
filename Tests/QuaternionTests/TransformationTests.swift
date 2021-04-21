@@ -30,8 +30,8 @@ final class TransformationTests: XCTestCase {
     XCTAssertEqual(Quaternion<T>(angle: .pi, axis: -xAxis).angle, .pi)
     XCTAssertEqual(Quaternion<T>(angle: .pi, axis: -xAxis).axis, -xAxis)
     // Negative angle, negative axis
-    XCTAssertEqual(Quaternion<T>.init(angle: -.pi, axis: -xAxis).angle, .pi)
-    XCTAssertEqual(Quaternion<T>.init(angle: -.pi, axis: -xAxis).axis, xAxis)
+    XCTAssertEqual(Quaternion<T>(angle: -.pi, axis: -xAxis).angle, .pi)
+    XCTAssertEqual(Quaternion<T>(angle: -.pi, axis: -xAxis).axis, xAxis)
   }
 
   func testAngleAxis() {
@@ -220,6 +220,15 @@ final class TransformationTests: XCTestCase {
   func testActOnVector<T: Real & SIMDScalar>(_ type: T.Type) {
     let vector = SIMD3<T>(1,1,1)
     let xAxis = SIMD3<T>(1,0,0)
+
+    let singleAxis = Quaternion<T>(angle: .pi/2, axis: SIMD3(0, 1, 0))
+    XCTAssertTrue(singleAxis.act(on: xAxis).x.isApproximatelyEqual(
+        to: .zero, absoluteTolerance: T.ulpOfOne.squareRoot()
+    ))
+    XCTAssertTrue(singleAxis.act(on: xAxis).y.isApproximatelyEqual(
+        to: .zero, absoluteTolerance: T.ulpOfOne.squareRoot()
+    ))
+    XCTAssertEqual(singleAxis.act(on: xAxis).z, -1)
 
     let piHalf = Quaternion<T>(angle: .pi/2, axis: xAxis)
     XCTAssertTrue(closeEnough(piHalf.act(on: vector).x,  1, ulps: 0))
