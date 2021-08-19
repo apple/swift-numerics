@@ -311,13 +311,13 @@ extension Complex: ElementaryFunctions {
     // as exact head-tail products (u is guaranteed to be well scaled,
     // v may underflow, but if it does it doesn't matter, the u term is
     // all we need).
-    let (a,b) = Augmented.twoProdFMA(u, u)
-    let (c,d) = Augmented.twoProdFMA(v, v)
+    let (a,b) = Augmented.product(u, u)
+    let (c,d) = Augmented.product(v, v)
     // It would be nice if we could simply use a - 1, but unfortunately
     // we don't have a tight enough bound to guarantee that that expression
     // is exact; a may be as small as 1/4, so we could lose a single bit
     // to rounding if we did that.
-    var (s,e) = Augmented.fastTwoSum(-1, a)
+    var (s,e) = Augmented.sum(large: -1, small: a)
     // Now we are ready to assemble the result. If cancellation happens,
     // then |c| > |e| > |b|, |d|, so this assembly order is safe. It's
     // also possible that |c| and |d| are small, but if that happens then
@@ -353,9 +353,9 @@ extension Complex: ElementaryFunctions {
     // So now we need to evaluate (2+x)x + y² accurately. To do this,
     // we employ augmented arithmetic; the key observation here is that
     // cancellation is only a problem when y² ≈ -(2+x)x
-    let xp2 = Augmented.fastTwoSum(2, z.x) // Known that 2 > |x|.
-    let a = Augmented.twoProdFMA(z.x, xp2.head)
-    let y² = Augmented.twoProdFMA(z.y, z.y)
+    let xp2 = Augmented.sum(large: 2, small: z.x) // Known that 2 > |x|.
+    let a = Augmented.product(z.x, xp2.head)
+    let y² = Augmented.product(z.y, z.y)
     let s = (a.head + y².head + a.tail + y².tail).addingProduct(z.x, xp2.tail)
     return Complex(.log(onePlus: s)/2, θ)
   }
