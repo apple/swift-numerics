@@ -47,8 +47,10 @@
 /// [field]: https://en.wikipedia.org/wiki/Field_(mathematics)
 public protocol AlgebraicField: SignedNumeric {
   
+  /// Replaces a with the (approximate) quotient `a/b`.
   static func /=(a: inout Self, b: Self)
   
+  /// The (approximate) quotient `a/b`.
   static func /(a: Self, b: Self) -> Self
   
   /// The (approximate) reciprocal (multiplicative inverse) of this number,
@@ -59,11 +61,14 @@ public protocol AlgebraicField: SignedNumeric {
   /// (for finite fields) or approximately the same result up to a typical
   /// rounding error (for floating-point formats).
   ///
-  /// If self is zero, or if a reciprocal would overflow or underflow such
-  /// that it cannot be accurately represented, the result is nil. Note that
-  /// `.zero.reciprocal`, somewhat surprisingly, is *not* nil for `Real` or
-  /// `Complex` types, because these types have an `.infinity` value that
-  /// acts as the reciprocal of `.zero`.
+  /// If self is zero and the type has no representation for infinity (as
+  /// in a typical finite field implementation), or if a reciprocal would
+  /// overflow or underflow such that it cannot be accurately represented,
+  /// the result is nil.
+  ///
+  /// Note that `.zero.reciprocal`, somewhat surprisingly, is *not* nil
+  /// for `Real` or `Complex` types, because these types have an
+  /// `.infinity` value that acts as the reciprocal of `.zero`.
   var reciprocal: Self? { get }
 }
 
