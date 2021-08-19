@@ -93,4 +93,14 @@ extension Augmented {
     let tail = a - head + b
     return (head, tail)
   }
+  
+  @available(*, deprecated, renamed: "product")
+  public static func twoProdFMA<T:Real>(_ a: T, _ b: T) -> (head: T, tail: T) {
+    product(a, b)
+  }
+  
+  @available(*, deprecated, renamed: "sum(large:small:)")
+  public static func fastTwoSum<T:Real>(_ a: T, _ b: T) -> (head: T, tail: T) {
+    sum(large: a, small: b)
+  }
 }
