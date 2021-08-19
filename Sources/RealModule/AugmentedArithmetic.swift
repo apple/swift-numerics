@@ -40,8 +40,8 @@ extension Augmented {
   ///
   /// Postconditions:
   /// -
-  /// - If `head` is normal, then `abs(tail) < abs(head.ulp)`.
-  ///   Assuming IEEE 754 default rounding, `abs(tail) <= abs(head.ulp)/2`.
+  /// - If `head` is normal, then `abs(tail) < head.ulp`.
+  ///   Assuming IEEE 754 default rounding, `abs(tail) <= head.ulp/2`.
   /// - If both `head` and `tail` are normal, then `a * b` is exactly
   ///   equal to `head + tail` when computed as real numbers.
   @_transparent
@@ -84,8 +84,8 @@ extension Augmented {
   ///
   /// Postconditions:
   /// -
-  /// - If `head` is normal, then `abs(tail) < abs(head.ulp)`.
-  ///   Assuming IEEE 754 default rounding, `abs(tail) <= abs(head.ulp)/2`.
+  /// - If `head` is normal, then `abs(tail) < head.ulp`.
+  ///   Assuming IEEE 754 default rounding, `abs(tail) <= head.ulp/2`.
   @_transparent
   public static func sum<T:Real>(large a: T, small b: T) -> (head: T, tail: T) {
     assert(!(b.magnitude > a.magnitude))
