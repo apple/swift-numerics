@@ -99,6 +99,11 @@ extension Real {
     return x.squareRoot()
   }
   
+  /// The (approximate) reciprocal (multiplicative inverse) of this number,
+  /// if it is representable.
+  ///
+  /// If `a` if finite and nonzero, and `1/a` overflows or underflows,
+  /// then `a.reciprocal` is `nil`. Otherwise, `a.reciprcoal` is `1/a`.
   @inlinable
   public var reciprocal: Self? {
     let recip = 1/self
