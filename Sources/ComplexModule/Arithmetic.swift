@@ -181,7 +181,7 @@ extension Complex: AlgebraicField {
   /// -
   /// Unlike real types, when working with complex types multiplying by the
   /// reciprocal instead of dividing cannot change the result. If the
-  /// reciprocal is non-nil, the two computations always always equivalent.
+  /// reciprocal is non-nil, the two computations are always equivalent.
   @inlinable
   public var reciprocal: Complex? {
     let recip = 1/self
