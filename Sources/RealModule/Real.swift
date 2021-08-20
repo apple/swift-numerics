@@ -133,7 +133,7 @@ extension Real {
   /// result; we can derive a quick error bound for multiplication by
   /// the real reciprocal (when it exists) as follows (I will use circle
   /// operators to denote real-number arithmetic, and normal operators
-  /// for floating-point arithmetic:
+  /// for floating-point arithmetic):
   ///
   ///   a * b.reciprocal! = a * (1/b)
   ///                     = a * (1 ⊘ b)(1 + δ₁)
