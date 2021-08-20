@@ -69,6 +69,30 @@ public protocol AlgebraicField: SignedNumeric {
   /// Note that `.zero.reciprocal`, somewhat surprisingly, is *not* nil
   /// for `Real` or `Complex` types, because these types have an
   /// `.infinity` value that acts as the reciprocal of `.zero`.
+  ///
+  /// If b.reciprocal is non-nil, you may be able to replace division by b
+  /// with multiplication by this value. It is not advantageous to do this
+  /// for an isolated division unless it is a compile-time constant visible
+  /// to the compiler, but if you are dividing many values by a single
+  /// denominator, this will often be a significant performance win.
+  ///
+  /// Note that this will slightly perturb results for fields with approximate
+  /// arithmetic, such as real or complex types--using a normal division
+  /// is generally more accurate--but no catastrophic loss of accuracy will
+  /// result. For fields with exact arithmetic, the results are necessarily
+  /// identical.
+  ///
+  /// A typical use case looks something like this:
+  /// ```
+  /// func divide<T: AlgebraicField>(data: [T], by divisor: T) -> [T] {
+  ///   // If divisor is well-scaled, multiply by reciprocal.
+  ///   if let recip = divisor.reciprocal {
+  ///     return data.map { $0 * recip }
+  ///   }
+  ///   // Fallback on using division.
+  ///   return data.map { $0 / divisor }
+  /// }
+  /// ```
   var reciprocal: Self? { get }
 }
 
