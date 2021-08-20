@@ -105,7 +105,7 @@ extension Real {
   /// If `a` if finite and nonzero, and `1/a` overflows or underflows,
   /// then `a.reciprocal` is `nil`. Otherwise, `a.reciprocal` is `1/a`.
   ///
-  /// If b.reciprocal is non-nil, you may be able to replace division by b
+  /// If `b.reciprocal` is non-nil, you may be able to replace division by `b`
   /// with multiplication by this value. It is not advantageous to do this
   /// for an isolated division unless it is a compile-time constant visible
   /// to the compiler, but if you are dividing many values by a single
