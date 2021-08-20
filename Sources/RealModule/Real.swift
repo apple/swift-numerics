@@ -103,7 +103,7 @@ extension Real {
   /// if it is representable.
   ///
   /// If `a` if finite and nonzero, and `1/a` overflows or underflows,
-  /// then `a.reciprocal` is `nil`. Otherwise, `a.reciprcoal` is `1/a`.
+  /// then `a.reciprocal` is `nil`. Otherwise, `a.reciprocal` is `1/a`.
   ///
   /// If b.reciprocal is non-nil, you may be able to replace division by b
   /// with multiplication by this value. It is not advantageous to do this
