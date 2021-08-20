@@ -52,13 +52,31 @@ extension Complex: AdditiveArithmetic {
 // and turn these into operators if/when we have it.
 // (https://github.com/apple/swift-numerics/issues/12)
 extension Complex {
+  /// `self` scaled by `a`.
   @usableFromInline @_transparent
   internal func multiplied(by a: RealType) -> Complex {
+    // This can be viewed in two different ways, which are mathematically
+    // equivalent: either we are computing `self * Complex(a)` (i.e.
+    // converting `a` to be a complex value, and then using the complex
+    // multiplication) or we are using the scalar product of the vector
+    // space structure: `Complex(a*real, a*imaginary)`.
+    //
+    // Although these two interpretations are _mathematically_ equivalent,
+    // they will generate different representations of the point at
+    // infinity in general. For example, suppose `self` is represented by
+    // `(infinity, 0)`. Then `self * Complex(1)` would evaluate as
+    // `(1*infinity - 0*0, 0*infinity + 1*0) = (infinity, nan)`, but
+    // the vector space interpretation produces `(infinity, 0)`. This does
+    // not matter much, because these are two representations of the same
+    // semantic value, but note that one requires four multiplies and two
+    // additions, while the one we use requires only two real multiplications.
     Complex(x*a, y*a)
   }
   
+  /// `self` unscaled by `a`.
   @usableFromInline @_transparent
   internal func divided(by a: RealType) -> Complex {
+    // See implementation notes for `multiplied` above.
     Complex(x/a, y/a)
   }
 }
@@ -147,10 +165,10 @@ extension Complex: AlgebraicField {
   /// isolated division, but if you are dividing many values by a single
   /// denominator, this will often be a significant performance win.
   ///
-  /// Typical use looks like this:
+  /// A typical use case looks something like this:
   /// ```
   /// func divide<T: Real>(data: [Complex<T>], by divisor: Complex<T>) -> [Complex<T>] {
-  ///   // If divisor is well-scaled, use multiply by reciprocal.
+  ///   // If divisor is well-scaled, multiply by reciprocal.
   ///   if let recip = divisor.reciprocal {
   ///     return data.map { $0 * recip }
   ///   }
@@ -158,6 +176,12 @@ extension Complex: AlgebraicField {
   ///   return data.map { $0 / divisor }
   /// }
   /// ```
+  ///
+  /// Error Bounds:
+  /// -
+  /// Unlike real types, when working with complex types, multiplying by the
+  /// reciprocal instead of dividing cannot change the result. If the
+  /// reciprocal is non-nil, the two computations are always equivalent.
   @inlinable
   public var reciprocal: Complex? {
     let recip = 1/self
