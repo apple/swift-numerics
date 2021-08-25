@@ -16,9 +16,7 @@ let package = Package(
   
   name: "swift-numerics",
   products: [
-    .library(name: "ComplexModule", targets: ["ComplexModule"]),
-    .library(name: "Numerics", targets: ["Numerics"]),
-    .library(name: "RealModule", targets: ["RealModule"]),
+    .library(name: "Numerics", targets: ["Numerics"])
   ],
   
   targets: [
