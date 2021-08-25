@@ -22,6 +22,7 @@ let package = Package(
   targets: [
     // User-facing modules
     .target(name: "ComplexModule", dependencies: ["RealModule"]),
+    .target(name: "IntegerUtilities", dependencies: []),
     .target(name: "Numerics", dependencies: ["ComplexModule", "RealModule"]),
     .target(name: "RealModule", dependencies: ["_NumericsShims"]),
     
@@ -31,6 +32,7 @@ let package = Package(
     
     // Unit test bundles
     .testTarget(name: "ComplexTests", dependencies: ["_TestSupport"]),
+    .testTarget(name: "IntegerUtilitiesTests", dependencies: ["IntegerUtilities"]),
     .testTarget(name: "RealTests", dependencies: ["_TestSupport"]),
     
     // Test executables
