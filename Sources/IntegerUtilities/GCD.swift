@@ -13,7 +13,10 @@ extension BinaryInteger {
   
   /// The greatest common divisor of `a` and `b`.
   ///
-  /// If both inputs are zero, the result is zero.
+  /// If both inputs are zero, the result is zero. If one input is zero, the
+  /// result is the absolute value of the other input.
+  ///
+  /// [wiki]: https://en.wikipedia.org/wiki/Greatest_common_divisor
   @inlinable
   public static func gcd(_ a: Self, _ b: Self) -> Self {
     var x = a.magnitude
