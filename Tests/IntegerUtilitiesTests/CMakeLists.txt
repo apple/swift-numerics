@@ -7,11 +7,12 @@ Licensed under Apache License v2.0 with Runtime Library Exception
 See https://swift.org/LICENSE.txt for license information
 #]]
 
-add_subdirectory(_NumericsShims)
-add_subdirectory(ComplexModule)
-add_subdirectory(IntegerUtilities)
-add_subdirectory(Numerics)
-add_subdirectory(RealModule)
-if(BUILD_TESTING)
-  add_subdirectory(_TestSupport)
-endif()
+add_library(IntegerUtilitiesTests
+  RotateTests.swift)
+target_compile_options(IntegerUtilitiesTests PRIVATE
+  -enable-testing)
+target_link_libraries(IntegerUtilitiesTests PUBLIC
+  $<$<NOT:$<PLATFORM_ID:Darwin>>:Foundation>
+  Numerics
+  XCTest)
+
