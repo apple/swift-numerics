@@ -18,6 +18,9 @@ import RealTests
 @testable
 import ComplexTests
 
+@testable
+import IntegerUtilitiesTests
+
 extension ComplexTests.ApproximateEqualityTests {
   static var all = testCase([
     ("testFloat", ComplexTests.ApproximateEqualityTests.testFloat),
@@ -80,6 +83,13 @@ extension PropertyTests {
   ])
 }
 
+extension RotateTests {
+  static var all = testCase([
+    ("testRotateUInt8", RotateTests.testRotateUInt8),
+    ("testRotateInt16", RotateTests.testRotateInt16),
+  ])
+}
+
 var testCases = [
   ComplexTests.ApproximateEqualityTests.all,
   RealTests.ApproximateEqualityTests.all,
@@ -87,6 +97,7 @@ var testCases = [
   IntegerExponentTests.all,
   ArithmeticTests.all,
   PropertyTests.all,
+  RotateTests.all,
 ]
 
 #if swift(>=5.3) && canImport(_Differentiation)

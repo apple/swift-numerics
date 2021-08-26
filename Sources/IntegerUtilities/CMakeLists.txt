@@ -7,11 +7,10 @@ Licensed under Apache License v2.0 with Runtime Library Exception
 See https://swift.org/LICENSE.txt for license information
 #]]
 
-add_subdirectory(_NumericsShims)
-add_subdirectory(ComplexModule)
-add_subdirectory(IntegerUtilities)
-add_subdirectory(Numerics)
-add_subdirectory(RealModule)
-if(BUILD_TESTING)
-  add_subdirectory(_TestSupport)
-endif()
+add_library(IntegerUtilities
+  Rotate.swift)
+set_target_properties(IntegerUtilities PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
+
+_install_target(IntegerUtilities)
+set_property(GLOBAL APPEND PROPERTY SWIFT_NUMERICS_EXPORTS IntegerUtilities)
