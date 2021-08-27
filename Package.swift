@@ -25,7 +25,7 @@ let package = Package(
     // User-facing modules
     .target(name: "ComplexModule", dependencies: ["RealModule"]),
     .target(name: "IntegerUtilities", dependencies: []),
-    .target(name: "Numerics", dependencies: ["ComplexModule", "RealModule"]),
+    .target(name: "Numerics", dependencies: ["ComplexModule", "IntegerUtilities", "RealModule"]),
     .target(name: "RealModule", dependencies: ["_NumericsShims"]),
     
     // Implementation details
