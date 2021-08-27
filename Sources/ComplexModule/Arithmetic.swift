@@ -163,7 +163,7 @@ extension Complex: AlgebraicField {
   /// If z.reciprocal is non-nil, you can safely replace division by z with
   /// multiplication by this value. It is not advantageous to do this for an
   /// isolated division, but if you are dividing many values by a single
-  /// denominator, this will often be a significant performance win.
+  /// denominator, this may sometimes be a significant performance win.
   ///
   /// A typical use case looks something like this:
   /// ```
@@ -178,7 +178,7 @@ extension Complex: AlgebraicField {
   /// ```
   ///
   /// Error Bounds:
-  /// -
+  /// 
   /// Unlike real types, when working with complex types, multiplying by the
   /// reciprocal instead of dividing cannot change the result. If the
   /// reciprocal is non-nil, the two computations are always equivalent.

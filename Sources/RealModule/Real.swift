@@ -102,10 +102,10 @@ extension Real {
   /// The (approximate) reciprocal (multiplicative inverse) of this number,
   /// if it is representable.
   ///
-  /// If `a` if finite and nonzero, and `1/a` overflows or underflows,
-  /// then `a.reciprocal` is `nil`. Otherwise, `a.reciprocal` is `1/a`.
+  /// If `x` if finite and nonzero, and `1/x` overflows or underflows,
+  /// then `x.reciprocal` is `nil`. Otherwise, `a.reciprocal` is `1/x`.
   ///
-  /// If `b.reciprocal` is non-nil, you may be able to replace division by `b`
+  /// If `x.reciprocal` is non-nil, you may be able to replace division by `x`
   /// with multiplication by this value. It is not advantageous to do this
   /// for an isolated division unless it is a compile-time constant visible
   /// to the compiler, but if you are dividing many values by a single
@@ -124,7 +124,7 @@ extension Real {
   /// ```
   ///
   /// Error Bounds:
-  /// -
+  ///
   /// Multiplying by the reciprocal instead of dividing will slightly
   /// perturb results. For example `5.0 / 3` is 1.6666666666666667, but
   /// `5.0 * 3.reciprocal!` is 1.6666666666666665.
@@ -135,12 +135,14 @@ extension Real {
   /// operators to denote real-number arithmetic, and normal operators
   /// for floating-point arithmetic):
   ///
+  /// ```
   ///   a * b.reciprocal! = a * (1/b)
   ///                     = a * (1 ⊘ b)(1 + δ₁)
   ///                     = (a ⊘ b)(1 + δ₁)(1 + δ₂)
   ///                     = (a ⊘ b)(1 + δ₁ + δ₂ + δ₁δ₂)
+  /// ```
   ///
-  /// where 0 < δᵢ <= ulpOfOne/2. This gives a roughly 1-ulp error,
+  /// where `0 < δᵢ <= ulpOfOne/2`. This gives a roughly 1-ulp error,
   /// about twice the error bound we get using division. For most
   /// purposes this is an acceptable error, but if you need to match
   /// results obtained using division, you should not use this.

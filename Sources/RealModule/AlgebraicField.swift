@@ -56,11 +56,6 @@ public protocol AlgebraicField: SignedNumeric {
   /// The (approximate) reciprocal (multiplicative inverse) of this number,
   /// if it is representable.
   ///
-  /// If reciprocal is non-nil, you can replace division by self with
-  /// multiplication by reciprocal and either get exact the same result
-  /// (for finite fields) or approximately the same result up to a typical
-  /// rounding error (for floating-point formats).
-  ///
   /// If self is zero and the type has no representation for infinity (as
   /// in a typical finite field implementation), or if a reciprocal would
   /// overflow or underflow such that it cannot be accurately represented,
@@ -70,17 +65,17 @@ public protocol AlgebraicField: SignedNumeric {
   /// for `Real` or `Complex` types, because these types have an
   /// `.infinity` value that acts as the reciprocal of `.zero`.
   ///
-  /// If `b.reciprocal` is non-nil, you may be able to replace division by `b`
+  /// If `x.reciprocal` is non-nil, you may be able to replace division by `x`
   /// with multiplication by this value. It is not advantageous to do this
   /// for an isolated division unless it is a compile-time constant visible
   /// to the compiler, but if you are dividing many values by a single
   /// denominator, this will often be a significant performance win.
   ///
-  /// Note that this will slightly perturb results for fields with approximate
-  /// arithmetic, such as real or complex types--using a normal division
+  /// Note that this will slightly perturb results for some fields with
+  /// approximate arithmetic, such as real types--using a normal division
   /// is generally more accurate--but no catastrophic loss of accuracy will
-  /// result. For fields with exact arithmetic, the results are necessarily
-  /// identical.
+  /// result. For fields with exact arithmetic, or for the Complex types,
+  /// the results are identical.
   ///
   /// A typical use case looks something like this:
   /// ```
