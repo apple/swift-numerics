@@ -42,7 +42,7 @@ To use Swift Numerics in a SwiftPM project:
 1. Add the following line to the dependencies in your `Package.swift` file:
 
 ```swift
-.package(url: "https://github.com/apple/swift-numerics", from: "0.1.0"),
+.package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
 ```
 
 2. Add `Numerics` as a dependency for your target:
@@ -55,6 +55,12 @@ To use Swift Numerics in a SwiftPM project:
 ```
 
 3. Add `import Numerics` in your source code.
+
+## Source stability
+
+Swift Numerics uses semantic versioning.
+The public API of Swift Numerics is the non-underscored contents of the modules re-exported by the Numerics top-level module.
+E.g. the contents of `_NumericsShims` are not considered API, nor is the `_mulAdd` operation defined for `Real` types.
 
 ## Contributing to Swift Numerics
 
