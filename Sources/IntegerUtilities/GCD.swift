@@ -20,24 +20,22 @@ public func gcd<T: BinaryInteger>(_ a: T, _ b: T) -> T {
   var x = a.magnitude
   var y = b.magnitude
   
-  if x == 0 { return T(y) }
   if y == 0 { return T(x) }
   
   let xtz = x.trailingZeroBitCount
   let ytz = y.trailingZeroBitCount
   
-  x >>= xtz
   y >>= ytz
   
   // The binary GCD algorithm
   //
-  // At the top of the loop both x and y are odd. Each pass removes at least
-  // one low-order bit from the larger of the two, so the number of iterations
-  // is bounded by the sum of the bit-widths of the inputs.
+  // After the right-shift in the loop, both x and y are odd. Each pass removes
+  // at least one low-order bit from the larger of the two, so the number of
+  // iterations is bounded by the sum of the bit-widths of the inputs.
   while x != 0 {
+    x >>= x.trailingZeroBitCount
     if x < y { swap(&x, &y) }
     x -= y
-    x >>= x.trailingZeroBitCount
   }
   
   return T(y << min(xtz, ytz))
