@@ -14,6 +14,13 @@
 /// If both inputs are zero, the result is zero. If one input is zero, the
 /// result is the absolute value of the other input.
 ///
+/// The resulting value must be representable within the value's type. In
+/// particular, the gcd of a signed, fixed-width integer type's minimum
+/// with itself or zero results in a value that cannot be represented:
+///
+///     gcd(Int.min, Int.min)   // Overflow error
+///     gcd(Int.min, 0)         // Overflow error
+///
 /// [wiki]: https://en.wikipedia.org/wiki/Greatest_common_divisor
 @inlinable
 public func gcd<T: BinaryInteger>(_ a: T, _ b: T) -> T {
