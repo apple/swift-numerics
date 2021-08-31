@@ -56,6 +56,22 @@ To use Swift Numerics in a SwiftPM project:
 
 3. Add `import Numerics` in your source code.
 
+## Source stability
+
+The Swift Numerics package is source stable; version numbers follow [Semantic Versioning](https://semver.org).
+The public API of the `swift-numerics` package consists of non-underscored declarations that are marked either `public` or `usableFromInline` in modules re-exported by the top-level `Numerics` module.
+Interfaces that aren't part of the public API may continue to change in any release, including patch releases. 
+
+Note that contents of the `_NumericsShims` and `_TestSupport` modules, as well as contents of the `Tests` directory, explicitly are not public API.
+The definitions therein may therefore change at whim, and the entire module may be removed in any new release.
+If you have a use case that requires underscored operations, please raise an issue to request that they be made public API.
+
+Future minor versions of the package may introduce changes to these rules as needed.
+
+We'd like this package to quickly embrace Swift language and toolchain improvements that are relevant to its mandate.
+Accordingly, from time to time, we expect that new versions of this package will require clients to upgrade to a more recent Swift toolchain release.
+Requiring a new Swift release will only require a minor version bump.
+
 ## Contributing to Swift Numerics
 
 Swift Numerics is a standalone library that is separate from the core Swift project, but it will sometimes act as a staging ground for APIs that will later be incorporated into the Swift Standard Library.
