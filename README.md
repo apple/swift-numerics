@@ -59,7 +59,7 @@ To use Swift Numerics in a SwiftPM project:
 ## Source stability
 
 The Swift Numerics package is source stable; version numbers follow [Semantic Versioning](https://semver.org).
-The public API of the `swift-numerics` package consists of non-underscored declarations that are marked either `public` or `usableFromInline` in modules re-exported by the top-level `Numerics` module.
+The public API of the `swift-numerics` package consists of non-underscored declarations that are marked either `public` or `usableFromInline` in modules re-exported by the top-level `Numerics` module, *excepting any API that involves a conformance to Differentiable (because Differentiable itself is not stable in Swift)*.
 Interfaces that aren't part of the public API may continue to change in any release, including patch releases. 
 
 Note that contents of the `_NumericsShims` and `_TestSupport` modules, as well as contents of the `Tests` directory, explicitly are not public API.
