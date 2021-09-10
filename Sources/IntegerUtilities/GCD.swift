@@ -14,9 +14,9 @@
 /// If both inputs are zero, the result is zero. If one input is zero, the
 /// result is the absolute value of the other input.
 ///
-/// The resulting value must be representable within the value's type. In
-/// particular, the gcd of a signed, fixed-width integer type's minimum
-/// with itself or zero results in a value that cannot be represented:
+/// The result must be representable within its type. In particular, the gcd
+/// of a signed, fixed-width integer type's minimum with itself (or zero)
+/// cannot be represented, and results in a trap.
 ///
 ///     gcd(Int.min, Int.min)   // Overflow error
 ///     gcd(Int.min, 0)         // Overflow error
