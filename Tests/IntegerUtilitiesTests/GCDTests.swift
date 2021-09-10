@@ -35,7 +35,7 @@ final class IntegerUtilitiesGCDTests: XCTestCase {
     XCTAssertEqual(gcd(97*67*53*27*8, 83*67*53*9*32), 67*53*9*8)
     XCTAssertEqual(gcd(Int.min, 2), 2)
     
-    // TODO: Enable these when version compability allows.
+    // TODO: Enable these when version compatibility allows.
     //
     // XCTExpectFailure{ gcd(0, Int.min) }
     // XCTExpectFailure{ gcd(Int.min, 0) }
