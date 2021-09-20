@@ -59,41 +59,39 @@ let package = Package(
     .target(
       name: "_TestSupport",
       dependencies: ["Numerics"],
-      exclude: excludedFilenames
+      exclude: ["CMakeLists.txt"]
     ),
     
     // MARK: - Unit test bundles
     .testTarget(
       name: "ComplexTests",
       dependencies: ["_TestSupport"],
-      exclude: excludedFilenames
+      exclude: ["CMakeLists.txt"]
     ),
     
     .testTarget(
       name: "IntegerUtilitiesTests",
       dependencies: ["IntegerUtilities"],
-      exclude: excludedFilenames
+      exclude: ["CMakeLists.txt"]
     ),
     
     .testTarget(
       name: "RealTests",
       dependencies: ["_TestSupport"],
-      exclude: excludedFilenames
+      exclude: ["CMakeLists.txt"]
     ),
     
     // MARK: - Test executables
     .target(
       name: "ComplexLog",
       dependencies: ["Numerics", "_TestSupport"],
-      path: "Tests/Executable/ComplexLog",
-      exclude: excludedFilenames
+      path: "Tests/Executable/ComplexLog"
     ),
     
     .target(
       name: "ComplexLog1p",
       dependencies: ["Numerics", "_TestSupport"],
-      path: "Tests/Executable/ComplexLog1p",
-      exclude: excludedFilenames
+      path: "Tests/Executable/ComplexLog1p"
     )
   ]
 )
