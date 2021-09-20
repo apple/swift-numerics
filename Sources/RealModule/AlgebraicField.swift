@@ -16,7 +16,7 @@
 /// division are defined, and behave basically like those operations on
 /// the real numbers. More precisely, a field is a commutative group under
 /// its addition, the non-zero elements of the field form a commutative
-/// group under its multiplication, and the distributitve law holds.
+/// group under its multiplication, and the distributive law holds.
 ///
 /// Some common examples of fields include:
 ///
