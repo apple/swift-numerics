@@ -8,6 +8,7 @@ See https://swift.org/LICENSE.txt for license information
 #]]
 
 add_library(IntegerUtilitiesTests
+  GCDTests.swift
   RotateTests.swift)
 target_compile_options(IntegerUtilitiesTests PRIVATE
   -enable-testing)

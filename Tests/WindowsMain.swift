@@ -90,6 +90,12 @@ extension RotateTests {
   ])
 }
 
+extension IntegerUtilitiesGCDTests {
+  static var all = testCase([
+    ("testGCDInt", IntegerUtilitiesGCDTests.testGCDInt),
+  ])
+}
+
 var testCases = [
   ComplexTests.ApproximateEqualityTests.all,
   RealTests.ApproximateEqualityTests.all,
@@ -98,6 +104,7 @@ var testCases = [
   ArithmeticTests.all,
   PropertyTests.all,
   RotateTests.all,
+  IntegerUtilitiesGCDTests.all,
 ]
 
 #if swift(>=5.3) && canImport(_Differentiation)
