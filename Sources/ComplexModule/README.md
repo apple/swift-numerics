@@ -2,8 +2,8 @@
 
 This module provides a `Complex` number type generic over an underlying `RealType`:
 ```swift
-1> import Numerics
-2> let z = Complex(1,1) // z = 1 + i
+import Numerics
+let z = Complex(1,1) // z = 1 + i
 ```
 This module provides approximate feature parity and memory layout compatibility with C, Fortran, and C++ complex types (although the importer does not map the types for you, buffers may be reinterpreted to shim API defined in other languages).
 
