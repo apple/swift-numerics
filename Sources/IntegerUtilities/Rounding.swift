@@ -44,8 +44,19 @@ public enum RoundingRule {
   /// and admit _double roundings_ when interoperating with some modes.
   case toOdd
   
+  /// Produces the representable value that is closest to the value being
+  /// rounded. If two values are equally close, the one that has greater
+  /// magnitude is returned.
   case toNearestOrAwayFromZero
+  
+  /// Produces the representable value that is closest to the value being
+  /// rounded. If two values are equally close, the one whose least
+  /// significant bit is not set is returned.
   case toNearestOrEven
+  
+  /// Adds a uniform random value from [0, d) to the value being rounded,
+  /// then returns the floor of the resulting value, where d is the
+  /// distance between the two closest representable values.
   case stochastic
   
   /// If the value being rounded is representable, that value is returned.
