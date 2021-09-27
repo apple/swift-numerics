@@ -65,6 +65,32 @@ public enum RoundingRule {
 }
 
 extension BinaryInteger {
+  /// self / 2^(count), rounded the results according to the specified rule.
+  ///
+  /// The default rounding rule is `.down`, which matches the behavior of
+  /// the `>>` operator from the standard library.
+  ///
+  /// Some examples of different rounding rules:
+  ///
+  ///     // 3/2 is 1.5, which rounds (down by default) to 1.
+  ///     3.shifted(right: 1)
+  ///
+  ///     // 1.5 rounds up to 2.
+  ///     3.shifted(right: 1, rounding: .up)
+  ///
+  ///     // The two closest values are 1 and 2, 1 is returned because it
+  ///     // is odd.
+  ///     3.shifted(right: 1, rounding: .toOdd)
+  ///
+  ///     // 7/2^2 = 1.75, so the result is 1 with probability 1/4, and 2
+  ///     // with probability 3/4.
+  ///     7.shifted(right: 2, rounding: .stochastic)
+  ///
+  ///     // 4/2^2 = 4/4 = 1, exactly.
+  ///     4.shifted(right: 2, rounding: .trap)
+  ///
+  ///     // 5/2 is 2.5, which is not exact, so this traps.
+  ///     5.shifted(right: 1, rounding: .trap)
   public func shifted<Count: BinaryInteger>(
     right count: Count,
     rounding rule: RoundingRule = .down
