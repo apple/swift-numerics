@@ -83,10 +83,17 @@ extension PropertyTests {
   ])
 }
 
-extension RotateTests {
+extension IntegerUtilitiesRotateTests {
   static var all = testCase([
-    ("testRotateUInt8", RotateTests.testRotateUInt8),
-    ("testRotateInt16", RotateTests.testRotateInt16),
+    ("testRotateUInt8", IntegerUtilitiesRotateTests.testRotateUInt8),
+    ("testRotateInt16", IntegerUtilitiesRotateTests.testRotateInt16),
+  ])
+}
+
+extension IntegerUtilitiesShiftTests {
+  static var all = testCase([
+    ("testRoundingShifts", IntegerUtilitiesShiftTests.testRoundingShifts),
+    ("testStochasticShifts", IntegerUtilitiesShiftTests.testStochasticShifts),
   ])
 }
 
@@ -103,8 +110,9 @@ var testCases = [
   IntegerExponentTests.all,
   ArithmeticTests.all,
   PropertyTests.all,
-  RotateTests.all,
   IntegerUtilitiesGCDTests.all,
+  IntegerUtilitiesRotateTests.all,
+  IntegerUtilitiesShiftTests.all,
 ]
 
 #if swift(>=5.3) && canImport(_Differentiation)

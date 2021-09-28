@@ -1,4 +1,4 @@
-//===--- RoundingTests.swift ----------------------------------*- swift -*-===//
+//===--- ShiftTests.swift -------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift.org open source project
 //
@@ -13,14 +13,14 @@
 import IntegerUtilities
 import XCTest
 
-final class RoundingTests: XCTestCase {
+final class IntegerUtilitiesShiftTests: XCTestCase {
   
   func testRoundingShift<T: FixedWidthInteger>(
     _ value: T, _ count: Int, rounding rule: RoundingRule
   ) {
     let floor = value >> count
-    let frac = value &- floor << count
-    let exact = count <= 0 || frac == 0
+    let lost = value &- floor << count
+    let exact = count <= 0 || lost == 0
     let ceiling = exact ? floor : floor &+ 1
     let expected: T
     switch rule {
@@ -71,7 +71,7 @@ final class RoundingTests: XCTestCase {
         }
         return
       }
-    case .trap:
+    case .requireExact:
       preconditionFailure()
     }
     let observed = value.shifted(right: count, rounding: rule)
@@ -96,7 +96,7 @@ final class RoundingTests: XCTestCase {
     }
   }
   
-  func testRoundingShift() {
+  func testRoundingShifts() {
     testRoundingShift(Int8.self, rounding: .down)
     testRoundingShift(Int8.self, rounding: .up)
     testRoundingShift(Int8.self, rounding: .towardZero)
@@ -132,5 +132,62 @@ final class RoundingTests: XCTestCase {
     testRoundingShift(UInt.self, rounding: .toNearestOrAwayFromZero)
     testRoundingShift(UInt.self, rounding: .toNearestOrEven)
     testRoundingShift(UInt.self, rounding: .stochastic)
+  }
+  
+  // Stochastic rounding doesn't have a deterministic "expected" answer,
+  // but we know that the result must be either the floor or the ceiling.
+  // The above tests ensure that, but that's not a very strong guarantee;
+  // an implementation could just implement it as self >> count and pass
+  // that test.
+  //
+  // Here we round the _same_ value many times, compute the average, and
+  // check that it is acceptably close to the exact expected value; simple
+  // use of any deterministic rounding rule will not achieve this.
+  func testStochasticAverage<T: FixedWidthInteger>(_ value: T) {
+    var fails = 0
+    for count in 0 ... 64 {
+      let sum = (0..<1024).reduce(into: 0.0) { sum, _ in
+        let rounded = value.shifted(right: count, rounding: .stochastic)
+        sum += Double(rounded)
+      }
+      let expected = Double(sign: .plus, exponent: -count, significand: 1024*Double(value))
+      let difference = abs(sum - expected)
+      // Waving my hands slightly instead of giving a precise explanation
+      // here, the expectation is that difference should be about
+      // 1/2 sqrt(1024). If it's repeatedly bigger than that, we _may_
+      // have a problem, but it's OK for this to fail occasionally.
+      //
+      // TODO: precise justification of thresholds
+      if difference > 16 { fails += 1 }
+      // On the other hand, if we're more than a couple standard deviations
+      // off, we should flag that. This still isn't _necessarily_ a problem,
+      // but if you see a repeated failure for a given shift count, that's
+      // almost surely a real bug.
+      XCTAssertLessThanOrEqual(difference, 64,
+      "Accumulated error (\(difference)) was unexpectedly large in \(value).shifted(right: \(count))"
+      )
+    }
+    // Threshold chosen so that this is expected to _almost always_ pass, but
+    // it may fail sporadically. This is not a great fit for CI workflows,
+    // sorry. Basically ignore one-off failures, but a repeated failure here
+    // is an indication that a bug exists.
+    XCTAssertLessThanOrEqual(fails, 16,
+    "Accumulated error was large more often than expected for \(value).shifted(right:)"
+    )
+  }
+  
+  func testStochasticShifts() {
+    testStochasticAverage(Int8.random(in: .min ... .max))
+    testStochasticAverage(Int16.random(in: .min ... .max))
+    testStochasticAverage(Int32.random(in: .min ... .max))
+    testStochasticAverage(UInt8.random(in: .min ... .max))
+    testStochasticAverage(UInt16.random(in: .min ... .max))
+    testStochasticAverage(UInt32.random(in: .min ... .max))
+    // For [U]Int64, we have to be a little bit careful, because random
+    // 64-bit integers are generally not representable as Doubles, nor
+    // can you sum up a random Double with itself 1024 times and get an
+    // exact result.
+    testStochasticAverage(Int64(Int32.random(in: .min ... .max)) << Int.random(in: 0 ... 32))
+    testStochasticAverage(UInt64(UInt32.random(in: .min ... .max)) << Int.random(in: 0 ... 32))
   }
 }

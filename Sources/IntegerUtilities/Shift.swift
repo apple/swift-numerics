@@ -10,7 +10,7 @@
 //===----------------------------------------------------------------------===//
 
 extension BinaryInteger {
-  /// self / 2^(count), rounded the results according to the specified rule.
+  /// `self` divided by 2^(`count`), rounding the result according to `rule`.
   ///
   /// The default rounding rule is `.down`, which matches the behavior of
   /// the `>>` operator from the standard library.
@@ -58,8 +58,8 @@ extension BinaryInteger {
       // the desired rounding mode.
       let count = count - Count(bitWidth - 1)
       var floor = self >> count
-      let frac = self - (floor << count)
-      if frac != 0 { floor |= 1 } // insert sticky bit
+      let lost = self - (floor << count)
+      if lost != 0 { floor |= 1 } // insert sticky bit
       return floor.shifted(right: bitWidth - 1, rounding: rule)
     }
     // Now we are in the happy case: 0 < count < bitWidth, which makes all
@@ -71,8 +71,8 @@ extension BinaryInteger {
     //
     //   floor = self >> count
     //   mask = 1 << count - 1
-    //   frac = self & mask
-    //   return floor + (frac == 0 ? 0 : 1)
+    //   lost = self & mask
+    //   return floor + (lost == 0 ? 0 : 1)
     //
     // _if_ we didn't have to worry about intermediate overflow (either because
     // self is bounded away from .max or because we don't have a fixed-width
@@ -88,17 +88,18 @@ extension BinaryInteger {
     //
     // This cannot occur for arbitrary-precision numbers, so we could use
     // the simpler expressions for those (but those are precisely the cases
-    // where performance does not matter). More interesting, we could promote
-    // fixed-width numbers to a wider type, preventing this intermediate
-    // overflow and allowing us to use the simpler expressions much of the
-    // time. We could also explicitly _detect_ the overflow if it happens and
-    // patch up the result, though this is a little bit tricky because
-    // addingReportingOverflow does not exist on BinaryInteger. Hence, this
-    // is a TODO for the future.
+    // where performance of rounding does not matter much, because shifts
+    // get swamped by even basic arithmetic). More interesting, we could
+    // promote fixed-width numbers to a wider type, preventing this
+    // intermediate overflow and allowing us to use the simpler expressions
+    // much of the time. We could also explicitly _detect_ the overflow if
+    // it happens and patch up the result, though this is a little bit tricky
+    // because addingReportingOverflow and friends do not exist on
+    // BinaryInteger. Hence, this is a TODO for the future.
     let mask = Magnitude(1) << count - 1
-    let frac = Magnitude(truncatingIfNeeded: self) & mask
+    let lost = Magnitude(truncatingIfNeeded: self) & mask
     let floor = self >> count
-    let ceiling = floor + (frac == 0 ? 0 : 1)
+    let ceiling = floor + (lost == 0 ? 0 : 1)
     switch rule {
     case .down:
       return floor
@@ -109,13 +110,13 @@ extension BinaryInteger {
     case .awayFromZero:
       return self < 0 ? floor : ceiling
     case .toOdd:
-      return floor | (frac == 0 ? 0 : 1)
+      return floor | (lost == 0 ? 0 : 1)
     case .toNearestOrAwayFromZero:
       let round = mask >> 1 + (self > 0 ? 1 : 0)
-      return floor + Self((round + frac) >> count)
+      return floor + Self((round + lost) >> count)
     case .toNearestOrEven:
       let round = mask >> 1 + Magnitude(floor & 1)
-      return floor + Self((round + frac) >> count)
+      return floor + Self((round + lost) >> count)
     case .stochastic:
       // TODO: it's unfortunate that we can't specify a custom random source
       // for the stochastic rounding rule, but I don't see a nice way to have
@@ -128,21 +129,24 @@ extension BinaryInteger {
       // random(in:) method does not exist on BinaryInteger. This is
       // (arguably) good, though, because there's actually no reason to
       // generate large amounts of randomness just to implement stochastic
-      // rounding for bigints; we can cap it at word-size, which is way
-      // more than needed to generate high-quality results.
-      let u01 = UInt.random(in: 0 ... .max)
-      if count < UInt.bitWidth {
-        // count is small, so u01 & mask is representable as both UInt
-        // and Self, regardless of what type Self actually is.
-        return floor + Self(((u01 & UInt(mask)) + UInt(frac)) >> count)
+      // rounding for bigints; 32b suffices for most purposes, and 64b is
+      // more than enough.
+      var g = SystemRandomNumberGenerator()
+      let u01 = g.next()
+      if count < 64 {
+        // count is small, so mask and lost are representable as both
+        // UInt64 and Self, regardless of what type Self actually is.
+        return floor + Self(((u01 & UInt64(mask)) + UInt64(lost)) >> count)
+      } else {
+        // count is large, so lost may not be representable as UInt64; pre-
+        // shift by count-64 to isolate the high 64b of the fraction, then
+        // add u01 and carry-out to round.
+        let highWord = UInt64(truncatingIfNeeded: lost >> (Int(count) - 64))
+        let (_, carry) = highWord.addingReportingOverflow(u01)
+        return floor + (carry ? 1 : 0)
       }
-      // count is large, so Self is a type larger than UInt. Do the shift
-      // for frac in two stages so we can do the rounding work in UInt:
-      let smallFrac = UInt(truncatingIfNeeded: frac >> (count - Count(UInt.bitWidth)))
-      let (_, carry) = smallFrac.addingReportingOverflow(u01)
-      return floor + (carry ? 1 : 0)
-    case .trap:
-      precondition(frac == 0, "shift was not exact.")
+    case .requireExact:
+      precondition(lost == 0, "shift was not exact.")
       return floor
     }
   }

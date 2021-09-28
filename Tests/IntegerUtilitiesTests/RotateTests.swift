@@ -13,7 +13,7 @@
 import IntegerUtilities
 import XCTest
 
-final class RotateTests: XCTestCase {
+final class IntegerUtilitiesRotateTests: XCTestCase {
   func testRotateUInt8() {
     let x: UInt8 = 0b10011100
     XCTAssertEqual(0b01001110, x.rotated(right:-7))

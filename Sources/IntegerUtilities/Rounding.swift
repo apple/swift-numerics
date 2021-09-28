@@ -11,6 +11,9 @@
 
 /// A rule that defines how to select one of the two representable results
 /// closest to a given value.
+///
+/// [Wikipedia](https://en.wikipedia.org/wiki/Rounding#Rounding_to_integer)
+/// provides a good overview of different rounding rules.
 public enum RoundingRule {
   /// Produces the closest representable value that is less than or equal
   /// to the value being rounded.
@@ -61,5 +64,5 @@ public enum RoundingRule {
   
   /// If the value being rounded is representable, that value is returned.
   /// Otherwise, a precondition failure occurs.
-  case trap
+  case requireExact
 }
