@@ -119,13 +119,103 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
 
+  func testCosh<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // cosh(0) = 1
+    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real: 0, imaginary: 0, 0, 0)))
+    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real:-0, imaginary: 0, 0, 0)))
+    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real:-0, imaginary:-0,-0,-0)))
+    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real: 0, imaginary:-0,-0,-0)))
+    // cosh is the identity at infinity.
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:  .infinity, imaginary: .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:  .infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:          0, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real: -.infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real: -.infinity, imaginary: .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real: -.infinity, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:          0, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:  .infinity, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:       .nan, imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:  .infinity, imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:       .nan, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real: -.infinity, imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:       .nan, imaginary: -.infinity)).isFinite)
+    // Near-overflow test, same as exp() above, but it happens later, because
+    // for large x, cosh(x + v) ~ exp(x + v)/2.
+    let x = T.log(.greatestFiniteMagnitude) + T.log(18/8)
+    let mag = T.greatestFiniteMagnitude/T.sqrt(2) * (9/8)
+    var huge = Quaternion<T>.cosh(Quaternion(real: x, imaginary: SIMD3(.pi/4, 0, 0)))
+    XCTAssert(huge.real.isApproximatelyEqual(to: mag))
+    XCTAssert(huge.imaginary.x.isApproximatelyEqual(to: mag))
+    XCTAssertEqual(huge.imaginary.y, .zero)
+    XCTAssertEqual(huge.imaginary.z, .zero)
+    huge = Quaternion<T>.cosh(Quaternion(real: -x, imaginary: SIMD3(.pi/4, 0, 0)))
+    XCTAssert(huge.real.isApproximatelyEqual(to: mag))
+    XCTAssert(huge.imaginary.x.isApproximatelyEqual(to: mag))
+    XCTAssertEqual(huge.imaginary.y, .zero)
+    XCTAssertEqual(huge.imaginary.z, .zero)
+  }
+
+  func testSinh<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // sinh(0) = 0
+    XCTAssertEqual(0, Quaternion<T>.sinh(Quaternion(real: 0, imaginary: 0, 0, 0)))
+    XCTAssertEqual(0, Quaternion<T>.sinh(Quaternion(real:-0, imaginary: 0, 0, 0)))
+    XCTAssertEqual(0, Quaternion<T>.sinh(Quaternion(real:-0, imaginary:-0,-0,-0)))
+    XCTAssertEqual(0, Quaternion<T>.sinh(Quaternion(real: 0, imaginary:-0,-0,-0)))
+    // sinh is the identity at infinity.
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:  .infinity, imaginary: .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:  .infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:          0, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real: -.infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real: -.infinity, imaginary: .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real: -.infinity, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:          0, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:  .infinity, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:       .nan, imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:  .infinity, imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:       .nan, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real: -.infinity, imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:       .nan, imaginary: -.infinity)).isFinite)
+    // Near-overflow test, same as exp() above, but it happens later, because
+    // for large x, sinh(x + v) ~ ±exp(x + v)/2.
+    let x = T.log(.greatestFiniteMagnitude) + T.log(18/8)
+    let mag = T.greatestFiniteMagnitude/T.sqrt(2) * (9/8)
+    var huge = Quaternion<T>.sinh(Quaternion(real: x, imaginary: SIMD3(.pi/4, 0, 0)))
+    XCTAssert(huge.real.isApproximatelyEqual(to: mag))
+    XCTAssert(huge.imaginary.x.isApproximatelyEqual(to: mag))
+    XCTAssertEqual(huge.imaginary.y, .zero)
+    XCTAssertEqual(huge.imaginary.z, .zero)
+    huge = Quaternion<T>.sinh(Quaternion(real: -x, imaginary: SIMD3(.pi/4, 0, 0)))
+    XCTAssert(huge.real.isApproximatelyEqual(to: -mag))
+    XCTAssert(huge.imaginary.x.isApproximatelyEqual(to: mag))
+    XCTAssertEqual(huge.imaginary.y, .zero)
+    XCTAssertEqual(huge.imaginary.z, .zero)
+    // For randomly-chosen well-scaled finite values, we expect to have
+    // cosh² - sinh² ≈ 1. Note that this test would break down due to
+    // catastrophic cancellation as we get further away from the origin.
+    var g = SystemRandomNumberGenerator()
+    let values: [Quaternion<T>] = (0..<1000).map { _ in
+      Quaternion(
+        real: T.random(in: -2 ... 2, using: &g),
+        imaginary: SIMD3(repeating: T.random(in: -2 ... 2, using: &g) / 3))
+    }
+    for q in values {
+      let c = Quaternion.cosh(q)
+      let s = Quaternion.sinh(q)
+      XCTAssert((c*c - s*s).isApproximatelyEqual(to: .one))
+    }
+  }
+
   func testFloat() {
     testExp(Float32.self)
     testExpMinusOne(Float32.self)
+    testCosh(Float32.self)
+    testSinh(Float32.self)
   }
 
   func testDouble() {
     testExp(Float64.self)
     testExpMinusOne(Float64.self)
+    testCosh(Float64.self)
+    testSinh(Float64.self)
   }
 }

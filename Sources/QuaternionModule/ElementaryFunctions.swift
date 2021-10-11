@@ -76,5 +76,70 @@ extension Quaternion/*: ElementaryFunctions */ {
       imaginary: n̂ * .exp(q.real) * .sin(θ)
     )
   }
+
+  // cosh(r + xi + yj + zk) = cosh(r + v)
+  // cosh(r + v) = cosh(r) cos(||v||) + (v/||v||) sinh(r) sin(||v||).
+  //
+  // See cosh on complex numbers for algorithm details.
+  @inlinable
+  public static func cosh(_ q: Quaternion) -> Quaternion {
+    guard q.isFinite else { return q }
+    // TODO: Replace q.imaginary == .zero with `q.isReal`
+    let θ = q.imaginary == .zero ? .zero : q.imaginary.length // θ = ||v||
+    let n̂ = q.imaginary == .zero ? .zero : (q.imaginary / θ)  // n̂ = v / ||v||
+    guard q.real.magnitude < -RealType.log(.ulpOfOne) else {
+      let rotation = Quaternion(halfAngle: θ, unitAxis: n̂)
+      let firstScale = RealType.exp(q.real.magnitude/2)
+      let secondScale = firstScale/2
+      return rotation.multiplied(by: firstScale).multiplied(by: secondScale)
+    }
+    return Quaternion(
+      real: .cosh(q.real) * .cos(θ),
+      imaginary: n̂ * .sinh(q.real) * .sin(θ)
+    )
+  }
+
+  // sinh(r + xi + yj + zk) = sinh(r + v)
+  // sinh(r + v) = sinh(r) cos(||v||) + (v/||v||) cosh(r) sin(||v||)
+  //
+  // See cosh on complex numbers for algorithm details.
+  @inlinable
+  public static func sinh(_ q: Quaternion) -> Quaternion {
+    guard q.isFinite else { return q }
+    // TODO: Replace q.imaginary == .zero with `q.isReal`
+    let θ = q.imaginary == .zero ? .zero : q.imaginary.length // θ = ||v||
+    let n̂ = q.imaginary == .zero ? .zero : (q.imaginary / θ)  // n̂ = v / ||v||
+    guard q.real.magnitude < -RealType.log(.ulpOfOne) else {
+      let rotation = Quaternion(halfAngle: θ, unitAxis: n̂)
+      let firstScale = RealType.exp(q.real.magnitude/2)
+      let secondScale = RealType(signOf: q.real, magnitudeOf: firstScale/2)
+      return rotation.multiplied(by: firstScale).multiplied(by: secondScale)
+    }
+    return Quaternion(
+      real: .sinh(q.real) * .cos(θ),
+      imaginary: n̂ * .cosh(q.real) * .sin(θ)
+    )
+  }
+
+  // tanh(q) = sinh(q) / cosh(q)
+  //
+  // See tanh on complex numbers for algorithm details.
+  @inlinable
+  public static func tanh(_ q: Quaternion) -> Quaternion {
+    guard q.isFinite else { return q }
+    // Note that when |r| is larger than -log(.ulpOfOne),
+    // sinh(r + v) == ±cosh(r + v), so tanh(r + v) is just ±1.
+    guard q.real.magnitude < -RealType.log(.ulpOfOne) else {
+      return Quaternion(
+        real: RealType(signOf: q.real, magnitudeOf: 1),
+        imaginary:
+          RealType(signOf: q.imaginary.x, magnitudeOf: 0),
+          RealType(signOf: q.imaginary.y, magnitudeOf: 0),
+          RealType(signOf: q.imaginary.z, magnitudeOf: 0)
+      )
+    }
+    return sinh(q) / cosh(q)
+  }
+
   }
 }
