@@ -32,6 +32,11 @@
 // Except where derivations are given, the expressions used here are all
 // adapted from Kahan's 1986 paper "Branch Cuts for Complex Elementary
 // Functions; or: Much Ado About Nothing's Sign Bit".
+//
+// As quaternions share the same goals and use adoptions of the elementary
+// functions: If you make a modification to either of the following functions,
+// you should almost surely make a parallel modification to the same elementary
+// function of quaternions (See ElementaryFunctions.swift in QuaternionModule).
 
 import RealModule
 

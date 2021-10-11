@@ -407,13 +407,8 @@ extension Quaternion {
   }
 }
 
-// MARK: - Transformation Helper
-//
-// While Angle/Axis, Rotation Vector and Polar are different representations
-// of transformations, they have common properties such as being based on a
-// rotation *angle* about a rotation axis of unit length.
-//
-// The following extension provides these common operation internally.
+// MARK: - Operations for working with polar form
+
 extension Quaternion {
   /// The half rotation angle in radians within *[0, π]* range.
   ///
