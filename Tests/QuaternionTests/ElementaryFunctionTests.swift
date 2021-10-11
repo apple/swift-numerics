@@ -23,7 +23,7 @@ final class ElementaryFunctionTests: XCTestCase {
     XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real:-0, imaginary: 0, 0, 0)))
     XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real:-0, imaginary:-0,-0,-0)))
     XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real: 0, imaginary:-0,-0,-0)))
-    // In general, exp(Quaternion(r, 0, 0, 0)) should be exp(r), but that breaks
+    // In general, exp(Quaternion(r,0,0,0)) should be exp(r), but that breaks
     // down when r is infinity or NaN, because we want all non-finite
     // quaternions to be semantically a single point at infinity. This is fine
     // for most inputs, but exp(Quaternion(-.infinity, 0, 0, 0)) would produce
