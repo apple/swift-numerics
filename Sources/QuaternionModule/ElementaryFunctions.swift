@@ -31,15 +31,10 @@ extension Quaternion/*: ElementaryFunctions */ {
   /// `exp(r) cos(θ)` would not be).
   public static func exp(_ q: Quaternion<RealType>) -> Quaternion<RealType> {
     guard q.isFinite else { return q }
-    // Firstly evaluate θ and v/θ where θ = ||v|| (as discussed above)
-    // There are 2 special cases for ||v|| that we need to take care of:
-    // The value of ||v|| may be invalid due to an overflow in `.lengthSquared`.
-    // As the internal `SIMD3.length` helper functions deals with overflow and
-    // underflow of `.lengthSquared`, we can safely ignore this case here.
-    // However, we still have to check for ||v|| = 0 before evaluating v/θ
-    // as it would incorrectly yield a division by zero.
-    let phase = q.imaginary.length
-    let unitAxis = !phase.isZero ? (q.imaginary / phase) : .zero
+    // For real quaternions we can skip phase and axis calculations
+    // TODO: Replace q.imaginary == .zero with `q.isReal`
+    let phase = q.imaginary == .zero ? .zero : q.imaginary.length
+    let unitAxis = q.imaginary == .zero ? .zero : (q.imaginary / phase)
     // If real < log(greatestFiniteMagnitude), then exp(q.real) does not overflow.
     // To protect ourselves against sketchy log or exp implementations in
     // an unknown host library, or slight rounding disagreements between
