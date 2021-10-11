@@ -49,11 +49,32 @@ extension Quaternion/*: ElementaryFunctions */ {
     }
     return Quaternion(halfAngle: θ, unitAxis: n̂).multiplied(by: .exp(q.real))
   }
+
+  @inlinable
+  public static func expMinusOne(_ q: Quaternion) -> Quaternion {
+    // Note that the imaginary part is just the usual exp(r) sin(θ);
+    // the only trick is computing the real part, which allows us to borrow
+    // the derivative of real part for this function from complex numbers.
+    // See `expMinusOne` in the ComplexModule for implementation details.
+    guard q.isFinite else { return q }
+    // TODO: Replace q.imaginary == .zero with `q.isReal`
+    let θ = q.imaginary == .zero ? .zero : q.imaginary.length // θ = ||v||
+    let n̂ = q.imaginary == .zero ? .zero : (q.imaginary / θ)  // n̂ = v / ||v||
+    // If exp(q) is close to the overflow boundary, we don't need to
+    // worry about the "MinusOne" part of this function; we're just
+    // computing exp(q). (Even when q.y is near a multiple of π/2,
+    // it can't be close enough to overcome the scaling from exp(q.x),
+    // so the -1 term is _always_ negligable). So we simply handle
+    // these cases exactly the same as exp(q).
+    guard q.real < RealType.log(.greatestFiniteMagnitude) - 1 else {
+      let halfScale = RealType.exp(q.real/2)
+      let rotation = Quaternion(halfAngle: θ, unitAxis: n̂)
       return rotation.multiplied(by: halfScale).multiplied(by: halfScale)
     }
     return Quaternion(
-      halfAngle: phase,
-      unitAxis: unitAxis
-    ).multiplied(by: .exp(q.real))
+      real: RealType._mulAdd(.cos(θ), .expMinusOne(q.real), .cosMinusOne(θ)),
+      imaginary: n̂ * .exp(q.real) * .sin(θ)
+    )
+  }
   }
 }

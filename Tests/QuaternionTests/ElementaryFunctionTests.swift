@@ -75,11 +75,57 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
 
+  func testExpMinusOne<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // expMinusOne(0) = 0
+    XCTAssertEqual(0, Quaternion<T>.expMinusOne(Quaternion(real: 0, imaginary: 0, 0, 0)))
+    XCTAssertEqual(0, Quaternion<T>.expMinusOne(Quaternion(real:-0, imaginary: 0, 0, 0)))
+    XCTAssertEqual(0, Quaternion<T>.expMinusOne(Quaternion(real:-0, imaginary:-0,-0,-0)))
+    XCTAssertEqual(0, Quaternion<T>.expMinusOne(Quaternion(real: 0, imaginary:-0,-0,-0)))
+    // In general, expMinusOne(Quaternion(r,0,0,0)) should be expMinusOne(r),
+    // but that breaks down when r is infinity or NaN, because we want all non-
+    // finite Quaternion values to be semantically a single point at infinity.
+    // This is fine for most inputs, but expMinusOne(Quaternion(-.infinity,0,0,0))
+    // would produce 0 if we evaluated it in the usual way.
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:  .infinity, imaginary: .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:  .infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:          0, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real: -.infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real: -.infinity, imaginary: .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real: -.infinity, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:          0, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:  .infinity, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:       .nan, imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:  .infinity, imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:       .nan, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real: -.infinity, imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:       .nan, imaginary: -.infinity)).isFinite)
+    // Near-overflow test, same as exp() above.
+    let x = T.log(.greatestFiniteMagnitude) + T.log(9/8)
+    let huge = Quaternion<T>.expMinusOne(Quaternion(real: x, imaginary: SIMD3(.pi/4, 0, 0)))
+    let mag = T.greatestFiniteMagnitude/T.sqrt(2) * (9/8)
+    XCTAssert(huge.real.isApproximatelyEqual(to: mag))
+    XCTAssert(huge.imaginary.x.isApproximatelyEqual(to: mag))
+    XCTAssertEqual(huge.imaginary.y, .zero)
+    XCTAssertEqual(huge.imaginary.z, .zero)
+    // For small values, expMinusOne should be approximately the identity.
+    var g = SystemRandomNumberGenerator()
+    let small = T.ulpOfOne
+    for _ in 0 ..< 100 {
+      let q = Quaternion<T>(
+        real: T.random(in: -small ... small, using: &g),
+        imaginary: SIMD3(repeating: T.random(in: -small ... small, using: &g))
+      )
+      XCTAssert(q.isApproximatelyEqual(to: Quaternion.expMinusOne(q), relativeTolerance: 16 * .ulpOfOne))
+    }
+  }
+
   func testFloat() {
     testExp(Float32.self)
+    testExpMinusOne(Float32.self)
   }
 
   func testDouble() {
     testExp(Float64.self)
+    testExpMinusOne(Float64.self)
   }
 }
