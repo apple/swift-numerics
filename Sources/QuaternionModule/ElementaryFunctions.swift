@@ -164,6 +164,23 @@ extension Quaternion/*: ElementaryFunctions */ {
     return sin(q) / cos(q)
   }
 
+  // MARK: - log-like functions
+  @inlinable
+  public static func log(_ q: Quaternion) -> Quaternion {
+    // If q is zero or infinite, the phase is undefined, so the result is
+    // the single exceptional value.
+    guard q.isFinite && !q.isZero else { return .infinity }
+
+    let vectorLength = q.imaginary.length
+    let scale = q.halfAngle / vectorLength
+
+    // We deliberatly choose log(length) over the (faster)
+    // log(lengthSquared) / 2 which is used for complex numbers; as
+    // the squared length of quaternions is more prone to overflows than the
+    // squared length of complex numbers.
+    return Quaternion(real: .log(q.length), imaginary: q.imaginary * scale)
+  }
+
   // MARK: - pow-like functions
   @inlinable
   public static func pow(_ q: Quaternion, _ p: Quaternion) -> Quaternion {
