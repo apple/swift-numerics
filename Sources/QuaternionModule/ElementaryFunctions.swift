@@ -163,6 +163,45 @@ extension Quaternion/*: ElementaryFunctions */ {
   public static func tan(_ q: Quaternion) -> Quaternion {
     return sin(q) / cos(q)
   }
+
+  // MARK: - pow-like functions
+  @inlinable
+  public static func pow(_ q: Quaternion, _ p: Quaternion) -> Quaternion {
+    // pow(q, p) = exp(log(q^p)) = exp(p * log(q))
+    return exp(p * log(q))
+  }
+
+  @inlinable
+  public static func pow(_ q: Quaternion, _ n: Int) -> Quaternion {
+    if q.isZero { return .zero }
+    // TODO: this implementation is not quite correct, because n may be
+    // rounded in conversion to RealType. This only effects very extreme
+    // cases, so we'll leave it alone for now.
+    //
+    // Note that this does not have the same problems that a similar
+    // implementation for a real type would have, because there's no
+    // parity/sign interaction in the complex plane.
+    return exp(log(q).multiplied(by: RealType(n)))
+  }
+
+  @inlinable
+  public static func sqrt(_ q: Quaternion) -> Quaternion<RealType> {
+    if q.isZero { return .zero }
+    // TODO: This is not the fastest implementation available
+    return exp(log(q).divided(by: 2))
+  }
+
+  @inlinable
+  public static func root(_ q: Quaternion, _ n: Int) -> Quaternion {
+    if q.isZero { return .zero }
+    // TODO: this implementation is not quite correct, because n may be
+    // rounded in conversion to RealType. This only effects very extreme
+    // cases, so we'll leave it alone for now.
+    //
+    // Note that this does not have the same problems that a similar
+    // implementation for a real type would have, because there's no
+    // parity/sign interaction in the complex plane.
+    return exp(log(q).divided(by: RealType(n)))
   }
 }
 
