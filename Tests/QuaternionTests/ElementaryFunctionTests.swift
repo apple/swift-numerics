@@ -186,7 +186,7 @@ final class ElementaryFunctionTests: XCTestCase {
     XCTAssertEqual(huge.imaginary.z, .zero)
     huge = Quaternion<T>.sinh(Quaternion(real: -x, imaginary: SIMD3(.pi/4, 0, 0)))
     XCTAssert(huge.real.isApproximatelyEqual(to: -mag))
-    XCTAssert(huge.imaginary.x.isApproximatelyEqual(to: mag))
+    XCTAssert(huge.imaginary.x.isApproximatelyEqual(to: -mag))
     XCTAssertEqual(huge.imaginary.y, .zero)
     XCTAssertEqual(huge.imaginary.z, .zero)
     // For randomly-chosen well-scaled finite values, we expect to have
@@ -196,7 +196,11 @@ final class ElementaryFunctionTests: XCTestCase {
     let values: [Quaternion<T>] = (0..<1000).map { _ in
       Quaternion(
         real: T.random(in: -2 ... 2, using: &g),
-        imaginary: SIMD3(repeating: T.random(in: -2 ... 2, using: &g) / 3))
+        imaginary:
+          T.random(in: -2 ... 2, using: &g) / 3,
+          T.random(in: -2 ... 2, using: &g) / 3,
+          T.random(in: -2 ... 2, using: &g) / 3
+      )
     }
     for q in values {
       let c = Quaternion.cosh(q)
@@ -205,11 +209,31 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
 
+
+  func testCosSinIdentity<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // For randomly-chosen well-scaled finite values, we expect to have cos² + sin² ≈ 1
+    var g = SystemRandomNumberGenerator()
+    let values: [Quaternion<T>] = (0..<1000).map { _ in
+      Quaternion(
+        real: T.random(in: -2 ... 2, using: &g),
+        imaginary:
+          T.random(in: -2 ... 2, using: &g) / 3,
+          T.random(in: -2 ... 2, using: &g) / 3,
+          T.random(in: -2 ... 2, using: &g) / 3
+      )
+    }
+    for q in values {
+      let c = Quaternion.cos(q)
+      let s = Quaternion.sin(q)
+      XCTAssert((c*c + s*s).isApproximatelyEqual(to: .one))
+    }
+  }
   func testFloat() {
     testExp(Float32.self)
     testExpMinusOne(Float32.self)
     testCosh(Float32.self)
     testSinh(Float32.self)
+    testCosSinIdentity(Float32.self)
   }
 
   func testDouble() {
@@ -217,5 +241,6 @@ final class ElementaryFunctionTests: XCTestCase {
     testExpMinusOne(Float64.self)
     testCosh(Float64.self)
     testSinh(Float64.self)
+    testCosSinIdentity(Float64.self)
   }
 }
