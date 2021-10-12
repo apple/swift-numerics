@@ -30,36 +30,36 @@ extension Quaternion/*: ElementaryFunctions */ {
   // Note that naive evaluation of this expression in floating-point would be
   // prone to premature overflow, since `cos` and `sin` both have magnitude
   // less than 1 for most inputs (i.e. `exp(r)` may be infinity when
-  // `exp(r) cos(θ)` would not be).
+  // `exp(r) cos(arg)` would not be).
   @inlinable
   public static func exp(_ q: Quaternion) -> Quaternion {
     guard q.isFinite else { return q }
     // For real quaternions we can skip phase and axis calculations
     // TODO: Replace q.imaginary == .zero with `q.isReal`
-    let θ = q.imaginary == .zero ? .zero : q.imaginary.length // θ = ||v||
-    let n̂ = q.imaginary == .zero ? .zero : (q.imaginary / θ)  // n̂ = v / ||v||
+    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
+    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
     // If real < log(greatestFiniteMagnitude), then exp(q.real) does not overflow.
     // To protect ourselves against sketchy log or exp implementations in
     // an unknown host library, or slight rounding disagreements between
     // the two, subtract one from the bound for a little safety margin.
     guard q.real < RealType.log(.greatestFiniteMagnitude) - 1 else {
       let halfScale = RealType.exp(q.real/2)
-      let rotation = Quaternion(halfAngle: θ, unitAxis: n̂)
+      let rotation = Quaternion(halfAngle: argument, unitAxis: axis)
       return rotation.multiplied(by: halfScale).multiplied(by: halfScale)
     }
-    return Quaternion(halfAngle: θ, unitAxis: n̂).multiplied(by: .exp(q.real))
+    return Quaternion(halfAngle: argument, unitAxis: axis).multiplied(by: .exp(q.real))
   }
 
   @inlinable
   public static func expMinusOne(_ q: Quaternion) -> Quaternion {
-    // Note that the imaginary part is just the usual exp(r) sin(θ);
+    // Note that the imaginary part is just the usual exp(r) sin(argument);
     // the only trick is computing the real part, which allows us to borrow
     // the derivative of real part for this function from complex numbers.
     // See `expMinusOne` in the ComplexModule for implementation details.
     guard q.isFinite else { return q }
     // TODO: Replace q.imaginary == .zero with `q.isReal`
-    let θ = q.imaginary == .zero ? .zero : q.imaginary.length // θ = ||v||
-    let n̂ = q.imaginary == .zero ? .zero : (q.imaginary / θ)  // n̂ = v / ||v||
+    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
+    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
     // If exp(q) is close to the overflow boundary, we don't need to
     // worry about the "MinusOne" part of this function; we're just
     // computing exp(q). (Even when q.y is near a multiple of π/2,
@@ -68,12 +68,12 @@ extension Quaternion/*: ElementaryFunctions */ {
     // these cases exactly the same as exp(q).
     guard q.real < RealType.log(.greatestFiniteMagnitude) - 1 else {
       let halfScale = RealType.exp(q.real/2)
-      let rotation = Quaternion(halfAngle: θ, unitAxis: n̂)
+      let rotation = Quaternion(halfAngle: argument, unitAxis: axis)
       return rotation.multiplied(by: halfScale).multiplied(by: halfScale)
     }
     return Quaternion(
-      real: RealType._mulAdd(.cos(θ), .expMinusOne(q.real), .cosMinusOne(θ)),
-      imaginary: n̂ * .exp(q.real) * .sin(θ)
+      real: RealType._mulAdd(.cos(argument), .expMinusOne(q.real), .cosMinusOne(argument)),
+      imaginary: axis * .exp(q.real) * .sin(argument)
     )
   }
 
@@ -85,18 +85,9 @@ extension Quaternion/*: ElementaryFunctions */ {
   public static func cosh(_ q: Quaternion) -> Quaternion {
     guard q.isFinite else { return q }
     // TODO: Replace q.imaginary == .zero with `q.isReal`
-    let θ = q.imaginary == .zero ? .zero : q.imaginary.length // θ = ||v||
-    let n̂ = q.imaginary == .zero ? .zero : (q.imaginary / θ)  // n̂ = v / ||v||
-    guard q.real.magnitude < -RealType.log(.ulpOfOne) else {
-      let rotation = Quaternion(halfAngle: θ, unitAxis: n̂)
-      let firstScale = RealType.exp(q.real.magnitude/2)
-      let secondScale = firstScale/2
-      return rotation.multiplied(by: firstScale).multiplied(by: secondScale)
-    }
-    return Quaternion(
-      real: .cosh(q.real) * .cos(θ),
-      imaginary: n̂ * .sinh(q.real) * .sin(θ)
-    )
+    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
+    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
+    return cosh(q.real, argument, axis: axis)
   }
 
   // sinh(r + xi + yj + zk) = sinh(r + v)
@@ -107,17 +98,17 @@ extension Quaternion/*: ElementaryFunctions */ {
   public static func sinh(_ q: Quaternion) -> Quaternion {
     guard q.isFinite else { return q }
     // TODO: Replace q.imaginary == .zero with `q.isReal`
-    let θ = q.imaginary == .zero ? .zero : q.imaginary.length // θ = ||v||
-    let n̂ = q.imaginary == .zero ? .zero : (q.imaginary / θ)  // n̂ = v / ||v||
+    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
+    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
     guard q.real.magnitude < -RealType.log(.ulpOfOne) else {
-      let rotation = Quaternion(halfAngle: θ, unitAxis: n̂)
+      let rotation = Quaternion(halfAngle: argument, unitAxis: axis)
       let firstScale = RealType.exp(q.real.magnitude/2)
       let secondScale = RealType(signOf: q.real, magnitudeOf: firstScale/2)
       return rotation.multiplied(by: firstScale).multiplied(by: secondScale)
     }
     return Quaternion(
-      real: .sinh(q.real) * .cos(θ),
-      imaginary: n̂ * .cosh(q.real) * .sin(θ)
+      real: .sinh(q.real) * .cos(argument),
+      imaginary: axis * .cosh(q.real) * .sin(argument)
     )
   }
 
@@ -141,5 +132,75 @@ extension Quaternion/*: ElementaryFunctions */ {
     return sinh(q) / cosh(q)
   }
 
+  // cos(r + xi + yj + zk) = cos(r + v)
+  // cos(r + v) = cos(r) cosh(||v||) - (v/||v||) sin(r) sinh(||v||).
+  //
+  // See cosh for algorithm details.
+  @inlinable
+  public static func cos(_ q: Quaternion) -> Quaternion {
+    guard q.isFinite else { return q }
+    // TODO: Replace q.imaginary == .zero with `q.isReal`
+    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
+    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
+    return cosh(-argument, q.real, axis: axis)
+  }
+
+  // See sinh on complex numbers for algorithm details.
+  @inlinable
+  public static func sin(_ q: Quaternion) -> Quaternion {
+    guard q.isFinite else { return q }
+    // TODO: Replace q.imaginary == .zero with `q.isReal`
+    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
+    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
+    let (x, y) = sinh(-argument, q.real)
+    return Quaternion(real: y, imaginary: axis * -x)
+  }
+
+  // tan(q) = sin(q) / cos(q)
+  //
+  // See tanh for algorithm details.
+  @inlinable
+  public static func tan(_ q: Quaternion) -> Quaternion {
+    return sin(q) / cos(q)
+  }
+  }
+}
+
+// MARK: - Hyperbolic trigonometric function helper
+extension Quaternion {
+
+  // See cosh of complex numbers for algorithm details.
+  @usableFromInline @_transparent
+  internal static func cosh(
+    _ x: RealType,
+    _ y: RealType,
+    axis: SIMD3<RealType>
+  ) -> Quaternion {
+    guard x.magnitude < -RealType.log(.ulpOfOne) else {
+      let rotation = Quaternion(halfAngle: y, unitAxis: axis)
+      let firstScale = RealType.exp(x.magnitude/2)
+      let secondScale = firstScale/2
+      return rotation.multiplied(by: firstScale).multiplied(by: secondScale)
+    }
+    return Quaternion(
+      real: .cosh(x) * .cos(y),
+      imaginary: axis * .sinh(x) * .sin(y)
+    )
+  }
+
+   // See sinh of complex numbers for algorithm details.
+  @usableFromInline @_transparent
+  internal static func sinh(
+    _ x: RealType,
+    _ y: RealType
+  ) -> (RealType, RealType) {
+    guard x.magnitude < -RealType.log(.ulpOfOne) else {
+      var (x, y) = (RealType.cos(y), RealType.sin(y))
+      let firstScale = RealType.exp(x.magnitude/2)
+      (x, y) = (x * firstScale, y * firstScale)
+      let secondScale = RealType(signOf: x, magnitudeOf: firstScale/2)
+      return (x * secondScale, y * secondScale)
+    }
+    return (.sinh(x) * .cos(y), .cosh(x) * .sin(y))
   }
 }
