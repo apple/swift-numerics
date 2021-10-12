@@ -12,7 +12,7 @@
 
 import RealModule
 
-// As the following elementary functions algorithms are adoptions of the
+// As the following elementary functions algorithms are adaptations of the
 // elementary functions of complex numbers: If you make a modification to either
 // of the following functions, you should almost surely make a parallel
 // modification to the same elementary function of complex numbers (See
