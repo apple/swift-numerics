@@ -56,7 +56,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
         default: preconditionFailure()
         }
       }
-    case .stochastic:
+    case .stochastically:
       // Just test that it's floor if exact, otherwise either floor
       // or ceiling.
       if exact { expected = floor }
@@ -104,7 +104,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     testRoundingShift(Int8.self, rounding: .toOdd)
     testRoundingShift(Int8.self, rounding: .toNearestOrAwayFromZero)
     testRoundingShift(Int8.self, rounding: .toNearestOrEven)
-    testRoundingShift(Int8.self, rounding: .stochastic)
+    testRoundingShift(Int8.self, rounding: .stochastically)
     
     testRoundingShift(UInt8.self, rounding: .down)
     testRoundingShift(UInt8.self, rounding: .up)
@@ -113,7 +113,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     testRoundingShift(UInt8.self, rounding: .toOdd)
     testRoundingShift(UInt8.self, rounding: .toNearestOrAwayFromZero)
     testRoundingShift(UInt8.self, rounding: .toNearestOrEven)
-    testRoundingShift(UInt8.self, rounding: .stochastic)
+    testRoundingShift(UInt8.self, rounding: .stochastically)
     
     testRoundingShift(Int.self, rounding: .down)
     testRoundingShift(Int.self, rounding: .up)
@@ -122,7 +122,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     testRoundingShift(Int.self, rounding: .toOdd)
     testRoundingShift(Int.self, rounding: .toNearestOrAwayFromZero)
     testRoundingShift(Int.self, rounding: .toNearestOrEven)
-    testRoundingShift(Int.self, rounding: .stochastic)
+    testRoundingShift(Int.self, rounding: .stochastically)
     
     testRoundingShift(UInt.self, rounding: .down)
     testRoundingShift(UInt.self, rounding: .up)
@@ -131,10 +131,10 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     testRoundingShift(UInt.self, rounding: .toOdd)
     testRoundingShift(UInt.self, rounding: .toNearestOrAwayFromZero)
     testRoundingShift(UInt.self, rounding: .toNearestOrEven)
-    testRoundingShift(UInt.self, rounding: .stochastic)
+    testRoundingShift(UInt.self, rounding: .stochastically)
   }
   
-  // Stochastic rounding doesn't have a deterministic "expected" answer,
+  // stochastically rounding doesn't have a deterministic "expected" answer,
   // but we know that the result must be either the floor or the ceiling.
   // The above tests ensure that, but that's not a very strong guarantee;
   // an implementation could just implement it as self >> count and pass
@@ -147,7 +147,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     var fails = 0
     for count in 0 ... 64 {
       let sum = (0..<1024).reduce(into: 0.0) { sum, _ in
-        let rounded = value.shifted(right: count, rounding: .stochastic)
+        let rounded = value.shifted(right: count, rounding: .stochastically)
         sum += Double(rounded)
       }
       let expected = Double(sign: .plus, exponent: -count, significand: 1024*Double(value))

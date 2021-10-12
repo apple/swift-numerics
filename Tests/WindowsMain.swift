@@ -83,6 +83,22 @@ extension PropertyTests {
   ])
 }
 
+extension IntegerUtilitiesDivideTests {
+  static var all = testCase([
+    ("testDivideInt8", IntegerUtilitiesDivideTests.testDivideInt8()),
+    ("testDivideInt", IntegerUtilitiesDivideTests.testDivideInt()),
+    ("testDivideUInt8", IntegerUtilitiesDivideTests.testDivideUInt8()),
+    ("testDivideStochasticInt8", IntegerUtilitiesDivideTests.testDivideStochasticInt8()),
+    ("testDivideStochasticUInt32", IntegerUtilitiesDivideTests.testDivideStochasticUInt32()),
+  ])
+}
+
+extension IntegerUtilitiesGCDTests {
+  static var all = testCase([
+    ("testGCDInt", IntegerUtilitiesGCDTests.testGCDInt),
+  ])
+}
+
 extension IntegerUtilitiesRotateTests {
   static var all = testCase([
     ("testRotateUInt8", IntegerUtilitiesRotateTests.testRotateUInt8),
@@ -97,12 +113,6 @@ extension IntegerUtilitiesShiftTests {
   ])
 }
 
-extension IntegerUtilitiesGCDTests {
-  static var all = testCase([
-    ("testGCDInt", IntegerUtilitiesGCDTests.testGCDInt),
-  ])
-}
-
 var testCases = [
   ComplexTests.ApproximateEqualityTests.all,
   RealTests.ApproximateEqualityTests.all,
@@ -110,6 +120,7 @@ var testCases = [
   IntegerExponentTests.all,
   ArithmeticTests.all,
   PropertyTests.all,
+  IntegerUtilitiesDivideTests.all,
   IntegerUtilitiesGCDTests.all,
   IntegerUtilitiesRotateTests.all,
   IntegerUtilitiesShiftTests.all,

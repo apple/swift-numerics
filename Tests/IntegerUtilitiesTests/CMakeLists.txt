@@ -8,6 +8,7 @@ See https://swift.org/LICENSE.txt for license information
 #]]
 
 add_library(IntegerUtilitiesTests
+  DivideTests.swift
   GCDTests.swift
   RotateTests.swift
   ShiftTests.swift)

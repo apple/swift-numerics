@@ -8,6 +8,7 @@ See https://swift.org/LICENSE.txt for license information
 #]]
 
 add_library(IntegerUtilities
+  Divide.swift
   GCD.swift
   Rotate.swift
   Rounding.swift

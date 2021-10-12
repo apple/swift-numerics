@@ -29,7 +29,7 @@ extension BinaryInteger {
   ///
   ///     // 7/2^2 = 1.75, so the result is 1 with probability 1/4, and 2
   ///     // with probability 3/4.
-  ///     7.shifted(right: 2, rounding: .stochastic)
+  ///     7.shifted(right: 2, rounding: .stochastically)
   ///
   ///     // 4/2^2 = 4/4 = 1, exactly.
   ///     4.shifted(right: 2, rounding: .trap)
@@ -117,9 +117,9 @@ extension BinaryInteger {
     case .toNearestOrEven:
       let round = mask >> 1 + Magnitude(floor & 1)
       return floor + Self((round + lost) >> count)
-    case .stochastic:
+    case .stochastically:
       // TODO: it's unfortunate that we can't specify a custom random source
-      // for the stochastic rounding rule, but I don't see a nice way to have
+      // for the stochastically rounding rule, but I don't see a nice way to have
       // that share the API with the other rounding rules, because we'd then
       // have to take the RNG in-out. The same problem applies to rounding
       // with dithering. We should consider adding a stateful rounding API
@@ -128,7 +128,7 @@ extension BinaryInteger {
       // In theory, u01 should be Self.random(in: 0 ..< onesBit), but the
       // random(in:) method does not exist on BinaryInteger. This is
       // (arguably) good, though, because there's actually no reason to
-      // generate large amounts of randomness just to implement stochastic
+      // generate large amounts of randomness just to implement stochastically
       // rounding for bigints; 32b suffices for most purposes, and 64b is
       // more than enough.
       var g = SystemRandomNumberGenerator()

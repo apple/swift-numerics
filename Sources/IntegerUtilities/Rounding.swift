@@ -60,7 +60,7 @@ public enum RoundingRule {
   /// Adds a uniform random value from [0, d) to the value being rounded,
   /// then returns the floor of the resulting value, where d is the
   /// distance between the two closest representable values.
-  case stochastic
+  case stochastically
   
   /// If the value being rounded is representable, that value is returned.
   /// Otherwise, a precondition failure occurs.
