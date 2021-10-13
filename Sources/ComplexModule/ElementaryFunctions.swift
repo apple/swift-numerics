@@ -164,7 +164,7 @@ extension Complex: ElementaryFunctions {
     )
   }
   
-  // sinh(x + iy) = sinh(x) cos(y) + i cosh(x) sinh(y)
+  // sinh(x + iy) = sinh(x) cos(y) + i cosh(x) sin(y)
   //
   // See cosh above for algorithm details.
   @inlinable
