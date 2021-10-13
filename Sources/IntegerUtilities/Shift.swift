@@ -18,27 +18,27 @@ extension BinaryInteger {
   /// Some examples of different rounding rules:
   ///
   ///     // 3/2 is 1.5, which rounds (down by default) to 1.
-  ///     3.shifted(right: 1)
+  ///     3.shifted(rightBy: 1)
   ///
   ///     // 1.5 rounds up to 2.
-  ///     3.shifted(right: 1, rounding: .up)
+  ///     3.shifted(rightBy: 1, rounding: .up)
   ///
   ///     // The two closest values are 1 and 2, 1 is returned because it
   ///     // is odd.
-  ///     3.shifted(right: 1, rounding: .toOdd)
+  ///     3.shifted(rightBy: 1, rounding: .toOdd)
   ///
   ///     // 7/2^2 = 1.75, so the result is 1 with probability 1/4, and 2
   ///     // with probability 3/4.
-  ///     7.shifted(right: 2, rounding: .stochastically)
+  ///     7.shifted(rightBy: 2, rounding: .stochastically)
   ///
   ///     // 4/2^2 = 4/4 = 1, exactly.
-  ///     4.shifted(right: 2, rounding: .trap)
+  ///     4.shifted(rightBy: 2, rounding: .trap)
   ///
   ///     // 5/2 is 2.5, which is not exact, so this traps.
-  ///     5.shifted(right: 1, rounding: .trap)
+  ///     5.shifted(rightBy: 1, rounding: .trap)
   @inlinable
   public func shifted<Count: BinaryInteger>(
-    right count: Count,
+    rightBy count: Count,
     rounding rule: RoundingRule = .down
   ) -> Self {
     // Easiest case: count is zero or negative, so shift is always exact;
@@ -50,7 +50,7 @@ extension BinaryInteger {
       // that we encounter such a case, we promote to Int8, do the shift, and
       // then convert back to the appropriate result type.
       if bitWidth <= 1 {
-        return Self(Int8(self).shifted(right: count, rounding: rule))
+        return Self(Int8(self).shifted(rightBy: count, rounding: rule))
       }
       // That pathological case taken care of, we can now handle over-wide
       // shifts by first shifting all but bitWidth - 1 bits with sticky
@@ -60,7 +60,7 @@ extension BinaryInteger {
       var floor = self >> count
       let lost = self - (floor << count)
       if lost != 0 { floor |= 1 } // insert sticky bit
-      return floor.shifted(right: bitWidth - 1, rounding: rule)
+      return floor.shifted(rightBy: bitWidth - 1, rounding: rule)
     }
     // Now we are in the happy case: 0 < count < bitWidth, which makes all
     // the math to handle rounding simpler.

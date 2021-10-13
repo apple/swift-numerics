@@ -37,7 +37,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     case .toNearestOrAwayFromZero:
       if exact { expected = floor }
       else {
-        let step = value.shifted(right: count - 2, rounding: .toOdd)
+        let step = value.shifted(rightBy: count - 2, rounding: .toOdd)
         switch step & 0b11 {
         case 0b01: expected = floor
         case 0b10: expected = value > 0 ? ceiling : floor
@@ -48,7 +48,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     case .toNearestOrEven:
       if exact { expected = floor }
       else {
-        let step = value.shifted(right: count - 2, rounding: .toOdd)
+        let step = value.shifted(rightBy: count - 2, rounding: .toOdd)
         switch step & 0b11 {
         case 0b01: expected = floor
         case 0b10: expected = floor & 1 == 0 ? floor : ceiling
@@ -61,9 +61,9 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
       // or ceiling.
       if exact { expected = floor }
       else {
-        let observed = value.shifted(right: count, rounding: rule)
+        let observed = value.shifted(rightBy: count, rounding: rule)
         if observed != floor && observed != ceiling {
-          print("Error found in \(T.self).shifted(right: \(count), rounding: \(rule)).")
+          print("Error found in \(T.self).shifted(rightBy: \(count), rounding: \(rule)).")
           print("   Value: \(String(value, radix: 16))")
           print("Expected: \(String(floor, radix: 16)) or \(String(ceiling, radix: 16))")
           print("Observed: \(String(observed, radix: 16))")
@@ -74,9 +74,9 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     case .requireExact:
       preconditionFailure()
     }
-    let observed = value.shifted(right: count, rounding: rule)
+    let observed = value.shifted(rightBy: count, rounding: rule)
     if observed != expected {
-      print("Error found in \(T.self).shifted(right: \(count), rounding: \(rule)).")
+      print("Error found in \(T.self).shifted(rightBy: \(count), rounding: \(rule)).")
       print("   Value: \(String(value, radix: 16))")
       print("Expected: \(String(expected, radix: 16))")
       print("Observed: \(String(observed, radix: 16))")
@@ -89,7 +89,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
   ) {
     for count in -2*T.bitWidth ... 2*T.bitWidth {
       // zero shifted by anything is always zero
-      XCTAssertEqual(0, (0 as T).shifted(right: count, rounding: rule))
+      XCTAssertEqual(0, (0 as T).shifted(rightBy: count, rounding: rule))
       for _ in 0 ..< 100 {
         testRoundingShift(T.random(in: .min ... .max), count, rounding: rule)
       }
@@ -147,7 +147,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     var fails = 0
     for count in 0 ... 64 {
       let sum = (0..<1024).reduce(into: 0.0) { sum, _ in
-        let rounded = value.shifted(right: count, rounding: .stochastically)
+        let rounded = value.shifted(rightBy: count, rounding: .stochastically)
         sum += Double(rounded)
       }
       let expected = Double(sign: .plus, exponent: -count, significand: 1024*Double(value))
@@ -164,7 +164,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
       // but if you see a repeated failure for a given shift count, that's
       // almost surely a real bug.
       XCTAssertLessThanOrEqual(difference, 64,
-      "Accumulated error (\(difference)) was unexpectedly large in \(value).shifted(right: \(count))"
+      "Accumulated error (\(difference)) was unexpectedly large in \(value).shifted(rightBy: \(count))"
       )
     }
     // Threshold chosen so that this is expected to _almost always_ pass, but
@@ -172,7 +172,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     // sorry. Basically ignore one-off failures, but a repeated failure here
     // is an indication that a bug exists.
     XCTAssertLessThanOrEqual(fails, 16,
-    "Accumulated error was large more often than expected for \(value).shifted(right:)"
+    "Accumulated error was large more often than expected for \(value).shifted(rightBy:)"
     )
   }
   

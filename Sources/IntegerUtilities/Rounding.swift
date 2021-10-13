@@ -58,8 +58,8 @@ public enum RoundingRule {
   case toNearestOrEven
   
   /// Adds a uniform random value from [0, d) to the value being rounded,
-  /// then returns the floor of the resulting value, where d is the
-  /// distance between the two closest representable values.
+  /// where d is the distance between the two closest representable values,
+  /// then rounds the sum downwards.
   case stochastically
   
   /// If the value being rounded is representable, that value is returned.

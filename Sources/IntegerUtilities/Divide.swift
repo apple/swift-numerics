@@ -77,7 +77,7 @@ extension BinaryInteger {
     case .toNearestOrAwayFromZero:
       // For round to nearest or away, the condition we want to satisfy is
       // |r| <= |other/2|, with sign(q) != sign(r) when equality holds.
-      if r.magnitude < other.magnitude.shifted(right: 1, rounding: .up) {
+      if r.magnitude < other.magnitude.shifted(rightBy: 1, rounding: .up) {
         return q
       }
       // The (q,r) we have does not satisfy the to nearest or away condition;
@@ -87,7 +87,7 @@ extension BinaryInteger {
     case .toNearestOrEven:
       // For round to nearest or away, the condition we want to satisfy is
       // |r| <= |other/2|, with q even when equality holds.
-      if r.magnitude >  other.magnitude.shifted(right: 1, rounding: .down) ||
+      if r.magnitude >  other.magnitude.shifted(rightBy: 1, rounding: .down) ||
           2*r.magnitude == other.magnitude && q._lowWord & 1 == 1 {
         if (other > 0) != (r > 0) { return q-1 }
         return q+1
@@ -218,7 +218,7 @@ extension SignedInteger {
     case .toNearestOrAwayFromZero:
       // For round to nearest or away, the condition we want to satisfy is
       // |r| <= |other/2|, with sign(q) != sign(r) when equality holds.
-      if r.magnitude < other.magnitude.shifted(right: 1, rounding: .up) {
+      if r.magnitude < other.magnitude.shifted(rightBy: 1, rounding: .up) {
         return (q, r)
       }
       // The (q,r) we have does not satisfy the to nearest or away condition;
@@ -228,7 +228,7 @@ extension SignedInteger {
     case .toNearestOrEven:
       // For round to nearest or away, the condition we want to satisfy is
       // |r| <= |other/2|, with q even when equality holds.
-      if r.magnitude >  other.magnitude.shifted(right: 1, rounding: .down) ||
+      if r.magnitude >  other.magnitude.shifted(rightBy: 1, rounding: .down) ||
           2*r.magnitude == other.magnitude && q._lowWord & 1 == 1 {
         if (other > 0) != (r > 0) { return (q-1, r+other) }
         return (q+1, r-other)
