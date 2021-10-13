@@ -34,6 +34,11 @@ final class PropertyTests: XCTestCase {
     XCTAssertEqual(Quaternion<T>.zero.length, .zero)
     XCTAssertEqual(Quaternion<T>(real: .zero, imaginary: -.zero).length, .zero)
     XCTAssertEqual(Quaternion<T>(real: -.zero, imaginary: -.zero).length, .zero)
+    // Check for overflow and underflow when calculating the length
+    XCTAssertEqual(Quaternion<T>(real: .greatestFiniteMagnitude, imaginary: 0, 0, 0).length, .greatestFiniteMagnitude)
+    XCTAssertEqual(Quaternion<T>(real: 0, imaginary: -.greatestFiniteMagnitude, 0, 0).length, .greatestFiniteMagnitude)
+    XCTAssertEqual(Quaternion<T>(real: 0, imaginary: 0, .leastNormalMagnitude, 0).length, .leastNormalMagnitude)
+    XCTAssertEqual(Quaternion<T>(real: 0, imaginary: 0, 0, -.leastNormalMagnitude).length, .leastNormalMagnitude)
     // The properties of pure and real
     XCTAssertTrue(Quaternion<T>.zero.isPure) // zero quaternion is both, pure...
     XCTAssertTrue(Quaternion<T>.zero.isReal) // and real
