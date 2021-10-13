@@ -35,7 +35,12 @@ extension BinaryInteger {
   ///     4.shifted(rightBy: 2, rounding: .trap)
   ///
   ///     // 5/2 is 2.5, which is not exact, so this traps.
-  ///     5.shifted(rightBy: 1, rounding: .trap)
+  ///     5.shifted(rightBy: 1, rounding: .requireExact)
+  ///
+  /// When `Self(1) << count` is positive, the following are equivalent:
+  ///
+  ///     a.shifted(rightBy: count, rounding: rule)
+  ///     a.divided(by: 1 << count, rounding: rule)
   @inlinable
   public func shifted<Count: BinaryInteger>(
     rightBy count: Count,

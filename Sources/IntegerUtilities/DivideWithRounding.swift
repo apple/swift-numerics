@@ -14,15 +14,24 @@ extension BinaryInteger {
   ///
   /// The default rounding rule is `.down`, which _is not the same_ as the
   /// behavior of the `/` operator from the Swift standard library, but is
-  /// chosen because it generally produces a more useful remainder. To
-  /// match the behavior of `/`, use the `.towardZero` rounding mode.
+  /// chosen because it generally produces a more useful remainder. In
+  /// particular, when `b` is positive, the remainder is always positive.
+  /// To match the behavior of `/`, use the `.towardZero` rounding mode.
   ///
-  /// Be aware that if the type is unsigned, the remainder of the division
-  /// may not be representable when a non-default rounding mode is used:
-  /// ```
+  /// Note that the remainder of division is not always representable in an
+  /// unsigned type if a rounding rule other than `.down`, `.towardZero`, or
+  /// `.requireExact` is used. For example:
   ///
-  /// ```
-  /// For signed types, the remainder is always representable.
+  ///     let a: UInt = 5
+  ///     let b: UInt = 3
+  ///     let q = a.divided(by: b, rounding: .up) // 2
+  ///     let r = a - b*q // 5 - 3*2 overflows UInt.
+  ///
+  /// For this reason, there is no `remainder(dividingBy:rounding:)`
+  /// operation defined on `BinaryInteger`. Signed integers do not have
+  /// this problem, so it is defined on the `SignedInteger` protocol
+  /// instead, as is an overload of `divided(by:rounding:)` that returns
+  /// both quotient and remainder.
   @inlinable
   public func divided(
     by other: Self,
@@ -120,6 +129,10 @@ extension BinaryInteger {
   // TODO: make this API and make it possible to implement more
   // efficiently. Customization point on new/revised integer
   // protocol? Shouldn't have to go through .words.
+  /// The index of the most-significant set bit.
+  ///
+  /// - Precondition: self is assumed to be non-zero (to be changed
+  ///   if/when this becomes API).
   @usableFromInline
   internal var _msb: Int {
     // a == 0 is never used for division, because this is called
@@ -137,17 +150,21 @@ extension BinaryInteger {
 
 extension SignedInteger {
   /// Divides `self` by `other`, rounding the quotient according to `rule`,
-  /// and returns both the remainder.
+  /// and returns the remainder.
   ///
   /// The default rounding rule is `.down`, which _is not the same_ as the
   /// behavior of the `%` operator from the Swift standard library, but is
   /// chosen because it generally produces a more useful remainder. To
   /// match the behavior of `%`, use the `.towardZero` rounding mode.
+  ///
+  /// - Precondition: `other` cannot be zero.
   @inlinable
   public func remainder(
     dividingBy other: Self,
     rounding rule: RoundingRule = .down
   ) -> Self {
+    // Produce correct remainder for the .min/-1 case, rather than trapping.
+    if other == -1 { return 0 }
     return self.divided(by: other, rounding: rule).remainder
   }
   
@@ -163,7 +180,16 @@ extension SignedInteger {
   /// library, this function is a disfavored overload of `divided(by:)`
   /// instead of using the name `quotientAndRemainder(dividingBy:)`, which
   /// would shadow the standard library operation and change the behavior
-  /// of any existing use sites.
+  /// of any existing use sites. To call this method, you must explicitly
+  /// bind the result to a tuple:
+  ///
+  ///     // This calls BinaryInteger's method, which returns only
+  ///     // the quotient.
+  ///     let result = 5.divided(by: 3, rounding: .up) // 2
+  ///
+  ///     // This calls SignedInteger's method, which returns both
+  ///     // the quotient and remainder.
+  ///     let (q, r) = 5.divided(by: 3, rounding: .up) // (q = 2, r = -1)
   @inlinable @inline(__always) @_disfavoredOverload
   public func divided(
     by other: Self,
@@ -261,21 +287,28 @@ extension SignedInteger {
 
 /// `a = quotient*b + remainder`, with `remainder >= 0`.
 ///
+/// When `a` and `b` are both positive, `quotient` is `a/b` and `remainder`
+/// is `a%b`.
+///
 /// Rounding the quotient so that the remainder is non-negative is called
 /// "Euclidean division". This is not a _rounding rule_, as `quotient`
-/// cannot be determined just from the unrounded value `a/b`; we need to
-/// also know the sign of either `a` or `b` to know which way to round.
-/// Because of this, is not present in the `RoundingRule` enum and uses
-/// a separate API from the other division operations.
+/// cannot be determined from the unrounded value `a/b`; we need to also
+/// know the sign of `a` or `b` or `r` to know which way to round. Because
+/// of this, is not present in the `RoundingRule` enum and uses a separate
+/// API from the other division operations.
 ///
 /// - Parameters:
 ///   - a: The dividend
-///   - b: The divisor, must be non-zero.
+///   - b: The divisor
 ///
-/// - Returns: `(quotient, remainder)`, with `0 <= remainder < b.magnitude`
-///   if `quotient` is representable.
+/// - Precondition: `b` must be non-zero, and the quotient `a/b` must be
+///   representable. In particular, if `T` is a signed fixed-width integer
+///   type, then `euclideanDivision(T.min, -1)` will trap, because `-T.min`
+///   is not representable.
+///
+/// - Returns: `(quotient, remainder)`, with `0 <= remainder < b.magnitude`.
 func euclideanDivision<T>(_ a: T, _ b: T) -> (quotient: T, remainder: T)
 where T: SignedInteger
 {
-  a.divided(by: b, rounding: b >= 0 ? .down : .up)
+  a.divided(by: b, rounding: a >= 0 ? .towardZero : .awayFromZero)
 }

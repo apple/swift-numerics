@@ -15,19 +15,18 @@ import XCTest
 
 final class IntegerUtilitiesDivideTests: XCTestCase {
   
-  func divisionRuleHolds<T: FixedWidthInteger>(_ a: T, _ b: T, _ q: T, _ r: T) -> Bool {
+  func divisionRuleHolds<T: BinaryInteger>(_ a: T, _ b: T, _ q: T, _ r: T) -> Bool {
     // Validate division rule holds: a = qb + r (have to be careful about
     // computing qb, though, to ensure it does not overflow due to
-    // rounding of q); therefore compute this as a high-low pair and then
-    // check against a.
-    var (hi, lo) = b.multipliedFullWidth(by: q)
-    var carry: Bool
-    (lo, carry) = lo.addingReportingOverflow(T.Magnitude(truncatingIfNeeded: r))
-    (hi, _) = hi.addingReportingOverflow(r >> T.bitWidth &+ (carry ? 1 : 0))
-    if lo != T.Magnitude(truncatingIfNeeded: a) || hi != a >> T.bitWidth {
+    // rounding of q; compute it in two pieces, subtracting the first from
+    // a to avoid intermediate overflow).
+    let b1 = b >> 1
+    let b2 = b - b1
+    let ref = a - q*b1 - q*b2
+    if r != ref {
       XCTFail("""
       \(a).divided(by: \(b), rounding: .down) failed the division rule.
-      qb + r was \(hi):\(lo).
+      a - qb was \(ref), but r is \(r).
       """)
       return false
     }

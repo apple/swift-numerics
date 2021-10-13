@@ -7,7 +7,7 @@ The following API are defined for all integer types conforming to `BinaryInteger
 - The `gcd(_:_:)` free function implements the _Greatest Common Divisor_
   operation.
   
-- The `shifted(right:rounding:)` method implements _bitwise shift with
+- The `shifted(rightBy:rounding:)` method implements _bitwise shift with
   rounding_.
   
 - The `divided(by:rounding:)` method implements division with specified
