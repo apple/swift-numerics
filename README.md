@@ -11,7 +11,7 @@ These modules fall broadly into two categories:
 There is some overlap between these two categories, and an API that begins in the first category may migrate into the second as it matures and new uses are discovered.
 
 Swift Numerics modules are fine-grained.
-For example, if you need support for Complex numbers, you can import ComplexModule¹ as a standalone module:
+For example, if you need support for Complex numbers, you can import ComplexModule[^1] as a standalone module:
 
 ```swift
 import ComplexModule
@@ -115,26 +115,26 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 
 ## Notes
 
-¹ Swift is currently unable to use the fully-qualified name for types when a type and module have the same name (discussion here: https://forums.swift.org/t/pitch-fully-qualified-name-syntax/28482).
-This would prevent users of Swift Numerics who don't need generic types from doing things such as:
+[^1]: Swift is currently unable to use the fully-qualified name for types when a type and module have the same name (discussion here: https://forums.swift.org/t/pitch-fully-qualified-name-syntax/28482).
+    This would prevent users of Swift Numerics who don't need generic types from doing things such as:
 
-```swift
-import Complex
-// I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
-typealias Complex = Complex.Complex<Double> // This doesn't work, because name lookup fails.
-```
+    ```swift
+    import Complex
+    // I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
+    typealias Complex = Complex.Complex<Double> // This doesn't work, because name lookup fails.
+    ```
+    
+    For this reason, modules that would have this ambiguity are suffixed with `Module` within Swift Numerics:
+    
+    ```swift
+    import ComplexModule
+    // I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
+    typealias Complex = ComplexModule.Complex<Double>
+    // But I can still refer to the generic type by qualifying the name if I need it occasionally:
+    let a = ComplexModule.Complex<Float>
+    ```
 
-For this reason, modules that would have this ambiguity are suffixed with `Module` within Swift Numerics:
-
-```swift
-import ComplexModule
-// I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
-typealias Complex = ComplexModule.Complex<Double>
-// But I can still refer to the generic type by qualifying the name if I need it occasionally:
-let a = ComplexModule.Complex<Float>
-```
-
-The `Real` module does not contain a `Real` type, but does contain a `Real` protocol.
-Users may want to define their own `Real` type (and possibly re-export the `Real` module)--that is why the suffix is also applied there.
-New modules have to evaluate this decision carefully, but can err on the side of adding the suffix.
-It's expected that most users will simply `import Numerics`, so this isn't an issue for them.
+    The `Real` module does not contain a `Real` type, but does contain a `Real` protocol.
+    Users may want to define their own `Real` type (and possibly re-export the `Real` module)--that is why the suffix is also applied there.
+    New modules have to evaluate this decision carefully, but can err on the side of adding the suffix.
+    It's expected that most users will simply `import Numerics`, so this isn't an issue for them.
