@@ -17,6 +17,8 @@ import _TestSupport
 
 final class ElementaryFunctionTests: XCTestCase {
 
+  // MARK: - exp-like functions
+
   func testExp<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     // exp(0) = 1
     XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real: 0, imaginary: 0, 0, 0)))
@@ -209,24 +211,6 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
 
-  func testLog<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
-    // log(0) = undefined/infinity
-    XCTAssertFalse(Quaternion<T>.log(Quaternion(real: 0, imaginary: 0, 0, 0)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(Quaternion(real:-0, imaginary: 0, 0, 0)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(Quaternion(real:-0, imaginary:-0,-0,-0)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(Quaternion(real: 0, imaginary:-0,-0,-0)).isFinite)
-
-    var g = SystemRandomNumberGenerator()
-    let values: [Quaternion<T>] = (0..<100).map { _ in
-      Quaternion(
-        real: T.random(in: -1 ... 1, using: &g),
-        imaginary: SIMD3(repeating: T.random(in: -.pi ... .pi, using: &g) / 3))
-    }
-    for q in values {
-      XCTAssertTrue(q.isApproximatelyEqual(to: .log(.exp(q))))
-    }
-  }
-
   func testCos<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     var g = SystemRandomNumberGenerator()
     let values: [Quaternion<T>] = (0..<1000).map { _ in
@@ -264,7 +248,7 @@ final class ElementaryFunctionTests: XCTestCase {
       let s = Quaternion.sin(q)
 
       // For randomly-chosen well-scaled finite values, we expect to have
-      // cos ≈ (e^(q*||v||)+e^(-q*||v||)) / 2
+      // sin ≈ (e^(q*||v||)+e^(-q*||v||)) / 2
       let p = Quaternion(imaginary: q.imaginary / q.imaginary.length)
       let e = (.exp(p * q) - .exp(-p * q)) / (p * 2)
       XCTAssert(s.isApproximatelyEqual(to: e))
@@ -273,6 +257,26 @@ final class ElementaryFunctionTests: XCTestCase {
       // cos² + sin² ≈ 1
       let c = Quaternion.cos(q)
       XCTAssert((c*c + s*s).isApproximatelyEqual(to: .one))
+    }
+  }
+
+  // MARK: - log-like functions
+
+  func testLog<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // log(0) = undefined/infinity
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real: 0, imaginary: 0, 0, 0)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real:-0, imaginary: 0, 0, 0)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real:-0, imaginary:-0,-0,-0)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real: 0, imaginary:-0,-0,-0)).isFinite)
+
+    var g = SystemRandomNumberGenerator()
+    let values: [Quaternion<T>] = (0..<100).map { _ in
+      Quaternion(
+        real: T.random(in: -1 ... 1, using: &g),
+        imaginary: SIMD3(repeating: T.random(in: -.pi ... .pi, using: &g) / 3))
+    }
+    for q in values {
+      XCTAssertTrue(q.isApproximatelyEqual(to: .log(.exp(q))))
     }
   }
 
