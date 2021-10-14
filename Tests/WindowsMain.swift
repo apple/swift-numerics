@@ -85,11 +85,12 @@ extension PropertyTests {
 
 extension IntegerUtilitiesDivideTests {
   static var all = testCase([
-    ("testDivideInt8", IntegerUtilitiesDivideTests.testDivideInt8()),
-    ("testDivideInt", IntegerUtilitiesDivideTests.testDivideInt()),
-    ("testDivideUInt8", IntegerUtilitiesDivideTests.testDivideUInt8()),
-    ("testDivideStochasticInt8", IntegerUtilitiesDivideTests.testDivideStochasticInt8()),
-    ("testDivideStochasticUInt32", IntegerUtilitiesDivideTests.testDivideStochasticUInt32()),
+    ("testDivideInt8", IntegerUtilitiesDivideTests.testDivideInt8),
+    ("testDivideInt", IntegerUtilitiesDivideTests.testDivideInt),
+    ("testDivideUInt8", IntegerUtilitiesDivideTests.testDivideUInt8),
+    ("testDivideStochasticInt8", IntegerUtilitiesDivideTests.testDivideStochasticInt8),
+    ("testDivideStochasticUInt32", IntegerUtilitiesDivideTests.testDivideStochasticUInt32),
+    ("testRemainderByMinusOne", IntegerUtilitiesDivideTests.testRemainderByMinusOne),
   ])
 }
 

@@ -343,4 +343,12 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     }
     XCTAssertLessThanOrEqual(fails, 32*16)
   }
+  
+  func testRemainderByMinusOne() {
+    // These would trap if implemented as a - bq or similar, even though
+    // the remainder is well-defined.
+    XCTAssertEqual(0, Int.min.remainder(dividingBy: -1))
+    XCTAssertEqual(0, Int.min.remainder(dividingBy: -1, rounding: .up))
+    XCTAssertEqual(0, Int.min.remainder(dividingBy: -1, rounding: .stochastically))
+  }
 }
