@@ -21,23 +21,16 @@ extension Quaternion/*: ElementaryFunctions */ {
 
   // MARK: - exp-like functions
 
-  // Mathematically, this operation can be expanded in terms of the `Real`
-  // operations `exp`, `cos` and `sin` as follows:
-  // ```
   // exp(r + xi + yj + zk) = exp(r + v) = exp(r) exp(v)
   //                       = exp(r) (cos(||v||) + (v/||v||) sin(||v||))
-  // ```
-  // Note that naive evaluation of this expression in floating-point would be
-  // prone to premature overflow, since `cos` and `sin` both have magnitude
-  // less than 1 for most inputs (i.e. `exp(r)` may be infinity when
-  // `exp(r) cos(arg)` would not be).
+  //
+  // See exp on complex numbers for algorithm details.
   @inlinable
   public static func exp(_ q: Quaternion) -> Quaternion {
     guard q.isFinite else { return q }
     // For real quaternions we can skip phase and axis calculations
-    // TODO: Replace q.imaginary == .zero with `q.isReal`
-    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
-    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
+    let argument = q.isReal ? .zero : q.imaginary.length
+    let axis = q.isReal ? .zero : (q.imaginary / argument)
     // If real < log(greatestFiniteMagnitude), then exp(q.real) does not overflow.
     // To protect ourselves against sketchy log or exp implementations in
     // an unknown host library, or slight rounding disagreements between
@@ -55,11 +48,10 @@ extension Quaternion/*: ElementaryFunctions */ {
     // Note that the imaginary part is just the usual exp(r) sin(argument);
     // the only trick is computing the real part, which allows us to borrow
     // the derivative of real part for this function from complex numbers.
-    // See `expMinusOne` in the ComplexModule for implementation details.
+    // See `expMinusOne` in the ComplexModule for implementation details.
     guard q.isFinite else { return q }
-    // TODO: Replace q.imaginary == .zero with `q.isReal`
-    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
-    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
+    let argument = q.isReal ? .zero : q.imaginary.length
+    let axis = q.isReal ? .zero : (q.imaginary / argument)
     // If exp(q) is close to the overflow boundary, we don't need to
     // worry about the "MinusOne" part of this function; we're just
     // computing exp(q). (Even when q.y is near a multiple of π/2,
@@ -78,28 +70,26 @@ extension Quaternion/*: ElementaryFunctions */ {
   }
 
   // cosh(r + xi + yj + zk) = cosh(r + v)
-  // cosh(r + v) = cosh(r) cos(||v||) + (v/||v||) sinh(r) sin(||v||).
+  //                        = cosh(r) cos(||v||) + (v/||v||) sinh(r) sin(||v||)
   //
   // See cosh on complex numbers for algorithm details.
   @inlinable
   public static func cosh(_ q: Quaternion) -> Quaternion {
     guard q.isFinite else { return q }
-    // TODO: Replace q.imaginary == .zero with `q.isReal`
-    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
-    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
+    let argument = q.isReal ? .zero : q.imaginary.length
+    let axis = q.isReal ? .zero : (q.imaginary / argument)
     return cosh(q.real, argument, axis: axis)
   }
 
   // sinh(r + xi + yj + zk) = sinh(r + v)
-  // sinh(r + v) = sinh(r) cos(||v||) + (v/||v||) cosh(r) sin(||v||)
+  //                        = sinh(r) cos(||v||) + (v/||v||) cosh(r) sin(||v||)
   //
-  // See cosh on complex numbers for algorithm details.
+  // See sinh on complex numbers for algorithm details.
   @inlinable
   public static func sinh(_ q: Quaternion) -> Quaternion {
     guard q.isFinite else { return q }
-    // TODO: Replace q.imaginary == .zero with `q.isReal`
-    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
-    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
+    let argument = q.isReal ? .zero : q.imaginary.length
+    let axis = q.isReal ? .zero : (q.imaginary / argument)
     guard q.real.magnitude < -RealType.log(.ulpOfOne) else {
       let rotation = Quaternion(halfAngle: argument, unitAxis: axis)
       let firstScale = RealType.exp(q.real.magnitude/2)
@@ -133,25 +123,26 @@ extension Quaternion/*: ElementaryFunctions */ {
   }
 
   // cos(r + xi + yj + zk) = cos(r + v)
-  // cos(r + v) = cos(r) cosh(||v||) - (v/||v||) sin(r) sinh(||v||).
+  //                       = cos(r) cosh(||v||) - (v/||v||) sin(r) sinh(||v||)
   //
   // See cosh for algorithm details.
   @inlinable
   public static func cos(_ q: Quaternion) -> Quaternion {
     guard q.isFinite else { return q }
-    // TODO: Replace q.imaginary == .zero with `q.isReal`
-    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
-    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
+    let argument = q.isReal ? .zero : q.imaginary.length
+    let axis = q.isReal ? .zero : (q.imaginary / argument)
     return cosh(-argument, q.real, axis: axis)
   }
 
-  // See sinh on complex numbers for algorithm details.
+  // sin(r + xi + yj + zk) = sin(r + v)
+  //                       = sin(r) cosh(-||v||) - (v/||v||) cos(r) sinh(-||v||)
+  //
+  // See sinh for algorithm details.
   @inlinable
   public static func sin(_ q: Quaternion) -> Quaternion {
     guard q.isFinite else { return q }
-    // TODO: Replace q.imaginary == .zero with `q.isReal`
-    let argument = q.imaginary == .zero ? .zero : q.imaginary.length
-    let axis = q.imaginary == .zero ? .zero : (q.imaginary / argument)
+    let argument = q.isReal ? .zero : q.imaginary.length
+    let axis = q.isReal ? .zero : (q.imaginary / argument)
     let (x, y) = sinh(-argument, q.real)
     return Quaternion(real: y, imaginary: axis * -x)
   }
@@ -182,42 +173,36 @@ extension Quaternion/*: ElementaryFunctions */ {
   }
 
   // MARK: - pow-like functions
+
+  // pow(q, p) = exp(log(pow(q, p))) = exp(p * log(q))
+  //
+  // See pow on complex numbers for algorithm details.
   @inlinable
   public static func pow(_ q: Quaternion, _ p: Quaternion) -> Quaternion {
-    // pow(q, p) = exp(log(q^p)) = exp(p * log(q))
     return exp(p * log(q))
   }
 
+  // pow(q, n) = exp(log(q) * n)
+  //
+  // See pow on complex numbers for algorithm details.
   @inlinable
   public static func pow(_ q: Quaternion, _ n: Int) -> Quaternion {
     if q.isZero { return .zero }
-    // TODO: this implementation is not quite correct, because n may be
-    // rounded in conversion to RealType. This only effects very extreme
-    // cases, so we'll leave it alone for now.
-    //
-    // Note that this does not have the same problems that a similar
-    // implementation for a real type would have, because there's no
-    // parity/sign interaction in the complex plane.
     return exp(log(q).multiplied(by: RealType(n)))
   }
 
   @inlinable
   public static func sqrt(_ q: Quaternion) -> Quaternion<RealType> {
     if q.isZero { return .zero }
-    // TODO: This is not the fastest implementation available
     return exp(log(q).divided(by: 2))
   }
 
+  // root(q, n) = exp(log(q) / n)
+  //
+  // See root on complex numbers for algorithm details.
   @inlinable
   public static func root(_ q: Quaternion, _ n: Int) -> Quaternion {
     if q.isZero { return .zero }
-    // TODO: this implementation is not quite correct, because n may be
-    // rounded in conversion to RealType. This only effects very extreme
-    // cases, so we'll leave it alone for now.
-    //
-    // Note that this does not have the same problems that a similar
-    // implementation for a real type would have, because there's no
-    // parity/sign interaction in the complex plane.
     return exp(log(q).divided(by: RealType(n)))
   }
 }
@@ -244,7 +229,7 @@ extension Quaternion {
     )
   }
 
-   // See sinh of complex numbers for algorithm details.
+  // See sinh of complex numbers for algorithm details.
   @usableFromInline @_transparent
   internal static func sinh(
     _ x: RealType,
