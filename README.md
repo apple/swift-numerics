@@ -113,8 +113,6 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 3. [Shaped Arrays](https://github.com/apple/swift-numerics/issues/6)
 4. [Decimal Floating-point](https://github.com/apple/swift-numerics/issues/7)
 
-## Notes
-
 [^1]: Swift is currently unable to use the fully-qualified name for types when a type and module have the same name (discussion here: https://forums.swift.org/t/pitch-fully-qualified-name-syntax/28482).
     This would prevent users of Swift Numerics who don't need generic types from doing things such as:
 
