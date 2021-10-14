@@ -1,5 +1,7 @@
 # Integer Utilities
 
+_Note: This module is only present on `main`, and has not yet been stabilized and released in a tag._
+
 ## Utilities defined for `BinaryInteger`
 
 The following API are defined for all integer types conforming to `BinaryInteger`:
