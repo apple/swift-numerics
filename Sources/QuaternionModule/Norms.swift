@@ -77,8 +77,19 @@ extension Quaternion {
   /// - `.lengthSquared`
   @_transparent
   public var length: RealType {
+    let naive = lengthSquared
+    guard naive.isNormal else { return carefulLength }
+    return .sqrt(naive)
+  }
+
+  //  Internal implementation detail of `length`, moving slow path off
+  //  of the inline function.
+  @usableFromInline
+  internal var carefulLength: RealType {
     guard isFinite else { return .infinity }
-    return .sqrt(lengthSquared)
+    guard !magnitude.isZero else { return .zero }
+    // Unscale the quaternion, calculate its length and rescale the result
+    return divided(by: magnitude).length * magnitude
   }
 
   /// The squared length `(r*r + x*x + y*y + z*z)`.
