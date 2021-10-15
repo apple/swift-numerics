@@ -8,8 +8,11 @@ See https://swift.org/LICENSE.txt for license information
 #]]
 
 add_library(IntegerUtilities
+  DivideWithRounding.swift
   GCD.swift
-  Rotate.swift)
+  Rotate.swift
+  Rounding.swift
+  ShiftWithRounding.swift)
 set_target_properties(IntegerUtilities PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
 
