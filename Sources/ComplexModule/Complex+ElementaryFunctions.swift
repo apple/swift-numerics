@@ -33,10 +33,11 @@
 // adapted from Kahan's 1986 paper "Branch Cuts for Complex Elementary
 // Functions; or: Much Ado About Nothing's Sign Bit".
 //
-// As quaternions share the same goals and use adaptations of the elementary
-// functions: If you make a modification to either of the following functions,
-// you should almost surely make a parallel modification to the same elementary
-// function of quaternions (See ElementaryFunctions.swift in QuaternionModule).
+// Elementary functions of complex numbers have many similarities with
+// elementary functions of quaternions and their definition in terms of real
+// operations. Therefore, if you make a modification to one of the following
+// functions, you should almost surely make a parallel modification to the same
+// elementary function of quaternions.
 
 import RealModule
 

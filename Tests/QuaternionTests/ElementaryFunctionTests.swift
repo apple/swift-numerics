@@ -211,28 +211,6 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
 
-  func testCos<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
-    var g = SystemRandomNumberGenerator()
-    let values: [Quaternion<T>] = (0..<1000).map { _ in
-      Quaternion(
-        real: T.random(in: -2 ... 2, using: &g),
-        imaginary:
-          T.random(in: -2 ... 2, using: &g) / 3,
-          T.random(in: -2 ... 2, using: &g) / 3,
-          T.random(in: -2 ... 2, using: &g) / 3
-      )
-    }
-    for q in values {
-      let c = Quaternion.cos(q)
-
-      // For randomly-chosen well-scaled finite values, we expect to have
-      // cos ≈ (e^(q*||v||)+e^(-q*||v||)) / 2
-      let p = Quaternion(imaginary: q.imaginary / q.imaginary.length)
-      let e = (.exp(p * q) + .exp(-p * q)) / 2
-      XCTAssert(c.isApproximatelyEqual(to: e))
-    }
-  }
-
   func testSin<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     var g = SystemRandomNumberGenerator()
     let values: [Quaternion<T>] = (0..<1000).map { _ in
@@ -245,16 +223,9 @@ final class ElementaryFunctionTests: XCTestCase {
       )
     }
     for q in values {
-      let s = Quaternion.sin(q)
-
-      // For randomly-chosen well-scaled finite values, we expect to have
-      // sin ≈ (e^(q*||v||)+e^(-q*||v||)) / 2
-      let p = Quaternion(imaginary: q.imaginary / q.imaginary.length)
-      let e = (.exp(p * q) - .exp(-p * q)) / (p * 2)
-      XCTAssert(s.isApproximatelyEqual(to: e))
-
       // For randomly-chosen well-scaled finite values, we expect to have
       // cos² + sin² ≈ 1
+      let s = Quaternion.sin(q)
       let c = Quaternion.cos(q)
       XCTAssert((c*c + s*s).isApproximatelyEqual(to: .one))
     }
@@ -285,7 +256,6 @@ final class ElementaryFunctionTests: XCTestCase {
     testExpMinusOne(Float32.self)
     testCosh(Float32.self)
     testSinh(Float32.self)
-    testCos(Float32.self)
     testSin(Float32.self)
 
     testLog(Float32.self)
@@ -296,7 +266,6 @@ final class ElementaryFunctionTests: XCTestCase {
     testExpMinusOne(Float64.self)
     testCosh(Float64.self)
     testSinh(Float64.self)
-    testCos(Float64.self)
     testSin(Float64.self)
 
     testLog(Float64.self)
