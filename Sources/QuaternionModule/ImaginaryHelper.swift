@@ -34,7 +34,13 @@ extension SIMD3 where Scalar: FloatingPoint {
   /// The ∞-norm of the value (`max(abs(x), abs(y), abs(z))`).
   @usableFromInline @inline(__always)
   internal var magnitude: Scalar {
-    max()
+    Swift.max(x.magnitude, y.magnitude, z.magnitude)
+  }
+
+  /// The 1-norm of the value (`abs(x) + abs(y) + abs(z))`).
+  @usableFromInline @inline(__always)
+  internal var oneNorm: Scalar {
+    x.magnitude + y.magnitude + z.magnitude
   }
 
   /// The Euclidean norm (a.k.a. 2-norm, `sqrt(x*x + y*y + z*z)`).
