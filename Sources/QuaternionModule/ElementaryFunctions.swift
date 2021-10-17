@@ -276,37 +276,68 @@ extension Quaternion/*: ElementaryFunctions */ {
     return Quaternion(real: .log(q.length), imaginary: axis * q.halfAngle)
   }
 
-  // MARK: - pow-like functions
 
-  // pow(q, p) = exp(log(pow(q, p))) = exp(p * log(q))
   //
-  // See pow on complex numbers for algorithm details.
   @inlinable
-  public static func pow(_ q: Quaternion, _ p: Quaternion) -> Quaternion {
-    return exp(p * log(q))
   }
 
-  // pow(q, n) = exp(log(q) * n)
   //
-  // See pow on complex numbers for algorithm details.
+  // MARK: - pow-like functions
+
+  @inlinable
+  public static func pow(_ q: Quaternion, _ p: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of the
+    // quaternionic `exp` and `log` operations as follows:
+    //
+    // ```
+    // pow(q, p) = exp(log(pow(q, p)))
+    //           = exp(p * log(q))
+    // ```
+    exp(p * log(q))
+  }
+
   @inlinable
   public static func pow(_ q: Quaternion, _ n: Int) -> Quaternion {
-    if q.isZero { return .zero }
+    // Mathematically, this operation can be expanded in terms of the
+    // quaternionic `exp` and `log` operations as follows:
+    //
+    // ```
+    // pow(q, n) = exp(log(pow(q, n)))
+    //           = exp(log(q) * n)
+    // ```
+    guard !q.isZero else { return .zero }
+    // TODO: this implementation is not quite correct, because n may be
+    // rounded in conversion to RealType. This only effects very extreme
+    // cases, so we'll leave it alone for now.
     return exp(log(q).multiplied(by: RealType(n)))
   }
 
   @inlinable
   public static func sqrt(_ q: Quaternion) -> Quaternion<RealType> {
-    if q.isZero { return .zero }
+    // Mathematically, this operation can be expanded in terms of the
+    // quaternionic `exp` and `log` operations as follows:
+    //
+    // ```
+    // sqrt(q) = q^(1/2) = exp(log(q^(1/2)))
+    //                   = exp(log(q) * (1/2))
+    // ```
+    guard !q.isZero else { return .zero }
     return exp(log(q).divided(by: 2))
   }
 
-  // root(q, n) = exp(log(q) / n)
-  //
-  // See root on complex numbers for algorithm details.
   @inlinable
   public static func root(_ q: Quaternion, _ n: Int) -> Quaternion {
-    if q.isZero { return .zero }
+    // Mathematically, this operation can be expanded in terms of the
+    // quaternionic `exp` and `log` operations as follows:
+    //
+    // ```
+    // root(q, n) = exp(log(root(q, n)))
+    //            = exp(log(q) / n)
+    // ```
+    guard !q.isZero else { return .zero }
+    // TODO: this implementation is not quite correct, because n may be
+    // rounded in conversion to RealType. This only effects very extreme
+    // cases, so we'll leave it alone for now.
     return exp(log(q).divided(by: RealType(n)))
   }
 }
