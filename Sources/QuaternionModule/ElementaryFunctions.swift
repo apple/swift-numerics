@@ -181,72 +181,26 @@ extension Quaternion/*: ElementaryFunctions */ {
 
   @inlinable
   public static func cos(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of
-    // trigonometric `Real` operations as follows (`let θ = ||v||`):
-    //
-    // ```
-    // cos(r + v) = (exp(q * (v/θ)) + exp(-q * (v/θ))) / 2
-    //            = cos(r) cosh(θ) - (v/θ) sin(r) sinh(θ)
-    // ```
-    guard q.isFinite else { return q }
-    let (â, θ) = q.imaginary.unitAxisAndLength
-    guard θ.magnitude < -RealType.log(.ulpOfOne) else {
-      let rotation = Quaternion(halfAngle: q.real, unitAxis: â)
-      let firstScale = RealType.exp(θ.magnitude/2)
-      let secondScale = firstScale/2
-      return rotation.multiplied(by: firstScale).multiplied(by: secondScale)
-    }
-    return Quaternion(
-      real: .cosh(θ) * .cos(q.real),
-      imaginary: -â * .sinh(θ) * .sin(q.real)
-    )
+    // cos(q) = cosh(q * (v/θ)))
+    let (â,_) = q.imaginary.unitAxisAndLength
+    let p = Quaternion(imaginary: â)
+    return cosh(q * p)
   }
 
   @inlinable
   public static func sin(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of
-    // trigonometric `Real` operations as follows (`let θ = ||v||`):
-    //
-    // ```
-    // sin(r + v) = -((exp(q * (v/θ)) - exp(-q * (v/θ))) (v/θ * 2)
-    //            = sin(r) cosh(θ) + (v/θ) cos(r) sinh(θ)
-    // ```
-    guard q.isFinite else { return q }
-    let (â, θ) = q.imaginary.unitAxisAndLength
-    guard θ.magnitude < -RealType.log(.ulpOfOne) else {
-      let rotation = Quaternion(halfAngle: q.real, unitAxis: â)
-      let firstScale = RealType.exp(θ.magnitude/2)
-      let secondScale = RealType(signOf: θ, magnitudeOf: firstScale/2)
-      return rotation.multiplied(by: firstScale).multiplied(by: secondScale)
-    }
-    return Quaternion(
-      real: .cosh(θ) * .sin(q.real),
-      imaginary: â * .sinh(θ) * .cos(q.real)
-    )
+    // sin(q) = -(v/θ) * sinh(q * (v/θ)))
+    let (â,_) = q.imaginary.unitAxisAndLength
+    let p = Quaternion(imaginary: â)
+    return -p * sinh(q * p)
   }
 
   @inlinable
   public static func tan(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of
-    // trigonometric `Real` operations as follows (`let θ = ||v||`):
-    //
-    // ```
-    // tan(q) = sin(q) / cos(q)
-    // ```
-    guard q.isFinite else { return q }
-    // Note that when |θ| is larger than -log(.ulpOfOne),
-    // sin(r + v) == ±cos(r + v), so tan(r + v) is just ±1.
-    guard q.imaginary.length.magnitude < -RealType.log(.ulpOfOne) else {
-      let r = RealType(signOf: q.components.w, magnitudeOf: 1)
-      return Quaternion(
-        real: r,
-        imaginary:
-          RealType(signOf: q.components.x, magnitudeOf: 0),
-          RealType(signOf: q.components.y, magnitudeOf: 0),
-          RealType(signOf: q.components.z, magnitudeOf: 0)
-      ).multiplied(by: r)
-    }
-    return sin(q) / cos(q)
+    // tan(q) = -(v/θ) * tanh(q * (v/θ)))
+    let (â,_) = q.imaginary.unitAxisAndLength
+    let p = Quaternion(imaginary: â)
+    return -p * tanh(q * p)
   }
 
   // MARK: - log-like functions
