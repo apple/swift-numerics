@@ -334,7 +334,7 @@ extension Quaternion/*: ElementaryFunctions */ {
   }
 }
 
-extension SIMD3 where Scalar: Real {
+extension SIMD3 where Scalar: FloatingPoint {
 
   /// Returns the normalized axis and the length of this vector.
   @usableFromInline @inline(__always)
