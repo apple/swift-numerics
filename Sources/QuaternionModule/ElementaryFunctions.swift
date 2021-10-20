@@ -29,7 +29,6 @@ import RealModule
 extension Quaternion/*: ElementaryFunctions */ {
 
   // MARK: - exp-like functions
-
   @inlinable
   public static func exp(_ q: Quaternion) -> Quaternion {
     // Mathematically, this operation can be expanded in terms of the `Real`
@@ -45,21 +44,17 @@ extension Quaternion/*: ElementaryFunctions */ {
     // less than 1 for most inputs (i.e. `exp(r)` may be infinity when
     // `exp(r) cos(||v||)` would not be.
     guard q.isFinite else { return q }
-    let θ = q.imaginary.length
-    let axis = !θ.isZero ? (q.imaginary / θ) : .zero
+    let (â, θ) = q.imaginary.unitAxisAndLength
+    let rotation = Quaternion(halfAngle: θ, unitAxis: â)
     // If real < log(greatestFiniteMagnitude), then exp(real) does not overflow.
     // To protect ourselves against sketchy log or exp implementations in
     // an unknown host library, or slight rounding disagreements between
     // the two, subtract one from the bound for a little safety margin.
     guard q.real < RealType.log(.greatestFiniteMagnitude) - 1 else {
       let halfScale = RealType.exp(q.real/2)
-      let rotation = Quaternion(halfAngle: θ, unitAxis: axis)
       return rotation.multiplied(by: halfScale).multiplied(by: halfScale)
     }
-    return Quaternion(
-      halfAngle: θ,
-      unitAxis: axis
-    ).multiplied(by: .exp(q.real))
+    return rotation.multiplied(by: .exp(q.real))
   }
 
   @inlinable
@@ -87,8 +82,7 @@ extension Quaternion/*: ElementaryFunctions */ {
     //
     // See `expMinusOne` on complex numbers for error bounds.
     guard q.isFinite else { return q }
-    let θ = q.imaginary.length
-    let axis = !θ.isZero ? (q.imaginary / θ) : .zero
+    let (â, θ) = q.imaginary.unitAxisAndLength
     // If exp(q) is close to the overflow boundary, we don't need to
     // worry about the "MinusOne" part of this function; we're just
     // computing exp(q). (Even when θ is near a multiple of π/2,
@@ -96,12 +90,12 @@ extension Quaternion/*: ElementaryFunctions */ {
     // so the -1 term is _always_ negligable).
     guard q.real < RealType.log(.greatestFiniteMagnitude) - 1 else {
       let halfScale = RealType.exp(q.real/2)
-      let rotation = Quaternion(halfAngle: θ, unitAxis: axis)
+      let rotation = Quaternion(halfAngle: θ, unitAxis: â)
       return rotation.multiplied(by: halfScale).multiplied(by: halfScale)
     }
     return Quaternion(
       real: RealType._mulAdd(.cos(θ), .expMinusOne(q.real), .cosMinusOne(θ)),
-      imaginary: axis * .exp(q.real) * .sin(θ)
+      imaginary: â * .exp(q.real) * .sin(θ)
     )
   }
 
@@ -120,23 +114,22 @@ extension Quaternion/*: ElementaryFunctions */ {
     // evaluation of the naive expression, so all we need to be careful
     // about is the behavior near the overflow boundary.
     //
-    // Fortunately, if |x| >= -log(ulpOfOne), cosh(x) and sinh(x) are
-    // both just exp(|x|)/2, and we already know how to compute that.
+    // Fortunately, if |r| >= -log(ulpOfOne), cosh(r) and sinh(r) are
+    // both just exp(|r|)/2, and we already know how to compute that.
     //
     // This function and sinh should stay in sync; if you make a
     // modification here, you should almost surely make a parallel
     // modification to sinh below.
     guard q.isFinite else { return q }
-    let θ = q.imaginary.length
-    let axis = !θ.isZero ? (q.imaginary / θ) : .zero
+    let (â, θ) = q.imaginary.unitAxisAndLength
     guard q.real.magnitude < -RealType.log(.ulpOfOne) else {
-      let rotation = Quaternion(halfAngle: θ, unitAxis: axis)
+      let rotation = Quaternion(halfAngle: θ, unitAxis: â)
       let firstScale = RealType.exp(q.real.magnitude/2)
       return rotation.multiplied(by: firstScale).multiplied(by: firstScale/2)
     }
     return Quaternion(
       real: .cosh(q.real) * .cos(θ),
-      imaginary: axis * .sinh(q.real) * .sin(θ)
+      imaginary: â * .sinh(q.real) * .sin(θ)
     )
   }
 
@@ -150,17 +143,16 @@ extension Quaternion/*: ElementaryFunctions */ {
     //         = sinh(r) cos(θ) + (v/θ) cosh(r) sin(θ)
     // ```
     guard q.isFinite else { return q }
-    let θ = q.imaginary.length
-    let axis = !θ.isZero ? (q.imaginary / θ) : .zero
+    let (â, θ) = q.imaginary.unitAxisAndLength
     guard q.real.magnitude < -RealType.log(.ulpOfOne) else {
-      let rotation = Quaternion(halfAngle: θ, unitAxis: axis)
+      let rotation = Quaternion(halfAngle: θ, unitAxis: â)
       let firstScale = RealType.exp(q.real.magnitude/2)
       let secondScale = RealType(signOf: q.real, magnitudeOf: firstScale/2)
       return rotation.multiplied(by: firstScale).multiplied(by: secondScale)
     }
     return Quaternion(
       real: .sinh(q.real) * .cos(θ),
-      imaginary: axis * .cosh(q.real) * .sin(θ)
+      imaginary: â * .cosh(q.real) * .sin(θ)
     )
   }
 
@@ -179,9 +171,9 @@ extension Quaternion/*: ElementaryFunctions */ {
       return Quaternion(
         real: RealType(signOf: q.real, magnitudeOf: 1),
         imaginary:
-          RealType(signOf: q.imaginary.x, magnitudeOf: 0),
-          RealType(signOf: q.imaginary.y, magnitudeOf: 0),
-          RealType(signOf: q.imaginary.z, magnitudeOf: 0)
+          RealType(signOf: q.components.x, magnitudeOf: 0),
+          RealType(signOf: q.components.y, magnitudeOf: 0),
+          RealType(signOf: q.components.z, magnitudeOf: 0)
       )
     }
     return sinh(q) / cosh(q)
@@ -197,17 +189,16 @@ extension Quaternion/*: ElementaryFunctions */ {
     //            = cos(r) cosh(θ) - (v/θ) sin(r) sinh(θ)
     // ```
     guard q.isFinite else { return q }
-    let θ = q.imaginary.length
-    let axis = !θ.isZero ? (q.imaginary / θ) : .zero
+    let (â, θ) = q.imaginary.unitAxisAndLength
     guard θ.magnitude < -RealType.log(.ulpOfOne) else {
-      let rotation = Quaternion(halfAngle: q.real, unitAxis: axis)
+      let rotation = Quaternion(halfAngle: q.real, unitAxis: â)
       let firstScale = RealType.exp(θ.magnitude/2)
       let secondScale = firstScale/2
       return rotation.multiplied(by: firstScale).multiplied(by: secondScale)
     }
     return Quaternion(
       real: .cosh(θ) * .cos(q.real),
-      imaginary: -axis * .sinh(θ) * .sin(q.real)
+      imaginary: -â * .sinh(θ) * .sin(q.real)
     )
   }
 
@@ -221,17 +212,16 @@ extension Quaternion/*: ElementaryFunctions */ {
     //            = sin(r) cosh(θ) + (v/θ) cos(r) sinh(θ)
     // ```
     guard q.isFinite else { return q }
-    let θ = q.imaginary.length
-    let axis = !θ.isZero ? (q.imaginary / θ) : .zero
+    let (â, θ) = q.imaginary.unitAxisAndLength
     guard θ.magnitude < -RealType.log(.ulpOfOne) else {
-      let rotation = Quaternion(halfAngle: q.real, unitAxis: axis)
+      let rotation = Quaternion(halfAngle: q.real, unitAxis: â)
       let firstScale = RealType.exp(θ.magnitude/2)
       let secondScale = RealType(signOf: θ, magnitudeOf: firstScale/2)
       return rotation.multiplied(by: firstScale).multiplied(by: secondScale)
     }
     return Quaternion(
       real: .cosh(θ) * .sin(q.real),
-      imaginary: axis * .sinh(θ) * .cos(q.real)
+      imaginary: â * .sinh(θ) * .cos(q.real)
     )
   }
 
@@ -244,17 +234,17 @@ extension Quaternion/*: ElementaryFunctions */ {
     // tan(q) = sin(q) / cos(q)
     // ```
     guard q.isFinite else { return q }
-    let θ = q.imaginary.length
     // Note that when |θ| is larger than -log(.ulpOfOne),
     // sin(r + v) == ±cos(r + v), so tan(r + v) is just ±1.
-    guard θ.magnitude < -RealType.log(.ulpOfOne) else {
+    guard q.imaginary.length.magnitude < -RealType.log(.ulpOfOne) else {
+      let r = RealType(signOf: q.components.w, magnitudeOf: 1)
       return Quaternion(
-        real: RealType(signOf: q.real, magnitudeOf: 1),
+        real: r,
         imaginary:
-          RealType(signOf: q.imaginary.x, magnitudeOf: 0),
-          RealType(signOf: q.imaginary.y, magnitudeOf: 0),
-          RealType(signOf: q.imaginary.z, magnitudeOf: 0)
-      ) * Quaternion(RealType(signOf: q.real, magnitudeOf: 1))
+          RealType(signOf: q.components.x, magnitudeOf: 0),
+          RealType(signOf: q.components.y, magnitudeOf: 0),
+          RealType(signOf: q.components.z, magnitudeOf: 0)
+      ).multiplied(by: r)
     }
     return sin(q) / cos(q)
   }
@@ -276,9 +266,57 @@ extension Quaternion/*: ElementaryFunctions */ {
     return Quaternion(real: .log(q.length), imaginary: axis * q.halfAngle)
   }
 
-
-  //
   @inlinable
+  public static func log(onePlus q: Quaternion) -> Quaternion {
+    // If either |r| or ||v||₁ is bounded away from the origin, we don't need
+    // any extra precision, and can just literally compute log(1+z). Note
+    // that this includes part of the sphere |1+q| = 1 where log(onePlus:)
+    // vanishes (where r <= -0.5), but on this portion of the sphere 1+r
+    // is always exact by Sterbenz' lemma, so as long as log( ) produces
+    // a good result, log(1+q) will too.
+    guard 2*q.real.magnitude < 1 && q.imaginary.oneNorm < 1 else {
+      return log(.one + q)
+    }
+    // q is in (±0.5, ±1), so we need to evaluate more carefully.
+    // The imaginary part is straightforward:
+    let argument = (.one + q).halfAngle
+    let (â,_) = q.imaginary.unitAxisAndLength
+    let imaginary = â * argument
+    // For the real part, we _could_ use the same approach that we do for
+    // log( ), but we'd need an extra-precise (1+r)², which can potentially
+    // be quite painful to calculate. Instead, we can use an approach that
+    // NevinBR suggested on the Swift forums for complex numbers:
+    //
+    //     Re(log 1+q) = (log 1+q + log 1+q̅)/2
+    //                 = log((1+q)(1+q̅)/2
+    //                 = log(1 + q + q̅ + qq̅)/2
+    //                 = log1p((2+r)r + x² + y² + z²)/2
+    //
+    // So now we need to evaluate (2+r)r + x² + y² + z² accurately. To do this,
+    // we employ augmented arithmetic;
+    // (2+r)r + x² + y² + z²
+    //  --↓--
+    let rp2 = Augmented.fastTwoSum(2, q.real) // Known that 2 > |r|
+    var (head, δ) = Augmented.twoProdFMA(q.real, rp2.head)
+    var tail = δ
+    // head + x² + y² + z²
+    // ----↓----
+    let x² = Augmented.twoProdFMA(q.imaginary.x, q.imaginary.x)
+    (head, δ) = Augmented.twoSum(head, x².head)
+    tail += (δ + x².tail)
+    // head + y² + z²
+    // ----↓----
+    let y² = Augmented.twoProdFMA(q.imaginary.y, q.imaginary.y)
+    (head, δ) = Augmented.twoSum(head, y².head)
+    tail += (δ + y².tail)
+    // head + z²
+    // ----↓----
+    let z² = Augmented.twoProdFMA(q.imaginary.z, q.imaginary.z)
+    (head, δ) = Augmented.twoSum(head, z².head)
+    tail += (δ + z².tail)
+
+    let s = (head + tail).addingProduct(q.real, rp2.tail)
+    return Quaternion(real: .log(onePlus: s)/2, imaginary: imaginary)
   }
 
   //
@@ -339,5 +377,36 @@ extension Quaternion/*: ElementaryFunctions */ {
     // rounded in conversion to RealType. This only effects very extreme
     // cases, so we'll leave it alone for now.
     return exp(log(q).divided(by: RealType(n)))
+  }
+}
+
+extension SIMD3 where Scalar: Real {
+
+  /// Returns the normalized axis and the length of this vector.
+  @usableFromInline @inline(__always)
+  internal var unitAxisAndLength: (Self, Scalar) {
+    if self == .zero {
+      return (SIMD3(
+        Scalar(signOf: x, magnitudeOf: 0),
+        Scalar(signOf: y, magnitudeOf: 0),
+        Scalar(signOf: z, magnitudeOf: 0)
+      ), .zero)
+    }
+    return (self/length, length)
+  }
+}
+
+extension Augmented {
+
+  // TODO: Move to Augmented.swift
+  @usableFromInline @_transparent
+  internal static func twoSum<T:Real>(_ a: T, _ b: T) -> (head: T, tail: T) {
+    let head = a + b
+    let x = head - b
+    let y = head - x
+    let ax = a - x
+    let by = b - y
+    let tail = ax + by
+    return (head, tail)
   }
 }
