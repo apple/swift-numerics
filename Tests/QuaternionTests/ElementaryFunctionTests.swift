@@ -115,7 +115,10 @@ final class ElementaryFunctionTests: XCTestCase {
     for _ in 0 ..< 100 {
       let q = Quaternion<T>(
         real: T.random(in: -small ... small, using: &g),
-        imaginary: SIMD3(repeating: T.random(in: -small ... small, using: &g))
+        imaginary:
+          T.random(in: -small ... small, using: &g),
+          T.random(in: -small ... small, using: &g),
+          T.random(in: -small ... small, using: &g)
       )
       XCTAssert(q.isApproximatelyEqual(to: Quaternion.expMinusOne(q), relativeTolerance: 16 * .ulpOfOne))
     }
@@ -199,9 +202,9 @@ final class ElementaryFunctionTests: XCTestCase {
       Quaternion(
         real: T.random(in: -2 ... 2, using: &g),
         imaginary:
-          T.random(in: -2 ... 2, using: &g) / 3,
-          T.random(in: -2 ... 2, using: &g) / 3,
-          T.random(in: -2 ... 2, using: &g) / 3
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
       )
     }
     for q in values {
@@ -211,15 +214,15 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
 
-  func testSin<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+  func testCosSin<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     var g = SystemRandomNumberGenerator()
     let values: [Quaternion<T>] = (0..<1000).map { _ in
       Quaternion(
         real: T.random(in: -2 ... 2, using: &g),
         imaginary:
-          T.random(in: -2 ... 2, using: &g) / 3,
-          T.random(in: -2 ... 2, using: &g) / 3,
-          T.random(in: -2 ... 2, using: &g) / 3
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
       )
     }
     for q in values {
@@ -256,7 +259,7 @@ final class ElementaryFunctionTests: XCTestCase {
     testExpMinusOne(Float32.self)
     testCosh(Float32.self)
     testSinh(Float32.self)
-    testSin(Float32.self)
+    testCosSin(Float32.self)
 
     testLog(Float32.self)
   }
@@ -266,7 +269,7 @@ final class ElementaryFunctionTests: XCTestCase {
     testExpMinusOne(Float64.self)
     testCosh(Float64.self)
     testSinh(Float64.self)
-    testSin(Float64.self)
+    testCosSin(Float64.self)
 
     testLog(Float64.self)
   }
