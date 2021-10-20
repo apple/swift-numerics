@@ -64,7 +64,7 @@ extension Augmented {
   /// never underflow. However, it may not be exactly representable when
   /// `a` and `b` differ widely in magnitude.
   ///
-  /// This operation is sometimes called "fastTwoSum".
+  /// This operation is sometimes called ["fastTwoSum"].
   ///
   /// - Parameters:
   ///   - a: The summand with larger magnitude.
@@ -86,11 +86,60 @@ extension Augmented {
   /// -
   /// - If `head` is normal, then `abs(tail) < head.ulp`.
   ///   Assuming IEEE 754 default rounding, `abs(tail) <= head.ulp/2`.
+  ///
+  /// ["fastTwoSum"]:  https://en.wikipedia.org/wiki/2Sum
   @_transparent
   public static func sum<T:Real>(large a: T, small b: T) -> (head: T, tail: T) {
     assert(!(b.magnitude > a.magnitude))
     let head = a + b
     let tail = a - head + b
+    return (head, tail)
+  }
+
+  /// The sum `a + b` represented as an implicit sum `head + tail`.
+  ///
+  /// `head` is the correctly rounded value of `a + b`. `tail` is the
+  /// error from that computation rounded to the closest representable
+  /// value.
+  ///
+  /// Unlike `Augmented.sum(large:, small:)`, the magnitude of the summands
+  /// does not matter. `a.magnitude` might as well be smaller than
+  /// `b.magnitude` – and vice versa. However, it is recommended to only use
+  /// this function over `Augmented.sum(large:, small:)` in cases where the
+  /// ordering of the summands magnitude is unknown at compile time. In cases
+  /// where either of the summands magnitude is known to be greater than or
+  /// equal the magnitude of the other summand, use
+  /// `Augmented.sum(large:, small:)` over this function; as it faster to
+  /// calculate.
+  ///
+  /// Unlike `Augmented.product(a, b)`, the rounding error of a sum can
+  /// never underflow. However, it may not be exactly representable when
+  /// `a` and `b` differ widely in magnitude.
+  ///
+  /// This operation is sometimes called ["twoSum"].
+  ///
+  /// - Parameters:
+  ///   - a: One of the summand
+  ///   - b: The other summand
+  ///
+  /// Edge Cases:
+  /// -
+  /// - `head` is always the IEEE 754 sum `a + b`.
+  /// - If `head` is not finite, `tail` is unspecified and should not be
+  ///   interpreted as having any meaning (it may be `NaN` or `infinity`).
+  ///
+  /// Postconditions:
+  /// -
+  /// - If `head` is normal, then `abs(tail) < head.ulp`.
+  ///   Assuming IEEE 754 default rounding, `abs(tail) <= head.ulp/2`.
+  ///
+  /// ["twoSum"]:  https://en.wikipedia.org/wiki/2Sum
+  @_transparent
+  public static func sum<T:Real>(_ a: T, _ b: T) -> (head: T, tail: T) {
+    let head = a + b
+    let x = head - a
+    let y = head - x
+    let tail = (a - x) + (b - y)
     return (head, tail)
   }
 }
