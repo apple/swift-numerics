@@ -163,9 +163,10 @@ extension Complex {
   
   /// True if this value is normal.
   ///
-  /// A complex number is normal if it is finite and *either* the real or imaginary component is normal.
-  /// A floating-point number representing one of the components is normal if its exponent allows a full-
-  /// precision representation.
+  /// A complex number is normal if it is finite and *either* the real or
+  /// imaginary component is normal. A floating-point number representing
+  /// one of the components is normal if its exponent allows a full-precision
+  /// representation.
   ///
   /// See also:
   /// -
@@ -179,9 +180,10 @@ extension Complex {
   
   /// True if this value is subnormal.
   ///
-  /// A complex number is subnormal if it is finite, not normal, and not zero. When the result of a
-  /// computation is subnormal, underflow has occurred and the result generally does not have full
-  /// precision.
+  /// A complex number is subnormal if it is finite, not normal, and not zero.
+  /// When the result of a computation is subnormal, underflow has occurred and
+  /// the result generally does not have full precision.
+  ///
   /// See also:
   /// -
   /// - `.isFinite`
@@ -194,7 +196,8 @@ extension Complex {
   
   /// True if this value is zero.
   ///
-  /// A complex number is zero if *both* the real and imaginary components are zero.
+  /// A complex number is zero if *both* the real and imaginary components
+  /// are zero.
   ///
   /// See also:
   /// -
@@ -208,8 +211,8 @@ extension Complex {
   
   /// The ∞-norm of the value (`max(abs(real), abs(imaginary))`).
   ///
-  /// If you need the Euclidean norm (a.k.a. 2-norm) use the `length` or `lengthSquared`
-  /// properties instead.
+  /// If you need the Euclidean norm (a.k.a. 2-norm) use the `length` or
+  /// `lengthSquared` properties instead.
   ///
   /// Edge cases:
   /// -
@@ -240,8 +243,8 @@ extension Complex {
   /// This is mainly useful for interoperation with other languages, where
   /// you may want to reduce each equivalence class to a single representative
   /// before passing across language boundaries, but it may also be useful
-  /// for some serialization tasks. It's also a useful implementation detail for
-  /// some primitive operations.
+  /// for some serialization tasks. It's also a useful implementation detail
+  /// for some primitive operations.
   @_transparent
   public var canonicalized: Self {
     if isZero { return .zero }
@@ -491,7 +494,8 @@ extension Complex {
   ///
   /// Edge cases:
   /// -
-  /// - Negative lengths are interpreted as reflecting the point through the origin, i.e.:
+  /// - Negative lengths are interpreted as reflecting the point through the
+  ///   origin, i.e.:
   ///   ```
   ///   Complex(length: -r, phase: θ) == -Complex(length: r, phase: θ)
   ///   ```

@@ -12,12 +12,14 @@ find_package(Foundation CONFIG QUIET)
 find_package(XCTest CONFIG QUIET)
 
 add_subdirectory(ComplexTests)
+add_subdirectory(IntegerUtilitiesTests)
 add_subdirectory(RealTests)
 
 add_executable(SwiftNumericsTestRunner
   WindowsMain.swift)
 target_link_libraries(SwiftNumericsTestRunner PRIVATE
   ComplexTests
+  IntegerUtilitiesTests
   RealTests)
 
 add_test(NAME SwiftNumericsTestRunner

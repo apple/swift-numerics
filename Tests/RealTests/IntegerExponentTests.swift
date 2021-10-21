@@ -77,8 +77,8 @@ internal extension Real where Self: FixedWidthFloatingPoint {
   }
 }
 
-#if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
-@available(iOS 14.0, watchOS 14.0, tvOS 7.0, *)
+#if swift(>=5.4) && !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+@available(macOS 11.0, iOS 14.0, watchOS 14.0, tvOS 7.0, *)
 extension Float16 {
   static func testIntegerExponent() {
     testIntegerExponentCommon()
@@ -135,9 +135,9 @@ extension Float {
 extension Double {
   static func testIntegerExponent() {
     testIntegerExponentCommon()
-    testIntegerExponentDoubleAndSmaller()
     // Following tests only make sense (and are only necessary) on 64b platforms.
 #if arch(arm64) || arch(x86_64)
+    testIntegerExponentDoubleAndSmaller()
     let u: Double = 1.nextUp
     let d: Double = 1.nextDown
     // Smallest exponent not exactly representable as Double.
@@ -174,9 +174,11 @@ extension Double {
 
 final class IntegerExponentTests: XCTestCase {
   
-  #if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
+  #if swift(>=5.4) && !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
   func testFloat16() {
-    Float16.testIntegerExponent()
+    if #available(macOS 11.0, iOS 14.0, watchOS 14.0, tvOS 7.0, *) {
+      Float16.testIntegerExponent()
+    }
   }
   #endif
   

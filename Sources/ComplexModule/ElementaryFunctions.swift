@@ -35,22 +35,24 @@
 
 import RealModule
 
-// TODO: uncomment conformance once all implementations are provided.
 extension Complex: ElementaryFunctions {
   
   // MARK: - exp-like functions
   
-  /// The complex exponential function e^z whose base `e` is the base of the natural logarithm.
+  /// The complex exponential function e^z whose base `e` is the base of the
+  /// natural logarithm.
   ///
-  /// Mathematically, this operation can be expanded in terms of the `Real` operations `exp`,
-  /// `cos` and `sin` as follows:
+  /// Mathematically, this operation can be expanded in terms of the `Real`
+  /// operations `exp`, `cos` and `sin` as follows:
   /// ```
   /// exp(x + iy) = exp(x) exp(iy)
   ///             = exp(x) cos(y) + i exp(x) sin(y)
   /// ```
-  /// Note that naive evaluation of this expression in floating-point would be prone to premature
-  /// overflow, since `cos` and `sin` both have magnitude less than 1 for most inputs (i.e.
-  /// `exp(x)` may be infinity when `exp(x) cos(y)` would not be.
+  /// Note that naive evaluation of this expression in floating-point would be
+  /// prone to premature overflow, since `cos` and `sin` both have magnitude
+  /// less than 1 for most inputs (i.e. `exp(x)` may be infinity when
+  /// `exp(x) cos(y)` would not be).
+  @inlinable
   public static func exp(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
     // If x < log(greatestFiniteMagnitude), then exp(x) does not overflow.
@@ -65,6 +67,7 @@ extension Complex: ElementaryFunctions {
     return Complex(.cos(z.y), .sin(z.y)).multiplied(by: .exp(z.x))
   }
   
+  @inlinable
   public static func expMinusOne(_ z: Complex) -> Complex {
     // exp(x + iy) - 1 = (exp(x) cos(y) - 1) + i exp(x) sin(y)
     //                   -------- u --------
@@ -134,6 +137,7 @@ extension Complex: ElementaryFunctions {
   // This function and sinh should stay in sync; if you make a
   // modification here, you should almost surely make a parallel
   // modification to sinh below.
+  @inlinable
   public static func cosh(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
     guard z.x.magnitude < -RealType.log(.ulpOfOne) else {
@@ -160,9 +164,10 @@ extension Complex: ElementaryFunctions {
     )
   }
   
-  // sinh(x + iy) = sinh(x) cos(y) + i cosh(x) sinh(y)
+  // sinh(x + iy) = sinh(x) cos(y) + i cosh(x) sin(y)
   //
   // See cosh above for algorithm details.
+  @inlinable
   public static func sinh(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
     guard z.x.magnitude < -RealType.log(.ulpOfOne) else {
@@ -178,6 +183,7 @@ extension Complex: ElementaryFunctions {
   }
   
   // tanh(z) = sinh(z) / cosh(z)
+  @inlinable
   public static func tanh(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
     // Note that when |x| is larger than -log(.ulpOfOne),
@@ -201,23 +207,27 @@ extension Complex: ElementaryFunctions {
   }
   
   // cos(z) = cosh(iz)
+  @inlinable
   public static func cos(_ z: Complex) -> Complex {
     return cosh(Complex(-z.y, z.x))
   }
   
   // sin(z) = -i*sinh(iz)
+  @inlinable
   public static func sin(_ z: Complex) -> Complex {
     let w = sinh(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
   
   // tan(z) = -i*tanh(iz)
+  @inlinable
   public static func tan(_ z: Complex) -> Complex {
     let w = tanh(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
   
   // MARK: - log-like functions
+  @inlinable
   public static func log(_ z: Complex) -> Complex {
     // If z is zero or infinite, the phase is undefined, so the result is
     // the single exceptional value.
@@ -301,13 +311,13 @@ extension Complex: ElementaryFunctions {
     // as exact head-tail products (u is guaranteed to be well scaled,
     // v may underflow, but if it does it doesn't matter, the u term is
     // all we need).
-    let (a,b) = Augmented.twoProdFMA(u, u)
-    let (c,d) = Augmented.twoProdFMA(v, v)
+    let (a,b) = Augmented.product(u, u)
+    let (c,d) = Augmented.product(v, v)
     // It would be nice if we could simply use a - 1, but unfortunately
     // we don't have a tight enough bound to guarantee that that expression
     // is exact; a may be as small as 1/4, so we could lose a single bit
     // to rounding if we did that.
-    var (s,e) = Augmented.fastTwoSum(-1, a)
+    var (s,e) = Augmented.sum(large: -1, small: a)
     // Now we are ready to assemble the result. If cancellation happens,
     // then |c| > |e| > |b|, |d|, so this assembly order is safe. It's
     // also possible that |c| and |d| are small, but if that happens then
@@ -317,6 +327,7 @@ extension Complex: ElementaryFunctions {
     return Complex(.log(onePlus: s)/2, θ)
   }
   
+  @inlinable
   public static func log(onePlus z: Complex) -> Complex {
     // If either |x| or |y| is bounded away from the origin, we don't need
     // any extra precision, and can just literally compute log(1+z). Note
@@ -333,21 +344,23 @@ extension Complex: ElementaryFunctions {
     // be quite painful to calculate. Instead, we can use an approach that
     // NevinBR suggested on the Swift forums:
     //
-    //     Re(log 1+z) = (log 1+z + log 1+z̅)/2
-    //                 = log((1+z)(1+z̅)/2
-    //                 = log(1+z+z̅+zz̅)/2
-    //                 = log((2+x)x + y²)/2
+    //     Re(log(1+z)) = (log(1+z) + log(1+z̅)) / 2
+    //                  = log((1+z)(1+z̅)) / 2
+    //                  = log(1 + z + z̅ + zz̅) / 2
+    //                  = log(1 + 2x + x² + y²) / 2
+    //                  = log(onePlus: (2+x)x + y²) / 2
     //
     // So now we need to evaluate (2+x)x + y² accurately. To do this,
     // we employ augmented arithmetic; the key observation here is that
     // cancellation is only a problem when y² ≈ -(2+x)x
-    let xp2 = Augmented.fastTwoSum(2, z.x) // Known that 2 > |x|.
-    let a = Augmented.twoProdFMA(z.x, xp2.head)
-    let y² = Augmented.twoProdFMA(z.y, z.y)
+    let xp2 = Augmented.sum(large: 2, small: z.x) // Known that 2 > |x|.
+    let a = Augmented.product(z.x, xp2.head)
+    let y² = Augmented.product(z.y, z.y)
     let s = (a.head + y².head + a.tail + y².tail).addingProduct(z.x, xp2.tail)
     return Complex(.log(onePlus: s)/2, θ)
   }
   
+  @inlinable
   public static func acos(_ z: Complex) -> Complex {
     Complex(
       2*RealType.atan2(y: sqrt(1-z).real, x: sqrt(1+z).real),
@@ -355,6 +368,7 @@ extension Complex: ElementaryFunctions {
     )
   }
   
+  @inlinable
   public static func asin(_ z: Complex) -> Complex {
     Complex(
       RealType.atan2(y: z.x, x: (sqrt(1-z) * sqrt(1+z)).real),
@@ -363,11 +377,13 @@ extension Complex: ElementaryFunctions {
   }
   
   // atan(z) = -i*atanh(iz)
+  @inlinable
   public static func atan(_ z: Complex) -> Complex {
     let w = atanh(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
   
+  @inlinable
   public static func acosh(_ z: Complex) -> Complex {
     Complex(
       RealType.asinh((sqrt(z-1).conjugate * sqrt(z+1)).real),
@@ -376,11 +392,13 @@ extension Complex: ElementaryFunctions {
   }
   
   // asinh(z) = -i*asin(iz)
+  @inlinable
   public static func asinh(_ z: Complex) -> Complex {
     let w = asin(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
   
+  @inlinable
   public static func atanh(_ z: Complex) -> Complex {
     // TODO: Kahan uses a much more complicated expression here; possibly
     // simply because he didn't have a complex log(1+z) with good
@@ -395,10 +413,12 @@ extension Complex: ElementaryFunctions {
   }
   
   // MARK: - pow-like functions
+  @inlinable
   public static func pow(_ z: Complex, _ w: Complex) -> Complex {
     return exp(w * log(z))
   }
   
+  @inlinable
   public static func pow(_ z: Complex, _ n: Int) -> Complex {
     if z.isZero { return .zero }
     // TODO: this implementation is not quite correct, because n may be
@@ -411,6 +431,7 @@ extension Complex: ElementaryFunctions {
     return exp(log(z).multiplied(by: RealType(n)))
   }
   
+  @inlinable
   public static func sqrt(_ z: Complex) -> Complex {
     let lengthSquared = z.lengthSquared
     if lengthSquared.isNormal {
@@ -439,6 +460,7 @@ extension Complex: ElementaryFunctions {
     return Complex.sqrt(z.divided(by: scale)).multiplied(by: .sqrt(scale))
   }
   
+  @inlinable
   public static func root(_ z: Complex, _ n: Int) -> Complex {
     if z.isZero { return .zero }
     // TODO: this implementation is not quite correct, because n may be

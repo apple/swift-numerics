@@ -12,6 +12,8 @@
 
 import PackageDescription
 
+let excludedFilenames = ["CMakeLists.txt", "README.md"]
+
 let package = Package(
   
   name: "swift-numerics",
@@ -23,23 +25,87 @@ let package = Package(
   ],
   
   targets: [
-    // User-facing modules
-    .target(name: "ComplexModule", dependencies: ["RealModule"]),
-    .target(name: "Numerics", dependencies: ["ComplexModule", "QuaternionModule", "RealModule"]),
-    .target(name: "QuaternionModule", dependencies: ["RealModule"]),
-    .target(name: "RealModule", dependencies: ["_NumericsShims"]),
+    // MARK: - Public API
+    .target(
+      name: "ComplexModule",
+      dependencies: ["RealModule"],
+      exclude: excludedFilenames
+    ),
     
-    // Implementation details
-    .target(name: "_NumericsShims", dependencies: []),
-    .target(name: "_TestSupport", dependencies: ["Numerics"]),
+    .target(
+      name: "IntegerUtilities",
+      dependencies: [],
+      exclude: excludedFilenames
+    ),
     
-    // Unit test bundles
-    .testTarget(name: "ComplexTests", dependencies: ["_TestSupport"]),
-    .testTarget(name: "QuaternionTests", dependencies: ["_TestSupport"]),
-    .testTarget(name: "RealTests", dependencies: ["_TestSupport"]),
+    .target(
+      name: "Numerics",
+      dependencies: [
+        "ComplexModule", "IntegerUtilities",
+        "QuaternionModule", "RealModule"
+      ],
+      exclude: excludedFilenames
+    ),
+
+    .target(
+      name: "QuaternionModule",
+      dependencies: ["RealModule"]
+    ),
     
-    // Test executables
-    .target(name: "ComplexLog", dependencies: ["Numerics", "_TestSupport"], path: "Tests/Executable/ComplexLog"),
-    .target(name: "ComplexLog1p", dependencies: ["Numerics", "_TestSupport"], path: "Tests/Executable/ComplexLog1p")
+    .target(
+      name: "RealModule",
+      dependencies: ["_NumericsShims"],
+      exclude: excludedFilenames
+    ),
+    
+    // MARK: - Implementation details
+    .target(
+      name: "_NumericsShims",
+      dependencies: [],
+      exclude: excludedFilenames
+    ),
+    
+    .target(
+      name: "_TestSupport",
+      dependencies: ["Numerics"],
+      exclude: ["CMakeLists.txt"]
+    ),
+    
+    // MARK: - Unit test bundles
+    .testTarget(
+      name: "ComplexTests",
+      dependencies: ["_TestSupport"],
+      exclude: ["CMakeLists.txt"]
+    ),
+    
+    .testTarget(
+      name: "IntegerUtilitiesTests",
+      dependencies: ["IntegerUtilities"],
+      exclude: ["CMakeLists.txt"]
+    ),
+
+    .testTarget(
+      name: "QuaternionTests",
+      dependencies: ["_TestSupport"]
+    ),
+    
+    .testTarget(
+      name: "RealTests",
+      dependencies: ["_TestSupport"],
+      exclude: ["CMakeLists.txt"]
+    ),
+    
+    // MARK: - Test executables
+    .target(
+      name: "ComplexLog",
+      dependencies: ["Numerics", "_TestSupport"],
+      path: "Tests/Executable/ComplexLog"
+    ),
+    
+    .target(
+      name: "ComplexLog1p",
+      dependencies: ["Numerics", "_TestSupport"],
+      path: "Tests/Executable/ComplexLog1p"
+    )
   ]
 )

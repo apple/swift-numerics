@@ -18,6 +18,9 @@ import RealTests
 @testable
 import ComplexTests
 
+@testable
+import IntegerUtilitiesTests
+
 extension ComplexTests.ApproximateEqualityTests {
   static var all = testCase([
     ("testFloat", ComplexTests.ApproximateEqualityTests.testFloat),
@@ -32,7 +35,7 @@ extension RealTests.ApproximateEqualityTests {
   ])
 }
 
-#if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
+#if swift(>=5.4) && !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
 extension ElementaryFunctionChecks {
   static var all = testCase([
     ("testFloat16", ElementaryFunctionChecks.testFloat16),
@@ -40,16 +43,7 @@ extension ElementaryFunctionChecks {
     ("testDouble", ElementaryFunctionChecks.testDouble),
   ])
 }
-#else
-extension ElementaryFunctionChecks {
-  static var all = testCase([
-    ("testFloat", ElementaryFunctionChecks.testFloat),
-    ("testDouble", ElementaryFunctionChecks.testDouble),
-  ])
-}
-#endif
 
-#if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
 extension IntegerExponentTests {
   static var all = testCase([
     ("testFloat16", IntegerExponentTests.testFloat16),
@@ -58,6 +52,13 @@ extension IntegerExponentTests {
   ])
 }
 #else
+extension ElementaryFunctionChecks {
+  static var all = testCase([
+    ("testFloat", ElementaryFunctionChecks.testFloat),
+    ("testDouble", ElementaryFunctionChecks.testDouble),
+  ])
+}
+
 extension IntegerExponentTests {
   static var all = testCase([
     ("testFloat", IntegerExponentTests.testFloat),
@@ -82,6 +83,37 @@ extension PropertyTests {
   ])
 }
 
+extension IntegerUtilitiesDivideTests {
+  static var all = testCase([
+    ("testDivideInt8", IntegerUtilitiesDivideTests.testDivideInt8),
+    ("testDivideInt", IntegerUtilitiesDivideTests.testDivideInt),
+    ("testDivideUInt8", IntegerUtilitiesDivideTests.testDivideUInt8),
+    ("testDivideStochasticInt8", IntegerUtilitiesDivideTests.testDivideStochasticInt8),
+    ("testDivideStochasticUInt32", IntegerUtilitiesDivideTests.testDivideStochasticUInt32),
+    ("testRemainderByMinusOne", IntegerUtilitiesDivideTests.testRemainderByMinusOne),
+  ])
+}
+
+extension IntegerUtilitiesGCDTests {
+  static var all = testCase([
+    ("testGCDInt", IntegerUtilitiesGCDTests.testGCDInt),
+  ])
+}
+
+extension IntegerUtilitiesRotateTests {
+  static var all = testCase([
+    ("testRotateUInt8", IntegerUtilitiesRotateTests.testRotateUInt8),
+    ("testRotateInt16", IntegerUtilitiesRotateTests.testRotateInt16),
+  ])
+}
+
+extension IntegerUtilitiesShiftTests {
+  static var all = testCase([
+    ("testRoundingShifts", IntegerUtilitiesShiftTests.testRoundingShifts),
+    ("testStochasticShifts", IntegerUtilitiesShiftTests.testStochasticShifts),
+  ])
+}
+
 var testCases = [
   ComplexTests.ApproximateEqualityTests.all,
   RealTests.ApproximateEqualityTests.all,
@@ -89,6 +121,10 @@ var testCases = [
   IntegerExponentTests.all,
   ArithmeticTests.all,
   PropertyTests.all,
+  IntegerUtilitiesDivideTests.all,
+  IntegerUtilitiesGCDTests.all,
+  IntegerUtilitiesRotateTests.all,
+  IntegerUtilitiesShiftTests.all,
 ]
 
 #if swift(>=5.3) && canImport(_Differentiation)
