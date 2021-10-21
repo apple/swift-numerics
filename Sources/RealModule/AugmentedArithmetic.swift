@@ -102,15 +102,14 @@ extension Augmented {
   /// error from that computation rounded to the closest representable
   /// value.
   ///
-  /// Unlike `Augmented.sum(large:, small:)`, the magnitude of the summands
-  /// does not matter. `a.magnitude` might as well be smaller than
-  /// `b.magnitude` – and vice versa. However, it is recommended to only use
-  /// this function over `Augmented.sum(large:, small:)` in cases where the
-  /// ordering of the summands magnitude is unknown at compile time. In cases
-  /// where either of the summands magnitude is known to be greater than or
-  /// equal the magnitude of the other summand, use
-  /// `Augmented.sum(large:, small:)` over this function; as it faster to
-  /// calculate.
+  /// Unlike `Augmented.sum(large: a, small: b)`, the magnitude of the summands
+  /// does not matter and `a.magnitude` might as well be strictly less than
+  /// `b.magnitude`. However, it is recommended to only use this function over
+  /// `Augmented.sum(large: a, small: b)` in cases where the ordering of the
+  /// summands magnitude is unknown at compile time. In cases where either of
+  /// the summands magnitude is guaranteed to be greater than or equal the
+  /// magnitude of the other summand, use `Augmented.sum(large: a, small: b)`
+  /// over this function; as it faster to calculate.
   ///
   /// Unlike `Augmented.product(a, b)`, the rounding error of a sum can
   /// never underflow. However, it may not be exactly representable when
