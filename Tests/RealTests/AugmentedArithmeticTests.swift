@@ -72,7 +72,7 @@ final class AugmentedArithmeticTests: XCTestCase {
     var g = SystemRandomNumberGenerator()
     let values: [T] = (0 ..< 100).map { _ in
       T.random(
-        in: -T.greatestFiniteMagnitude/2 ..< T.greatestFiniteMagnitude/2,
+        in: T.ulpOfOne ..< 1,
         using: &g)
     }
     for a in values {
@@ -107,8 +107,8 @@ final class AugmentedArithmeticTests: XCTestCase {
     XCTAssertEqual(Augmented.sum(-1.375, 0.984375).tail,      0.0)
     XCTAssertEqual(Augmented.sum(-1.375,-0.984375).head,-2.359375)
     XCTAssertEqual(Augmented.sum(-1.375,-0.984375).tail,      0.0)
-    // Must handle cancellation when `b` is entirely unrepresentable in `a`
-    // and we expect `b` to be lost entirely in the calculation of `a + b`.
+    // Must handle cancellation when `b` is not representable in `a` and
+    // we expect `b` to be lost entirely in the calculation of `a + b`.
     var a: T = 1.0
     var b: T = .ulpOfOne * .ulpOfOne
     var twoSum = Augmented.sum(a,  b)
