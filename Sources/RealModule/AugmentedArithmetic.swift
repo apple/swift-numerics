@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2020 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2020-2021 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -136,9 +136,9 @@ extension Augmented {
   @_transparent
   public static func sum<T:Real>(_ a: T, _ b: T) -> (head: T, tail: T) {
     let head = a + b
-    let x = head - a
-    let y = head - x
-    let tail = (a - x) + (b - y)
+    let ɑ = head - b
+    let β = head - ɑ
+    let tail = (a - ɑ) + (b - β)
     return (head, tail)
   }
 }
