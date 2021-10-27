@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2021 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -114,6 +114,39 @@ extension IntegerUtilitiesShiftTests {
   ])
 }
 
+extension IntegerUtilitiesTests.DoubleWidthTests {
+  static var all = testCase([
+    ("testArithmetic_Signed", IntegerUtilitiesTests.DoubleWidthTests.testArithmetic_Signed),
+    ("testArithmetic_Unsigned", IntegerUtilitiesTests.DoubleWidthTests.testArithmetic_Unsigned),
+    ("testBitwise_LeftAndRightShifts", IntegerUtilitiesTests.DoubleWidthTests.testBitwise_LeftAndRightShifts),
+    ("testCompileTime_SR_6947", IntegerUtilitiesTests.DoubleWidthTests.testCompileTime_SR_6947),
+    ("testConditionalConformance", IntegerUtilitiesTests.DoubleWidthTests.testConditionalConformance),
+    ("testConversions", IntegerUtilitiesTests.DoubleWidthTests.testConversions),
+    ("testConversions_Exact", IntegerUtilitiesTests.DoubleWidthTests.testConversions_Exact),
+    ("testConversions_SignedMax", IntegerUtilitiesTests.DoubleWidthTests.testConversions_SignedMax),
+    ("testConversions_SignedMin", IntegerUtilitiesTests.DoubleWidthTests.testConversions_SignedMin),
+    ("testConversions_ToAndFromString_Binary", IntegerUtilitiesTests.DoubleWidthTests.testConversions_ToAndFromString_Binary),
+    ("testConversions_ToAndFromString_Decimal", IntegerUtilitiesTests.DoubleWidthTests.testConversions_ToAndFromString_Decimal),
+    ("testConversions_ToAndFromString_Hexadecimal", IntegerUtilitiesTests.DoubleWidthTests.testConversions_ToAndFromString_Hexadecimal),
+    ("testConversions_UnsignedMax", IntegerUtilitiesTests.DoubleWidthTests.testConversions_UnsignedMax),
+    ("testConversions_UnsignedMin", IntegerUtilitiesTests.DoubleWidthTests.testConversions_UnsignedMin),
+    ("testDivision_ByMinusOne", IntegerUtilitiesTests.DoubleWidthTests.testDivision_ByMinusOne),
+    ("testDivision_ByZero", IntegerUtilitiesTests.DoubleWidthTests.testDivision_ByZero),
+    ("testInitialization", IntegerUtilitiesTests.DoubleWidthTests.testInitialization),
+    ("testInitialization_Overflow", IntegerUtilitiesTests.DoubleWidthTests.testInitialization_Overflow),
+    ("testLiterals", IntegerUtilitiesTests.DoubleWidthTests.testLiterals),
+    ("testLiterals_Underflow", IntegerUtilitiesTests.DoubleWidthTests.testLiterals_Underflow),
+    ("testMagnitude", IntegerUtilitiesTests.DoubleWidthTests.testMagnitude),
+    ("testMultipleOf", IntegerUtilitiesTests.DoubleWidthTests.testMultipleOf),
+    ("testMultiplication_ByMinusOne", IntegerUtilitiesTests.DoubleWidthTests.testMultiplication_ByMinusOne),
+    ("testNested", IntegerUtilitiesTests.DoubleWidthTests.testNested),
+    ("testRemainder_ByMinusOne", IntegerUtilitiesTests.DoubleWidthTests.testRemainder_ByMinusOne),
+    ("testRemainder_ByZero", IntegerUtilitiesTests.DoubleWidthTests.testRemainder_ByZero),
+    ("testTwoWords", IntegerUtilitiesTests.DoubleWidthTests.testTwoWords),
+    ("testWords", IntegerUtilitiesTests.DoubleWidthTests.testWords),
+  ])
+}
+
 var testCases = [
   ComplexTests.ApproximateEqualityTests.all,
   RealTests.ApproximateEqualityTests.all,
@@ -125,6 +158,7 @@ var testCases = [
   IntegerUtilitiesGCDTests.all,
   IntegerUtilitiesRotateTests.all,
   IntegerUtilitiesShiftTests.all,
+  IntegerUtilitiesTests.DoubleWidthTests.all,
 ]
 
 #if swift(>=5.3) && canImport(_Differentiation)

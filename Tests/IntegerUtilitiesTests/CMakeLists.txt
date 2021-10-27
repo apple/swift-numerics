@@ -9,6 +9,7 @@ See https://swift.org/LICENSE.txt for license information
 
 add_library(IntegerUtilitiesTests
   DivideTests.swift
+  DoubleWidthTests.swift
   GCDTests.swift
   RotateTests.swift
   ShiftTests.swift)
@@ -17,5 +18,5 @@ target_compile_options(IntegerUtilitiesTests PRIVATE
 target_link_libraries(IntegerUtilitiesTests PUBLIC
   $<$<NOT:$<PLATFORM_ID:Darwin>>:Foundation>
   Numerics
+  _TestSupport
   XCTest)
-
