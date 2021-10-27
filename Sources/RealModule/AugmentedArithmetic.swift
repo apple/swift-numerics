@@ -136,9 +136,9 @@ extension Augmented {
   @_transparent
   public static func sum<T: Real>(_ a: T, _ b: T) -> (head: T, tail: T) {
     let head = a + b
-    let ɑ = head - b
-    let β = head - ɑ
-    let tail = (a - ɑ) + (b - β)
+    let x = head - b
+    let y = head - x
+    let tail = (a - x) + (b - y)
     return (head, tail)
   }
 }
