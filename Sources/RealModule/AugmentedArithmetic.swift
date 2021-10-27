@@ -134,7 +134,7 @@ extension Augmented {
   ///
   /// ["twoSum"]:  https://en.wikipedia.org/wiki/2Sum
   @_transparent
-  public static func sum<T:Real>(_ a: T, _ b: T) -> (head: T, tail: T) {
+  public static func sum<T: Real>(_ a: T, _ b: T) -> (head: T, tail: T) {
     let head = a + b
     let ɑ = head - b
     let β = head - ɑ
