@@ -135,10 +135,6 @@ extension DoubleWidth : Comparable {
 }
 
 extension DoubleWidth : Hashable {
-  public var hashValue: Int {
-    return _hashValue(for: self)
-  }
-
   public func hash(into hasher: inout Hasher) {
     hasher.combine(low)
     hasher.combine(high)
@@ -187,52 +183,6 @@ extension DoubleWidth : Numeric {
     }
   }
 }
-
-#if false
-
-// This conformance is only possible once the type is in the stdlib, as it uses
-// Builtin
-extension DoubleWidth: _ExpressibleByBuiltinIntegerLiteral {
-  public init(_builtinIntegerLiteral _x: Builtin.IntegerLiteral) {
-    var _x = _x
-    self = DoubleWidth()
-
-    // If we can capture the entire literal in a single Int64, stop there.
-    // This avoids some potential deep recursion due to literal expressions in
-    // other DoubleWidth methods.
-    let (_value, _overflow) = Builtin.s_to_s_checked_trunc_IntLiteral_Int64(_x)
-    if !Bool(_overflow) {
-      self = DoubleWidth(Int64(_value))
-      return
-    }
-
-    // Convert all but the most significant 64 bits as unsigned integers.
-    let _shift = Builtin.sext_Int64_IntLiteral((64 as Int64)._value)
-    let lowWordCount = (bitWidth - 1) / 64
-    for i in 0..<lowWordCount {
-      let value =
-        DoubleWidth(UInt64(Builtin.s_to_u_checked_trunc_IntLiteral_Int64(_x).0))
-          &<< DoubleWidth(i * 64)
-      self |= value
-      _x = Builtin.ashr_IntLiteral(_x, _shift)
-    }
-
-    // Finally, convert the most significant 64 bits and check for overflow.
-    let overflow: Bool
-    if Base.isSigned {
-      let (_value, _overflow) = Builtin.s_to_s_checked_trunc_IntLiteral_Int64(_x)
-      self |= DoubleWidth(Int64(_value)) &<< DoubleWidth(lowWordCount * 64)
-      overflow = Bool(_overflow)
-    } else {
-      let (_value, _overflow) = Builtin.s_to_u_checked_trunc_IntLiteral_Int64(_x)
-      self |= DoubleWidth(UInt64(_value)) &<< DoubleWidth(lowWordCount * 64)
-      overflow = Bool(_overflow)
-    }
-    precondition(!overflow, "Literal integer out of range for this type")
-  }
-}
-
-#endif
 
 extension DoubleWidth {
   public struct Words {
