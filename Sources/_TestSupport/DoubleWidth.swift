@@ -47,11 +47,7 @@ public struct DoubleWidth<Base : FixedWidthInteger> {
   public typealias High = Base
   public typealias Low = Base.Magnitude
 
-#if _endian(big)
-  internal var _storage: (high: High, low: Low)
-#else
   internal var _storage: (low: Low, high: High)
-#endif
 
   /// The high part of the value.
   public var high: High {
@@ -68,11 +64,7 @@ public struct DoubleWidth<Base : FixedWidthInteger> {
   /// - Parameter value: The tuple to use as the source of the new instance's
   ///   high and low parts.
   public init(_ value: (high: High, low: Low)) {
-#if _endian(big)
-    self._storage = (high: value.0, low: value.1)
-#else
-    self._storage = (low: value.1, high: value.0)
-#endif
+    self._storage = (low: value.low, high: value.high)
   }
 
   // We expect users to invoke the public initializer above as demonstrated in
