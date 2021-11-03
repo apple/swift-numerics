@@ -48,18 +48,29 @@ public struct DoubleWidth<Base : FixedWidthInteger> {
   public typealias Low = Base.Magnitude
 
   internal var _storage: (low: Low, high: High)
+}
 
-  /// The high part of the value.
+extension DoubleWidth {
+  /// The "high word" of this value.
+  ///
+  /// Equivalent to `Base(self >> Base.bitWidth)`.
   public var high: High {
     return _storage.high
   }
 
-  /// The low part of the value.
+  /// The "low word" of the value.
+  ///
+  /// Equivalent to`Base.Magnitude(truncatingIfNecessary: self)`.
   public var low: Low {
     return _storage.low
   }
 
   /// Creates a new instance from the given tuple of high and low parts.
+  ///
+  /// Equivalent to
+  /// ```
+  /// DoubleWidth<Base>(high) << Base.bitWidth + DoubleWidth<Base>(low)
+  /// ```
   ///
   /// - Parameter value: The tuple to use as the source of the new instance's
   ///   high and low parts.
@@ -79,10 +90,18 @@ public struct DoubleWidth<Base : FixedWidthInteger> {
   //
   // For that reason, we'll include an internal initializer that takes two
   // separate arguments.
+  
+  /// Creates a new instance from the given tuple of high and low parts.
+  ///
+  /// Equivalent to
+  /// ```
+  /// DoubleWidth<Base>(high) << Base.bitWidth + DoubleWidth<Base>(low)
+  /// ```
   internal init(_ _high: High, _ low: Low) {
     self.init((_high, low))
   }
-
+  
+  /// Zero.
   public init() {
     self.init(0, 0)
   }
