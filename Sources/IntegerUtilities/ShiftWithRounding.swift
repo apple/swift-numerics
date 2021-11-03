@@ -1,4 +1,4 @@
-//===--- Shift.swift ------------------------------------------*- swift -*-===//
+//===--- ShiftWithRounding.swift ------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
