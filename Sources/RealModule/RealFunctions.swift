@@ -77,8 +77,46 @@ public protocol RealFunctions: ElementaryFunctions {
   static func signGamma(_ x: Self) -> FloatingPointSign
 #endif
   
-  /// a*b + c, computed _either_ with an FMA or with separate multiply and add.
-  ///
-  /// Whichever is faster should be chosen by the compiler statically.
+  /// a*b + c, computed _either_ with an FMA or with separate multiply and add,
+  /// whichever is fastest on the compilation target.
   static func _mulAdd(_ a: Self, _ b: Self, _ c: Self) -> Self
+  
+  /// a + b, with the optimizer licensed to reassociate and form FMAs.
+  ///
+  /// Floating-point addition is not an associative operation, so the Swift
+  /// compiler does not have any flexibility in how it evaluates an expression
+  /// like:
+  /// ```
+  /// func sum(array: [Float]) -> Float {
+  ///   array.reduce(0, +)
+  /// }
+  /// ```
+  /// Using `_relaxedAdd` instead of `+` permits the compiler to reorder the
+  /// terms in the summation, which unlocks loop unrolling and vectorization.
+  /// In a benchmark, simply using `_relaxedAdd` provides about an 8x speedup
+  /// for release builds, without any unsafe flags or other optimizations.
+  /// Further improvement should be possible by improving LLVM optimizations
+  /// or adding attributes to license more aggressive unrolling and taking
+  /// advantage of vector ISA extensions for swift.
+  static func _relaxedAdd(_ a: Self, _ b: Self) -> Self
+  
+  /// a * b, with the optimizer licensed to reassociate and form FMAs.
+  ///
+  /// Floating-point addition and multiplication are not associative operations,
+  /// so the Swift compiler does not have any flexibility in how it evaluates
+  /// an expression
+  /// like:
+  /// ```
+  /// func sumOfSquares(array: [Float]) -> Float {
+  ///   array.reduce(0) { $0 + $1*$1 }
+  /// }
+  /// ```
+  /// Using `_relaxedAdd` and `_relaxedMul` instead of `+` and `*` permits the
+  /// compiler to reorder the terms in the summation, which unlocks loop
+  /// unrolling and vectorization, and form fused multiply-adds, which allows
+  /// us to achieve twice the throughput on some hardware.
+  ///
+  /// If you want to license FMA formation, but _not_ reassociation (desirable
+  /// for some numerics tasks), use `_mulAdd(a, b, c)` instead.
+  static func _relaxedMul(_ a: Self, _ b: Self) -> Self
 }

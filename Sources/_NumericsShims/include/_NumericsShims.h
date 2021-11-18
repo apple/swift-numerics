@@ -382,11 +382,46 @@ HEADER_SHIM long double libm_lgammal(long double x, int *signp) {
 }
 #endif
 
-// MARK: - fast mul-add inlines
+// MARK: - math inlines with relaxed semantics to support optimization.
+
+/// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
+HEADER_SHIM _Float16 _numerics_muladdf16(_Float16 a, _Float16 b, _Float16 c) {
+#pragma STDC FP_CONTRACT ON
+  return a*b + c;
+}
+
+/// a + b with the "allow reassociation" and "allow FMA formation" flags
+/// set in the IR.
+HEADER_SHIM _Float16 _numerics_relaxed_addf16(_Float16 a, _Float16 b) {
+#pragma clang fp reassociate(on) contract(fast)
+  return a + b;
+}
+
+/// a * b with the "allow reassociation" and "allow FMA formation" flags
+/// set in the IR.
+HEADER_SHIM _Float16 _numerics_relaxed_mulf16(_Float16 a, _Float16 b) {
+#pragma clang fp reassociate(on) contract(fast)
+  return a * b;
+}
+
 /// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
 HEADER_SHIM float _numerics_muladdf(float a, float b, float c) {
 #pragma STDC FP_CONTRACT ON
   return a*b + c;
+}
+
+/// a + b with the "allow reassociation" and "allow FMA formation" flags
+/// set in the IR.
+HEADER_SHIM float _numerics_relaxed_addf(float a, float b) {
+#pragma clang fp reassociate(on) contract(fast)
+  return a + b;
+}
+
+/// a * b with the "allow reassociation" and "allow FMA formation" flags
+/// set in the IR.
+HEADER_SHIM float _numerics_relaxed_mulf(float a, float b) {
+#pragma clang fp reassociate(on) contract(fast)
+  return a * b;
 }
 
 /// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
@@ -395,5 +430,36 @@ HEADER_SHIM double _numerics_muladd(double a, double b, double c) {
   return a*b + c;
 }
 
-// No long-double muladd operation, because no one has built an FMA for it
-// (except for Itanium, which Swift doesn't support).
+/// a + b with the "allow reassociation" and "allow FMA formation" flags
+/// set in the IR.
+HEADER_SHIM double _numerics_relaxed_add(double a, double b) {
+#pragma clang fp reassociate(on) contract(fast)
+  return a + b;
+}
+
+/// a * b with the "allow reassociation" and "allow FMA formation" flags
+/// set in the IR.
+HEADER_SHIM double _numerics_relaxed_mul(double a, double b) {
+#pragma clang fp reassociate(on) contract(fast)
+  return a * b;
+}
+
+#if !defined _WIN32 && (defined __i386__ || defined __x86_64__)
+/// a + b with the "allow reassociation" and "allow FMA formation" flags
+/// set in the IR.
+HEADER_SHIM long double _numerics_relaxed_addl(long double a, long double b) {
+#pragma clang fp reassociate(on) contract(fast)
+  return a + b;
+}
+
+/// a * b with the "allow reassociation" and "allow FMA formation" flags
+/// set in the IR.
+HEADER_SHIM long double _numerics_relaxed_mull(long double a, long double b) {
+#pragma clang fp reassociate(on) contract(fast)
+  return a * b;
+}
+#endif
+
+HEADER_SHIM void _numerics_optimization_barrier(const void *pointer) {
+  __asm("": :"r" (pointer));
+}

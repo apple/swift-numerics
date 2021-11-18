@@ -89,6 +89,16 @@ extension Real {
   }
   
   @_transparent
+  public static func _relaxedAdd(_ a: Self, _ b: Self) -> Self {
+    a + b
+  }
+  
+  @_transparent
+  public static func _relaxedMul(_ a: Self, _ b: Self) -> Self {
+    a * b
+  }
+  
+  @_transparent
   public static func sqrt(_ x: Self) -> Self {
     return x.squareRoot()
   }
