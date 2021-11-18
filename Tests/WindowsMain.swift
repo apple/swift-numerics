@@ -67,6 +67,18 @@ extension IntegerExponentTests {
 }
 #endif
 
+extension RealTests.AugmentedArithmeticTests {
+  static var all = testCase([
+    ("testTwoSum", RealTests.AugmentedArithmeticTests.testTwoSum),
+  ])
+}
+
+extension RealTests.RelaxedArithmeticTests {
+  static var all = testCase([
+    ("testRelaxedArithmetic", RealTests.RelaxedArithmeticTests.testRelaxedArithmetic),
+  ])
+}
+
 extension ArithmeticTests {
   static var all = testCase([
     ("testPolar", ArithmeticTests.testPolar),

@@ -8,6 +8,7 @@ See https://swift.org/LICENSE.txt for license information
 #]]
 
 add_library(_TestSupport
+  BlackHole.swift
   DoubleWidth.swift
   Error.swift
   Interval.swift
