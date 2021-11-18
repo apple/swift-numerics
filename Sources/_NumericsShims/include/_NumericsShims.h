@@ -383,6 +383,13 @@ HEADER_SHIM long double libm_lgammal(long double x, int *signp) {
 #endif
 
 // MARK: - math inlines with relaxed semantics to support optimization.
+#if __swift__ >= 50400
+#define CLANG_RELAX_FP _Pragma("clang fp reassociate(on) contract(fast)")
+#else
+// reassociate(on) isn't supported by the clang in pre-swift-5.4 toolchains.
+#define CLANG_RELAX_FP _Pragma("clang fp contract(fast)")
+#endif
+
 #if !(__i386__ || __x86_64__)
 /// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
 HEADER_SHIM _Float16 _numerics_muladdf16(_Float16 a, _Float16 b, _Float16 c) {
@@ -393,14 +400,14 @@ HEADER_SHIM _Float16 _numerics_muladdf16(_Float16 a, _Float16 b, _Float16 c) {
 /// a + b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
 HEADER_SHIM _Float16 _numerics_relaxed_addf16(_Float16 a, _Float16 b) {
-#pragma clang fp reassociate(on) contract(fast)
+  CLANG_RELAX_FP
   return a + b;
 }
 
 /// a * b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
 HEADER_SHIM _Float16 _numerics_relaxed_mulf16(_Float16 a, _Float16 b) {
-#pragma clang fp reassociate(on) contract(fast)
+  CLANG_RELAX_FP
   return a * b;
 }
 #endif
@@ -414,14 +421,14 @@ HEADER_SHIM float _numerics_muladdf(float a, float b, float c) {
 /// a + b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
 HEADER_SHIM float _numerics_relaxed_addf(float a, float b) {
-#pragma clang fp reassociate(on) contract(fast)
+  CLANG_RELAX_FP
   return a + b;
 }
 
 /// a * b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
 HEADER_SHIM float _numerics_relaxed_mulf(float a, float b) {
-#pragma clang fp reassociate(on) contract(fast)
+  CLANG_RELAX_FP
   return a * b;
 }
 
@@ -434,14 +441,14 @@ HEADER_SHIM double _numerics_muladd(double a, double b, double c) {
 /// a + b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
 HEADER_SHIM double _numerics_relaxed_add(double a, double b) {
-#pragma clang fp reassociate(on) contract(fast)
+  CLANG_RELAX_FP
   return a + b;
 }
 
 /// a * b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
 HEADER_SHIM double _numerics_relaxed_mul(double a, double b) {
-#pragma clang fp reassociate(on) contract(fast)
+  CLANG_RELAX_FP
   return a * b;
 }
 
@@ -449,14 +456,14 @@ HEADER_SHIM double _numerics_relaxed_mul(double a, double b) {
 /// a + b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
 HEADER_SHIM long double _numerics_relaxed_addl(long double a, long double b) {
-#pragma clang fp reassociate(on) contract(fast)
+  CLANG_RELAX_FP
   return a + b;
 }
 
 /// a * b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
 HEADER_SHIM long double _numerics_relaxed_mull(long double a, long double b) {
-#pragma clang fp reassociate(on) contract(fast)
+  CLANG_RELAX_FP
   return a * b;
 }
 #endif

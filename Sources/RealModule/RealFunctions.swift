@@ -98,6 +98,10 @@ public protocol RealFunctions: ElementaryFunctions {
   /// Further improvement should be possible by improving LLVM optimizations
   /// or adding attributes to license more aggressive unrolling and taking
   /// advantage of vector ISA extensions for swift.
+  ///
+  /// If a type or toolchain does not support reassociation for optimization
+  /// purposes, this operation decays to a normal addition; it is a license
+  /// for the compiler to optimize, not a guarantee that any change occurs.
   static func _relaxedAdd(_ a: Self, _ b: Self) -> Self
   
   /// a * b, with the optimizer licensed to reassociate and form FMAs.
@@ -118,5 +122,10 @@ public protocol RealFunctions: ElementaryFunctions {
   ///
   /// If you want to license FMA formation, but _not_ reassociation (desirable
   /// for some numerics tasks), use `_mulAdd(a, b, c)` instead.
+  ///
+  /// If a type or toolchain does not support reassociation for optimization
+  /// purposes, this operation decays to a normal multiplication; it is a
+  /// license for the compiler to optimize, not a guarantee that any change
+  /// occurs.
   static func _relaxedMul(_ a: Self, _ b: Self) -> Self
 }
