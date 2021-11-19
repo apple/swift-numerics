@@ -471,3 +471,5 @@ HEADER_SHIM long double _numerics_relaxed_mull(long double a, long double b) {
 HEADER_SHIM void _numerics_optimization_barrier(const void *pointer) {
   __asm("": :"r" (pointer));
 }
+
+#undef CLANG_RELAX_FP
