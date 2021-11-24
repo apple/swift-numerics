@@ -34,10 +34,14 @@ func relaxedSumOfSquares<T: Real>(_ array: [T]) -> T {
 
 // TODO: not a great harness, but making it better bumps up against the
 // limitations of what XCT measure { } lets us do easily. Good enough for now.
-@_transparent
-func benchmarkReduction<T: Real>(_ data: [T], _ reduction: ([T]) -> T) {
-  var accum: T = 0
-  for _ in 0 ..< 10_000 {
+func benchmarkReduction(_ data: [Float], _ reduction: ([Float]) -> Float) {
+  var accum: Float = 0
+#if DEBUG
+  let iters = 1_000
+#else
+  let iters = 100_000
+#endif
+  for _ in 0 ..< iters {
     accum += reduction(data)
   }
   blackHole(accum)
