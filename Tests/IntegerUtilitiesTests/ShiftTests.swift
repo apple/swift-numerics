@@ -12,6 +12,7 @@
 
 import IntegerUtilities
 import XCTest
+import _TestSupport
 
 final class IntegerUtilitiesShiftTests: XCTestCase {
   
@@ -134,7 +135,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     testRoundingShift(UInt.self, rounding: .stochastically)
   }
   
-  // stochastically rounding doesn't have a deterministic "expected" answer,
+  // Stochastic rounding doesn't have a deterministic "expected" answer,
   // but we know that the result must be either the floor or the ceiling.
   // The above tests ensure that, but that's not a very strong guarantee;
   // an implementation could just implement it as self >> count and pass
@@ -145,33 +146,34 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
   // use of any deterministic rounding rule will not achieve this.
   func testStochasticAverage<T: FixedWidthInteger>(_ value: T) {
     var fails = 0
-    for count in 0 ... 64 {
-      let sum = (0..<1024).reduce(into: 0.0) { sum, _ in
+    for count in 1 ... T.bitWidth {
+      let sum = (0..<256).reduce(into: DoubleWidth<T>.zero) { sum, _ in
         let rounded = value.shifted(rightBy: count, rounding: .stochastically)
-        sum += Double(rounded)
+        sum += DoubleWidth(rounded)
       }
-      let expected = Double(sign: .plus, exponent: -count, significand: 1024*Double(value))
-      let difference = abs(sum - expected)
+      let expected = DoubleWidth<T>(value) << (8 - count)
+      let difference = sum >= expected ? sum - expected : expected - sum
       // Waving my hands slightly instead of giving a precise explanation
       // here, the expectation is that difference should be about
-      // 1/2 sqrt(1024). If it's repeatedly bigger than that, we _may_
+      // 1/2 sqrt(256). If it's repeatedly bigger than that, we _may_
       // have a problem, but it's OK for this to fail occasionally.
       //
       // TODO: precise justification of thresholds
-      if difference > 16 { fails += 1 }
+      if difference > 8 { fails += 1 }
       // On the other hand, if we're more than a couple standard deviations
       // off, we should flag that. This still isn't _necessarily_ a problem,
       // but if you see a repeated failure for a given shift count, that's
       // almost surely a real bug.
-      XCTAssertLessThanOrEqual(difference, 64,
+      XCTAssertLessThanOrEqual(difference, 32,
       "Accumulated error (\(difference)) was unexpectedly large in \(value).shifted(rightBy: \(count))"
       )
     }
-    // Threshold chosen so that this is expected to _almost always_ pass, but
-    // it may fail sporadically. This is not a great fit for CI workflows,
-    // sorry. Basically ignore one-off failures, but a repeated failure here
-    // is an indication that a bug exists.
-    XCTAssertLessThanOrEqual(fails, 16,
+    // Threshold chosen so that this is expected to _usually_ pass, but
+    // it will fail sporadically even with a correct implementation. This is
+    // not a great fit for CI workflows, sorry. Basically ignore one-off
+    // failures, but a repeated failure here is an indication that a bug
+    // exists.
+    XCTAssertLessThanOrEqual(fails, T.bitWidth/2,
     "Accumulated error was large more often than expected for \(value).shifted(rightBy:)"
     )
   }
@@ -183,11 +185,9 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     testStochasticAverage(UInt8.random(in: .min ... .max))
     testStochasticAverage(UInt16.random(in: .min ... .max))
     testStochasticAverage(UInt32.random(in: .min ... .max))
-    // For [U]Int64, we have to be a little bit careful, because random
-    // 64-bit integers are generally not representable as Doubles, nor
-    // can you sum up a random Double with itself 1024 times and get an
-    // exact result.
-    testStochasticAverage(Int64(Int32.random(in: .min ... .max)) << Int.random(in: 0 ... 32))
-    testStochasticAverage(UInt64(UInt32.random(in: .min ... .max)) << Int.random(in: 0 ... 32))
+    testStochasticAverage(Int64.random(in: .min ... .max))
+    testStochasticAverage(UInt64.random(in: .min ... .max))
+    testStochasticAverage(DoubleWidth<Int64>.random(in: .min ... .max))
+    testStochasticAverage(DoubleWidth<UInt64>.random(in: .min ... .max))
   }
 }
