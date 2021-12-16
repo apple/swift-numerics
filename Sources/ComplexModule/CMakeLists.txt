@@ -8,10 +8,18 @@ See https://swift.org/LICENSE.txt for license information
 #]]
 
 add_library(ComplexModule
-  Arithmetic.swift
   Complex.swift
-  Differentiable.swift
-  ElementaryFunctions.swift)
+  Complex+AdditiveArithmetic.swift
+  Complex+AlgebraicField.swift
+  Complex+Codable.swift
+  Complex+Differentiable.swift
+  Complex+ElementaryFunctions.swift
+  Complex+Hashable.swift
+  Complex+IntegerLiteral.swift
+  Complex+Numeric.swift
+  Complex+StringConvertible.swift
+  Polar.swift
+  Scale.swift)
 set_target_properties(ComplexModule PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
 target_link_libraries(ComplexModule PUBLIC
