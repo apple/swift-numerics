@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if swift(>=5.3) && canImport(_Differentiation)
+#if canImport(_Differentiation)
 import _Differentiation
 
 extension Complex: Differentiable

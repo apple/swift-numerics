@@ -35,7 +35,7 @@ extension RealTests.ApproximateEqualityTests {
   ])
 }
 
-#if swift(>=5.4) && !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
 extension ElementaryFunctionChecks {
   static var all = testCase([
     ("testFloat16", ElementaryFunctionChecks.testFloat16),
@@ -161,7 +161,7 @@ var testCases = [
   IntegerUtilitiesTests.DoubleWidthTests.all,
 ]
 
-#if swift(>=5.3) && canImport(_Differentiation)
+#if canImport(_Differentiation)
 extension DifferentiableTests {
   static var all = testCase([
     ("testComponentGetter", DifferentiableTests.testComponentGetter),

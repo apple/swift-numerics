@@ -130,7 +130,7 @@ internal extension Real where Self: BinaryFloatingPoint {
 
 final class ElementaryFunctionChecks: XCTestCase {
   
-  #if swift(>=5.4) && !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+  #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
   func testFloat16() {
     if #available(macOS 11.0, iOS 14.0, watchOS 14.0, tvOS 7.0, *) {
       Float16.elementaryFunctionChecks()

@@ -1,4 +1,4 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.4
 //===--- Package.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
@@ -82,13 +82,13 @@ let package = Package(
     ),
     
     // MARK: - Test executables
-    .target(
+    .executableTarget(
       name: "ComplexLog",
       dependencies: ["Numerics", "_TestSupport"],
       path: "Tests/Executable/ComplexLog"
     ),
     
-    .target(
+    .executableTarget(
       name: "ComplexLog1p",
       dependencies: ["Numerics", "_TestSupport"],
       path: "Tests/Executable/ComplexLog1p"
