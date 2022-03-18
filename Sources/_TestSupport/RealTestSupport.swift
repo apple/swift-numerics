@@ -15,8 +15,8 @@ public protocol FixedWidthFloatingPoint: BinaryFloatingPoint
 where Exponent: FixedWidthInteger,
       RawSignificand: FixedWidthInteger { }
 
-#if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
-@available(iOS 14.0, watchOS 14.0, tvOS 7.0, *)
+#if swift(>=5.4) && !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+@available(macOS 11.0, iOS 14.0, watchOS 14.0, tvOS 7.0, *)
 extension Float16: FixedWidthFloatingPoint { }
 #endif
 

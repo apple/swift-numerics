@@ -427,30 +427,3 @@ HEADER_SHIM double _numerics_muladd(double a, double b, double c) {
 
 // No long-double muladd operation, because no one has built an FMA for it
 // (except for Itanium, which Swift doesn't support).
-
-// MARK: - shims to import C complex operations for timing purposes
-// Clang doesn't provide complex arithmetic on Windows (because MSVC
-// doesn't), so we can't define these there, or we'll get link errors.
-#if !defined _WIN32
-typedef struct { double real; double imag; } CComplex;
-
-HEADER_SHIM CComplex libm_cdiv(CComplex z, CComplex w) {
-  double _Complex a = { z.real, z.imag };
-  double _Complex b = { w.real, w.imag };
-  double _Complex c = a/b;
-  return (CComplex){ __real__ c, __imag__ c };
-}
-
-HEADER_SHIM CComplex libm_cmul(CComplex z, CComplex w) {
-  double _Complex a = { z.real, z.imag };
-  double _Complex b = { w.real, w.imag };
-  double _Complex c = a*b;
-  return (CComplex){ __real__ c, __imag__ c };
-}
-
-HEADER_SHIM CComplex libm_catanh(CComplex z) {
-  double _Complex a = { z.real, z.imag };
-  double _Complex w = __builtin_catanh(a);
-  return (CComplex){ __real__ w, __imag__ w };
-}
-#endif // !defined _WIN32

@@ -11,7 +11,7 @@ These modules fall broadly into two categories:
 There is some overlap between these two categories, and an API that begins in the first category may migrate into the second as it matures and new uses are discovered.
 
 Swift Numerics modules are fine-grained.
-For example, if you need support for Complex numbers, you can import ComplexModule¹ as a standalone module:
+For example, if you need support for Complex numbers, you can import ComplexModule[^1] as a standalone module:
 
 ```swift
 import ComplexModule
@@ -42,7 +42,7 @@ To use Swift Numerics in a SwiftPM project:
 1. Add the following line to the dependencies in your `Package.swift` file:
 
 ```swift
-.package(url: "https://github.com/apple/swift-numerics", from: "0.0.7"),
+.package(url: "https://github.com/apple/swift-numerics", from: "1.0.0"),
 ```
 
 2. Add `Numerics` as a dependency for your target:
@@ -55,6 +55,22 @@ To use Swift Numerics in a SwiftPM project:
 ```
 
 3. Add `import Numerics` in your source code.
+
+## Source stability
+
+The Swift Numerics package is source stable; version numbers follow [Semantic Versioning](https://semver.org).
+The public API of the `swift-numerics` package consists of non-underscored declarations that are marked either `public` or `usableFromInline` in modules re-exported by the top-level `Numerics` module, *excepting any API that involves a conformance to Differentiable (because Differentiable itself is not stable in Swift)*.
+Interfaces that aren't part of the public API may continue to change in any release, including patch releases. 
+
+Note that contents of the `_NumericsShims` and `_TestSupport` modules, as well as contents of the `Tests` directory, explicitly are not public API.
+The definitions therein may therefore change at whim, and the entire module may be removed in any new release.
+If you have a use case that requires underscored operations, please raise an issue to request that they be made public API.
+
+Future minor versions of the package may introduce changes to these rules as needed.
+
+We'd like this package to quickly embrace Swift language and toolchain improvements that are relevant to its mandate.
+Accordingly, from time to time, we expect that new versions of this package will require clients to upgrade to a more recent Swift toolchain release.
+Requiring a new Swift release will only require a minor version bump.
 
 ## Contributing to Swift Numerics
 
@@ -89,6 +105,7 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 
 1. [`RealModule`](Sources/RealModule/README.md)
 2. [`ComplexModule`](Sources/ComplexModule/README.md)
+3. [`IntegerUtilities`](Sources/IntegerUtilties/README.md) (on main only, not yet present in a released tag)
 
 ## Future expansion
 
@@ -97,28 +114,26 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 3. [Shaped Arrays](https://github.com/apple/swift-numerics/issues/6)
 4. [Decimal Floating-point](https://github.com/apple/swift-numerics/issues/7)
 
-## Notes
+[^1]: The module is named `ComplexModule` instead of `Complex` because Swift is currently unable to use the fully-qualified name for types when a type and module have the same name (discussion here: https://forums.swift.org/t/pitch-fully-qualified-name-syntax/28482).
+    This would prevent users of Swift Numerics who don't need generic types from doing things such as:
 
-¹ Swift is currently unable to use the fully-qualified name for types when a type and module have the same name (discussion here: https://forums.swift.org/t/pitch-fully-qualified-name-syntax/28482).
-This would prevent users of Swift Numerics who don't need generic types from doing things such as:
+    ```swift
+    import Complex
+    // I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
+    typealias Complex = Complex.Complex<Double> // This doesn't work, because name lookup fails.
+    ```
+    
+    For this reason, modules that would have this ambiguity are suffixed with `Module` within Swift Numerics:
+    
+    ```swift
+    import ComplexModule
+    // I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
+    typealias Complex = ComplexModule.Complex<Double>
+    // But I can still refer to the generic type by qualifying the name if I need it occasionally:
+    let a = ComplexModule.Complex<Float>
+    ```
 
-```swift
-import Complex
-// I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
-typealias Complex = Complex.Complex<Double> // This doesn't work, because name lookup fails.
-```
-
-For this reason, modules that would have this ambiguity are suffixed with `Module` within Swift Numerics:
-
-```swift
-import ComplexModule
-// I know I only ever want Complex<Double>, so I shouldn't need the generic parameter.
-typealias Complex = ComplexModule.Complex<Double>
-// But I can still refer to the generic type by qualifying the name if I need it occasionally:
-let a = ComplexModule.Complex<Float>
-```
-
-The `Real` module does not contain a `Real` type, but does contain a `Real` protocol.
-Users may want to define their own `Real` type (and possibly re-export the `Real` module)--that is why the suffix is also applied there.
-New modules have to evaluate this decision carefully, but can err on the side of adding the suffix.
-It's expected that most users will simply `import Numerics`, so this isn't an issue for them.
+    The `Real` module does not contain a `Real` type, but does contain a `Real` protocol.
+    Users may want to define their own `Real` type (and possibly re-export the `Real` module)--that is why the suffix is also applied there.
+    New modules have to evaluate this decision carefully, but can err on the side of adding the suffix.
+    It's expected that most users will simply `import Numerics`, so this isn't an issue for them.

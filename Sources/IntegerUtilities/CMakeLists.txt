@@ -7,16 +7,14 @@ Licensed under Apache License v2.0 with Runtime Library Exception
 See https://swift.org/LICENSE.txt for license information
 #]]
 
-add_library(_TestSupport
-  DoubleWidth.swift
-  Error.swift
-  Interval.swift
-  RealTestSupport.swift)
-set_target_properties(_TestSupport PROPERTIES
+add_library(IntegerUtilities
+  DivideWithRounding.swift
+  GCD.swift
+  Rotate.swift
+  RoundingRule.swift
+  ShiftWithRounding.swift)
+set_target_properties(IntegerUtilities PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
-target_link_libraries(_TestSupport PUBLIC
-  Numerics)
 
-
-_install_target(_TestSupport)
-set_property(GLOBAL APPEND PROPERTY SWIFT_NUMERICS_EXPORTS _TestSupport)
+_install_target(IntegerUtilities)
+set_property(GLOBAL APPEND PROPERTY SWIFT_NUMERICS_EXPORTS IntegerUtilities)

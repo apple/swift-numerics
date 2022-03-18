@@ -155,20 +155,20 @@ public protocol RealFunctions: ElementaryFunctions {
   /// - `ElementaryFunctions.pow(_:)`
   static func exp10(_ x: Self) -> Self
   
-  /// The square root of the sum of squares of `x` and `y`.
-  ///
-  /// The naive expression `.sqrt(x*x + y*y)` and overflow
-  /// or underflow if `x` or `y` is not well-scaled, producing zero or
-  /// infinity, even when the mathematical result is representable.
-  ///
-  /// The [hypot][wiki] takes care to avoid this, and always
-  /// produces an accurate result when one is available.
-  ///
-  /// See also:
-  /// -
-  /// - `ElementaryFunctions.sqrt(_:)`
-  ///
-  /// [wiki]: https://en.wikipedia.org/wiki/Hypot
+/// The square root of the sum of squares of `x` and `y`.
+///
+/// The naive expression `.sqrt(x*x + y*y)` and overflow
+/// or underflow if `x` or `y` is not well-scaled, producing zero or
+/// infinity, even when the mathematical result is representable.
+///
+/// The [hypot][wiki] takes care to avoid this, and always
+/// produces an accurate result when one is available.
+///
+/// See also:
+/// -
+/// - `ElementaryFunctions.sqrt(_:)`
+///
+/// [wiki]: https://en.wikipedia.org/wiki/Hypot
   static func hypot(_ x: Self, _ y: Self) -> Self
   
   /// The [gamma function][wiki] Γ(x).
@@ -217,12 +217,12 @@ public protocol RealFunctions: ElementaryFunctions {
   
   /// The sign of the [gamma function][wiki], Γ(x).
   ///
-  /// For `x >= 0`, `signGamma(x)` is `.plus`. For negative `x`, `signGamma(x)` is `.plus`
-  /// when `x` is an integer, and otherwise it is `.minus` whenever `trunc(x)` is even, and `.plus`
-  /// when `trunc(x)` is odd.
+  /// For `x >= 0`, `signGamma(x)` is `.plus`. For negative `x`, `signGamma(x)`
+  /// is `.plus` when `x` is an integer, and otherwise it is `.minus` whenever
+  /// `trunc(x)` is even, and `.plus` when `trunc(x)` is odd.
   ///
-  /// This function is used together with `logGamma`, which computes the logarithm of the
-  /// absolute value of Γ(x), to recover the sign information.
+  /// This function is used together with `logGamma`, which computes the
+  /// logarithm of the absolute value of Γ(x), to recover the sign information.
   ///
   /// - Warning:
   /// Not available on Windows. 

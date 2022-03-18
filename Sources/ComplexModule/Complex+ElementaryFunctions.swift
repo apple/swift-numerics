@@ -1,4 +1,4 @@
-//===--- ElementaryFunctions.swift ----------------------------*- swift -*-===//
+//===--- Complex+ElementaryFunctions.swift --------------------*- swift -*-===//
 //
 // This source file is part of the Swift.org open source project
 //
@@ -39,17 +39,19 @@ extension Complex: ElementaryFunctions {
   
   // MARK: - exp-like functions
   
-  /// The complex exponential function e^z whose base `e` is the base of the natural logarithm.
+  /// The complex exponential function e^z whose base `e` is the base of the
+  /// natural logarithm.
   ///
-  /// Mathematically, this operation can be expanded in terms of the `Real` operations `exp`,
-  /// `cos` and `sin` as follows:
+  /// Mathematically, this operation can be expanded in terms of the `Real`
+  /// operations `exp`, `cos` and `sin` as follows:
   /// ```
   /// exp(x + iy) = exp(x) exp(iy)
   ///             = exp(x) cos(y) + i exp(x) sin(y)
   /// ```
-  /// Note that naive evaluation of this expression in floating-point would be prone to premature
-  /// overflow, since `cos` and `sin` both have magnitude less than 1 for most inputs (i.e.
-  /// `exp(x)` may be infinity when `exp(x) cos(y)` would not be.
+  /// Note that naive evaluation of this expression in floating-point would be
+  /// prone to premature overflow, since `cos` and `sin` both have magnitude
+  /// less than 1 for most inputs (i.e. `exp(x)` may be infinity when
+  /// `exp(x) cos(y)` would not be).
   @inlinable
   public static func exp(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
@@ -162,7 +164,7 @@ extension Complex: ElementaryFunctions {
     )
   }
   
-  // sinh(x + iy) = sinh(x) cos(y) + i cosh(x) sinh(y)
+  // sinh(x + iy) = sinh(x) cos(y) + i cosh(x) sin(y)
   //
   // See cosh above for algorithm details.
   @inlinable
@@ -309,13 +311,13 @@ extension Complex: ElementaryFunctions {
     // as exact head-tail products (u is guaranteed to be well scaled,
     // v may underflow, but if it does it doesn't matter, the u term is
     // all we need).
-    let (a,b) = Augmented.twoProdFMA(u, u)
-    let (c,d) = Augmented.twoProdFMA(v, v)
+    let (a,b) = Augmented.product(u, u)
+    let (c,d) = Augmented.product(v, v)
     // It would be nice if we could simply use a - 1, but unfortunately
     // we don't have a tight enough bound to guarantee that that expression
     // is exact; a may be as small as 1/4, so we could lose a single bit
     // to rounding if we did that.
-    var (s,e) = Augmented.fastTwoSum(-1, a)
+    var (s,e) = Augmented.sum(large: -1, small: a)
     // Now we are ready to assemble the result. If cancellation happens,
     // then |c| > |e| > |b|, |d|, so this assembly order is safe. It's
     // also possible that |c| and |d| are small, but if that happens then
@@ -351,9 +353,9 @@ extension Complex: ElementaryFunctions {
     // So now we need to evaluate (2+x)x + y² accurately. To do this,
     // we employ augmented arithmetic; the key observation here is that
     // cancellation is only a problem when y² ≈ -(2+x)x
-    let xp2 = Augmented.fastTwoSum(2, z.x) // Known that 2 > |x|.
-    let a = Augmented.twoProdFMA(z.x, xp2.head)
-    let y² = Augmented.twoProdFMA(z.y, z.y)
+    let xp2 = Augmented.sum(large: 2, small: z.x) // Known that 2 > |x|.
+    let a = Augmented.product(z.x, xp2.head)
+    let y² = Augmented.product(z.y, z.y)
     let s = (a.head + y².head + a.tail + y².tail).addingProduct(z.x, xp2.tail)
     return Complex(.log(onePlus: s)/2, θ)
   }
