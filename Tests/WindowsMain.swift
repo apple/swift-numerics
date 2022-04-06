@@ -161,21 +161,6 @@ var testCases = [
   IntegerUtilitiesTests.DoubleWidthTests.all,
 ]
 
-#if canImport(_Differentiation)
-extension DifferentiableTests {
-  static var all = testCase([
-    ("testComponentGetter", DifferentiableTests.testComponentGetter),
-    ("testInitializer", DifferentiableTests.testInitializer),
-    ("testConjugate",  DifferentiableTests.testConjugate),
-    ("testArithmetics", DifferentiableTests.testArithmetics),
-  ])
-}
-
-testCases += [
-  DifferentiableTests.all
-]
-#endif
-
 XCTMain(testCases)
 
 #endif

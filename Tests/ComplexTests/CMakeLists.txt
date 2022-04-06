@@ -10,7 +10,6 @@ See https://swift.org/LICENSE.txt for license information
 add_library(ComplexTests
   ApproximateEqualityTests.swift
   ArithmeticTests.swift
-  DifferentiableTests.swift
   ElementaryFunctionTests.swift
   PropertyTests.swift)
 set_target_properties(ComplexTests PROPERTIES
