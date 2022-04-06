@@ -50,10 +50,8 @@ let package = Package(
     ),
     
     // MARK: - Implementation details
-    .target(
-      name: "_NumericsShims",
-      dependencies: [],
-      exclude: excludedFilenames
+    .systemLibrary(
+      name: "_NumericsShims"
     ),
     
     .target(
