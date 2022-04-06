@@ -383,12 +383,7 @@ HEADER_SHIM long double libm_lgammal(long double x, int *signp) {
 #endif
 
 // MARK: - math inlines with relaxed semantics to support optimization.
-#if __swift__ >= 50400
 #define CLANG_RELAX_FP _Pragma("clang fp reassociate(on) contract(fast)")
-#else
-// reassociate(on) isn't supported by the clang in pre-swift-5.4 toolchains.
-#define CLANG_RELAX_FP _Pragma("clang fp contract(fast)")
-#endif
 
 #if !(__i386__ || __x86_64__)
 /// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
