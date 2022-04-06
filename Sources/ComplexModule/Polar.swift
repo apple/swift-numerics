@@ -31,16 +31,10 @@ extension Complex {
   /// a representable result.
   ///
   /// Edge cases:
-  /// -
-  /// If a complex value is not finite, its `.length` is `infinity`.
+  /// - If a complex value is not finite, its `.length` is `infinity`.
   ///
-  /// See also:
-  /// -
-  /// - `.magnitude`
-  /// - `.lengthSquared`
-  /// - `.phase`
-  /// - `.polar`
-  /// - `init(r:θ:)`
+  /// See also `.magnitude`, `.lengthSquared`, `.phase`, `.polar`
+  /// and `init(r:θ:)`.
   @_transparent
   public var length: RealType {
     let naive = lengthSquared
@@ -69,10 +63,7 @@ extension Complex {
   /// For many cases, `.magnitude` can be used instead, which is similarly
   /// cheap to compute and always returns a representable value.
   ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.magnitude`
+  /// See also `.length` and `.magnitude`.
   @_transparent
   public var lengthSquared: RealType {
     x*x + y*y
@@ -88,14 +79,9 @@ extension Complex {
   /// and `nan` is returned.
   ///
   /// Edge cases:
-  /// -
-  /// If the complex value is zero or non-finite, phase is `nan`.
+  /// - If the complex value is zero or non-finite, phase is `nan`.
   ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.polar`
-  /// - `init(r:θ:)`
+  /// See also `.length`, `.polar` and `init(r:θ:)`.
   @inlinable
   public var phase: RealType {
     guard isFinite && !isZero else { return .nan }
@@ -105,15 +91,10 @@ extension Complex {
   /// The length and phase (or polar coordinates) of this value.
   ///
   /// Edge cases:
-  /// -
-  /// If the complex value is zero or non-finite, phase is `.nan`.
-  /// If the complex value is non-finite, length is `.infinity`.
+  /// - If the complex value is zero or non-finite, phase is `.nan`.
+  /// - If the complex value is non-finite, length is `.infinity`.
   ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.phase`
-  /// - `init(r:θ:)`
+  /// See also: `.length`, `.phase` and `init(r:θ:)`.
   public var polar: (length: RealType, phase: RealType) {
     (length, phase)
   }
@@ -121,7 +102,6 @@ extension Complex {
   /// Creates a complex value specified with polar coordinates.
   ///
   /// Edge cases:
-  /// -
   /// - Negative lengths are interpreted as reflecting the point through the
   ///   origin, i.e.:
   ///   ```
@@ -137,11 +117,7 @@ extension Complex {
   ///   ```
   /// - Otherwise, `θ` must be finite, or a precondition failure occurs.
   ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.phase`
-  /// - `.polar`
+  /// See also `.length`, `.phase` and `.polar`.
   @inlinable
   public init(length: RealType, phase: RealType) {
     if phase.isFinite {

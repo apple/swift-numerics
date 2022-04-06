@@ -28,7 +28,7 @@ extension Augmented {
   /// This operation is sometimes called "twoProd" or "twoProduct".
   ///
   /// Edge Cases:
-  /// -
+  ///
   /// - `head` is always the IEEE 754 product `a * b`.
   /// - If `head` is not finite, `tail` is unspecified and should not be
   ///   interpreted as having any meaning (it may be `NaN` or `infinity`).
@@ -39,7 +39,7 @@ extension Augmented {
   /// - If `head` is zero, `tail` is also a zero with unspecified sign.
   ///
   /// Postconditions:
-  /// -
+  ///
   /// - If `head` is normal, then `abs(tail) < head.ulp`.
   ///   Assuming IEEE 754 default rounding, `abs(tail) <= head.ulp/2`.
   /// - If both `head` and `tail` are normal, then `a * b` is exactly
@@ -61,8 +61,7 @@ extension Augmented {
   /// value.
   ///
   /// Unlike `Augmented.product(a, b)`, the rounding error of a sum can
-  /// never underflow. However, it may not be exactly representable when
-  /// `a` and `b` differ widely in magnitude.
+  /// never underflow.
   ///
   /// This operation is sometimes called ["fastTwoSum"].
   ///
@@ -71,19 +70,19 @@ extension Augmented {
   ///   - b: The summand with smaller magnitude.
   ///
   /// Preconditions:
-  /// -
+  ///
   /// - `large.magnitude` must not be smaller than `small.magnitude`.
   ///   They may be equal, or one or both may be `NaN`.
   ///   This precondition is only enforced in debug builds.
   ///
   /// Edge Cases:
-  /// -
+  ///
   /// - `head` is always the IEEE 754 sum `a + b`.
   /// - If `head` is not finite, `tail` is unspecified and should not be
   ///   interpreted as having any meaning (it may be `NaN` or `infinity`).
   ///
   /// Postconditions:
-  /// -
+  ///
   /// - If `head` is normal, then `abs(tail) < head.ulp`.
   ///   Assuming IEEE 754 default rounding, `abs(tail) <= head.ulp/2`.
   ///
@@ -112,8 +111,7 @@ extension Augmented {
   /// over this function; as it faster to calculate.
   ///
   /// Unlike `Augmented.product(a, b)`, the rounding error of a sum can
-  /// never underflow. However, it may not be exactly representable when
-  /// `a` and `b` differ widely in magnitude.
+  /// never underflow.
   ///
   /// This operation is sometimes called ["twoSum"].
   ///
@@ -122,13 +120,13 @@ extension Augmented {
   ///   - b: The other summand
   ///
   /// Edge Cases:
-  /// -
+  ///
   /// - `head` is always the IEEE 754 sum `a + b`.
   /// - If `head` is not finite, `tail` is unspecified and should not be
   ///   interpreted as having any meaning (it may be `NaN` or `infinity`).
   ///
   /// Postconditions:
-  /// -
+  /// 
   /// - If `head` is normal, then `abs(tail) < head.ulp`.
   ///   Assuming IEEE 754 default rounding, `abs(tail) <= head.ulp/2`.
   ///

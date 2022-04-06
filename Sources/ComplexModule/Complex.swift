@@ -16,7 +16,7 @@ import RealModule
 /// TODO: introductory text on complex numbers
 ///
 /// Implementation notes:
-/// -
+///
 /// This type does not provide heterogeneous real/complex arithmetic,
 /// not even the natural vector-space operations like real * complex.
 /// There are two reasons for this choice: first, Swift broadly avoids
@@ -105,11 +105,7 @@ extension Complex {
 extension Complex {
   /// The imaginary unit.
   ///
-  /// See also:
-  /// -
-  /// - .zero
-  /// - .one
-  /// - .infinity
+  /// See also `.zero`, `.one` and `.infinity`.
   @_transparent
   public static var i: Complex {
     Complex(0, 1)
@@ -117,11 +113,7 @@ extension Complex {
   
   /// The point at infinity.
   ///
-  /// See also:
-  /// -
-  /// - .zero
-  /// - .one
-  /// - .i
+  /// See also `.zero`, `.one` and `.i`.
   @_transparent
   public static var infinity: Complex {
     Complex(.infinity, 0)
@@ -131,11 +123,7 @@ extension Complex {
   ///
   /// A complex value is finite if neither component is an infinity or nan.
   ///
-  /// See also:
-  /// -
-  /// - `.isNormal`
-  /// - `.isSubnormal`
-  /// - `.isZero`
+  /// See also `.isNormal`, `.isSubnormal` and `.isZero`.
   @_transparent
   public var isFinite: Bool {
     x.isFinite && y.isFinite
@@ -148,10 +136,7 @@ extension Complex {
   /// one of the components is normal if its exponent allows a full-precision
   /// representation.
   ///
-  /// See also:
-  /// - `.isFinite`
-  /// - `.isSubnormal`
-  /// - `.isZero`
+  /// See also `.isFinite`, `.isSubnormal` and `.isZero`.
   @_transparent
   public var isNormal: Bool {
     isFinite && (x.isNormal || y.isNormal)
@@ -163,10 +148,7 @@ extension Complex {
   /// When the result of a computation is subnormal, underflow has occurred and
   /// the result generally does not have full precision.
   ///
-  /// See also:
-  /// - `.isFinite`
-  /// - `.isNormal`
-  /// - `.isZero`
+  /// See also `.isFinite`, `.isNormal` and `.isZero`.
   @_transparent
   public var isSubnormal: Bool {
     isFinite && !isNormal && !isZero
@@ -177,11 +159,7 @@ extension Complex {
   /// A complex number is zero if *both* the real and imaginary components
   /// are zero.
   ///
-  /// See also:
-  /// -
-  /// - `.isFinite`
-  /// - `.isNormal`
-  /// - `.isSubnormal`
+  /// See also `.isFinite`, `.isNormal` and `isSubnormal`.
   @_transparent
   public var isZero: Bool {
     x == 0 && y == 0

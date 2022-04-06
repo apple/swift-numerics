@@ -47,7 +47,7 @@
 /// protocol that you will want to use most often for generic code.
 ///
 /// See Also:
-/// -
+///
 /// - `RealFunctions`
 /// - `Real`
 ///
@@ -56,11 +56,8 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   /// The [exponential function][wiki] e^x whose base `e` is the base of the
   /// natural logarithm.
   ///
-  /// See also:
-  /// -
-  /// - `expMinusOne()`
-  /// - `exp2()` (for types conforming to `RealFunctions`)
-  /// - `exp10()` (for types conforming to `RealFunctions`)
+  /// See also `expMinusOne()`, as well as `exp2()` and `exp10()`
+  /// defined for types conforming to `RealFunctions`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Exponential_function
   static func exp(_ x: Self) -> Self
@@ -82,11 +79,8 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   /// This re-written expression delivers an accurate result for all values
   /// of `x`, not just for small values.
   ///
-  /// See also:
-  /// -
-  /// - `exp()`
-  /// - `exp2()` (for types conforming to `RealFunctions`)
-  /// - `exp10()` (for types conforming to `RealFunctions`)
+  /// See also `exp()`, as well as `exp2()` and `exp10()` defined for types
+  /// conforming to `RealFunctions`.
   static func expMinusOne(_ x: Self) -> Self
   
   /// The [hyperbolic cosine][wiki] of `x`.
@@ -96,11 +90,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///                2
   /// ```
   ///
-  /// See also:
-  /// -
-  /// - `sinh()`
-  /// - `tanh()`
-  /// - `acosh()`
+  /// See also `sinh()`, `tanh()` and `acosh()`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Hyperbolic_function
   static func cosh(_ x: Self) -> Self
@@ -112,11 +102,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///                2
   /// ```
   ///
-  /// See also:
-  /// -
-  /// - `cosh()`
-  /// - `tanh()`
-  /// - `asinh()`
+  /// See also `cosh()`, `tanh()` and `asinh()`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Hyperbolic_function
   static func sinh(_ x: Self) -> Self
@@ -128,11 +114,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///            cosh(x)
   /// ```
   ///
-  /// See also:
-  /// -
-  /// - `cosh()`
-  /// - `sinhh()`
-  /// - `atanh()`
+  /// See also `cosh()`, `sinh()` and `atanh()`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Hyperbolic_function
   static func tanh(_ x: Self) -> Self
@@ -141,11 +123,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// For real types, `x` may be interpreted as an angle measured in radians.
   ///
-  /// See also:
-  /// -
-  /// - `sin()`
-  /// - `tan()`
-  /// - `acos()`
+  /// See also `sin()`, `tan()` and `acos()`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Cosine
   static func cos(_ x: Self) -> Self
@@ -155,11 +133,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// For real types, `x` may be interpreted as an angle measured in radians.
   ///
-  /// See also:
-  /// -
-  /// - `cos()`
-  /// - `tan()`
-  /// - `asin()`
+  /// See also `cos()`, `tan()` and `asin()`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Sine
   static func sin(_ x: Self) -> Self
@@ -168,49 +142,31 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// For real types, `x` may be interpreted as an angle measured in radians.
   ///
-  /// See also:
-  /// -
-  /// - `cos()`
-  /// - `sin()`
-  /// - `atan()`
-  /// - `atan2(y:x:)` (for types conforming to `RealFunctions`)
-  /// ```
-  ///           sin(x)
-  /// tan(x) = --------
-  ///           cos(x)
-  /// ```
+  /// See also `cos()`, `sin()` and `atan()`, as well as `atan2(y:x:)` for
+  /// types that conform to `RealFunctions`.
+  ///
   /// [wiki]: https://en.wikipedia.org/wiki/Tangent
   static func tan(_ x: Self) -> Self
   
   /// The [natural logarithm][wiki] of `x`.
   ///
-  /// See also:
-  /// -
-  /// - `log(onePlus:)`
-  /// - `log2()` (for types conforming to `RealFunctions`)
-  /// - `log10()` (for types conforming to `RealFunctions`)
+  /// See also `log(onePlus:)`, as well as `log2()` and `log10()` for types
+  /// that conform to `RealFunctions`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Logarithm
   static func log(_ x: Self) -> Self
   
   /// log(1 + x), computed in such a way as to maintain accuracy for small x.
   ///
-  /// See also:
-  /// -
-  /// - `log()`
-  /// - `log2()` (for types conforming to `RealFunctions`)
-  /// - `log10()` (for types conforming to `RealFunctions`)
+  /// See also `log()`, as well as `log2()` and `log10()` for types
+  /// that conform to `RealFunctions`.
   static func log(onePlus x: Self) -> Self
   
   /// The [inverse hyperbolic cosine][wiki] of `x`.
   /// ```
   /// cosh(acosh(x)) ≅ x
   /// ```
-  /// See also:
-  /// -
-  /// - `asinh()`
-  /// - `atanh()`
-  /// - `cosh()`
+  /// See also `asinh()`, `atanh()` and `cosh()`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_hyperbolic_function
   static func acosh(_ x: Self) -> Self
@@ -219,11 +175,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   /// ```
   /// sinh(asinh(x)) ≅ x
   /// ```
-  /// See also:
-  /// -
-  /// - `acosh()`
-  /// - `atanh()`
-  /// - `sinh()`
+  /// See also `acosh()`, `atanh()` and `sinh()`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_hyperbolic_function
   static func asinh(_ x: Self) -> Self
@@ -232,11 +184,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   /// ```
   /// tanh(atanh(x)) ≅ x
   /// ```
-  /// See also:
-  /// -
-  /// - `acosh()`
-  /// - `asinh()`
-  /// - `tanh()`
+  /// See also `acosh()`, `asinh()` and `tanh()`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_hyperbolic_function
   static func atanh(_ x: Self) -> Self
@@ -248,11 +196,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   /// ```
   /// cos(acos(x)) ≅ x
   /// ```
-  /// See also:
-  /// -
-  /// - `asin()`
-  /// - `atan()`
-  /// - `cos()`
+  /// See also `asin()`, `atan()` and `cos()`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
   static func acos(_ x: Self) -> Self
@@ -264,11 +208,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   /// ```
   /// sin(asin(x)) ≅ x
   /// ```
-  /// See also:
-  /// -
-  /// - `acos()`
-  /// - `atan()`
-  /// - `sin()`
+  /// See also `acos()`, `atan()` and `sin()`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
   static func asin(_ x: Self) -> Self
@@ -280,50 +220,34 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   /// ```
   /// tan(atan(x)) ≅ x
   /// ```
-  /// See also:
-  /// -
-  /// - `acos()`
-  /// - `asin()`
-  /// - `atan2()` (for types conforming to `RealFunctions`)
-  /// - `tan()`
+  /// See also `acos()`, `asin()` and `tan()`, as well as `atan2(y:x:)` for
+  /// types that conform to `RealArithmetic`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
   static func atan(_ x: Self) -> Self
   
   /// exp(y * log(x)) computed with additional internal precision.
   ///
-  /// See also:
-  /// -
-  /// - `sqrt()`
-  /// - `root()`
+  /// See also `sqrt()` and `root()`.
   ///
   static func pow(_ x: Self, _ y: Self) -> Self
   
   /// `x` raised to the nth power.
   ///
-  /// See also:
-  /// -
-  /// - `sqrt()`
-  /// - `root()`
+  /// See also `sqrt()` and `root()`.
   ///
   static func pow(_ x: Self, _ n: Int) -> Self
   
   /// The [square root][wiki] of `x`.
   ///
-  /// See also:
-  /// -
-  /// - `pow()`
-  /// - `root()`
+  /// See also `pow()` and `root()`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Square_root
   static func sqrt(_ x: Self) -> Self
   
   /// The nth root of `x`.
   ///
-  /// See also:
-  /// -
-  /// - `pow()`
-  /// - `sqrt()`
+  /// See also `pow()` and `sqrt()`.
   ///
   static func root(_ x: Self, _ n: Int) -> Self
 }

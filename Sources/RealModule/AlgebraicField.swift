@@ -37,12 +37,7 @@
 /// If a type `T` conforms to the `Real` protocol, then `T` and `Complex<T>`
 /// both conform to `AlgebraicField`.
 ///
-/// See Also:
-/// -
-/// - Real
-/// - SignedNumeric
-/// - Numeric
-/// - AdditiveArithmetic
+/// See also `Real`, `SignedNumeric`, `Numeric` and `AdditiveArithmetic`.
 ///
 /// [field]: https://en.wikipedia.org/wiki/Field_(mathematics)
 public protocol AlgebraicField: SignedNumeric {
