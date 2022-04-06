@@ -9,7 +9,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if canImport(_Differentiation)
+// STC April 2022: experimentally remove differentiable conformance to work
+// around CI config failure.
+#if canImport(_Differentiation) && !os(macOS)
 
 import XCTest
 import ComplexModule
