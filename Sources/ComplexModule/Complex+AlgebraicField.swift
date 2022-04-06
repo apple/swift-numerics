@@ -111,7 +111,7 @@ extension Complex: AlgebraicField {
   /// ```
   ///
   /// Error Bounds:
-  /// -
+  ///
   /// Unlike real types, when working with complex types, multiplying by the
   /// reciprocal instead of dividing cannot change the result. If the
   /// reciprocal is non-nil, the two computations are always equivalent.

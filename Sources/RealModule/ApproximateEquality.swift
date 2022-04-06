@@ -28,8 +28,7 @@ extension Numeric where Magnitude: FloatingPoint {
   /// is not suitable for all use cases.
   ///
   /// Mathematical Properties:
-  /// ------------------------
-  /// 
+  ///
   /// - `isApproximatelyEqual(to:relativeTolerance:norm:)` is _reflexive_ for
   ///   non-exceptional values (such as NaN).
   ///
@@ -51,9 +50,7 @@ extension Numeric where Magnitude: FloatingPoint {
   ///   so long as no underflow or overflow has occured, and no exceptional
   ///   value is produced by the scaling.
   ///
-  /// See Also:
-  /// -------
-  /// - `isApproximatelyEqual(to:absoluteTolerance:[relativeTolerance:norm:])`
+  /// See also `isApproximatelyEqual(to:absoluteTolerance:[relativeTolerance:norm:])`.
   ///
   /// - Parameters:
   ///
@@ -98,7 +95,6 @@ extension Numeric where Magnitude: FloatingPoint {
   /// where `scale` is `max(self.magnitude, other.magnitude)`.
   ///
   /// Mathematical Properties:
-  /// ------------------------
   ///
   /// - `isApproximatelyEqual(to:absoluteTolerance:relativeTolerance:)`
   ///   is _reflexive_ for non-exceptional values (such as NaN).
@@ -118,9 +114,7 @@ extension Numeric where Magnitude: FloatingPoint {
   ///   to `a` is _convex_. (Under the assumption that `norm` implements a
   ///   valid norm, which cannot be checked by this function.)
   ///
-  /// See Also:
-  /// -------
-  /// - `isApproximatelyEqual(to:[relativeTolerance:])`
+  /// See also `isApproximatelyEqual(to:[relativeTolerance:])`.
   ///
   /// - Parameters:
   ///
@@ -170,7 +164,6 @@ extension AdditiveArithmetic {
   /// where `scale` is `max(norm(self), norm(other))`.
   ///
   /// Mathematical Properties:
-  /// ------------------------
   ///
   /// - `isApproximatelyEqual(to:absoluteTolerance:relativeTolerance:norm:)`
   ///   is _reflexive_ for non-exceptional values (such as NaN).
@@ -191,10 +184,8 @@ extension AdditiveArithmetic {
   ///   to `a` is _convex_ (under the assumption that `norm` implements a
   ///   valid norm, which cannot be checked by this function or a protocol).
   ///
-  /// See Also:
-  /// -------
-  /// - `isApproximatelyEqual(to:[relativeTolerance:norm:])`
-  /// - `isApproximatelyEqual(to:absoluteTolerance:[relativeTolerance:])`
+  /// See also `isApproximatelyEqual(to:[relativeTolerance:norm:])` and
+  /// `isApproximatelyEqual(to:absoluteTolerance:[relativeTolerance:])`.
   ///
   /// - Parameters:
   ///
