@@ -306,9 +306,9 @@ final class TransformationTests: XCTestCase {
     let q = Quaternion(angle: .pi, axis: SIMD3(1,0,0))
     XCTAssertEqual(q.act(on:  .zero), .zero)
     XCTAssertEqual(q.act(on: -.zero), .zero)
-    XCTAssertEqual(q.act(on:  .nan     ), SIMD3(repeating: .infinity))
-    XCTAssertEqual(q.act(on:  .infinity), SIMD3(repeating: .infinity))
-    XCTAssertEqual(q.act(on: -.infinity), SIMD3(repeating: .infinity))
+    XCTAssertEqual(q.act(on:  .nan     ), .infinity)
+    XCTAssertEqual(q.act(on:  .infinity), .infinity)
+    XCTAssertEqual(q.act(on: -.infinity), .infinity)
   }
 
   func testActOnVectorEdgeCase() {
@@ -369,8 +369,6 @@ final class TransformationTests: XCTestCase {
 
 // MARK: - Helper
 extension SIMD3 where Scalar: FloatingPoint {
-  fileprivate static var infinity: Self { SIMD3(.infinity,0,0) }
-  fileprivate static var nan: Self { SIMD3(.nan,0,0) }
   fileprivate var isNaN: Bool { x.isNaN && y.isNaN && z.isNaN }
 }
 
