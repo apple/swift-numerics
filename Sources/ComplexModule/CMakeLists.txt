@@ -12,7 +12,6 @@ add_library(ComplexModule
   Complex+AdditiveArithmetic.swift
   Complex+AlgebraicField.swift
   Complex+Codable.swift
-  Complex+Differentiable.swift
   Complex+ElementaryFunctions.swift
   Complex+Hashable.swift
   Complex+IntegerLiteral.swift
