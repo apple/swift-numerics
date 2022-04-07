@@ -1,4 +1,4 @@
-//===--- AdditiveArithmetic.swift -----------------------------*- swift -*-===//
+//===--- Scale.swift ------------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
