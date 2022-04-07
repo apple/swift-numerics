@@ -53,7 +53,7 @@ let package = Package(
     .target(
       name: "_NumericsShims",
       exclude: excludedFilenames,
-      linkerSettings: [.linkedLibrary("m", .when(platforms: [.linux]))]
+      linkerSettings: [.linkedLibrary("m", .when(platforms: [.linux, .android]))]
     ),
     
     .target(
