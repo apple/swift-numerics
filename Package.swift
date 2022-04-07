@@ -50,8 +50,10 @@ let package = Package(
     ),
     
     // MARK: - Implementation details
-    .systemLibrary(
-      name: "_NumericsShims"
+    .target(
+      name: "_NumericsShims",
+      exclude: excludedFilenames,
+      linkerSettings: [.linkedLibrary("m", .when(platforms: [.linux]))]
     ),
     
     .target(

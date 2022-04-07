@@ -1,4 +1,3 @@
 module _NumericsShims {
   header "_NumericsShims.h"
-  link "m"
 }
