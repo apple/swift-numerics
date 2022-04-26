@@ -1,8 +1,8 @@
-//===--- Arithmetic.swift -------------------------------------*- swift -*-===//
+//===--- Quaternion+AlgebraicField.swift ----------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 - 2020 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019 - 2022 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -11,61 +11,22 @@
 
 import RealModule
 
-// MARK: - Conformance to Additive Arithmetic
-extension Quaternion: AdditiveArithmetic {
-  @_transparent
-  public static func + (lhs: Quaternion, rhs: Quaternion) -> Quaternion {
-    Quaternion(from: lhs.components + rhs.components)
-  }
-
-  @_transparent
-  public static func - (lhs: Quaternion, rhs: Quaternion) -> Quaternion {
-    Quaternion(from: lhs.components - rhs.components)
-  }
-
-  @_transparent
-  public static func += (lhs: inout Quaternion, rhs: Quaternion) {
-    lhs = lhs + rhs
-  }
-
-  @_transparent
-  public static func -= (lhs: inout Quaternion, rhs: Quaternion) {
-    lhs = lhs - rhs
-  }
-}
-
-// MARK: - Vector space structure
-//
-// See: https://github.com/apple/swift-numerics/issues/12
-// While the issue addresses complex operations, this applies to quaternions as well.
-extension Quaternion {
-  @usableFromInline @_transparent
-  internal func multiplied(by scalar: RealType) -> Quaternion {
-    Quaternion(from: components * scalar)
-  }
-
-  @usableFromInline @_transparent
-  internal func divided(by scalar: RealType) -> Quaternion {
-    Quaternion(from: components / scalar)
-  }
-}
-
-// MARK: - Multiplicative structure
 extension Quaternion: AlgebraicField {
+  /// The multiplicative identity, with real part one and *all* imaginary parts
+  /// zero, i.e.: `1 + 0i + 0j + 0k`
+  ///
+  /// See also: `zero`, `i`, `j`, `k`, `infinity`
   @_transparent
-  public static func * (lhs: Quaternion, rhs: Quaternion) -> Quaternion {
+  public static var one: Quaternion {
+    Quaternion(from: SIMD4(0,0,0,1))
+  }
 
-    let rhsX = SIMD4(+rhs.components.w, +rhs.components.z, -rhs.components.y, +rhs.components.x)
-    let rhsY = SIMD4(-rhs.components.z, +rhs.components.w, +rhs.components.x, +rhs.components.y)
-    let rhsZ = SIMD4(+rhs.components.y, -rhs.components.x, +rhs.components.w, +rhs.components.z)
-    let rhsR = SIMD4(-rhs.components.x, -rhs.components.y, -rhs.components.z, +rhs.components.w)
-
-    let x = (lhs.components * rhsX).sum()
-    let y = (lhs.components * rhsY).sum()
-    let z = (lhs.components * rhsZ).sum()
-    let r = (lhs.components * rhsR).sum()
-
-    return Quaternion(from: SIMD4(x,y,z,r))
+  /// The [conjugate][conj] of this value.
+  ///
+  /// [conj]: https://en.wikipedia.org/wiki/Quaternion#Conjugation,_the_norm,_and_reciprocal
+  @_transparent
+  public var conjugate: Quaternion {
+    Quaternion(from: components * [-1, -1, -1, 1])
   }
 
   @_transparent
@@ -76,11 +37,6 @@ extension Quaternion: AlgebraicField {
     let lengthSquared = rhs.lengthSquared
     guard lengthSquared.isNormal else { return rescaledDivide(lhs, rhs) }
     return lhs * (rhs.conjugate.divided(by: lengthSquared))
-  }
-
-  @_transparent
-  public static func *= (lhs: inout Quaternion, rhs: Quaternion) {
-    lhs = lhs * rhs
   }
 
   @_transparent
@@ -155,11 +111,10 @@ extension Quaternion: AlgebraicField {
   /// ```
   @inlinable
   public var reciprocal: Quaternion? {
-    let recip = 1/self
+    let recip = Quaternion(1)/self
     if recip.isNormal || isZero || !isFinite {
       return recip
     }
     return nil
   }
 }
-
