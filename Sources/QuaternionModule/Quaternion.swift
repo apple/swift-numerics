@@ -89,13 +89,7 @@ extension Quaternion {
 
   /// The quaternion with the imaginary unit **i** one, i.e. `0 + i + 0j + 0k`.
   ///
-  /// See also:
-  /// -
-  /// - .zero
-  /// - .one
-  /// - .j
-  /// - .k
-  /// - .infinity
+  /// See also `.zero`, `.one`, `.j`, `.k` and `.infinity`.
   @_transparent
   public static var i: Quaternion {
     Quaternion(imaginary: SIMD3(1,0,0))
@@ -103,13 +97,7 @@ extension Quaternion {
 
   /// The quaternion with the imaginary unit **j** one, i.e. `0 + 0i + j + 0k`.
   ///
-  /// See also:
-  /// -
-  /// - .zero
-  /// - .one
-  /// - .i
-  /// - .k
-  /// - .infinity
+  /// See also `.zero`, `.one`, `.i`, `.k` and `.infinity`.
   @_transparent
   public static var j: Quaternion {
     Quaternion(imaginary: SIMD3(0,1,0))
@@ -117,13 +105,7 @@ extension Quaternion {
 
   /// The quaternion with the imaginary unit **k** one, i.e. `0 + 0i + 0j + k`.
   ///
-  /// See also:
-  /// -
-  /// - .zero
-  /// - .one
-  /// - .i
-  /// - .j
-  /// - .infinity
+  /// See also `.zero`, `.one`, `.i`, `.j` and `.infinity`.
   @_transparent
   public static var k: Quaternion {
     Quaternion(imaginary: SIMD3(0,0,1))
@@ -131,13 +113,7 @@ extension Quaternion {
 
   /// The point at infinity.
   ///
-  /// See also:
-  /// -
-  /// - .zero
-  /// - .one
-  /// - .i
-  /// - .j
-  /// - .k
+  /// See also `.zero`, `.one`, `.i`, `.j` and `.k`.
   @_transparent
   public static var infinity: Quaternion {
     Quaternion(.infinity)
@@ -147,13 +123,7 @@ extension Quaternion {
   ///
   /// A quaternion is finite if neither component is an infinity or nan.
   ///
-  /// See also:
-  /// -
-  /// - `.isNormal`
-  /// - `.isSubnormal`
-  /// - `.isZero`
-  /// - `.isReal`
-  /// - `.isPure`
+  /// See also `.isNormal`, `.isSubnormal`, `.isZero`, `.isReal`, `.isPure`.
   @_transparent
   public var isFinite: Bool {
     return components.x.isFinite
@@ -168,13 +138,7 @@ extension Quaternion {
   /// are normal. A floating-point number representing one of the components is normal
   /// if its exponent allows a full-precision representation.
   ///
-  /// See also:
-  /// -
-  /// - `.isFinite`
-  /// - `.isSubnormal`
-  /// - `.isZero`
-  /// - `.isReal`
-  /// - `.isPure`
+  /// See also `.isFinite`, `.isSubnormal`, `.isZero`, `.isReal`, `.isPure`.
   @_transparent
   public var isNormal: Bool {
     return isFinite && (
@@ -191,13 +155,7 @@ extension Quaternion {
   /// computation is subnormal, underflow has occurred and the result generally does not have full
   /// precision.
   ///
-  /// See also:
-  /// -
-  /// - `.isFinite`
-  /// - `.isNormal`
-  /// - `.isZero`
-  /// - `.isReal`
-  /// - `.isPure`
+  /// See also `.isFinite`, `.isNormal`, `.isZero`, `.isReal`, `.isPure`.
   @_transparent
   public var isSubnormal: Bool {
     isFinite && !isNormal && !isZero
@@ -207,13 +165,7 @@ extension Quaternion {
   ///
   /// A quaternion is zero if the real and *all* imaginary components are zero.
   ///
-  /// See also:
-  /// -
-  /// - `.isFinite`
-  /// - `.isNormal`
-  /// - `.isSubnormal`
-  /// - `.isReal`
-  /// - `.isPure`
+  /// See also `.isFinite`, `.isNormal`, `.isSubnormal`, `.isReal`, `.isPure`.
   @_transparent
   public var isZero: Bool {
     components == .zero
@@ -223,13 +175,7 @@ extension Quaternion {
   ///
   /// A quaternion is real if *all* imaginary components are zero.
   ///
-  /// See also:
-  /// -
-  /// - `.isFinite`
-  /// - `.isNormal`
-  /// - `.isSubnormal`
-  /// - `.isZero`
-  /// - `.isPure`
+  /// See also `.isFinite`, `.isNormal`, `.isSubnormal`, `.isZero`, `.isPure`.
   @_transparent
   public var isReal: Bool {
     imaginary == .zero
@@ -239,13 +185,7 @@ extension Quaternion {
   ///
   /// A quaternion is pure if the real component is zero.
   ///
-  /// See also:
-  /// -
-  /// - `.isFinite`
-  /// - `.isNormal`
-  /// - `.isSubnormal`
-  /// - `.isZero`
-  /// - `.isReal`
+  /// See also `.isFinite`, `.isNormal`, `.isSubnormal`, `.isZero`, `.isReal`.
   @_transparent
   public var isPure: Bool {
     real.isZero
@@ -267,9 +207,7 @@ extension Quaternion {
   /// for some serialization tasks. It's also a useful implementation detail for
   /// some primitive operations.
   ///
-  /// See also:
-  /// -
-  /// - `.canonicalizedTransform`
+  /// See also `.canonicalizedTransform`.
   @_transparent
   public var canonicalized: Self {
     guard !isZero else { return .zero }
@@ -290,9 +228,7 @@ extension Quaternion {
   /// If the RealType admits non-canonical representations, the x, y, z and r
   /// components are canonicalized in the result.
   ///
-  /// See also:
-  /// -
-  /// - `.canonicalized`
+  /// See also `.canonicalized`.
   @_transparent
   public var canonicalizedTransform: Self {
     let canonical = canonicalized
