@@ -234,12 +234,34 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
 
+  // MARK: - log-like functions
+
+  func testLog<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // log(0) = undefined/infinity
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real: 0, imaginary: 0, 0, 0)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real:-0, imaginary: 0, 0, 0)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real:-0, imaginary:-0,-0,-0)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real: 0, imaginary:-0,-0,-0)).isFinite)
+
+    var g = SystemRandomNumberGenerator()
+    let values: [Quaternion<T>] = (0..<100).map { _ in
+      Quaternion(
+        real: T.random(in: -1 ... 1, using: &g),
+        imaginary: SIMD3(repeating: T.random(in: -.pi ... .pi, using: &g) / 3))
+    }
+    for q in values {
+      XCTAssertTrue(q.isApproximatelyEqual(to: .log(.exp(q))))
+    }
+  }
+
   func testFloat() {
     testExp(Float32.self)
     testExpMinusOne(Float32.self)
     testCosh(Float32.self)
     testSinh(Float32.self)
     testCosSin(Float32.self)
+
+    testLog(Float32.self)
   }
 
   func testDouble() {
@@ -248,5 +270,7 @@ final class ElementaryFunctionTests: XCTestCase {
     testCosh(Float64.self)
     testSinh(Float64.self)
     testCosSin(Float64.self)
+
+    testLog(Float64.self)
   }
 }

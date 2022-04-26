@@ -26,7 +26,7 @@
 
 import RealModule
 
-extension Quaternion/*: ElementaryFunctions */ {
+extension Quaternion/*: ElementaryFunctions*/ {
 
   // MARK: - exp-like functions
   @inlinable
@@ -201,6 +201,136 @@ extension Quaternion/*: ElementaryFunctions */ {
     let (â,_) = q.imaginary.unitAxisAndLength
     let p = Quaternion(imaginary: â)
     return -p * tanh(q * p)
+  }
+
+  // MARK: - log-like functions
+  @inlinable
+  public static func log(_ q: Quaternion) -> Quaternion {
+    // If q is zero or infinite, the phase is undefined, so the result is
+    // the single exceptional value.
+    guard q.isFinite && !q.isZero else { return .infinity }
+
+    let argument = q.imaginary.length
+    let axis = q.imaginary / argument
+
+    // We deliberatly choose log(length) over the (faster)
+    // log(lengthSquared) / 2 which is used for complex numbers; as
+    // the squared length of quaternions is more prone to overflows than the
+    // squared length of complex numbers.
+    return Quaternion(real: .log(q.length), imaginary: axis * q.halfAngle)
+  }
+
+  @inlinable
+  public static func log(onePlus q: Quaternion) -> Quaternion {
+    // If either |r| or ||v||₁ is bounded away from the origin, we don't need
+    // any extra precision, and can just literally compute log(1+z). Note
+    // that this includes part of the sphere |1+q| = 1 where log(onePlus:)
+    // vanishes (where r <= -0.5), but on this portion of the sphere 1+r
+    // is always exact by Sterbenz' lemma, so as long as log( ) produces
+    // a good result, log(1+q) will too.
+    guard 2*q.real.magnitude < 1 && q.imaginary.oneNorm < 1 else {
+      return log(.one + q)
+    }
+    // q is in (±0.5, ±1), so we need to evaluate more carefully.
+    // The imaginary part is straightforward:
+    let argument = (.one + q).halfAngle
+    let (â,_) = q.imaginary.unitAxisAndLength
+    let imaginary = â * argument
+    // For the real part, we _could_ use the same approach that we do for
+    // log( ), but we'd need an extra-precise (1+r)², which can potentially
+    // be quite painful to calculate. Instead, we can use an approach that
+    // NevinBR suggested on the Swift forums for complex numbers:
+    //
+    //     Re(log 1+q) = (log 1+q + log 1+q̅)/2
+    //                 = log((1+q)(1+q̅)/2
+    //                 = log(1 + q + q̅ + qq̅)/2
+    //                 = log1p((2+r)r + x² + y² + z²)/2
+    //
+    // So now we need to evaluate (2+r)r + x² + y² + z² accurately. To do this,
+    // we employ augmented arithmetic;
+    // (2+r)r + x² + y² + z²
+    //  --↓--
+    let rp2 = Augmented.sum(large: 2, small: q.real) // Known that 2 > |r|
+    var (head, δ) = Augmented.product(q.real, rp2.head)
+    var tail = δ
+    // head + x² + y² + z²
+    // ----↓----
+    let x² = Augmented.product(q.imaginary.x, q.imaginary.x)
+    (head, δ) = Augmented.sum(head, x².head)
+    tail += (δ + x².tail)
+    // head + y² + z²
+    // ----↓----
+    let y² = Augmented.product(q.imaginary.y, q.imaginary.y)
+    (head, δ) = Augmented.sum(head, y².head)
+    tail += (δ + y².tail)
+    // head + z²
+    // ----↓----
+    let z² = Augmented.product(q.imaginary.z, q.imaginary.z)
+    (head, δ) = Augmented.sum(head, z².head)
+    tail += (δ + z².tail)
+
+    let s = (head + tail).addingProduct(q.real, rp2.tail)
+    return Quaternion(real: .log(onePlus: s)/2, imaginary: imaginary)
+  }
+
+  //
+  // MARK: - pow-like functions
+
+  @inlinable
+  public static func pow(_ q: Quaternion, _ p: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of the
+    // quaternionic `exp` and `log` operations as follows:
+    //
+    // ```
+    // pow(q, p) = exp(log(pow(q, p)))
+    //           = exp(p * log(q))
+    // ```
+    exp(p * log(q))
+  }
+
+  @inlinable
+  public static func pow(_ q: Quaternion, _ n: Int) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of the
+    // quaternionic `exp` and `log` operations as follows:
+    //
+    // ```
+    // pow(q, n) = exp(log(pow(q, n)))
+    //           = exp(log(q) * n)
+    // ```
+    guard !q.isZero else { return .zero }
+    // TODO: this implementation is not quite correct, because n may be
+    // rounded in conversion to RealType. This only effects very extreme
+    // cases, so we'll leave it alone for now.
+    return exp(log(q).multiplied(by: RealType(n)))
+  }
+
+  @inlinable
+  public static func sqrt(_ q: Quaternion) -> Quaternion<RealType> {
+    // Mathematically, this operation can be expanded in terms of the
+    // quaternionic `exp` and `log` operations as follows:
+    //
+    // ```
+    // sqrt(q) = q^(1/2) = exp(log(q^(1/2)))
+    //                   = exp(log(q) * (1/2))
+    // ```
+    guard !q.isZero else { return .zero }
+    return exp(log(q).divided(by: 2))
+  }
+
+  @inlinable
+  public static func root(_ q: Quaternion, _ n: Int) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of the
+    // quaternionic `exp` and `log` operations as follows:
+    //
+    // ```
+    // root(q, n) = exp(log(root(q, n)))
+    //            = exp(log(q) / n)
+    // ```
+    guard !q.isZero else { return .zero }
+    // TODO: this implementation is not quite correct, because n may be
+    // rounded in conversion to RealType. This only effects very extreme
+    // cases, so we'll leave it alone for now.
+    return exp(log(q).divided(by: RealType(n)))
   }
 }
 
