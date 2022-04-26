@@ -381,7 +381,7 @@ extension Quaternion {
   /// [wiki]: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Using_quaternion_as_rotations
   @inlinable
   public func act(on vector: SIMD3<RealType>) -> SIMD3<RealType> {
-    guard vector.isFinite else { return SIMD3(repeating: .infinity) }
+    guard vector.isFinite else { return .infinity }
     guard vector != .zero else { return .zero }
 
     // The following expression have been split up so the type-checker
@@ -407,13 +407,8 @@ extension Quaternion {
   }
 }
 
-// MARK: - Transformation Helper
-//
-// While Angle/Axis, Rotation Vector and Polar are different representations
-// of transformations, they have common properties such as being based on a
-// rotation *angle* about a rotation axis of unit length.
-//
-// The following extension provides these common operation internally.
+// MARK: - Operations for working with polar form
+
 extension Quaternion {
   /// The half rotation angle in radians within *[0, π]* range.
   ///
@@ -450,38 +445,5 @@ extension Quaternion {
   @usableFromInline @inline(__always)
   internal init(halfAngle: RealType, unitAxis: SIMD3<RealType>) {
     self.init(real: .cos(halfAngle), imaginary: unitAxis * .sin(halfAngle))
-  }
-}
-
-// MARK: - SIMD Helper
-//
-// Provides common vector operations on SIMD3 to ease the use of "imaginary"
-// and *(x,y,z)* axis representations internally to the module.
-extension SIMD3 where Scalar: FloatingPoint {
-
-  /// True if all values of this instance are finite
-  @usableFromInline @inline(__always)
-  internal var isFinite: Bool {
-    x.isFinite && y.isFinite && z.isFinite
-  }
-
-  /// Returns the squared length of this instance.
-  @usableFromInline @inline(__always)
-  internal var lengthSquared: Scalar {
-    dot(self)
-  }
-
-  /// Returns the scalar/dot product of this vector with `other`.
-  @usableFromInline @inline(__always)
-  internal func dot(_ other: SIMD3<Scalar>) -> Scalar {
-    (self * other).sum()
-  }
-
-  /// Returns the vector/cross product of this vector with `other`.
-  @usableFromInline @inline(__always)
-  internal func cross(_ other: SIMD3<Scalar>) -> SIMD3<Scalar> {
-    let yzx = SIMD3<Int>(1,2,0)
-    let zxy = SIMD3<Int>(2,0,1)
-    return (self[yzx] * other[zxy]) - (self[zxy] * other[yzx])
   }
 }
