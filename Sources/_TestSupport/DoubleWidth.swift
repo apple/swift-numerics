@@ -47,32 +47,35 @@ public struct DoubleWidth<Base : FixedWidthInteger> {
   public typealias High = Base
   public typealias Low = Base.Magnitude
 
-#if _endian(big)
-  internal var _storage: (high: High, low: Low)
-#else
   internal var _storage: (low: Low, high: High)
-#endif
+}
 
-  /// The high part of the value.
+extension DoubleWidth {
+  /// The "high word" of this value.
+  ///
+  /// Equivalent to `Base(self >> Base.bitWidth)`.
   public var high: High {
     return _storage.high
   }
 
-  /// The low part of the value.
+  /// The "low word" of the value.
+  ///
+  /// Equivalent to`Base.Magnitude(truncatingIfNecessary: self)`.
   public var low: Low {
     return _storage.low
   }
 
   /// Creates a new instance from the given tuple of high and low parts.
   ///
+  /// Equivalent to
+  /// ```
+  /// DoubleWidth<Base>(high) << Base.bitWidth + DoubleWidth<Base>(low)
+  /// ```
+  ///
   /// - Parameter value: The tuple to use as the source of the new instance's
   ///   high and low parts.
   public init(_ value: (high: High, low: Low)) {
-#if _endian(big)
-    self._storage = (high: value.0, low: value.1)
-#else
-    self._storage = (low: value.1, high: value.0)
-#endif
+    self._storage = (low: value.low, high: value.high)
   }
 
   // We expect users to invoke the public initializer above as demonstrated in
@@ -87,10 +90,18 @@ public struct DoubleWidth<Base : FixedWidthInteger> {
   //
   // For that reason, we'll include an internal initializer that takes two
   // separate arguments.
+  
+  /// Creates a new instance from the given tuple of high and low parts.
+  ///
+  /// Equivalent to
+  /// ```
+  /// DoubleWidth<Base>(high) << Base.bitWidth + DoubleWidth<Base>(low)
+  /// ```
   internal init(_ _high: High, _ low: Low) {
     self.init((_high, low))
   }
-
+  
+  /// Zero.
   public init() {
     self.init(0, 0)
   }
@@ -124,10 +135,6 @@ extension DoubleWidth : Comparable {
 }
 
 extension DoubleWidth : Hashable {
-  public var hashValue: Int {
-    return _hashValue(for: self)
-  }
-
   public func hash(into hasher: inout Hasher) {
     hasher.combine(low)
     hasher.combine(high)
@@ -176,52 +183,6 @@ extension DoubleWidth : Numeric {
     }
   }
 }
-
-#if false
-
-// This conformance is only possible once the type is in the stdlib, as it uses
-// Builtin
-extension DoubleWidth: _ExpressibleByBuiltinIntegerLiteral {
-  public init(_builtinIntegerLiteral _x: Builtin.IntegerLiteral) {
-    var _x = _x
-    self = DoubleWidth()
-
-    // If we can capture the entire literal in a single Int64, stop there.
-    // This avoids some potential deep recursion due to literal expressions in
-    // other DoubleWidth methods.
-    let (_value, _overflow) = Builtin.s_to_s_checked_trunc_IntLiteral_Int64(_x)
-    if !Bool(_overflow) {
-      self = DoubleWidth(Int64(_value))
-      return
-    }
-
-    // Convert all but the most significant 64 bits as unsigned integers.
-    let _shift = Builtin.sext_Int64_IntLiteral((64 as Int64)._value)
-    let lowWordCount = (bitWidth - 1) / 64
-    for i in 0..<lowWordCount {
-      let value =
-        DoubleWidth(UInt64(Builtin.s_to_u_checked_trunc_IntLiteral_Int64(_x).0))
-          &<< DoubleWidth(i * 64)
-      self |= value
-      _x = Builtin.ashr_IntLiteral(_x, _shift)
-    }
-
-    // Finally, convert the most significant 64 bits and check for overflow.
-    let overflow: Bool
-    if Base.isSigned {
-      let (_value, _overflow) = Builtin.s_to_s_checked_trunc_IntLiteral_Int64(_x)
-      self |= DoubleWidth(Int64(_value)) &<< DoubleWidth(lowWordCount * 64)
-      overflow = Bool(_overflow)
-    } else {
-      let (_value, _overflow) = Builtin.s_to_u_checked_trunc_IntLiteral_Int64(_x)
-      self |= DoubleWidth(UInt64(_value)) &<< DoubleWidth(lowWordCount * 64)
-      overflow = Bool(_overflow)
-    }
-    precondition(!overflow, "Literal integer out of range for this type")
-  }
-}
-
-#endif
 
 extension DoubleWidth {
   public struct Words {

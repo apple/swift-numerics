@@ -23,11 +23,7 @@
 ///   return 1/(1 + .exp(-x))
 /// }
 /// ```
-/// See Also:
-/// -
-/// - `ElementaryFunctions`
-/// - `RealFunctions`
-/// - `AlgebraicField`
+/// See also `ElementaryFunctions`, `RealFunctions` and `AlgebraicField`.
 public protocol Real: FloatingPoint, RealFunctions, AlgebraicField {
 }
 
@@ -44,9 +40,7 @@ extension Real {
   
   /// cos(x) - 1, computed in such a way as to maintain accuracy for small x.
   ///
-  /// See also:
-  /// -
-  /// - `ElementaryFunctions.expMinusOne()`
+  /// See also `ElementaryFunctions.expMinusOne()`.
   @_transparent
   public static func cosMinusOne(_ x: Self) -> Self {
     let sinxOver2 = sin(x/2)
@@ -124,7 +118,7 @@ extension Real {
   /// ```
   ///
   /// Error Bounds:
-  /// -
+  ///
   /// Multiplying by the reciprocal instead of dividing will slightly
   /// perturb results. For example `5.0 / 3` is 1.6666666666666667, but
   /// `5.0 * 3.reciprocal!` is 1.6666666666666665.

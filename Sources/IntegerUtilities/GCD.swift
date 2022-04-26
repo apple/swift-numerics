@@ -27,6 +27,7 @@ public func gcd<T: BinaryInteger>(_ a: T, _ b: T) -> T {
   var x = a.magnitude
   var y = b.magnitude
   
+  if x == 0 { return T(y) }
   if y == 0 { return T(x) }
   
   let xtz = x.trailingZeroBitCount
@@ -39,11 +40,14 @@ public func gcd<T: BinaryInteger>(_ a: T, _ b: T) -> T {
   // After the right-shift in the loop, both x and y are odd. Each pass removes
   // at least one low-order bit from the larger of the two, so the number of
   // iterations is bounded by the sum of the bit-widths of the inputs.
-  while x != 0 {
+  //
+  // A tighter bound is the maximum bit-width of the inputs, which is achieved
+  // by odd numbers that sum to a power of 2, though the proof is more involved.
+  repeat {
     x >>= x.trailingZeroBitCount
     if x < y { swap(&x, &y) }
     x -= y
-  }
+  } while x != 0
   
   return T(y << min(xtz, ytz))
 }
