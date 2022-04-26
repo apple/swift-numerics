@@ -47,7 +47,7 @@ let package = Package(
     .target(
       name: "QuaternionModule",
       dependencies: ["RealModule"],
-      exclude: excludedFilenames
+      exclude: ["README.md", "Transformation.md"]
     ),
     
     .target(
