@@ -1,4 +1,4 @@
-//===--- Quaternion+AlgebraicField.swift ----------------------*- swift -*-===//
+//===--- Quaternion+SignedNumeric.swift -----------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -9,9 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-import RealModule
-
-extension Quaternion: AlgebraicField {
+extension Quaternion: SignedNumeric {
   /// The multiplicative identity, with real part one and *all* imaginary parts
   /// zero, i.e.: `1 + 0i + 0j + 0k`
   ///
