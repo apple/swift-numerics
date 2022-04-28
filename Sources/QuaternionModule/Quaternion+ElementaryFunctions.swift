@@ -31,8 +31,8 @@ extension Quaternion/*: ElementaryFunctions*/ {
   // MARK: - exp-like functions
   @inlinable
   public static func exp(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the `Real`
-    // operations `exp`, `cos` and `sin` as follows (`let θ = ||v||`):
+    // Mathematically, this operation can be expanded in terms of the
+    // `Real` operations `exp`, `cos` and `sin` (`let θ = ||v||`):
     //
     // ```
     // exp(r + v) = exp(r) exp(v)
@@ -42,7 +42,7 @@ extension Quaternion/*: ElementaryFunctions*/ {
     // Note that naive evaluation of this expression in floating-point would be
     // prone to premature overflow, since `cos` and `sin` both have magnitude
     // less than 1 for most inputs (i.e. `exp(r)` may be infinity when
-    // `exp(r) cos(||v||)` would not be.
+    // `exp(r) cos(||v||)` would not be).
     guard q.isFinite else { return q }
     let (â, θ) = q.imaginary.unitAxisAndLength
     let rotation = Quaternion(halfAngle: θ, unitAxis: â)
@@ -59,8 +59,8 @@ extension Quaternion/*: ElementaryFunctions*/ {
 
   @inlinable
   public static func expMinusOne(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the `Real`
-    // operations `exp`, `cos` and `sin` as follows (`let θ = ||v||`):
+    // Mathematically, this operation can be expanded in terms of the
+    // `Real` operations `exp`, `cos` and `sin` (`let θ = ||v||`):
     //
     // ```
     // exp(r + v) - 1 = exp(r) exp(v) - 1
@@ -102,7 +102,7 @@ extension Quaternion/*: ElementaryFunctions*/ {
   @inlinable
   public static func cosh(_ q: Quaternion) -> Quaternion {
     // Mathematically, this operation can be expanded in terms of
-    // trigonometric `Real` operations as follows (`let θ = ||v||`):
+    // trigonometric `Real` operations (`let θ = ||v||`):
     //
     // ```
     // cosh(q) = (exp(q) + exp(-q)) / 2
@@ -136,7 +136,7 @@ extension Quaternion/*: ElementaryFunctions*/ {
   @inlinable
   public static func sinh(_ q: Quaternion) -> Quaternion {
     // Mathematically, this operation can be expanded in terms of
-    // trigonometric `Real` operations as follows (`let θ = ||v||`):
+    // trigonometric `Real` operations (`let θ = ||v||`):
     //
     // ```
     // sinh(q) = (exp(q) - exp(-q)) / 2
@@ -159,7 +159,7 @@ extension Quaternion/*: ElementaryFunctions*/ {
   @inlinable
   public static func tanh(_ q: Quaternion) -> Quaternion {
     // Mathematically, this operation can be expanded in terms of
-    // trigonometric `Real` operations as follows (`let θ = ||v||`):
+    // quaternionic `sinh` and `cosh` operations:
     //
     // ```
     // tanh(q) = sinh(q) / cosh(q)
@@ -181,7 +181,12 @@ extension Quaternion/*: ElementaryFunctions*/ {
 
   @inlinable
   public static func cos(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // quaternionic `cosh` operations (`let θ = ||v||`):
+    //
+    // ```
     // cos(q) = cosh(q * (v/θ)))
+    // ```
     let (â,_) = q.imaginary.unitAxisAndLength
     let p = Quaternion(imaginary: â)
     return cosh(q * p)
@@ -189,7 +194,12 @@ extension Quaternion/*: ElementaryFunctions*/ {
 
   @inlinable
   public static func sin(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // quaternionic `sinh` operations (`let θ = ||v||`):
+    //
+    // ```
     // sin(q) = -(v/θ) * sinh(q * (v/θ)))
+    // ```
     let (â,_) = q.imaginary.unitAxisAndLength
     let p = Quaternion(imaginary: â)
     return -p * sinh(q * p)
@@ -197,7 +207,12 @@ extension Quaternion/*: ElementaryFunctions*/ {
 
   @inlinable
   public static func tan(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // quaternionic `tanh` operations (`let θ = ||v||`):
+    //
+    // ```
     // tan(q) = -(v/θ) * tanh(q * (v/θ)))
+    // ```
     let (â,_) = q.imaginary.unitAxisAndLength
     let p = Quaternion(imaginary: â)
     return -p * tanh(q * p)
@@ -241,13 +256,16 @@ extension Quaternion/*: ElementaryFunctions*/ {
     // be quite painful to calculate. Instead, we can use an approach that
     // NevinBR suggested on the Swift forums for complex numbers:
     //
-    //     Re(log 1+q) = (log 1+q + log 1+q̅)/2
-    //                 = log((1+q)(1+q̅)/2
-    //                 = log(1 + q + q̅ + qq̅)/2
-    //                 = log1p((2+r)r + x² + y² + z²)/2
+    //     Re(log(1+q)) = (log(1+q) + log(1+q̅)) / 2
+    //                  = log((1+q)(1+q̅)) / 2
+    //                  = log(1 + q + q̅ + qq̅) / 2
+    //                  = log(1 + 2r + r² + v²)) / 2
+    //                  = log(1 + (2+r)r + v²)) / 2
+    //                  = log(1 + (2+r)r + x² + y² + z²)) / 2
+    //                  = log(onePlus: (2+r)r + x² + y² + z²) / 2
     //
-    // So now we need to evaluate (2+r)r + x² + y² + z² accurately. To do this,
-    // we employ augmented arithmetic;
+    // So now we need to evaluate (2+r)r + x² + y² + z² accurately.
+    // To do this, we employ augmented arithmetic
     // (2+r)r + x² + y² + z²
     //  --↓--
     let rp2 = Augmented.sum(large: 2, small: q.real) // Known that 2 > |r|
