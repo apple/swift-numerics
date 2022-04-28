@@ -224,15 +224,50 @@ extension Quaternion/*: ElementaryFunctions*/ {
     // If q is zero or infinite, the phase is undefined, so the result is
     // the single exceptional value.
     guard q.isFinite && !q.isZero else { return .infinity }
-
-    let argument = q.imaginary.length
-    let axis = q.imaginary / argument
-
-    // We deliberatly choose log(length) over the (faster)
-    // log(lengthSquared) / 2 which is used for complex numbers; as
-    // the squared length of quaternions is more prone to overflows than the
-    // squared length of complex numbers.
-    return Quaternion(real: .log(q.length), imaginary: axis * q.halfAngle)
+    // Having eliminated non-finite values and zero, the imaginary part is
+    // straightforward:
+    // TODO: There is a potential optimisation hidden here, as length is
+    // calculated twice (halfAngle, unitAxisAndLength)
+    let argument = q.halfAngle
+    let (â, θ) = q.imaginary.unitAxisAndLength
+    let imaginary = â * argument
+    // The real part of the result is trickier and we employ the same approach
+    // as we did for the complex numbers logarithm to improve the relative error
+    // bounds (`Complex.log`). There you may also find a lot more details to
+    // the following approach.
+    //
+    // To handle very large arguments without overflow, _rescale the problem.
+    // This is done by finding whichever part has greater magnitude, and
+    // dividing through by it.
+    let u = max(q.real.magnitude, θ)
+    let v = min(q.real.magnitude, θ)
+    // Now expand out log |w|:
+    //
+    //     log |w| = log(u² + v²)/2
+    //             = log(u + log(onePlus: (u/v)²))/2
+    //
+    // This handles overflow well, because log(u) is finite for every finite u,
+    // and we have 0 ≤ v/u ≤ 1. Unfortunately, it does not handle all points
+    // close to the unit circle so well, as cancellation might occur.
+    //
+    // We are not trying for sub-ulp accuracy, just a good relative error
+    // bound, so for our purposes it suffices to have log u dominate the
+    // result:
+    if u >= 1 || u >= RealType._mulAdd(u,u,v*v) {
+      let r = v / u
+      return Quaternion(real: .log(u) + .log(onePlus: r*r)/2, imaginary: imaginary)
+    }
+    // Here we're in the tricky case; cancellation is likely to occur.
+    // Instead of the factorization used above, we will want to evaluate
+    // log(onePlus: u² + v² - 1)/2. This all boils down to accurately
+    // evaluating u² + v² - 1.
+    let (a,b) = Augmented.product(u, u)
+    let (c,d) = Augmented.product(v, v)
+    var (s,e) = Augmented.sum(large: -1, small: a)
+    // Now we are ready to assemble the result. If cancellation happens,
+    // then |c| > |e| > |b| > |d|, so this assembly order is safe.
+    s = (s + c) + e + b + d
+    return Quaternion(real: .log(onePlus: s)/2, imaginary: imaginary)
   }
 
   @inlinable
