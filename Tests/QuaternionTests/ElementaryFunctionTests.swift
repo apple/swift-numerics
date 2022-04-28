@@ -254,6 +254,51 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
 
+  func testLogOnePlus<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // log(onePlus: 0) = 0
+    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real: 0, imaginary: 0, 0, 0)).isZero)
+    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real:-0, imaginary: 0, 0, 0)).isZero)
+    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real:-0, imaginary:-0,-0,-0)).isZero)
+    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real: 0, imaginary:-0,-0,-0)).isZero)
+    // log(onePlus:) is the identity at infinity.
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .nan,      imaginary: .nan, .nan, .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .zero,     imaginary: .nan, .nan, .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .infinity, imaginary: .nan, .nan, .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.infinity, imaginary: .nan, .nan, .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .nan,      imaginary: -.infinity, -.infinity, -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .zero,     imaginary: -.infinity, -.infinity, -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .infinity, imaginary: -.infinity, -.infinity, -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.infinity, imaginary: -.infinity, -.infinity, -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.ulpOfOne, imaginary: -.infinity, -.infinity, -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .nan,      imaginary: .zero, .zero, .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.infinity, imaginary: .zero, .zero, .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .infinity, imaginary: .zero, .zero, .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .nan,      imaginary: .infinity, .infinity, .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .zero,     imaginary: .infinity, .infinity, .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .infinity, imaginary: .infinity, .infinity, .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.infinity, imaginary: .infinity, .infinity, .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.ulpOfOne, imaginary: .infinity, .infinity, .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .nan,      imaginary: -.ulpOfOne, -.ulpOfOne, -.ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.infinity, imaginary: -.ulpOfOne, -.ulpOfOne, -.ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .infinity, imaginary: -.ulpOfOne, -.ulpOfOne, -.ulpOfOne)).isFinite)
+
+    // For randomly-chosen well-scaled finite values, we expect to have
+    // log(onePlus: expMinusOne(q)) ≈ q
+    var g = SystemRandomNumberGenerator()
+    let values: [Quaternion<T>] = (0..<1000).map { _ in
+      Quaternion(
+        real: T.random(in: -2 ... 2, using: &g),
+        imaginary:
+          T.random(in: -.pi/2 ... .pi/2, using: &g),
+          T.random(in: -.pi/2 ... .pi/2, using: &g),
+          T.random(in: -.pi/2 ... .pi/2, using: &g)
+      )
+    }
+    for q in values {
+      XCTAssertTrue(q.isApproximatelyEqual(to: .log(onePlus: .expMinusOne(q))))
+    }
+  }
+
   func testFloat() {
     testExp(Float32.self)
     testExpMinusOne(Float32.self)
@@ -262,6 +307,7 @@ final class ElementaryFunctionTests: XCTestCase {
     testCosSin(Float32.self)
 
     testLog(Float32.self)
+    testLogOnePlus(Float32.self)
   }
 
   func testDouble() {
@@ -272,5 +318,6 @@ final class ElementaryFunctionTests: XCTestCase {
     testCosSin(Float64.self)
 
     testLog(Float64.self)
+    testLogOnePlus(Float64.self)
   }
 }
