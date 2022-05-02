@@ -318,7 +318,6 @@ final class ElementaryFunctionTests: XCTestCase {
     XCTAssertFalse(Quaternion<T>.log(Quaternion(real:      .nan, imaginary:-.ulpOfOne)).isFinite)
     XCTAssertFalse(Quaternion<T>.log(Quaternion(real:-.infinity, imaginary:-.ulpOfOne)).isFinite)
     XCTAssertFalse(Quaternion<T>.log(Quaternion(real: .infinity, imaginary:-.ulpOfOne)).isFinite)
-
     // For randomly-chosen well-scaled finite values, we expect to have
     // log(exp(q)) ≈ q
     var g = SystemRandomNumberGenerator()
@@ -370,7 +369,6 @@ final class ElementaryFunctionTests: XCTestCase {
     XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:      .nan, imaginary:-.ulpOfOne)).isFinite)
     XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:-.infinity, imaginary:-.ulpOfOne)).isFinite)
     XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .infinity, imaginary:-.ulpOfOne)).isFinite)
-
     // For randomly-chosen well-scaled finite values, we expect to have
     // log(onePlus: expMinusOne(q)) ≈ q
     var g = SystemRandomNumberGenerator()
@@ -642,6 +640,250 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
 
+  // MARK: - pow-like functions
+
+  func testPowQuaternion<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // pow(0, 0) = 0
+    let zero: Quaternion<T> = .zero
+    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary:-.zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero).isZero)
+    // pow(0, x) = 0 for x > 0
+    let n: Quaternion<T> = 2
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary:-.zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), n).isZero)
+    // pow is the identity at infinity.
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:     .zero, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .ulpOfOne, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.ulpOfOne, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:     .zero, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .ulpOfOne, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.ulpOfOne, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary:     .zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary:     .zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary:     .zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:     .zero, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .ulpOfOne, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.ulpOfOne, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary: .ulpOfOne), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary: .ulpOfOne), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary: .ulpOfOne), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary:-.ulpOfOne), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary:-.ulpOfOne), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary:-.ulpOfOne), n).isFinite)
+    // For randomly-chosen well-scaled finite values, we expect to have
+    // pow(q, 0) = 1 and pow(q, 1) ≈ q, as well as
+    // pow(sqrt(q), 2) ≈ q and pow(root(q, n), n) ≈ q for n > 0
+    var g = SystemRandomNumberGenerator()
+    let values: [Quaternion<T>] = (0..<100).map { _ in
+      Quaternion(
+        real: T.random(in: 0 ... 2, using: &g),
+        imaginary:
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
+      )
+    }
+    for q in values {
+      XCTAssertEqual(Quaternion.pow(q, zero), .one)
+      XCTAssert(q.isApproximatelyEqual(to: .pow(q, .one)))
+      XCTAssert(q.isApproximatelyEqual(to: .pow(.sqrt(q), Quaternion<T>(2))))
+      for n in 1 ... 10 {
+        let p = Quaternion<T>(n)
+        XCTAssert(q.isApproximatelyEqual(to: .pow(.root(q, n), p)))
+      }
+    }
+  }
+
+  func testPowInt<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // pow(0, 0) = 0
+    let zero: Int = .zero
+    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary:-.zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero).isZero)
+    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero).isZero)
+    // pow(0, x) = 0 for x > 0
+    let n: Int = 2
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary:-.zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), n).isZero)
+    XCTAssertTrue(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), n).isZero)
+    // pow is the identity at infinity.
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:     .zero, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .ulpOfOne, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.ulpOfOne, imaginary:      .nan), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:     .zero, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .ulpOfOne, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.ulpOfOne, imaginary:-.infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary:     .zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary:     .zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary:     .zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:     .zero, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .ulpOfOne, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.ulpOfOne, imaginary: .infinity), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary: .ulpOfOne), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary: .ulpOfOne), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary: .ulpOfOne), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:      .nan, imaginary:-.ulpOfOne), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.infinity, imaginary:-.ulpOfOne), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .infinity, imaginary:-.ulpOfOne), n).isFinite)
+    // For randomly-chosen well-scaled finite values, we expect to have
+    // pow(q, 0) = 1 and pow(q, 1) ≈ q, as well as
+    // pow(sqrt(q), 2) ≈ q and pow(root(q, n), n) ≈ q for n > 0
+    var g = SystemRandomNumberGenerator()
+    let values: [Quaternion<T>] = (0..<1000).map { _ in
+      Quaternion(
+        real: T.random(in: 0 ... 2, using: &g),
+        imaginary:
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
+      )
+    }
+    for q in values {
+      XCTAssertEqual(Quaternion.pow(q, zero), .one)
+      XCTAssert(q.isApproximatelyEqual(to: .pow(q, 1)))
+      XCTAssert(q.isApproximatelyEqual(to: .pow(.sqrt(q), 2)))
+      for n in 1 ... 10 {
+        XCTAssert(q.isApproximatelyEqual(to: .pow(.root(q, n), n)))
+      }
+    }
+  }
+
+  func testSqrt<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // sqrt(0) = 0
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real: .zero, imaginary: .zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real: .zero, imaginary: .zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real:-.zero, imaginary: .zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real:-.zero, imaginary: .zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real:-.zero, imaginary:-.zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real: .zero, imaginary:-.zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real: .zero, imaginary:-.zero)).isZero)
+    // sqrt is the identity at infinity.
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:      .nan, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:     .zero, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real: .infinity, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:-.infinity, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real: .ulpOfOne, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:-.ulpOfOne, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:      .nan, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:     .zero, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real: .infinity, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:-.infinity, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real: .ulpOfOne, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:-.ulpOfOne, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:      .nan, imaginary:     .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:-.infinity, imaginary:     .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real: .infinity, imaginary:     .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:      .nan, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:     .zero, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real: .infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:-.infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real: .ulpOfOne, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:-.ulpOfOne, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:      .nan, imaginary: .ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:-.infinity, imaginary: .ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real: .infinity, imaginary: .ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:      .nan, imaginary:-.ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real:-.infinity, imaginary:-.ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sqrt(Quaternion(real: .infinity, imaginary:-.ulpOfOne)).isFinite)
+  }
+
+  func testRoot<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // root(0, 0) = 0
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real: .zero, imaginary: .zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real: .zero, imaginary: .zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real:-.zero, imaginary: .zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real:-.zero, imaginary: .zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real:-.zero, imaginary:-.zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real: .zero, imaginary:-.zero)).isZero)
+    XCTAssert(Quaternion<T>.sqrt(Quaternion(real: .zero, imaginary:-.zero)).isZero)
+    // root(x, 0) = undefined
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .ulpOfOne, imaginary: .ulpOfOne), .zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .ulpOfOne, imaginary: .ulpOfOne), .zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.ulpOfOne, imaginary: .ulpOfOne), .zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.ulpOfOne, imaginary: .ulpOfOne), .zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.ulpOfOne, imaginary:-.ulpOfOne), .zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .ulpOfOne, imaginary:-.ulpOfOne), .zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .ulpOfOne, imaginary:-.ulpOfOne), .zero).isFinite)
+    // root is the identity at infinity.
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:      .nan, imaginary:      .nan), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:     .zero, imaginary:      .nan), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .infinity, imaginary:      .nan), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.infinity, imaginary:      .nan), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .ulpOfOne, imaginary:      .nan), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.ulpOfOne, imaginary:      .nan), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:      .nan, imaginary:-.infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:     .zero, imaginary:-.infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .infinity, imaginary:-.infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.infinity, imaginary:-.infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .ulpOfOne, imaginary:-.infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.ulpOfOne, imaginary:-.infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:      .nan, imaginary:     .zero), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.infinity, imaginary:     .zero), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .infinity, imaginary:     .zero), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:      .nan, imaginary: .infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:     .zero, imaginary: .infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .infinity, imaginary: .infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.infinity, imaginary: .infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .ulpOfOne, imaginary: .infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.ulpOfOne, imaginary: .infinity), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:      .nan, imaginary: .ulpOfOne), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.infinity, imaginary: .ulpOfOne), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .infinity, imaginary: .ulpOfOne), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:      .nan, imaginary:-.ulpOfOne), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real:-.infinity, imaginary:-.ulpOfOne), 2).isFinite)
+    XCTAssertFalse(Quaternion<T>.root(Quaternion(real: .infinity, imaginary:-.ulpOfOne), 2).isFinite)
+    // For randomly-chosen well-scaled finite values, we expect to have
+    // root(q, 1) ≈ q
+    var g = SystemRandomNumberGenerator()
+    let values: [Quaternion<T>] = (0..<1000).map { _ in
+      Quaternion(
+        real: T.random(in: 0 ... 2, using: &g),
+        imaginary:
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
+      )
+    }
+    for q in values {
+      XCTAssert(q.isApproximatelyEqual(to: .root(q, 1)))
+    }
+  }
+
   func testFloat() {
     testExp(Float32.self)
     testExpMinusOne(Float32.self)
@@ -656,6 +898,11 @@ final class ElementaryFunctionTests: XCTestCase {
     testAcosh(Float32.self)
     testAsinh(Float32.self)
     testAtanh(Float32.self)
+
+    testPowQuaternion(Float32.self)
+    testPowInt(Float32.self)
+    testSqrt(Float32.self)
+    testRoot(Float32.self)
   }
 
   func testDouble() {
@@ -672,5 +919,10 @@ final class ElementaryFunctionTests: XCTestCase {
     testAcosh(Float64.self)
     testAsinh(Float64.self)
     testAtanh(Float64.self)
+
+    testPowQuaternion(Float64.self)
+    testPowInt(Float64.self)
+    testSqrt(Float64.self)
+    testRoot(Float64.self)
   }
 }

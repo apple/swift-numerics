@@ -404,7 +404,8 @@ extension Quaternion: ElementaryFunctions {
     // pow(q, p) = exp(log(pow(q, p)))
     //           = exp(p * log(q))
     // ```
-    exp(p * log(q))
+    guard !q.isZero else { return .zero }
+    return exp(p * log(q))
   }
 
   @inlinable
