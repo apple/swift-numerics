@@ -16,7 +16,7 @@
 // them as real part (r) and imaginary vector part (v),
 // i.e: r + xi + yj + zk = r + v; and so we diverge a little from the
 // representation that is used in the documentation in other files and use this
-// notation of quaternions in the comments of the following functions.
+// notation of quaternions in (internal) comments of the following functions.
 //
 // Quaternionic elementary functions have many similarities with elementary
 // functions of complex numbers and their definition in terms of real
@@ -26,13 +26,12 @@
 
 import RealModule
 
-extension Quaternion/*: ElementaryFunctions*/ {
-
+extension Quaternion: ElementaryFunctions {
   // MARK: - exp-like functions
   @inlinable
   public static func exp(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the
-    // `Real` operations `exp`, `cos` and `sin` (`let θ = ||v||`):
+    // Mathematically, this operation can be expanded in terms of
+    // the `Real` operations `exp`, `cos` and `sin` (`let θ = ||v||`):
     //
     // ```
     // exp(r + v) = exp(r) exp(v)
@@ -59,8 +58,8 @@ extension Quaternion/*: ElementaryFunctions*/ {
 
   @inlinable
   public static func expMinusOne(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the
-    // `Real` operations `exp`, `cos` and `sin` (`let θ = ||v||`):
+    // Mathematically, this operation can be expanded in terms of
+    // the `Real` operations `exp`, `cos` and `sin` (`let θ = ||v||`):
     //
     // ```
     // exp(r + v) - 1 = exp(r) exp(v) - 1
@@ -327,31 +326,66 @@ extension Quaternion/*: ElementaryFunctions*/ {
   }
 
   @inlinable
-  public static func acosh(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the
-    // quaternionic `log` and `sqrt` operations:
+  public static func acos(_ q: Quaternion) -> Quaternion {
+    let (â, θ) = (sqrt(1+q).conjugate * sqrt(1-q)).imaginary.unitAxisAndLength
+    return Quaternion(
+      real: 2*RealType.atan2(y: sqrt(1-q).real, x: sqrt(1+q).real),
+      imaginary: â * RealType.asinh(θ)
+    )
+  }
+
+  @inlinable
+  public static func asin(_ q: Quaternion) -> Quaternion {
+    let (â, θ) = (sqrt(1-q).conjugate * sqrt(1+q)).imaginary.unitAxisAndLength
+    return Quaternion(
+      real: RealType.atan2(y: q.real, x: (sqrt(1-q) * sqrt(1+q)).real),
+      imaginary: â * RealType.asinh(θ)
+    )
+  }
+
+  @inlinable
+  public static func atan(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `atanh` operation (`let θ = ||v||`):
     //
     // ```
-    // acosh(q) = log(q + sqrt(q² - 1))
+    // atan(q) = -(v/θ) * atanh(q * (v/θ))
     // ```
-    log(q + .sqrt(q*q - .one))
+    let (â, _) = q.imaginary.unitAxisAndLength
+    let p = Quaternion(imaginary: â)
+    return -p * .atanh(q * p)
+  }
+
+  @inlinable
+  public static func acosh(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `acos` operation (`let θ = ||v||`):
+    //
+    // ```
+    // acosh(q) = (v/θ) * acos(q)
+    // ```
+    let (â,_) = q.imaginary.unitAxisAndLength
+    let p = Quaternion(imaginary: â)
+    return p * acos(q)
   }
 
   @inlinable
   public static func asinh(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the
-    // quaternionic `log` and `sqrt` operations:
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `asin` operation (`let θ = ||v||`):
     //
     // ```
-    // asinh(q) = log(q + sqrt(q² + 1))
+    // sin(q) = -(v/θ) * asin(q * (v/θ)))
     // ```
-    log(q + .sqrt(q*q + .one))
+    let (â,_) = q.imaginary.unitAxisAndLength
+    let p = Quaternion(imaginary: â)
+    return -p * .asin(q * p)
   }
 
   @inlinable
   public static func atanh(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the
-    // quaternionic `log` operation:
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `log` operation:
     //
     // ```
     // atanh(q) = (log(1 + q) - log(1 - q))/2
@@ -363,8 +397,8 @@ extension Quaternion/*: ElementaryFunctions*/ {
   // MARK: - pow-like functions
   @inlinable
   public static func pow(_ q: Quaternion, _ p: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the
-    // quaternionic `exp` and `log` operations:
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `exp` and `log` operations:
     //
     // ```
     // pow(q, p) = exp(log(pow(q, p)))
@@ -375,8 +409,8 @@ extension Quaternion/*: ElementaryFunctions*/ {
 
   @inlinable
   public static func pow(_ q: Quaternion, _ n: Int) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the
-    // quaternionic `exp` and `log` operations:
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `exp` and `log` operations:
     //
     // ```
     // pow(q, n) = exp(log(pow(q, n)))
@@ -391,8 +425,8 @@ extension Quaternion/*: ElementaryFunctions*/ {
 
   @inlinable
   public static func sqrt(_ q: Quaternion) -> Quaternion<RealType> {
-    // Mathematically, this operation can be expanded in terms of the
-    // quaternionic `exp` and `log` operations:
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `exp` and `log` operations:
     //
     // ```
     // sqrt(q) = q^(1/2) = exp(log(q^(1/2)))
@@ -404,8 +438,8 @@ extension Quaternion/*: ElementaryFunctions*/ {
 
   @inlinable
   public static func root(_ q: Quaternion, _ n: Int) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the
-    // quaternionic `exp` and `log` operations:
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `exp` and `log` operations:
     //
     // ```
     // root(q, n) = q^(1/n) = exp(log(q^(1/n)))
@@ -420,7 +454,6 @@ extension Quaternion/*: ElementaryFunctions*/ {
 }
 
 extension SIMD3 where Scalar: FloatingPoint {
-
   /// Returns the normalized axis and the length of this vector.
   @usableFromInline @inline(__always)
   internal var unitAxisAndLength: (Self, Scalar) {

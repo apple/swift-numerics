@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 - 2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019 - 2022 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -388,8 +388,121 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
 
+  func testAcos<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // acos(1) = 0
+    XCTAssert(Quaternion<T>.acos(1).isZero)
+    // acos(0) = π/2
+    XCTAssert(Quaternion<T>.acos(0).real.isApproximatelyEqual(to: .pi/2))
+    XCTAssertEqual(Quaternion<T>.acos(0).imaginary, .zero)
+    // acos(-1) = π
+    XCTAssert(Quaternion<T>.acos(-1).real.isApproximatelyEqual(to: .pi))
+    XCTAssertEqual(Quaternion<T>.acos(-1).imaginary, .zero)
+    // acos is the identity at infinity.
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:      .nan, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:     .zero, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real: .infinity, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:-.infinity, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real: .ulpOfOne, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:-.ulpOfOne, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:      .nan, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:     .zero, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real: .infinity, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:-.infinity, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real: .ulpOfOne, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:-.ulpOfOne, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:      .nan, imaginary:     .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:-.infinity, imaginary:     .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real: .infinity, imaginary:     .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:      .nan, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:     .zero, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real: .infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:-.infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real: .ulpOfOne, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:-.ulpOfOne, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:      .nan, imaginary: .ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:-.infinity, imaginary: .ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real: .infinity, imaginary: .ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:      .nan, imaginary:-.ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real:-.infinity, imaginary:-.ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.acos(Quaternion(real: .infinity, imaginary:-.ulpOfOne)).isFinite)
+    // For randomly-chosen well-scaled finite values, we expect to have
+    // cos(acos(q)) ≈ q and acos(q) ≈ π - acos(-q)
+    var g = SystemRandomNumberGenerator()
+    let values: [Quaternion<T>] = (0..<1000).map { _ in
+      Quaternion(
+        real: T.random(in: -2 ... 2, using: &g),
+        imaginary:
+          T.random(in: -.pi/2 ... .pi/2, using: &g),
+          T.random(in: -.pi/2 ... .pi/2, using: &g),
+          T.random(in: -.pi/2 ... .pi/2, using: &g)
+      )
+    }
+    for q in values {
+      let p = Quaternion.acos(q)
+      XCTAssert(Quaternion.cos(p).isApproximatelyEqual(to: q))
+      XCTAssert(p.isApproximatelyEqual(to: Quaternion(.pi) - .acos(-q)))
+    }
+  }
+
+  func testAsin<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
+    // asin(1) = π/2
+    XCTAssert(Quaternion<T>.asin(1).real.isApproximatelyEqual(to: .pi/2))
+    XCTAssertEqual(Quaternion<T>.asin(1).imaginary, .zero)
+    // asin(0) = 0
+    XCTAssert(Quaternion<T>.asin(0).isZero)
+    // asin(-1) = -π/2
+    XCTAssert(Quaternion<T>.asin(-1).real.isApproximatelyEqual(to: -.pi/2))
+    XCTAssertEqual(Quaternion<T>.asin(-1).imaginary, .zero)
+    // asin is the identity at infinity.
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:      .nan, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:     .zero, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real: .infinity, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:-.infinity, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real: .ulpOfOne, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:-.ulpOfOne, imaginary:      .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:      .nan, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:     .zero, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real: .infinity, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:-.infinity, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real: .ulpOfOne, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:-.ulpOfOne, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:      .nan, imaginary:     .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:-.infinity, imaginary:     .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real: .infinity, imaginary:     .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:      .nan, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:     .zero, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real: .infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:-.infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real: .ulpOfOne, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:-.ulpOfOne, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:      .nan, imaginary: .ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:-.infinity, imaginary: .ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real: .infinity, imaginary: .ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:      .nan, imaginary:-.ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real:-.infinity, imaginary:-.ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.asin(Quaternion(real: .infinity, imaginary:-.ulpOfOne)).isFinite)
+    // For randomly-chosen well-scaled finite values, we expect to have
+    // sin(asin(q)) ≈ q and asin(q) ≈ -asin(-q)
+    var g = SystemRandomNumberGenerator()
+    let values: [Quaternion<T>] = (0..<1000).map { _ in
+      Quaternion(
+        real: T.random(in: -2 ... 2, using: &g),
+        imaginary:
+          T.random(in: -.pi/2 ... .pi/2, using: &g),
+          T.random(in: -.pi/2 ... .pi/2, using: &g),
+          T.random(in: -.pi/2 ... .pi/2, using: &g)
+      )
+    }
+    for q in values {
+      let p = Quaternion.asin(q)
+      XCTAssert(Quaternion.sin(p).isApproximatelyEqual(to: q))
+      XCTAssert(p.isApproximatelyEqual(to: -.asin(-q)))
+    }
+  }
+
   func testAcosh<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     // acosh(1) = 0
+    XCTAssertEqual(Quaternion<T>.acosh(1).imaginary, .zero)
     XCTAssert(Quaternion<T>.acosh(1).isZero)
     // acosh is the identity at infinity.
     XCTAssertFalse(Quaternion<T>.acosh(Quaternion(real:      .nan, imaginary:      .nan)).isFinite)
@@ -538,6 +651,8 @@ final class ElementaryFunctionTests: XCTestCase {
 
     testLog(Float32.self)
     testLogOnePlus(Float32.self)
+    testAcos(Float32.self)
+    testAsin(Float32.self)
     testAcosh(Float32.self)
     testAsinh(Float32.self)
     testAtanh(Float32.self)
@@ -552,6 +667,8 @@ final class ElementaryFunctionTests: XCTestCase {
 
     testLog(Float64.self)
     testLogOnePlus(Float64.self)
+    testAcos(Float64.self)
+    testAsin(Float64.self)
     testAcosh(Float64.self)
     testAsinh(Float64.self)
     testAtanh(Float64.self)
