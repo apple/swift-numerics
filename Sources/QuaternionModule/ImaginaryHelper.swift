@@ -25,6 +25,12 @@ extension SIMD3 where Scalar: FloatingPoint {
     SIMD3(repeating: .nan)
   }
 
+  /// Returns a vector with .ulpOfOne in all lanes
+  @usableFromInline @inline(__always)
+  internal static var ulpOfOne: Self {
+    SIMD3(repeating: .ulpOfOne)
+  }
+
   /// True if all values of this instance are finite
   @usableFromInline @inline(__always)
   internal var isFinite: Bool {

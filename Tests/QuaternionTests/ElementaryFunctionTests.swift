@@ -21,10 +21,10 @@ final class ElementaryFunctionTests: XCTestCase {
 
   func testExp<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     // exp(0) = 1
-    XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real: 0, imaginary: 0, 0, 0)))
-    XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real:-0, imaginary: 0, 0, 0)))
-    XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real:-0, imaginary:-0,-0,-0)))
-    XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real: 0, imaginary:-0,-0,-0)))
+    XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real: .zero, imaginary: .zero)))
+    XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real:-.zero, imaginary: .zero)))
+    XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real:-.zero, imaginary:-.zero)))
+    XCTAssertEqual(1, Quaternion<T>.exp(Quaternion(real: .zero, imaginary:-.zero)))
     // In general, exp(Quaternion(r,0,0,0)) should be exp(r), but that breaks
     // down when r is infinity or NaN, because we want all non-finite
     // quaternions to be semantically a single point at infinity. This is fine
@@ -32,11 +32,11 @@ final class ElementaryFunctionTests: XCTestCase {
     // 0 if we evaluated it in the usual way.
     XCTAssertFalse(Quaternion<T>.exp(Quaternion(real:  .infinity, imaginary: .zero)).isFinite)
     XCTAssertFalse(Quaternion<T>.exp(Quaternion(real:  .infinity, imaginary: .infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.exp(Quaternion(real:          0, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.exp(Quaternion(real:      .zero, imaginary: .infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.exp(Quaternion(real: -.infinity, imaginary: .infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.exp(Quaternion(real: -.infinity, imaginary: .zero)).isFinite)
     XCTAssertFalse(Quaternion<T>.exp(Quaternion(real: -.infinity, imaginary: -.infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.exp(Quaternion(real:          0, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.exp(Quaternion(real:      .zero, imaginary: -.infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.exp(Quaternion(real:  .infinity, imaginary: -.infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.exp(Quaternion(real:       .nan, imaginary: .nan)).isFinite)
     XCTAssertFalse(Quaternion<T>.exp(Quaternion(real:  .infinity, imaginary: .nan)).isFinite)
@@ -79,10 +79,10 @@ final class ElementaryFunctionTests: XCTestCase {
 
   func testExpMinusOne<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     // expMinusOne(0) = 0
-    XCTAssertEqual(0, Quaternion<T>.expMinusOne(Quaternion(real: 0, imaginary: 0, 0, 0)))
-    XCTAssertEqual(0, Quaternion<T>.expMinusOne(Quaternion(real:-0, imaginary: 0, 0, 0)))
-    XCTAssertEqual(0, Quaternion<T>.expMinusOne(Quaternion(real:-0, imaginary:-0,-0,-0)))
-    XCTAssertEqual(0, Quaternion<T>.expMinusOne(Quaternion(real: 0, imaginary:-0,-0,-0)))
+    XCTAssertTrue(Quaternion<T>.expMinusOne(Quaternion(real: .zero, imaginary: .zero)).isZero)
+    XCTAssertTrue(Quaternion<T>.expMinusOne(Quaternion(real:-.zero, imaginary: .zero)).isZero)
+    XCTAssertTrue(Quaternion<T>.expMinusOne(Quaternion(real:-.zero, imaginary:-.zero)).isZero)
+    XCTAssertTrue(Quaternion<T>.expMinusOne(Quaternion(real: .zero, imaginary:-.zero)).isZero)
     // In general, expMinusOne(Quaternion(r,0,0,0)) should be expMinusOne(r),
     // but that breaks down when r is infinity or NaN, because we want all non-
     // finite Quaternion values to be semantically a single point at infinity.
@@ -90,11 +90,11 @@ final class ElementaryFunctionTests: XCTestCase {
     // would produce 0 if we evaluated it in the usual way.
     XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:  .infinity, imaginary: .zero)).isFinite)
     XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:  .infinity, imaginary: .infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:          0, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:      .zero, imaginary: .infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real: -.infinity, imaginary: .infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real: -.infinity, imaginary: .zero)).isFinite)
     XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real: -.infinity, imaginary: -.infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:          0, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:      .zero, imaginary: -.infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:  .infinity, imaginary: -.infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:       .nan, imaginary: .nan)).isFinite)
     XCTAssertFalse(Quaternion<T>.expMinusOne(Quaternion(real:  .infinity, imaginary: .nan)).isFinite)
@@ -126,18 +126,18 @@ final class ElementaryFunctionTests: XCTestCase {
 
   func testCosh<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     // cosh(0) = 1
-    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real: 0, imaginary: 0, 0, 0)))
-    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real:-0, imaginary: 0, 0, 0)))
-    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real:-0, imaginary:-0,-0,-0)))
-    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real: 0, imaginary:-0,-0,-0)))
+    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real: .zero, imaginary: .zero)))
+    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real:-.zero, imaginary: .zero)))
+    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real:-.zero, imaginary:-.zero)))
+    XCTAssertEqual(1, Quaternion<T>.cosh(Quaternion(real: .zero, imaginary:-.zero)))
     // cosh is the identity at infinity.
     XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:  .infinity, imaginary: .zero)).isFinite)
     XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:  .infinity, imaginary: .infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:          0, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:      .zero, imaginary: .infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real: -.infinity, imaginary: .infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real: -.infinity, imaginary: .zero)).isFinite)
     XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real: -.infinity, imaginary: -.infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:          0, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:      .zero, imaginary: -.infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:  .infinity, imaginary: -.infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:       .nan, imaginary: .nan)).isFinite)
     XCTAssertFalse(Quaternion<T>.cosh(Quaternion(real:  .infinity, imaginary: .nan)).isFinite)
@@ -162,18 +162,18 @@ final class ElementaryFunctionTests: XCTestCase {
 
   func testSinh<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     // sinh(0) = 0
-    XCTAssertEqual(0, Quaternion<T>.sinh(Quaternion(real: 0, imaginary: 0, 0, 0)))
-    XCTAssertEqual(0, Quaternion<T>.sinh(Quaternion(real:-0, imaginary: 0, 0, 0)))
-    XCTAssertEqual(0, Quaternion<T>.sinh(Quaternion(real:-0, imaginary:-0,-0,-0)))
-    XCTAssertEqual(0, Quaternion<T>.sinh(Quaternion(real: 0, imaginary:-0,-0,-0)))
+    XCTAssertTrue(Quaternion<T>.sinh(Quaternion(real: .zero, imaginary: .zero)).isZero)
+    XCTAssertTrue(Quaternion<T>.sinh(Quaternion(real:-.zero, imaginary: .zero)).isZero)
+    XCTAssertTrue(Quaternion<T>.sinh(Quaternion(real:-.zero, imaginary:-.zero)).isZero)
+    XCTAssertTrue(Quaternion<T>.sinh(Quaternion(real: .zero, imaginary:-.zero)).isZero)
     // sinh is the identity at infinity.
     XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:  .infinity, imaginary: .zero)).isFinite)
     XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:  .infinity, imaginary: .infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:          0, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:      .zero, imaginary: .infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real: -.infinity, imaginary: .infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real: -.infinity, imaginary: .zero)).isFinite)
     XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real: -.infinity, imaginary: -.infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:          0, imaginary: -.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:      .zero, imaginary: -.infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:  .infinity, imaginary: -.infinity)).isFinite)
     XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:       .nan, imaginary: .nan)).isFinite)
     XCTAssertFalse(Quaternion<T>.sinh(Quaternion(real:  .infinity, imaginary: .nan)).isFinite)
@@ -238,10 +238,10 @@ final class ElementaryFunctionTests: XCTestCase {
 
   func testLog<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     // log(0) = infinity
-    XCTAssertFalse(Quaternion<T>.log(Quaternion(real: 0, imaginary: 0, 0, 0)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(Quaternion(real:-0, imaginary: 0, 0, 0)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(Quaternion(real:-0, imaginary:-0,-0,-0)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(Quaternion(real: 0, imaginary:-0,-0,-0)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real: .zero, imaginary: .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real:-.zero, imaginary: .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real:-.zero, imaginary:-.zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(Quaternion(real: .zero, imaginary:-.zero)).isFinite)
     XCTAssertFalse(Quaternion<T>.log(Quaternion(real: .nan, imaginary: .nan, .nan, .nan)).isFinite)
 
     // For randomly-chosen well-scaled finite values, we expect to have
@@ -263,31 +263,31 @@ final class ElementaryFunctionTests: XCTestCase {
 
   func testLogOnePlus<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     // log(onePlus: 0) = 0
-    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real: 0, imaginary: 0, 0, 0)).isZero)
-    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real:-0, imaginary: 0, 0, 0)).isZero)
-    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real:-0, imaginary:-0,-0,-0)).isZero)
-    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real: 0, imaginary:-0,-0,-0)).isZero)
+    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real: .zero, imaginary: .zero)).isZero)
+    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real:-.zero, imaginary: .zero)).isZero)
+    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real:-.zero, imaginary:-.zero)).isZero)
+    XCTAssertTrue(Quaternion<T>.log(onePlus: Quaternion(real: .zero, imaginary:-.zero)).isZero)
     // log(onePlus:) is the identity at infinity.
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .nan,      imaginary: .nan, .nan, .nan)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .zero,     imaginary: .nan, .nan, .nan)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .infinity, imaginary: .nan, .nan, .nan)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.infinity, imaginary: .nan, .nan, .nan)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .nan,      imaginary: -.infinity, -.infinity, -.infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .zero,     imaginary: -.infinity, -.infinity, -.infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .infinity, imaginary: -.infinity, -.infinity, -.infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.infinity, imaginary: -.infinity, -.infinity, -.infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.ulpOfOne, imaginary: -.infinity, -.infinity, -.infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .nan,      imaginary: .zero, .zero, .zero)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.infinity, imaginary: .zero, .zero, .zero)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .infinity, imaginary: .zero, .zero, .zero)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .nan,      imaginary: .infinity, .infinity, .infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .zero,     imaginary: .infinity, .infinity, .infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .infinity, imaginary: .infinity, .infinity, .infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.infinity, imaginary: .infinity, .infinity, .infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.ulpOfOne, imaginary: .infinity, .infinity, .infinity)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .nan,      imaginary: -.ulpOfOne, -.ulpOfOne, -.ulpOfOne)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: -.infinity, imaginary: -.ulpOfOne, -.ulpOfOne, -.ulpOfOne)).isFinite)
-    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:  .infinity, imaginary: -.ulpOfOne, -.ulpOfOne, -.ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .nan,      imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .zero,     imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .infinity, imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:-.infinity, imaginary: .nan)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .nan,      imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .zero,     imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .infinity, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:-.infinity, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:-.ulpOfOne, imaginary:-.infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .nan,      imaginary: .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:-.infinity, imaginary: .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .infinity, imaginary: .zero)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .nan,      imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .zero,     imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:-.infinity, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:-.ulpOfOne, imaginary: .infinity)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .nan,      imaginary:-.ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real:-.infinity, imaginary:-.ulpOfOne)).isFinite)
+    XCTAssertFalse(Quaternion<T>.log(onePlus: Quaternion(real: .infinity, imaginary:-.ulpOfOne)).isFinite)
 
     // For randomly-chosen well-scaled finite values, we expect to have
     // log(onePlus: expMinusOne(q)) ≈ q
