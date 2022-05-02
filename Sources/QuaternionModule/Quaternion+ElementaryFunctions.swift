@@ -326,13 +326,45 @@ extension Quaternion/*: ElementaryFunctions*/ {
     return Quaternion(real: .log(onePlus: s)/2, imaginary: imaginary)
   }
 
-  //
-  // MARK: - pow-like functions
+  @inlinable
+  public static func acosh(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of the
+    // quaternionic `log` and `sqrt` operations:
+    //
+    // ```
+    // acosh(q) = log(q + sqrt(q² - 1))
+    // ```
+    log(q + .sqrt(q*q - .one))
+  }
 
+  @inlinable
+  public static func asinh(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of the
+    // quaternionic `log` and `sqrt` operations:
+    //
+    // ```
+    // asinh(q) = log(q + sqrt(q² + 1))
+    // ```
+    log(q + .sqrt(q*q + .one))
+  }
+
+  @inlinable
+  public static func atanh(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of the
+    // quaternionic `log` operation:
+    //
+    // ```
+    // atanh(q) = (log(1 + q) - log(1 - q))/2
+    //          = (log(onePlus: q) - log(onePlus: -q))/2
+    // ```
+    (log(onePlus: q) - log(onePlus:-q))/2
+  }
+
+  // MARK: - pow-like functions
   @inlinable
   public static func pow(_ q: Quaternion, _ p: Quaternion) -> Quaternion {
     // Mathematically, this operation can be expanded in terms of the
-    // quaternionic `exp` and `log` operations as follows:
+    // quaternionic `exp` and `log` operations:
     //
     // ```
     // pow(q, p) = exp(log(pow(q, p)))
@@ -344,7 +376,7 @@ extension Quaternion/*: ElementaryFunctions*/ {
   @inlinable
   public static func pow(_ q: Quaternion, _ n: Int) -> Quaternion {
     // Mathematically, this operation can be expanded in terms of the
-    // quaternionic `exp` and `log` operations as follows:
+    // quaternionic `exp` and `log` operations:
     //
     // ```
     // pow(q, n) = exp(log(pow(q, n)))
@@ -360,7 +392,7 @@ extension Quaternion/*: ElementaryFunctions*/ {
   @inlinable
   public static func sqrt(_ q: Quaternion) -> Quaternion<RealType> {
     // Mathematically, this operation can be expanded in terms of the
-    // quaternionic `exp` and `log` operations as follows:
+    // quaternionic `exp` and `log` operations:
     //
     // ```
     // sqrt(q) = q^(1/2) = exp(log(q^(1/2)))
@@ -373,11 +405,11 @@ extension Quaternion/*: ElementaryFunctions*/ {
   @inlinable
   public static func root(_ q: Quaternion, _ n: Int) -> Quaternion {
     // Mathematically, this operation can be expanded in terms of the
-    // quaternionic `exp` and `log` operations as follows:
+    // quaternionic `exp` and `log` operations:
     //
     // ```
-    // root(q, n) = exp(log(root(q, n)))
-    //            = exp(log(q) / n)
+    // root(q, n) = q^(1/n) = exp(log(q^(1/n)))
+    //                      = exp(log(q) / n)
     // ```
     guard !q.isZero else { return .zero }
     // TODO: this implementation is not quite correct, because n may be
