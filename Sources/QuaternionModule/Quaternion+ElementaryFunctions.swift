@@ -426,15 +426,45 @@ extension Quaternion: ElementaryFunctions {
 
   @inlinable
   public static func sqrt(_ q: Quaternion) -> Quaternion<RealType> {
-    // Mathematically, this operation can be expanded in terms of
-    // the quaternionic `exp` and `log` operations:
-    //
-    // ```
-    // sqrt(q) = q^(1/2) = exp(log(q^(1/2)))
-    //                   = exp(log(q) * (1/2))
-    // ```
-    guard !q.isZero else { return .zero }
-    return exp(log(q).divided(by: 2))
+    let lengthSquared = q.lengthSquared
+    if lengthSquared.isNormal {
+      // If |q|^2 doesn't overflow, then define s and t by (`let θ = ||v||`):
+      //
+      //    s = sqrt((|q|+|r|) / 2)
+      //    t = θ/2s
+      //
+      // If r is positive, the result is just w = (s, (v/θ) * t). If r is negative,
+      // the result is (|t|, (v/θ) * copysign(s, θ)) instead.
+      let (â, θ) = q.imaginary.unitAxisAndLength
+      let norm: RealType = .sqrt(lengthSquared)
+      let s: RealType = .sqrt((norm + q.real.magnitude) / 2)
+      let t: RealType = θ / (2*s)
+      if q.real.sign == .plus {
+        return Quaternion(
+          real: s,
+          imaginary: â * t)
+      } else {
+        return Quaternion(
+          real: t.magnitude,
+          imaginary: â * RealType(signOf: θ, magnitudeOf: s)
+        )
+      }
+    }
+    // Handle edge cases:
+    guard !q.isZero else {
+      return Quaternion(
+        real: 0,
+        imaginary:
+          RealType(signOf: q.components.x, magnitudeOf: 0),
+          RealType(signOf: q.components.y, magnitudeOf: 0),
+          RealType(signOf: q.components.z, magnitudeOf: 0)
+      )
+    }
+    guard q.isFinite else { return q }
+    // q is finite but badly-scaled. Rescale and replay by factoring out
+    // the larger of r and v.
+    let scale = q.magnitude
+    return Quaternion.sqrt(q.divided(by: scale)).multiplied(by: .sqrt(scale))
   }
 
   @inlinable
