@@ -456,8 +456,8 @@ extension Quaternion: ElementaryFunctions {
 
 extension SIMD3 where Scalar: FloatingPoint {
   /// Returns the normalized axis and the length of this vector.
-  @usableFromInline @inline(__always)
-  internal var unitAxisAndLength: (Self, Scalar) {
+  @_alwaysEmitIntoClient
+  fileprivate var unitAxisAndLength: (Self, Scalar) {
     if self == .zero {
       return (SIMD3(
         Scalar(signOf: x, magnitudeOf: 0),
