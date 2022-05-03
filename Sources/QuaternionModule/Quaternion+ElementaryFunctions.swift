@@ -225,10 +225,8 @@ extension Quaternion: ElementaryFunctions {
     guard q.isFinite && !q.isZero else { return .infinity }
     // Having eliminated non-finite values and zero, the imaginary part is
     // straightforward:
-    // TODO: There is a potential optimisation hidden here, as length is
-    // calculated twice (halfAngle, unitAxisAndLength)
-    let argument = q.halfAngle
     let (â, θ) = q.imaginary.unitAxisAndLength
+    let argument = RealType.atan2(y: θ, x: q.real)
     let imaginary = â * argument
     // The real part of the result is trickier and we employ the same approach
     // as we did for the complex numbers logarithm to improve the relative error
