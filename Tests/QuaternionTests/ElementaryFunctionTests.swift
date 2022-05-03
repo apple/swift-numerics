@@ -325,13 +325,13 @@ final class ElementaryFunctionTests: XCTestCase {
       Quaternion(
         real: T.random(in: -2 ... 2, using: &g),
         imaginary:
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g)
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
       )
     }
     for q in values {
-      XCTAssert(q.isApproximatelyEqual(to: .log(.exp(q))))
+      XCTAssert(q.isApproximatelyEqual(to: .exp(.log(q))))
     }
   }
 
@@ -376,13 +376,13 @@ final class ElementaryFunctionTests: XCTestCase {
       Quaternion(
         real: T.random(in: -2 ... 2, using: &g),
         imaginary:
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g)
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
       )
     }
     for q in values {
-      XCTAssert(q.isApproximatelyEqual(to: .log(onePlus: .expMinusOne(q))))
+      XCTAssert(q.isApproximatelyEqual(to: .expMinusOne(.log(onePlus: q))))
     }
   }
 
@@ -430,9 +430,9 @@ final class ElementaryFunctionTests: XCTestCase {
       Quaternion(
         real: T.random(in: -2 ... 2, using: &g),
         imaginary:
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g)
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
       )
     }
     for q in values {
@@ -486,9 +486,9 @@ final class ElementaryFunctionTests: XCTestCase {
       Quaternion(
         real: T.random(in: -2 ... 2, using: &g),
         imaginary:
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g)
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
       )
     }
     for q in values {
@@ -500,7 +500,6 @@ final class ElementaryFunctionTests: XCTestCase {
 
   func testAcosh<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     // acosh(1) = 0
-    XCTAssertEqual(Quaternion<T>.acosh(1).imaginary, .zero)
     XCTAssert(Quaternion<T>.acosh(1).isZero)
     // acosh is the identity at infinity.
     XCTAssertFalse(Quaternion<T>.acosh(Quaternion(real:      .nan, imaginary:      .nan)).isFinite)
@@ -537,9 +536,9 @@ final class ElementaryFunctionTests: XCTestCase {
       Quaternion(
         real: T.random(in: -2 ... 2, using: &g),
         imaginary:
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g)
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
       )
     }
     for q in values {
@@ -557,12 +556,12 @@ final class ElementaryFunctionTests: XCTestCase {
   func testAsinh<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
     // asinh(1) = π/2
     XCTAssert(Quaternion<T>.asin(1).real.isApproximatelyEqual(to: .pi/2))
-    XCTAssertEqual(Quaternion<T>.asin(1).imaginary, SIMD3<T>(repeating: 0))
+    XCTAssert(Quaternion<T>.asin(1).isReal)
     // asinh(0) = 0
     XCTAssert(Quaternion<T>.asinh(0).isZero)
     // asinh(-1) = -π/2
     XCTAssert(Quaternion<T>.asin(-1).real.isApproximatelyEqual(to: -.pi/2))
-    XCTAssertEqual(Quaternion<T>.asin(-1).imaginary, SIMD3<T>(repeating: 0))
+    XCTAssert(Quaternion<T>.asin(-1).isReal)
     // asinh is the identity at infinity.
     XCTAssertFalse(Quaternion<T>.asinh(Quaternion(real:      .nan, imaginary:      .nan)).isFinite)
     XCTAssertFalse(Quaternion<T>.asinh(Quaternion(real:     .zero, imaginary:      .nan)).isFinite)
@@ -598,9 +597,9 @@ final class ElementaryFunctionTests: XCTestCase {
       Quaternion(
         real: T.random(in: -2 ... 2, using: &g),
         imaginary:
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g)
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
       )
     }
     for q in values {
@@ -623,9 +622,9 @@ final class ElementaryFunctionTests: XCTestCase {
       Quaternion(
         real: T.random(in: -2 ... 2, using: &g),
         imaginary:
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g),
-          T.random(in: -.pi/2 ... .pi/2, using: &g)
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g),
+          T.random(in: -2 ... 2, using: &g)
       )
     }
     for q in values {
