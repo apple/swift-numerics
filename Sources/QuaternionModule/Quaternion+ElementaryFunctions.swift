@@ -423,7 +423,7 @@ extension Quaternion: ElementaryFunctions {
   }
 
   @inlinable
-  public static func sqrt(_ q: Quaternion) -> Quaternion<RealType> {
+  public static func sqrt(_ q: Quaternion) -> Quaternion {
     let lengthSquared = q.lengthSquared
     if lengthSquared.isNormal {
       // If |q|^2 doesn't overflow, then define s and t by (`let θ = ||v||`):
