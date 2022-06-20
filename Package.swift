@@ -1,9 +1,9 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.4
 //===--- Package.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2021 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -11,6 +11,8 @@
 //===----------------------------------------------------------------------===//
 
 import PackageDescription
+
+let excludedFilenames = ["CMakeLists.txt", "README.md"]
 
 let package = Package(
   
@@ -23,23 +25,88 @@ let package = Package(
   ],
   
   targets: [
-    // User-facing modules
-    .target(name: "ComplexModule", dependencies: ["RealModule"]),
-    .target(name: "Numerics", dependencies: ["ComplexModule", "QuaternionModule", "RealModule"]),
-    .target(name: "QuaternionModule", dependencies: ["RealModule"]),
-    .target(name: "RealModule", dependencies: ["_NumericsShims"]),
+    // MARK: - Public API
+    .target(
+      name: "ComplexModule",
+      dependencies: ["RealModule"],
+      exclude: excludedFilenames
+    ),
     
-    // Implementation details
-    .target(name: "_NumericsShims", dependencies: []),
-    .target(name: "_TestSupport", dependencies: ["Numerics"]),
+    .target(
+      name: "IntegerUtilities",
+      dependencies: [],
+      exclude: excludedFilenames
+    ),
     
-    // Unit test bundles
-    .testTarget(name: "ComplexTests", dependencies: ["_TestSupport"]),
-    .testTarget(name: "QuaternionTests", dependencies: ["_TestSupport"]),
-    .testTarget(name: "RealTests", dependencies: ["_TestSupport"]),
+    .target(
+      name: "Numerics",
+      dependencies: [
+        "ComplexModule", "IntegerUtilities",
+        "QuaternionModule", "RealModule"
+      ],
+      exclude: excludedFilenames
+    ),
+
+    .target(
+      name: "QuaternionModule",
+      dependencies: ["RealModule"],
+      exclude: ["README.md", "Transformation.md"]
+    ),
     
-    // Test executables
-    .target(name: "ComplexLog", dependencies: ["Numerics", "_TestSupport"], path: "Tests/Executable/ComplexLog"),
-    .target(name: "ComplexLog1p", dependencies: ["Numerics", "_TestSupport"], path: "Tests/Executable/ComplexLog1p")
+    .target(
+      name: "RealModule",
+      dependencies: ["_NumericsShims"],
+      exclude: excludedFilenames
+    ),
+    
+    // MARK: - Implementation details
+    .target(
+      name: "_NumericsShims",
+      exclude: excludedFilenames,
+      linkerSettings: [.linkedLibrary("m", .when(platforms: [.linux, .android]))]
+    ),
+    
+    .target(
+      name: "_TestSupport",
+      dependencies: ["Numerics"],
+      exclude: ["CMakeLists.txt"]
+    ),
+    
+    // MARK: - Unit test bundles
+    .testTarget(
+      name: "ComplexTests",
+      dependencies: ["_TestSupport"],
+      exclude: ["CMakeLists.txt"]
+    ),
+    
+    .testTarget(
+      name: "IntegerUtilitiesTests",
+      dependencies: ["IntegerUtilities", "_TestSupport"],
+      exclude: ["CMakeLists.txt"]
+    ),
+
+    .testTarget(
+      name: "QuaternionTests",
+      dependencies: ["_TestSupport"]
+    ),
+    
+    .testTarget(
+      name: "RealTests",
+      dependencies: ["_TestSupport"],
+      exclude: ["CMakeLists.txt"]
+    ),
+    
+    // MARK: - Test executables
+    .executableTarget(
+      name: "ComplexLog",
+      dependencies: ["Numerics", "_TestSupport"],
+      path: "Tests/Executable/ComplexLog"
+    ),
+    
+    .executableTarget(
+      name: "ComplexLog1p",
+      dependencies: ["Numerics", "_TestSupport"],
+      path: "Tests/Executable/ComplexLog1p"
+    )
   ]
 )

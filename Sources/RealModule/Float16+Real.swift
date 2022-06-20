@@ -9,10 +9,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if swift(>=5.3) && !(os(macOS) || os(iOS) && targetEnvironment(macCatalyst))
 import _NumericsShims
 
-@available(iOS 14.0, tvOS 14.0, watchOS 7.0, *)
+// Float16 is only available on macOS when targeting arm64.
+#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+
+@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
 extension Float16: Real {
   @_transparent
   public static func cos(_ x: Float16) -> Float16 {
@@ -171,4 +173,5 @@ extension Float16: Real {
   }
   #endif
 }
+
 #endif

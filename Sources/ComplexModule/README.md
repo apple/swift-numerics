@@ -2,12 +2,14 @@
 
 This module provides a `Complex` number type generic over an underlying `RealType`:
 ```swift
-1> import ComplexModule
-2> let z = Complex(1,1) // z = 1 + i
+import Numerics
+let z = Complex(1,1) // z = 1 + i
 ```
-This module provides approximate feature parity and memory layout compatibility with C, Fortran, and C++ complex types (although the importer cannot map the types for you, buffers may be reinterpreted to shim API defined in other languages).
+This module provides approximate feature parity and memory layout compatibility with C, Fortran, and C++ complex types (although the importer does not map the types for you, buffers may be reinterpreted to shim API defined in other languages).
 
-The usual arithmetic operators are provided for Complex numbers, as well as conversion to and from polar coordinates and many useful properties, plus conformances to the obvious usual protocols: `Equatable`, `Hashable`, `Codable` (if the underlying `RealType` is), and `AlgebraicField` (hence also `AdditiveArithmetic` and `SignedNumeric`).
+The usual arithmetic operators are provided for complex numbers, as well as conversion to and from polar coordinates and many useful properties, plus conformances to the obvious usual protocols: `Equatable`, `Hashable`, `Codable` (if the underlying `RealType` is), and `AlgebraicField` (hence also `AdditiveArithmetic` and `SignedNumeric`).
+
+The `Complex` type conforms to `ElementaryFunctions`, which makes common transcendental functions like `log`, `pow`, and `sin` available (consult the documentation for `ElementaryFunctions` in the `RealModule` for a full list and more information.
 
 ### Dependencies:
 - `RealModule`.
@@ -36,10 +38,10 @@ They are not provided by the Complex module for two reasons:
     }
   }
   ```
-  This is a show-stopper for heterogeneous arithmetic operators in the short term.
+  This makes heterogeneous arithmetic operators a non-option in the short term.
 
 ### Infinity and nan
-C and C++ attempt to define precise semantics that interpret the sign of infinity and zero.
+C and C++ attempt to define semantics that interpret the signs of infinity and zero.
 This is occasionally useful, but it also results in a lot of extra work.
 The Swift Numerics `Complex` type does not assign any semantic meaning to the sign of zero and infinity; `(±0,±0)`, are all considered to be encodings of the value zero.
 Similarly, `(±inf, y)`, `(x, ±inf)`, `(nan, y)` and `(x, nan)` are all considered to be encodings of a single exceptional value with infinite magnitude and undefined phase.
@@ -54,7 +56,8 @@ However, in practice there are good reasons to use something else instead:
 
 - The 2-norm requires special care to avoid spurious overflow/underflow, but the naive expressions for the 1-norm ("taxicab norm") or ∞-norm ("sup norm") are always correct.
 - Even when care is used, near the overflow boundary the 2-norm and the 1-norm are not representable.
-  As an example, consider `z = Complex(big, big)`, where `big` is `Double.greatestFiniteMagnitude`. The 1-norm and 2-norm of `z` both overflow (the 1-norm would be `2*big`, and the 2-norm would be `sqrt(2)*big`, neither of which are representable as `Double`), but the ∞-norm is always equal to either `real` or `imaginary`, so it is guaranteed to be representable.
+  As an example, consider `z = Complex(big, big)`, where `big` is `Double.greatestFiniteMagnitude`.
+  The 1-norm and 2-norm of `z` both overflow (the 1-norm would be `2*big`, and the 2-norm would be `sqrt(2)*big`, neither of which are representable as `Double`), but the ∞-norm is always equal to either `real` or `imaginary`, so it is guaranteed to be representable.
 Because of this, the ∞-norm is the obvious alternative; it gives the nicest API surface.
 - If we consider the magnitude of more exotic types, like operators, the 1-norm and ∞-norm are significantly easier to compute than the 2-norm (O(n) vs. "no closed form expression, but O(n^3) iterative methods"), so it is nice to establish a precedent of `.magnitude` binding one of these cheaper-to-compute norms.
 - The ∞-norm is heavily used in other computational libraries; for example, it is used by the `izamax` and `icamax` functions in BLAS.
