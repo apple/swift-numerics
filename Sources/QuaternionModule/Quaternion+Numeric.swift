@@ -53,15 +53,11 @@ extension Quaternion: Numeric {
   /// properties instead.
   ///
   /// Edge cases:
-  /// -
   /// - If `q` is not finite, `q.magnitude` is `.infinity`.
   /// - If `q` is zero, `q.magnitude` is `0`.
   /// - Otherwise, `q.magnitude` is finite and non-zero.
   ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.lengthSquared`
+  /// See also `.length` and `.lengthSquared`
   @_transparent
   public var magnitude: RealType {
     guard isFinite else { return .infinity }

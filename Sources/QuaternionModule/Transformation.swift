@@ -16,18 +16,10 @@ extension Quaternion {
   /// within *[0, 2π]* range.
   ///
   /// Edge cases:
-  /// -
   /// - If the quaternion is zero or non-finite, angle is `nan`.
   ///
-  /// See also:
-  /// -
-  /// - `.axis`
-  /// - `.angleAxis`
-  /// - `.polar`
-  /// - `.rotationVector`
-  /// - `init(length:angle:axis:)`
-  /// - `init(length:phase:axis)`
-  /// - `init(rotation:)`
+  /// See also `.axis`, `.angleAxis`, `.rotationVector`,
+  /// `init(length:angle:axis:)` and `init(rotation:)`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
   @inlinable
@@ -41,19 +33,11 @@ extension Quaternion {
   /// as SIMD3 vector of unit length.
   ///
   /// Edge cases:
-  /// -
   /// - If the quaternion is zero or non-finite, axis is `nan` in all lanes.
   /// - If the rotation angle is zero, axis is `nan` in all lanes.
   ///
-  /// See also:
-  /// -
-  /// - `.angle`
-  /// - `.angleAxis`
-  /// - `.polar`
-  /// - `.rotationVector`
-  /// - `init(length:angle:axis:)`
-  /// - `init(length:phase:axis)`
-  /// - `init(rotation:)`
+  /// See also `.angle`, `.angleAxis`, `.rotationVector`,
+  /// `init(length:angle:axis:)` and `init(rotation:)`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
   @inlinable
@@ -74,19 +58,11 @@ extension Quaternion {
   /// within *[0, 2π]* and the rotation axis as SIMD3 vector of unit length.
   ///
   /// Edge cases:
-  /// -
   /// - If the quaternion is zero or non-finite, angle and axis are `nan`.
   /// - If the angle is zero, axis is `nan` in all lanes.
   ///
-  /// See also:
-  /// -
-  /// - `.angle`
-  /// - `.axis`
-  /// - `.polar`
-  /// - `.rotationVector`
-  /// - `init(length:angle:axis:)`
-  /// - `init(length:phase:axis)`
-  /// - `init(rotation:)`
+  /// See also `.angle`, `.axis`, `.rotationVector`, `init(length:angle:axis:)`
+  /// and `init(rotation:)`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
   public var angleAxis: (length: RealType, angle: RealType, axis: SIMD3<RealType>) {
@@ -102,20 +78,13 @@ extension Quaternion {
   /// is a different name for the same concept.
   ///
   /// Edge cases:
-  /// -
   /// - If the quaternion is zero or non-finite, the rotation vector is `nan`
   /// in all lanes.
   /// - If the rotation angle is zero, the rotation vector is `nan`
   /// in all lanes.
   ///
-  /// See also:
-  /// -
-  /// - `.angle`
-  /// - `.axis`
-  /// - `.angleAxis`
-  /// - `init(length:angle:axis:)`
-  /// - `init(length:phase:axis)`
-  /// - `init(rotation:)`
+  /// See also `.angle`, `.axis`, `.angleAxis`, `init(length:angle:axis:)`
+  /// and `init(rotation:)`.
   ///
   /// [rotvector]: https://en.wikipedia.org/wiki/Axis–angle_representation#Rotation_vector
   @_transparent
@@ -142,7 +111,6 @@ extension Quaternion {
   /// - Note: `axis` must be of unit length, or an assertion failure occurs.
   ///
   /// Edge cases:
-  /// -
   /// - Negative lengths are interpreted as reflecting the point through the origin, i.e.:
   ///   ```
   ///   Quaternion(length: -r, angle: θ, axis: axis) == -Quaternion(length: r, angle: θ, axis: axis)
@@ -157,15 +125,8 @@ extension Quaternion {
   ///   ```
   /// - Otherwise, `θ` must be finite, or a precondition failure occurs.
   ///
-  /// See also:
-  /// -
-  /// - `.angle`
-  /// - `.axis`
-  /// - `.angleAxis`
-  /// - `.rotationVector`
-  /// - `.polar`
-  /// - `init(rotation:)`
-  /// - `init(length:phase:axis)`
+  /// See also `.angle`, `.axis`, `.angleAxis`, `.rotationVector`
+  /// and `init(rotation:)`.
   ///
   /// - Parameter length: The length of the quaternion. Defaults to `1`.
   /// - Parameter angle: The rotation angle about the rotation axis in radians.
@@ -216,7 +177,6 @@ extension Quaternion {
   /// The final quaternion is of unit length.
   ///
   /// Edge cases:
-  /// -
   /// - If `vector` is `.zero`, the quaternion is `.zero`:
   ///   ```
   ///   Quaternion(rotation: .zero) == .zero
@@ -226,15 +186,8 @@ extension Quaternion {
   ///   Quaternion(rotation: -.infinity) == .infinity
   ///   ```
   ///
-  /// See also:
-  /// -
-  /// - `.angle`
-  /// - `.axis`
-  /// - `.angleAxis`
-  /// - `.polar`
-  /// - `.rotationVector`
-  /// - `init(length:angle:axis:)`
-  /// - `init(length:phase:axis)`
+  /// See also `.angle`, `.axis`, `.angleAxis`, `.rotationVector`
+  /// and `init(length:angle:axis:)`.
   ///
   /// - Parameter vector: The rotation vector.
   ///
@@ -271,7 +224,6 @@ extension Quaternion {
   /// - Note: This method assumes this quaternion is of unit length.
   ///
   /// Edge cases:
-  /// -
   /// - For any quaternion `q`, even `.zero` or `.infinity`, if `vector` is
   /// `.infinity` or `-.infinity` in any of the lanes or all, the returning
   /// vector is `.infinity` in all lanes:

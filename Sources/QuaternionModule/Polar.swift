@@ -46,13 +46,10 @@ extension Quaternion {
   /// a representable result.
   ///
   /// Edge cases:
-  /// -
-  /// If a quaternion is not finite, its `.length` is `infinity`.
+  /// - If a quaternion is not finite, its `.length` is `infinity`.
   ///
-  /// See also:
-  /// -
-  /// - `.magnitude`
-  /// - `.lengthSquared`
+  /// See also `.magnitude`, `.lengthSquared`, `.polar` and
+  /// `init(length:,phase:,axis:)`.
   @_transparent
   public var length: RealType {
     let naive = lengthSquared
@@ -60,8 +57,8 @@ extension Quaternion {
     return .sqrt(naive)
   }
 
-  //  Internal implementation detail of `length`, moving slow path off
-  //  of the inline function.
+  // Internal implementation detail of `length`, moving slow path off
+  // of the inline function.
   @usableFromInline
   internal var carefulLength: RealType {
     guard isFinite else { return .infinity }
@@ -79,10 +76,8 @@ extension Quaternion {
   ///
   /// This property is more efficient to compute than `length`.
   ///
-  /// See also:
-  /// -
-  /// - `.length`
-  /// - `.magnitude`
+  /// See also `.magnitude`, `.length`, `.polar` and
+  /// `init(length:,phase:,axis:)`.
   @_transparent
   public var lengthSquared: RealType {
     (components * components).sum()
@@ -94,7 +89,6 @@ extension Quaternion {
   /// and the rotation axis as SIMD3 vector of unit length.
   ///
   /// Edge cases:
-  /// -
   /// - If the quaternion is zero, length is `.zero` and angle and axis
   /// are `nan`.
   /// - If the quaternion is non-finite, length is `.infinity` and angle and
@@ -102,15 +96,8 @@ extension Quaternion {
   /// - For any length other than `.zero` or `.infinity`, if angle is zero, axis
   /// is `nan`.
   ///
-  /// See also:
-  /// -
-  /// - `.angle`
-  /// - `.axis`
-  /// - `.angleAxis`
-  /// - `.rotationVector`
-  /// - `init(length:angle:axis:)`
-  /// - `init(length:phase:axis)`
-  /// - `init(rotation:)`
+  /// See also `.magnitude`, `.length`, `.lengthSquared` and
+  /// `init(length:,phase:,axis:)`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Polar_decomposition#Quaternion_polar_decomposition
   public var polar: (length: RealType, phase: RealType, axis: SIMD3<RealType>) {
@@ -128,8 +115,8 @@ extension Quaternion {
   /// - Note: `axis` must be of unit length, or an assertion failure occurs.
   ///
   /// Edge cases:
-  /// -
-  /// - Negative lengths are interpreted as reflecting the point through the origin, i.e.:
+  /// - Negative lengths are interpreted as reflecting the point through the
+  ///   origin, i.e.:
   ///   ```
   ///   Quaternion(length: -r, phase: θ, axis: axis) == -Quaternion(length: r, phase: θ, axis: axis)
   ///   ```
@@ -143,15 +130,7 @@ extension Quaternion {
   ///   ```
   /// - Otherwise, `θ` must be finite, or a precondition failure occurs.
   ///
-  /// See also:
-  /// -
-  /// - `.angle`
-  /// - `.axis`
-  /// - `.angleAxis`
-  /// - `.rotationVector`
-  /// - `.polar`
-  /// - `init(length:angle:axis:)`
-  /// - `init(rotation:)`
+  /// See also `.magnitude`, `.length`, `.lengthSquared` and `.polar`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Polar_decomposition#Quaternion_polar_decomposition
   @inlinable
@@ -186,8 +165,7 @@ extension Quaternion {
   /// The half rotation angle in radians within *[0, π]* range.
   ///
   /// Edge cases:
-  /// -
-  /// If the quaternion is zero or non-finite, halfAngle is `nan`.
+  /// - If the quaternion is zero or non-finite, halfAngle is `nan`.
   @usableFromInline @inline(__always)
   internal var halfAngle: RealType {
     guard isFinite else { return .nan }
