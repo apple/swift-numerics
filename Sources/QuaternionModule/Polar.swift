@@ -49,7 +49,7 @@ extension Quaternion {
   /// - If a quaternion is not finite, its `.length` is `infinity`.
   ///
   /// See also `.magnitude`, `.lengthSquared`, `.polar` and
-  /// `init(length:,phase:,axis:)`.
+  /// `init(length:argument:axis:)`.
   @_transparent
   public var length: RealType {
     let naive = lengthSquared
@@ -77,97 +77,19 @@ extension Quaternion {
   /// This property is more efficient to compute than `length`.
   ///
   /// See also `.magnitude`, `.length`, `.polar` and
-  /// `init(length:,phase:,axis:)`.
+  /// `init(length:argument:axis:)`.
   @_transparent
   public var lengthSquared: RealType {
     (components * components).sum()
   }
 
-  /// The [polar decomposition][wiki].
-  ///
-  /// Returns the length of this quaternion, phase in radians of range *[0, π]*
-  /// and the rotation axis as SIMD3 vector of unit length.
+  /// The principle argument (half rotation angle) in radians within
+  /// *[0, π]* range.
   ///
   /// Edge cases:
-  /// - If the quaternion is zero, length is `.zero` and angle and axis
-  /// are `nan`.
-  /// - If the quaternion is non-finite, length is `.infinity` and angle and
-  /// axis are `nan`.
-  /// - For any length other than `.zero` or `.infinity`, if angle is zero, axis
-  /// is `nan`.
-  ///
-  /// See also `.magnitude`, `.length`, `.lengthSquared` and
-  /// `init(length:,phase:,axis:)`.
-  ///
-  /// [wiki]: https://en.wikipedia.org/wiki/Polar_decomposition#Quaternion_polar_decomposition
-  public var polar: (length: RealType, phase: RealType, axis: SIMD3<RealType>) {
-    (length, halfAngle, axis)
-  }
-
-  /// Creates a quaternion specified with [polar coordinates][wiki].
-  ///
-  /// This initializer reads given `length`, `phase` and `axis` values and
-  /// creates a quaternion of equal rotation properties and specified *length*
-  /// using the following equation:
-  ///
-  ///     Q = (cos(phase), axis * sin(phase)) * length
-  ///
-  /// - Note: `axis` must be of unit length, or an assertion failure occurs.
-  ///
-  /// Edge cases:
-  /// - Negative lengths are interpreted as reflecting the point through the
-  ///   origin, i.e.:
-  ///   ```
-  ///   Quaternion(length: -r, phase: θ, axis: axis) == -Quaternion(length: r, phase: θ, axis: axis)
-  ///   ```
-  /// - For any `θ` and any `axis`, even `.infinity` or `.nan`:
-  ///   ```
-  ///   Quaternion(length: .zero, phase: θ, axis: axis) == .zero
-  ///   ```
-  /// - For any `θ` and any `axis`, even `.infinity` or `.nan`:
-  ///   ```
-  ///   Quaternion(length: .infinity, phase: θ, axis: axis) == .infinity
-  ///   ```
-  /// - Otherwise, `θ` must be finite, or a precondition failure occurs.
-  ///
-  /// See also `.magnitude`, `.length`, `.lengthSquared` and `.polar`.
-  ///
-  /// [wiki]: https://en.wikipedia.org/wiki/Polar_decomposition#Quaternion_polar_decomposition
+  /// - If the quaternion is zero or non-finite, argument is `nan`.
   @inlinable
-  public init(length: RealType, phase: RealType, axis: SIMD3<RealType>) {
-    guard !length.isZero, length.isFinite else {
-      self = Quaternion(length)
-      return
-    }
-
-    // Length is finite and non-zero, therefore
-    // 1. `phase` must be finite or a precondition failure needs to occur; as
-    //    this is not representable.
-    // 2. `axis` must be of unit length or an assertion failure occurs; while
-    //    "wrong" by definition, it is representable.
-    precondition(
-      phase.isFinite,
-      "Either phase must be finite, or length must be zero or infinite."
-    )
-    assert(
-      // TODO: Replace with `approximateEquality()`
-      abs(.sqrt(axis.lengthSquared)-1) < max(.sqrt(axis.lengthSquared), 1)*RealType.ulpOfOne.squareRoot(),
-      "Given axis must be of unit length."
-    )
-
-    self = Quaternion(halfAngle: phase, unitAxis: axis).multiplied(by: length)
-  }
-}
-
-// MARK: - Operations for working with polar form
-
-extension Quaternion {
-  /// The half rotation angle in radians within *[0, π]* range.
-  ///
-  /// Edge cases:
-  /// - If the quaternion is zero or non-finite, halfAngle is `nan`.
-  @usableFromInline @inline(__always)
-  internal var halfAngle: RealType {
+  public var argument: RealType {
     guard isFinite else { return .nan }
     guard imaginary != .zero else {
       // A zero quaternion does not encode transformation properties.
@@ -179,8 +101,29 @@ extension Quaternion {
     // and the result is correct. If not, we have to do the computation
     // carefully and unscale the quaternion first.
     let lenSq = imaginary.lengthSquared
-    guard lenSq.isNormal else { return divided(by: magnitude).halfAngle }
+    guard lenSq.isNormal else { return divided(by: magnitude).argument }
     return .atan2(y: .sqrt(lenSq), x: real)
+  }
+
+  /// The [polar decomposition][wiki].
+  ///
+  /// Returns the length of this quaternion, argument in radians of range
+  /// *[0, π]* and the rotation axis as SIMD3 vector of unit length.
+  ///
+  /// Edge cases:
+  /// - If the quaternion is zero, length is `.zero` and argument and axis
+  /// are `nan`.
+  /// - If the quaternion is non-finite, length is `.infinity` and argument and
+  /// axis are `nan`.
+  /// - For any length other than `.zero` or `.infinity`, if argument is zero,
+  /// axis is `nan`.
+  ///
+  /// See also `.magnitude`, `.length`, `.lengthSquared` and
+  /// `init(length:argument:axis:)`.
+  ///
+  /// [wiki]: https://en.wikipedia.org/wiki/Polar_decomposition#Quaternion_polar_decomposition
+  public var polar: (length: RealType, argument: RealType, axis: SIMD3<RealType>) {
+    (length, argument, axis)
   }
 
   /// Creates a new quaternion from given half rotation angle about given
@@ -188,13 +131,66 @@ extension Quaternion {
   ///
   /// The angle-axis values are transformed using the following equation:
   ///
-  ///     Q = (cos(halfAngle), unitAxis * sin(halfAngle))
+  ///     Q = (cos(argument), unitAxis * sin(argument))
   ///
   /// - Parameters:
-  ///   - halfAngle: The half rotation angle
+  ///   - argument: The half rotation angle
   ///   - unitAxis: The rotation axis of unit length
   @usableFromInline @inline(__always)
-  internal init(halfAngle: RealType, unitAxis: SIMD3<RealType>) {
-    self.init(real: .cos(halfAngle), imaginary: unitAxis * .sin(halfAngle))
+  internal init(argument: RealType, unitAxis: SIMD3<RealType>) {
+    self.init(real: .cos(argument), imaginary: unitAxis * .sin(argument))
+  }
+
+  /// Creates a quaternion specified with [polar coordinates][wiki].
+  ///
+  /// This initializer reads given `length`, `argument` and `axis` values and
+  /// creates a quaternion of equal rotation properties and specified *length*
+  /// using the following equation:
+  ///
+  ///     Q = (cos(argument), axis * sin(argument)) * length
+  ///
+  /// Edge cases:
+  /// - Negative lengths are interpreted as reflecting the point through the
+  ///   origin, i.e.:
+  ///   ```
+  ///   Quaternion(length: -r, argument: θ, axis: axis) == -Quaternion(length: r, argument: θ, axis: axis)
+  ///   ```
+  /// - For any `θ` and any `axis`, even `.infinity` or `.nan`:
+  ///   ```
+  ///   Quaternion(length: .zero, argument: θ, axis: axis) == .zero
+  ///   ```
+  /// - For any `θ` and any `axis`, even `.infinity` or `.nan`:
+  ///   ```
+  ///   Quaternion(length: .infinity, argument: θ, axis: axis) == .infinity
+  ///   ```
+  /// - Otherwise, `θ` must be finite, or a precondition failure occurs and
+  ///   `axis` must be of unit length, or an assertion failure occurs.
+  ///
+  /// See also `.magnitude`, `.length`, `.lengthSquared` and `.polar`.
+  ///
+  /// [wiki]: https://en.wikipedia.org/wiki/Polar_decomposition#Quaternion_polar_decomposition
+  @inlinable
+  public init(length: RealType, argument: RealType, axis: SIMD3<RealType>) {
+    guard !length.isZero, length.isFinite else {
+      self = Quaternion(length)
+      return
+    }
+
+    // Length is finite and non-zero, therefore
+    // 1. `argument` must be finite or a precondition failure needs to occur; as
+    //    this is not representable.
+    // 2. `axis` must be of unit length or an assertion failure occurs; while
+    //    "wrong" by definition, it is representable.
+    precondition(
+      argument.isFinite,
+      "Either argument must be finite, or length must be zero or infinite."
+    )
+    assert(
+      // TODO: Replace with `approximateEquality()`
+      abs(.sqrt(axis.lengthSquared)-1) < max(.sqrt(axis.lengthSquared), 1)*RealType.ulpOfOne.squareRoot(),
+      "Given axis must be of unit length."
+    )
+
+    self = Quaternion(argument: argument, unitAxis: axis).multiplied(by: length)
   }
 }

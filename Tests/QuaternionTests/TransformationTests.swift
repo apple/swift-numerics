@@ -181,12 +181,12 @@ final class TransformationTests: XCTestCase {
   func testPolarDecomposition<T: Real & SIMDScalar>(_ type: T.Type) {
     let axis = SIMD3<T>(0,-1,0)
 
-    let q = Quaternion<T>(length: 5, phase: .pi, axis: axis)
+    let q = Quaternion<T>(length: 5, argument: .pi, axis: axis)
     XCTAssertEqual(q.axis, axis)
     XCTAssertEqual(q.angle, .pi * 2)
 
     XCTAssertEqual(q.polar.length, 5)
-    XCTAssertEqual(q.polar.phase, .pi)
+    XCTAssertEqual(q.polar.argument, .pi)
     XCTAssertEqual(q.polar.axis, axis)
   }
 
@@ -196,18 +196,18 @@ final class TransformationTests: XCTestCase {
   }
 
   func testPolarDecompositionEdgeCases<T: Real & SIMDScalar>(_ type: T.Type) {
-    XCTAssertEqual(Quaternion<T>(length: .zero, phase: .zero    , axis:  .zero    ), .zero)
-    XCTAssertEqual(Quaternion<T>(length: .zero, phase: .infinity, axis:  .infinity), .zero)
-    XCTAssertEqual(Quaternion<T>(length: .zero, phase:-.infinity, axis: -.infinity), .zero)
-    XCTAssertEqual(Quaternion<T>(length: .zero, phase: .nan     , axis:  .nan     ), .zero)
-    XCTAssertEqual(Quaternion<T>(length: .infinity, phase: .zero    , axis:  .zero    ), .infinity)
-    XCTAssertEqual(Quaternion<T>(length: .infinity, phase: .infinity, axis:  .infinity), .infinity)
-    XCTAssertEqual(Quaternion<T>(length: .infinity, phase:-.infinity, axis: -.infinity), .infinity)
-    XCTAssertEqual(Quaternion<T>(length: .infinity, phase: .nan     , axis:  .infinity), .infinity)
-    XCTAssertEqual(Quaternion<T>(length:-.infinity, phase: .zero    , axis:  .zero    ), .infinity)
-    XCTAssertEqual(Quaternion<T>(length:-.infinity, phase: .infinity, axis:  .infinity), .infinity)
-    XCTAssertEqual(Quaternion<T>(length:-.infinity, phase:-.infinity, axis: -.infinity), .infinity)
-    XCTAssertEqual(Quaternion<T>(length:-.infinity, phase: .nan     , axis:  .infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length: .zero, argument: .zero,     axis: .zero),     .zero)
+    XCTAssertEqual(Quaternion<T>(length: .zero, argument: .infinity, axis: .infinity), .zero)
+    XCTAssertEqual(Quaternion<T>(length: .zero, argument:-.infinity, axis:-.infinity), .zero)
+    XCTAssertEqual(Quaternion<T>(length: .zero, argument: .nan,      axis: .nan),      .zero)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, argument: .zero,     axis: .zero),     .infinity)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, argument: .infinity, axis: .infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, argument:-.infinity, axis:-.infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length: .infinity, argument: .nan,      axis: .infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length:-.infinity, argument: .zero,     axis: .zero),     .infinity)
+    XCTAssertEqual(Quaternion<T>(length:-.infinity, argument: .infinity, axis: .infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length:-.infinity, argument:-.infinity, axis:-.infinity), .infinity)
+    XCTAssertEqual(Quaternion<T>(length:-.infinity, argument: .nan,      axis: .infinity), .infinity)
   }
 
   func testPolarDecompositionEdgeCases() {

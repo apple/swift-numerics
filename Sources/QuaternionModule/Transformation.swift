@@ -24,7 +24,7 @@ extension Quaternion {
   /// [wiki]: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation#Recovering_the_axis-angle_representation
   @inlinable
   public var angle: RealType {
-    2 * halfAngle
+    2 * argument
   }
 
   /// The [rotation axis][wiki] of the Angle-Axis representation.
@@ -155,7 +155,7 @@ extension Quaternion {
       "Given axis must be of unit length."
     )
 
-    self = Quaternion(halfAngle: angle/2, unitAxis: axis).multiplied(by: length)
+    self = Quaternion(argument: angle/2, unitAxis: axis).multiplied(by: length)
   }
 
   /// Creates a unit quaternion specified with given [rotation vector][wiki].
@@ -196,7 +196,7 @@ extension Quaternion {
   public init(rotation vector: SIMD3<RealType>) {
     let angle: RealType = .sqrt(vector.lengthSquared)
     if !angle.isZero, angle.isFinite {
-      self = Quaternion(halfAngle: angle/2, unitAxis: vector/angle)
+      self = Quaternion(argument: angle/2, unitAxis: vector/angle)
     } else {
       self = Quaternion(angle)
     }
