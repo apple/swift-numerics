@@ -91,17 +91,14 @@ extension Quaternion {
   @inlinable
   public var argument: RealType {
     guard isFinite else { return .nan }
-    guard imaginary != .zero else {
-      // A zero quaternion does not encode transformation properties.
-      // If imaginary is zero, real must be non-zero or nan is returned.
-      return real.isZero ? .nan : .zero
-    }
-
+    // A zero quaternion does not encode transformation properties.
+    // If imaginary is zero, real must be non-zero or nan is returned.
+    guard !isReal else { return isPure ? .nan : .zero }
     // If lengthSquared computes without over/underflow, everything is fine
     // and the result is correct. If not, we have to do the computation
     // carefully and unscale the quaternion first.
     let lenSq = imaginary.lengthSquared
-    guard lenSq.isNormal else { return divided(by: magnitude).argument }
+    guard lenSq.isNormal else { return divided(by: magnitude).halfAngle }
     return .atan2(y: .sqrt(lenSq), x: real)
   }
 
