@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 import ComplexModule
+import RealModule
 
 public func relativeError(_ tst: Float, _ ref: Double) -> Double {
   let scale = max(ref.magnitude, Double(Float.leastNormalMagnitude))
