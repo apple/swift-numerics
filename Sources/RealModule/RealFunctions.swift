@@ -76,8 +76,4 @@ public protocol RealFunctions: ElementaryFunctions {
   /// See also `gamma()` and `logGamma()`.
   static func signGamma(_ x: Self) -> FloatingPointSign
 #endif
-  
-  /// a*b + c, computed _either_ with an FMA or with separate multiply and add,
-  /// whichever is fastest on the compilation target.
-  static func _mulAdd(_ a: Self, _ b: Self, _ c: Self) -> Self
 }

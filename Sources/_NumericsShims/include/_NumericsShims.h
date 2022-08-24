@@ -386,12 +386,6 @@ HEADER_SHIM long double libm_lgammal(long double x, int *signp) {
 #define CLANG_RELAX_FP _Pragma("clang fp reassociate(on) contract(fast)")
 
 #if !(__i386__ || __x86_64__)
-/// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
-HEADER_SHIM _Float16 _numerics_muladdf16(_Float16 a, _Float16 b, _Float16 c) {
-#pragma STDC FP_CONTRACT ON
-  return a*b + c;
-}
-
 /// a + b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
 HEADER_SHIM _Float16 _numerics_relaxed_addf16(_Float16 a, _Float16 b) {
@@ -407,12 +401,6 @@ HEADER_SHIM _Float16 _numerics_relaxed_mulf16(_Float16 a, _Float16 b) {
 }
 #endif
 
-/// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
-HEADER_SHIM float _numerics_muladdf(float a, float b, float c) {
-#pragma STDC FP_CONTRACT ON
-  return a*b + c;
-}
-
 /// a + b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
 HEADER_SHIM float _numerics_relaxed_addf(float a, float b) {
@@ -425,12 +413,6 @@ HEADER_SHIM float _numerics_relaxed_addf(float a, float b) {
 HEADER_SHIM float _numerics_relaxed_mulf(float a, float b) {
   CLANG_RELAX_FP
   return a * b;
-}
-
-/// a*b + c evaluated _either_ as two operations or fma, whichever is faster.
-HEADER_SHIM double _numerics_muladd(double a, double b, double c) {
-#pragma STDC FP_CONTRACT ON
-  return a*b + c;
 }
 
 /// a + b with the "allow reassociation" and "allow FMA formation" flags

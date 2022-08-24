@@ -221,11 +221,6 @@ extension Double: Real {
 #endif
   
   @_transparent
-  public static func _mulAdd(_ a: Double, _ b: Double, _ c: Double) -> Double {
-    _numerics_muladd(a, b, c)
-  }
-  
-  @_transparent
   public static func _relaxedAdd(_ a: Double, _ b: Double) -> Double {
     _numerics_relaxed_add(a, b)
   }

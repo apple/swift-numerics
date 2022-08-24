@@ -124,12 +124,12 @@ extension Complex: AlgebraicField {
     return nil
   }
   
-  @inlinable
+  @_transparent
   public static func _relaxedAdd(_ a: Self, _ b: Self) -> Self {
     Complex(Relaxed.sum(a.x, b.x), Relaxed.sum(a.y, b.y))
   }
   
-  @inlinable
+  @_transparent
   public static func _relaxedMul(_ a: Self, _ b: Self) -> Self {
     Complex(
       Relaxed.sum(Relaxed.product(a.x, b.x), -Relaxed.product(a.y, b.y)),

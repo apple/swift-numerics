@@ -177,11 +177,6 @@ extension Float16: Real {
   // we can re-enable these; presently the type is disabled on the target.
   #if !(arch(i386) || arch(x86_64))
   @_transparent
-  public static func _mulAdd(_ a: Float16, _ b: Float16, _ c: Float16) -> Float16 {
-    _numerics_muladdf16(a, b, c)
-  }
-  
-  @_transparent
   public static func _relaxedAdd(_ a: Float16, _ b: Float16) -> Float16 {
     _numerics_relaxed_addf16(a, b)
   }

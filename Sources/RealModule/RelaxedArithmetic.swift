@@ -49,8 +49,7 @@ extension Relaxed {
   ///
   /// Floating-point addition and multiplication are not associative operations,
   /// so the Swift compiler does not have any flexibility in how it evaluates
-  /// an expression
-  /// like:
+  /// an expression like:
   /// ```
   /// func sumOfSquares(array: [Float]) -> Float {
   ///   array.reduce(0) { $0 + $1*$1 }
@@ -75,9 +74,9 @@ extension Relaxed {
   /// a*b + c, computed _either_ with an FMA or with separate multiply and add,
   /// whichever is fastest according to the optimizer's heuristics.
   @_transparent
-  public static func multiplyAdd<T: RealFunctions>(
+  public static func multiplyAdd<T: AlgebraicField>(
     _ a: T, _ b: T, _ c: T
   ) -> T {
-    T._mulAdd(a, b, c)
+    T._relaxedAdd(c, T._relaxedMul(a, b))
   }
 }
