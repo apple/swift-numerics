@@ -400,6 +400,18 @@ final class ElementaryFunctionTests: XCTestCase {
     }
   }
   
+  func testPowR<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
+    XCTAssertEqual(Complex<T>.pow(.zero, -.one),  .infinity)
+    XCTAssertEqual(Complex<T>.pow(.zero,  .zero), .infinity)
+    XCTAssertEqual(Complex<T>.pow(.zero, +.one),  .infinity)
+  }
+  
+  func testPowN<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
+    XCTAssertEqual(Complex<T>.pow(.zero, -1), .infinity)
+    XCTAssertEqual(Complex<T>.pow(.zero,  0), .one)
+    XCTAssertEqual(Complex<T>.pow(.zero, +1), .zero)
+  }
+  
   func testFloat() {
     testExp(Float.self)
     testExpMinusOne(Float.self)
@@ -411,6 +423,8 @@ final class ElementaryFunctionTests: XCTestCase {
     testAcosh(Float.self)
     testAsinh(Float.self)
     testAtanh(Float.self)
+    testPowR(Float.self)
+    testPowN(Float.self)
   }
   
   func testDouble() {
@@ -424,9 +438,11 @@ final class ElementaryFunctionTests: XCTestCase {
     testAcosh(Double.self)
     testAsinh(Double.self)
     testAtanh(Double.self)
+    testPowR(Double.self)
+    testPowN(Double.self)
   }
   
-  #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+#if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     testExp(Float80.self)
     testExpMinusOne(Float80.self)
@@ -438,6 +454,8 @@ final class ElementaryFunctionTests: XCTestCase {
     testAcosh(Float80.self)
     testAsinh(Float80.self)
     testAtanh(Float80.self)
+    testPowR(Float80.self)
+    testPowN(Float80.self)
   }
-  #endif
+#endif
 }

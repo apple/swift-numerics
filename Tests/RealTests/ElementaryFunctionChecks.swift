@@ -120,39 +120,59 @@ internal extension Real where Self: BinaryFloatingPoint {
     assertClose(0.4041169094348222983238250859191217675, Self.erf(0.375))
     assertClose(0.5958830905651777016761749140808782324, Self.erfc(0.375))
     assertClose(2.3704361844166009086464735041766525098, Self.gamma(0.375))
-    #if !os(Windows)
+#if !os(Windows)
     assertClose( -0.11775527074107877445136203331798850, Self.logGamma(1.375))
     XCTAssertEqual(.plus,  Self.signGamma(1.375))
     XCTAssertEqual(.minus, Self.signGamma(-2.375))
-    #endif
+#endif
+  }
+}
+
+extension Real {
+  static func powZeroChecks() {
+    // pow(_:Self,_:Self) is defined by exp(y log(x)) and has edge-cases to
+    // match. In particular, if x is zero, log(x) is -infinity, so pow(0,0)
+    // is exp(0 * -infinity) = exp(nan) = nan.
+    XCTAssertEqual(pow(0, -1 as Self), infinity)
+    XCTAssert(pow(0, 0 as Self).isNaN)
+    XCTAssertEqual(pow(0,  1 as Self), zero)
+    // pow(_:Self,_:Int) is defined by repeated multiplication or division,
+    // and hence pow(0, 0) is 1.
+    XCTAssertEqual(pow(0, -1), infinity)
+    XCTAssertEqual(pow(0,  0), 1)
+    XCTAssertEqual(pow(0,  1), zero)
   }
 }
 
 final class ElementaryFunctionChecks: XCTestCase {
   
-  #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
   func testFloat16() {
     if #available(macOS 11.0, iOS 14.0, watchOS 14.0, tvOS 7.0, *) {
       Float16.elementaryFunctionChecks()
       Float16.realFunctionChecks()
+      Float16.powZeroChecks()
     }
   }
-  #endif
+#endif
   
   func testFloat() {
     Float.elementaryFunctionChecks()
     Float.realFunctionChecks()
+    Float.powZeroChecks()
   }
   
   func testDouble() {
     Double.elementaryFunctionChecks()
     Double.realFunctionChecks()
+    Double.powZeroChecks()
   }
   
-  #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+#if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     Float80.elementaryFunctionChecks()
     Float80.realFunctionChecks()
+    Float80.powZeroChecks()
   }
-  #endif
+#endif
 }
