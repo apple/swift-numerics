@@ -420,9 +420,9 @@ extension Complex: ElementaryFunctions {
   
   @inlinable
   public static func pow(_ z: Complex, _ n: Int) -> Complex {
-		if z.isZero {
-			return n < 0 ? .infinity : n == 0 ? .one : .zero
-		}
+    if z.isZero {
+      return n < 0 ? .infinity : n == 0 ? .one : .zero
+    }
     // TODO: this implementation is not quite correct, because n may be
     // rounded in conversion to RealType. This only effects very extreme
     // cases, so we'll leave it alone for now.
