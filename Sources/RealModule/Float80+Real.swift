@@ -132,6 +132,7 @@ extension Float80: Real {
   @_transparent
   public static func pow(_ x: Float80, _ y: Float80) -> Float80 {
     guard x >= 0 else { return .nan }
+    if x == 0 && y == 0 { return .nan }
     return libm_powl(x, y)
   }
   
