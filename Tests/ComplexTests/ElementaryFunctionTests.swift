@@ -403,7 +403,7 @@ final class ElementaryFunctionTests: XCTestCase {
   func testPowR<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     XCTAssertEqual(Complex<T>.pow(.zero, -.one),  .infinity)
     XCTAssertEqual(Complex<T>.pow(.zero,  .zero), .infinity)
-    XCTAssertEqual(Complex<T>.pow(.zero, +.one),  .infinity)
+    XCTAssertEqual(Complex<T>.pow(.zero, +.one),  .zero)
   }
   
   func testPowN<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
