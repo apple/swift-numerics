@@ -45,7 +45,7 @@ extension Quaternion/*: ElementaryFunctions */ {
     // `exp(r) cos(||v||)` would not be.
     guard q.isFinite else { return q }
     let (â, θ) = q.imaginary.unitAxisAndLength
-    let rotation = Quaternion(argument: θ, unitAxis: â)
+    let rotation = Quaternion(halfAngle: θ, unitAxis: â)
     // If real < log(greatestFiniteMagnitude), then exp(real) does not overflow.
     // To protect ourselves against sketchy log or exp implementations in
     // an unknown host library, or slight rounding disagreements between
@@ -90,7 +90,7 @@ extension Quaternion/*: ElementaryFunctions */ {
     // so the -1 term is _always_ negligable).
     guard q.real < RealType.log(.greatestFiniteMagnitude) - 1 else {
       let halfScale = RealType.exp(q.real/2)
-      let rotation = Quaternion(argument: θ, unitAxis: â)
+      let rotation = Quaternion(halfAngle: θ, unitAxis: â)
       return rotation.multiplied(by: halfScale).multiplied(by: halfScale)
     }
     return Quaternion(
@@ -123,7 +123,7 @@ extension Quaternion/*: ElementaryFunctions */ {
     guard q.isFinite else { return q }
     let (â, θ) = q.imaginary.unitAxisAndLength
     guard q.real.magnitude < -RealType.log(.ulpOfOne) else {
-      let rotation = Quaternion(argument: θ, unitAxis: â)
+      let rotation = Quaternion(halfAngle: θ, unitAxis: â)
       let firstScale = RealType.exp(q.real.magnitude/2)
       return rotation.multiplied(by: firstScale).multiplied(by: firstScale/2)
     }
@@ -145,7 +145,7 @@ extension Quaternion/*: ElementaryFunctions */ {
     guard q.isFinite else { return q }
     let (â, θ) = q.imaginary.unitAxisAndLength
     guard q.real.magnitude < -RealType.log(.ulpOfOne) else {
-      let rotation = Quaternion(argument: θ, unitAxis: â)
+      let rotation = Quaternion(halfAngle: θ, unitAxis: â)
       let firstScale = RealType.exp(q.real.magnitude/2)
       let secondScale = RealType(signOf: q.real, magnitudeOf: firstScale/2)
       return rotation.multiplied(by: firstScale).multiplied(by: secondScale)
