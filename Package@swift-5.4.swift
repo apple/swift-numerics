@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.4
 //===--- Package.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
