@@ -12,8 +12,6 @@
 
 import PackageDescription
 
-let excludedFilenames = ["CMakeLists.txt", "README.md"]
-
 let package = Package(
   
   name: "swift-numerics",
@@ -28,57 +26,53 @@ let package = Package(
     .target(
       name: "ComplexModule",
       dependencies: ["RealModule"],
-      exclude: excludedFilenames
+      exclude: ["README.md"]
     ),
     
     .target(
       name: "IntegerUtilities",
       dependencies: [],
-      exclude: excludedFilenames
+      exclude: ["README.md"]
     ),
     
     .target(
       name: "Numerics",
       dependencies: ["ComplexModule", "IntegerUtilities", "RealModule"],
-      exclude: excludedFilenames
+      exclude: ["README.md"]
     ),
     
     .target(
       name: "RealModule",
       dependencies: ["_NumericsShims"],
-      exclude: excludedFilenames
+      exclude: ["README.md"]
     ),
     
     // MARK: - Implementation details
     .target(
       name: "_NumericsShims",
-      exclude: excludedFilenames,
+      exclude: ["README.md"],
       linkerSettings: [.linkedLibrary("m", .when(platforms: [.linux, .android]))]
     ),
     
     .target(
       name: "_TestSupport",
-      dependencies: ["Numerics"],
-      exclude: ["CMakeLists.txt"]
+      dependencies: ["Numerics"]
     ),
     
     // MARK: - Unit test bundles
     .testTarget(
       name: "ComplexTests",
-      dependencies: ["ComplexModule", "RealModule", "_TestSupport"],
-      exclude: ["CMakeLists.txt"]
+      dependencies: ["ComplexModule", "RealModule", "_TestSupport"]
     ),
     
     .testTarget(
       name: "IntegerUtilitiesTests",
-      dependencies: ["IntegerUtilities", "_TestSupport"],
-      exclude: ["CMakeLists.txt"]
+      dependencies: ["IntegerUtilities", "_TestSupport"]
     ),
     
     .testTarget(
       name: "RealTests",
-      dependencies: ["RealModule", "_TestSupport"],
-      exclude: ["CMakeLists.txt"]
+      dependencies: ["RealModule", "_TestSupport"]
     ),
     
     // MARK: - Test executables
