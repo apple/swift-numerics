@@ -2,115 +2,53 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019-2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2023 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
 //
 //===----------------------------------------------------------------------===//
+// This file can be automatically generated with the command:
+// swift package --allow-writing-to-package-directory generate-windows-main
+//===----------------------------------------------------------------------===//
 
 #if os(Windows)
+
 import XCTest
 
-@testable
-import RealTests
-
-@testable
-import ComplexTests
-
-@testable
-import IntegerUtilitiesTests
+@testable import ComplexTests
+@testable import IntegerUtilitiesTests
+@testable import RealTests
 
 extension ComplexTests.ApproximateEqualityTests {
   static var all = testCase([
-    ("testFloat", ComplexTests.ApproximateEqualityTests.testFloat),
     ("testDouble", ComplexTests.ApproximateEqualityTests.testDouble),
+    ("testFloat", ComplexTests.ApproximateEqualityTests.testFloat),
+    ("testFloat80", ComplexTests.ApproximateEqualityTests.testFloat80),
   ])
 }
 
-extension RealTests.ApproximateEqualityTests {
+extension ComplexTests.ArithmeticTests {
   static var all = testCase([
-    ("testFloat", RealTests.ApproximateEqualityTests.testFloat),
-    ("testDouble", RealTests.ApproximateEqualityTests.testDouble),
+    ("testBaudinSmith", ComplexTests.ArithmeticTests.testBaudinSmith),
+    ("testDivisionByZero", ComplexTests.ArithmeticTests.testDivisionByZero),
+    ("testPolar", ComplexTests.ArithmeticTests.testPolar),
   ])
 }
 
-#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
-extension ElementaryFunctionChecks {
+extension ComplexTests.ElementaryFunctionTests {
   static var all = testCase([
-    ("testFloat16", ElementaryFunctionChecks.testFloat16),
-    ("testFloat", ElementaryFunctionChecks.testFloat),
-    ("testDouble", ElementaryFunctionChecks.testDouble),
+    ("testDouble", ComplexTests.ElementaryFunctionTests.testDouble),
+    ("testFloat", ComplexTests.ElementaryFunctionTests.testFloat),
+    ("testFloat80", ComplexTests.ElementaryFunctionTests.testFloat80),
   ])
 }
 
-extension IntegerExponentTests {
+extension ComplexTests.PropertyTests {
   static var all = testCase([
-    ("testFloat16", IntegerExponentTests.testFloat16),
-    ("testFloat", IntegerExponentTests.testFloat),
-    ("testDouble", IntegerExponentTests.testDouble),
-  ])
-}
-#else
-extension ElementaryFunctionChecks {
-  static var all = testCase([
-    ("testFloat", ElementaryFunctionChecks.testFloat),
-    ("testDouble", ElementaryFunctionChecks.testDouble),
-  ])
-}
-
-extension IntegerExponentTests {
-  static var all = testCase([
-    ("testFloat", IntegerExponentTests.testFloat),
-    ("testDouble", IntegerExponentTests.testDouble),
-  ])
-}
-#endif
-
-extension ArithmeticTests {
-  static var all = testCase([
-    ("testPolar", ArithmeticTests.testPolar),
-    ("testBaudinSmith", ArithmeticTests.testBaudinSmith),
-    ("testDivisionByZero", ArithmeticTests.testDivisionByZero),
-  ])
-}
-
-extension PropertyTests {
-  static var all = testCase([
-    ("testProperties", PropertyTests.testProperties),
-    ("testEquatableHashable", PropertyTests.testEquatableHashable),
-    ("testCodable", PropertyTests.testCodable),
-  ])
-}
-
-extension IntegerUtilitiesDivideTests {
-  static var all = testCase([
-    ("testDivideInt8", IntegerUtilitiesDivideTests.testDivideInt8),
-    ("testDivideInt", IntegerUtilitiesDivideTests.testDivideInt),
-    ("testDivideUInt8", IntegerUtilitiesDivideTests.testDivideUInt8),
-    ("testDivideStochasticInt8", IntegerUtilitiesDivideTests.testDivideStochasticInt8),
-    ("testDivideStochasticUInt32", IntegerUtilitiesDivideTests.testDivideStochasticUInt32),
-    ("testRemainderByMinusOne", IntegerUtilitiesDivideTests.testRemainderByMinusOne),
-  ])
-}
-
-extension IntegerUtilitiesGCDTests {
-  static var all = testCase([
-    ("testGCDInt", IntegerUtilitiesGCDTests.testGCDInt),
-  ])
-}
-
-extension IntegerUtilitiesRotateTests {
-  static var all = testCase([
-    ("testRotateUInt8", IntegerUtilitiesRotateTests.testRotateUInt8),
-    ("testRotateInt16", IntegerUtilitiesRotateTests.testRotateInt16),
-  ])
-}
-
-extension IntegerUtilitiesShiftTests {
-  static var all = testCase([
-    ("testRoundingShifts", IntegerUtilitiesShiftTests.testRoundingShifts),
-    ("testStochasticShifts", IntegerUtilitiesShiftTests.testStochasticShifts),
+    ("testCodable", ComplexTests.PropertyTests.testCodable),
+    ("testEquatableHashable", ComplexTests.PropertyTests.testEquatableHashable),
+    ("testProperties", ComplexTests.PropertyTests.testProperties),
   ])
 }
 
@@ -147,18 +85,83 @@ extension IntegerUtilitiesTests.DoubleWidthTests {
   ])
 }
 
+extension IntegerUtilitiesTests.IntegerUtilitiesDivideTests {
+  static var all = testCase([
+    ("testDivideInt", IntegerUtilitiesTests.IntegerUtilitiesDivideTests.testDivideInt),
+    ("testDivideInt8", IntegerUtilitiesTests.IntegerUtilitiesDivideTests.testDivideInt8),
+    ("testDivideStochasticInt8", IntegerUtilitiesTests.IntegerUtilitiesDivideTests.testDivideStochasticInt8),
+    ("testDivideStochasticUInt32", IntegerUtilitiesTests.IntegerUtilitiesDivideTests.testDivideStochasticUInt32),
+    ("testDivideUInt8", IntegerUtilitiesTests.IntegerUtilitiesDivideTests.testDivideUInt8),
+    ("testRemainderByMinusOne", IntegerUtilitiesTests.IntegerUtilitiesDivideTests.testRemainderByMinusOne),
+  ])
+}
+
+extension IntegerUtilitiesTests.IntegerUtilitiesGCDTests {
+  static var all = testCase([
+    ("testGCDInt", IntegerUtilitiesTests.IntegerUtilitiesGCDTests.testGCDInt),
+  ])
+}
+
+extension IntegerUtilitiesTests.IntegerUtilitiesRotateTests {
+  static var all = testCase([
+    ("testRotateInt16", IntegerUtilitiesTests.IntegerUtilitiesRotateTests.testRotateInt16),
+    ("testRotateUInt8", IntegerUtilitiesTests.IntegerUtilitiesRotateTests.testRotateUInt8),
+  ])
+}
+
+extension IntegerUtilitiesTests.IntegerUtilitiesShiftTests {
+  static var all = testCase([
+    ("testRoundingShifts", IntegerUtilitiesTests.IntegerUtilitiesShiftTests.testRoundingShifts),
+    ("testStochasticShifts", IntegerUtilitiesTests.IntegerUtilitiesShiftTests.testStochasticShifts),
+  ])
+}
+
+extension RealTests.ApproximateEqualityTests {
+  static var all = testCase([
+    ("testDouble", RealTests.ApproximateEqualityTests.testDouble),
+    ("testFloat", RealTests.ApproximateEqualityTests.testFloat),
+    ("testFloat80", RealTests.ApproximateEqualityTests.testFloat80),
+  ])
+}
+
+extension RealTests.AugmentedArithmeticTests {
+  static var all = testCase([
+    ("testTwoSum", RealTests.AugmentedArithmeticTests.testTwoSum),
+  ])
+}
+
+extension RealTests.ElementaryFunctionChecks {
+  static var all = testCase([
+    ("testDouble", RealTests.ElementaryFunctionChecks.testDouble),
+    ("testFloat", RealTests.ElementaryFunctionChecks.testFloat),
+    ("testFloat16", RealTests.ElementaryFunctionChecks.testFloat16),
+    ("testFloat80", RealTests.ElementaryFunctionChecks.testFloat80),
+  ])
+}
+
+extension RealTests.IntegerExponentTests {
+  static var all = testCase([
+    ("testDouble", RealTests.IntegerExponentTests.testDouble),
+    ("testFloat", RealTests.IntegerExponentTests.testFloat),
+    ("testFloat16", RealTests.IntegerExponentTests.testFloat16),
+    ("testFloat80", RealTests.IntegerExponentTests.testFloat80),
+  ])
+}
+
 var testCases = [
   ComplexTests.ApproximateEqualityTests.all,
-  RealTests.ApproximateEqualityTests.all,
-  ElementaryFunctionChecks.all,
-  IntegerExponentTests.all,
-  ArithmeticTests.all,
-  PropertyTests.all,
-  IntegerUtilitiesDivideTests.all,
-  IntegerUtilitiesGCDTests.all,
-  IntegerUtilitiesRotateTests.all,
-  IntegerUtilitiesShiftTests.all,
+  ComplexTests.ArithmeticTests.all,
+  ComplexTests.ElementaryFunctionTests.all,
+  ComplexTests.PropertyTests.all,
   IntegerUtilitiesTests.DoubleWidthTests.all,
+  IntegerUtilitiesTests.IntegerUtilitiesDivideTests.all,
+  IntegerUtilitiesTests.IntegerUtilitiesGCDTests.all,
+  IntegerUtilitiesTests.IntegerUtilitiesRotateTests.all,
+  IntegerUtilitiesTests.IntegerUtilitiesShiftTests.all,
+  RealTests.ApproximateEqualityTests.all,
+  RealTests.AugmentedArithmeticTests.all,
+  RealTests.ElementaryFunctionChecks.all,
+  RealTests.IntegerExponentTests.all,
 ]
 
 XCTMain(testCases)
