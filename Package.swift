@@ -65,7 +65,7 @@ let package = Package(
     // MARK: - Unit test bundles
     .testTarget(
       name: "ComplexTests",
-      dependencies: ["_TestSupport"],
+      dependencies: ["ComplexModule", "RealModule", "_TestSupport"],
       exclude: ["CMakeLists.txt"]
     ),
     
@@ -77,7 +77,7 @@ let package = Package(
     
     .testTarget(
       name: "RealTests",
-      dependencies: ["_TestSupport"],
+      dependencies: ["RealModule", "_TestSupport"],
       exclude: ["CMakeLists.txt"]
     ),
     

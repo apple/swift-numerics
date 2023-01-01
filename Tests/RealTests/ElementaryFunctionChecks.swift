@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2023 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -145,16 +145,16 @@ extension Real {
 }
 
 final class ElementaryFunctionChecks: XCTestCase {
-  
-#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+
   func testFloat16() {
+#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
     if #available(macOS 11.0, iOS 14.0, watchOS 14.0, tvOS 7.0, *) {
       Float16.elementaryFunctionChecks()
       Float16.realFunctionChecks()
       Float16.powZeroChecks()
     }
-  }
 #endif
+  }
   
   func testFloat() {
     Float.elementaryFunctionChecks()
@@ -167,12 +167,12 @@ final class ElementaryFunctionChecks: XCTestCase {
     Double.realFunctionChecks()
     Double.powZeroChecks()
   }
-  
-#if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+
   func testFloat80() {
+#if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
     Float80.elementaryFunctionChecks()
     Float80.realFunctionChecks()
     Float80.powZeroChecks()
-  }
 #endif
+  }
 }

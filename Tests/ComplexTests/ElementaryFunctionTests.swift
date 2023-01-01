@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift.org open source project
 //
-// Copyright (c) 2020 Apple Inc. and the Swift project authors
+// Copyright (c) 2020-2023 Apple Inc. and the Swift project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -442,8 +442,8 @@ final class ElementaryFunctionTests: XCTestCase {
     testPowN(Double.self)
   }
   
-#if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
+#if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
     testExp(Float80.self)
     testExpMinusOne(Float80.self)
     testLogOnePlus(Float.self)
@@ -456,6 +456,6 @@ final class ElementaryFunctionTests: XCTestCase {
     testAtanh(Float80.self)
     testPowR(Float80.self)
     testPowN(Float80.self)
-  }
 #endif
+  }
 }
