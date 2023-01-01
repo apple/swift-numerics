@@ -52,12 +52,6 @@ struct GenerateCMakeLists: CommandPlugin {
       let path = context.package.directory.appending(subpath, "CMakeLists.txt")
       try result.write(toFile: path.string, atomically: true, encoding: .utf8)
     }
-
-    for target in targets where target.kind != .executable {
-      let result = try generateCMakeLists(target: target)
-      let path = target.directory.appending("CMakeLists.txt")
-      try result.write(toFile: path.string, atomically: true, encoding: .utf8)
-    }
   }
 
   func generateCMakeLists(
@@ -73,17 +67,22 @@ struct GenerateCMakeLists: CommandPlugin {
       result += "find_package(Foundation CONFIG QUIET)\n"
       result += "find_package(XCTest CONFIG QUIET)\n"
     }
-    result += "\n"
     if targetsKind == .generic {
-      result += "add_subdirectory(_NumericsShims)\n"
+      result += "\n"
+      result +=
+"""
+add_library(_NumericsShims INTERFACE)
+target_include_directories(_NumericsShims INTERFACE
+  _NumericsShims/include)
+target_link_libraries(_NumericsShims INTERFACE
+  $<$<PLATFORM_ID:Linux>:m>)
+set_property(GLOBAL APPEND PROPERTY SWIFT_NUMERICS_EXPORTS _NumericsShims)
+"""
+      result += "\n"
     }
-    for target in targets where target.name != "_TestSupport" {
-      result += "add_subdirectory(\(target.name))\n"
-    }
-    if targetsKind == .generic {
-      result += "if(BUILD_TESTING)\n"
-      result += "  add_subdirectory(_TestSupport)\n"
-      result += "endif()\n"
+    for target in targets {
+      result += "\n"
+      result += try generateCMakeLists(target: target)
     }
     if targetsKind == .test {
       result += "\n"
@@ -93,7 +92,7 @@ struct GenerateCMakeLists: CommandPlugin {
       for target in targets {
         result += "\n  \(target.name)"
       }
-      result += ")\n\n"
+      result += ")\n"
       result += "add_test(NAME SwiftNumericsTestRunner\n"
       result += "  COMMAND SwiftNumericsTestRunner)\n"
     }
@@ -112,11 +111,9 @@ struct GenerateCMakeLists: CommandPlugin {
     }
     linkedLibraries.sort()
 
-    var result = prefix
-    result += "\n\n"
-    result += "add_library(\(target.name)"
+    var result = "add_library(\(target.name)"
     for sourceFile in target.sourceFiles.map(\.path.lastComponent).sorted() {
-      result += "\n  \(sourceFile)"
+      result += "\n  \(target.name)/\(sourceFile)"
     }
     result += ")\n"
     if target.kind == .generic || target.name == "ComplexTests" { // FIXME: Generic targets only?
@@ -149,7 +146,6 @@ target_compile_options(Numerics PUBLIC
       result += ")\n"
     }
     if target.kind == .generic { // FIXME: Library products only?
-      result += "\n\n"
       result += "_install_target(\(target.name))\n"
       result += "set_property(GLOBAL APPEND PROPERTY "
       result += "SWIFT_NUMERICS_EXPORTS \(target.name))\n"
