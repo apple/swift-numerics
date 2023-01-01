@@ -1,9 +1,9 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.6
 //===--- Package.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019-2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2023 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -92,6 +92,35 @@ let package = Package(
       name: "ComplexLog1p",
       dependencies: ["Numerics", "_TestSupport"],
       path: "Tests/Executable/ComplexLog1p"
-    )
+    ),
+
+    // MARK: - Plugins
+    .plugin(
+      name: "GenerateCMakeLists",
+      capability: .command(
+        intent: .custom(
+          verb: "generate-cmake-lists",
+          description: "Generate CMakeLists.txt"
+        ), permissions: [
+          .writeToPackageDirectory(
+            reason: "Generate CMakeLists.txt"
+          ),
+        ]
+      )
+    ),
+
+    .plugin(
+      name: "GenerateWindowsMain",
+      capability: .command(
+        intent: .custom(
+          verb: "generate-windows-main",
+          description: "Generate WindowsMain.swift"
+        ), permissions: [
+          .writeToPackageDirectory(
+            reason: "Generate WindowsMain.swift"
+          ),
+        ]
+      )
+    ),
   ]
 )
