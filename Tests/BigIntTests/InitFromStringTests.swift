@@ -317,11 +317,13 @@ class InitFromStringTests: XCTestCase {
       assert(bufferEnd == bytes.count, "No space for NULL?")
       ptr[bufferEnd] = 0
 
-      let string = String(cString: ptr)
-      strings.append(string)
-      strings.append("123" + string)
-      strings.append("12" + string + "3")
-      strings.append(string + "123")
+      let s = String(cString: ptr) // Borrows 'ptr' to create owned copy.
+      ptr.deallocate()
+
+      strings.append(s)
+      strings.append("123" + s)
+      strings.append("12" + s + "3")
+      strings.append(s + "123")
     }
 
     for string in strings {
