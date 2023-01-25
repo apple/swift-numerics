@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift.org open source project
 //
-// Copyright (c) 2019 - 2022 Apple Inc. and the Swift project authors
+// Copyright (c) 2019 - 2023 Apple Inc. and the Swift project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -252,7 +252,10 @@ extension Quaternion: ElementaryFunctions {
     // result:
     if u >= 1 || u >= RealType._mulAdd(u,u,v*v) {
       let r = v / u
-      return Quaternion(real: .log(u) + .log(onePlus: r*r)/2, imaginary: imaginary)
+      return Quaternion(
+        real: .log(u) + .log(onePlus: r*r)/2,
+        imaginary: imaginary
+      )
     }
     // Here we're in the tricky case; cancellation is likely to occur.
     // Instead of the factorization used above, we will want to evaluate
@@ -402,7 +405,7 @@ extension Quaternion: ElementaryFunctions {
     // pow(q, p) = exp(log(pow(q, p)))
     //           = exp(p * log(q))
     // ```
-    guard !q.isZero else { return .zero }
+    if q.isZero { return p.real > 0 ? zero : infinity }
     return exp(p * log(q))
   }
 
@@ -415,7 +418,7 @@ extension Quaternion: ElementaryFunctions {
     // pow(q, n) = exp(log(pow(q, n)))
     //           = exp(log(q) * n)
     // ```
-    guard !q.isZero else { return .zero }
+    if q.isZero { return n < 0 ? infinity : n == 0 ? one : zero }
     // TODO: this implementation is not quite correct, because n may be
     // rounded in conversion to RealType. This only effects very extreme
     // cases, so we'll leave it alone for now.
@@ -431,8 +434,8 @@ extension Quaternion: ElementaryFunctions {
       //    s = sqrt((|q|+|r|) / 2)
       //    t = θ/2s
       //
-      // If r is positive, the result is just w = (s, (v/θ) * t). If r is negative,
-      // the result is (|t|, (v/θ) * copysign(s, θ)) instead.
+      // If r is positive, the result is just w = (s, (v/θ) * t). If r is
+      // negative, the result is (|t|, (v/θ) * copysign(s, θ)) instead.
       let (â, θ) = q.imaginary.unitAxisAndLength
       let norm: RealType = .sqrt(lengthSquared)
       let s: RealType = .sqrt((norm + q.real.magnitude) / 2)

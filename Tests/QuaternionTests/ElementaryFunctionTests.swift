@@ -642,15 +642,15 @@ final class ElementaryFunctionTests: XCTestCase {
   // MARK: - pow-like functions
 
   func testPowQuaternion<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
-    // pow(0, 0) = 0
+    // pow(0, 0) = inf
     let zero: Quaternion<T> = .zero
-    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary:-.zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero).isZero)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary:-.zero), zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero).isFinite)
     // pow(0, x) = 0 for x > 0
     let n: Quaternion<T> = 2
     XCTAssertTrue(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), n).isZero)
@@ -713,17 +713,26 @@ final class ElementaryFunctionTests: XCTestCase {
   }
 
   func testPowInt<T: Real & FixedWidthFloatingPoint & SIMDScalar>(_ type: T.Type) {
-    // pow(0, 0) = 0
+    // pow(0, 0) = 1
     let zero: Int = .zero
-    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary:-.zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero).isZero)
-    XCTAssert(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero).isZero)
+    XCTAssertEqual(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero), .one)
+    XCTAssertEqual(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), zero), .one)
+    XCTAssertEqual(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero), .one)
+    XCTAssertEqual(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), zero), .one)
+    XCTAssertEqual(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary:-.zero), zero), .one)
+    XCTAssertEqual(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero), .one)
+    XCTAssertEqual(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), zero), .one)
+    // pow(0, x) = inf for x < 0
+    var n: Int = -1
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary:-.zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), n).isFinite)
+    XCTAssertFalse(Quaternion<T>.pow(Quaternion(real: .zero, imaginary:-.zero), n).isFinite)
     // pow(0, x) = 0 for x > 0
-    let n: Int = 2
+    n = 2
     XCTAssertTrue(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), n).isZero)
     XCTAssertTrue(Quaternion<T>.pow(Quaternion(real: .zero, imaginary: .zero), n).isZero)
     XCTAssertTrue(Quaternion<T>.pow(Quaternion(real:-.zero, imaginary: .zero), n).isZero)
