@@ -33,44 +33,43 @@ private let powersOf2: [Pow2] = [
 
 private func assertDiv<Q: SignedInteger, R: SignedInteger>(_ lhs: BigInt,
                                                            _ rhs: BigInt,
-                                                           quotient _quotient: Q,
-                                                           remainder _remainder: R,
+                                                           quotient _quotient: Q?,
+                                                           remainder _remainder: R?,
                                                            file: StaticString = #file,
                                                            line: UInt = #line) {
   assert(rhs != 0, "[BinaryDivTests] Oooo… div by 0? 🐰")
-  let quotient = BigInt(_quotient)
-  let remainder = BigInt(_remainder)
-
-  // We could add the following check, but the current (2023.01) implementation
-  // would not survive it:
-  // guard (quotient * rhs + remainder) == lhs else {
-  //   XCTFail("=== [\(lhs)/\(rhs)] INVALID TEST? ===", file: file, line: line)
-  //   return
-  // }
 
   let q = lhs / rhs
   let r = lhs % rhs
-  XCTAssertEqual(q, quotient, "[\(lhs)/\(rhs)] Quotient", file: file, line: line)
-  XCTAssertEqual(r, remainder, "[\(lhs)/\(rhs)] Remainder", file: file, line: line)
+
+  if let quotient = _quotient {
+    let expected = BigInt(quotient)
+    XCTAssertEqual(q, expected, "[\(lhs)/\(rhs)] Quotient", file: file, line: line)
+  }
+
+  if let remainder = _remainder {
+    let expected = BigInt(remainder)
+    XCTAssertEqual(r, expected, "[\(lhs)/\(rhs)] Remainder", file: file, line: line)
+  }
 
   // lhs == q * rhs + r
   let restored = q * rhs + r
   XCTAssertEqual(lhs, restored, "[\(lhs)/\(rhs)] lhs == q * rhs + r", file: file, line: line)
 
   // There are multiple solutions for 'lhs = q * rhs + r':
-  //              | -5//4 | -5%4 |
-  // Python 3.7.4 | -2    |  3   |
-  // Swift 5.3.2  | -1    | -1   | <- we want this (round toward 0)
+  //              | -5/4 | -5%4 |
+  // Python 3.7.4 | -2   |  3   |
+  // Swift 5.3.2  | -1   | -1   | <- we want this (round toward 0)
   //
   // Check: |q * rhs| <= |lhs|
   // In Python: |-2*4| <= |-5| -> 8 <= 5 -> FALSE
   // In Swift:  |-1*4| <= |-5| -> 4 <= 5 -> TRUE
   let qRhs = q * rhs
-  XCTAssertLessThanOrEqual(qRhs.magnitude, lhs.magnitude, "[\(lhs)/\(rhs)] |q * rhs| <= |lhs|", file: file, line: line)
+  XCTAssertLessThanOrEqual(qRhs.magnitude, lhs.magnitude, "[\(lhs)/\(rhs)] Round toward 0", file: file, line: line)
 
   let (qq, rr) = lhs.quotientAndRemainder(dividingBy: rhs)
-  XCTAssertEqual(qq, quotient, "[\(lhs)/\(rhs)] quotientAndRemainder-Quotient", file: file, line: line)
-  XCTAssertEqual(rr, remainder, "[\(lhs)/\(rhs)] quotientAndRemainder-Remainder", file: file, line: line)
+  XCTAssertEqual(qq, q, "[\(lhs)/\(rhs)] quotientAndRemainder-Quotient", file: file, line: line)
+  XCTAssertEqual(rr, r, "[\(lhs)/\(rhs)] quotientAndRemainder-Remainder", file: file, line: line)
 }
 
 class BinaryDivRemTests: XCTestCase {
@@ -448,11 +447,10 @@ class BinaryDivRemTests: XCTestCase {
         continue
       }
 
-      // We don't know the exact values, just check that it did not crash
-      // (and trust me, overflow is strong with this one).
-      _ = bigger / smol
-      _ = bigger % smol
-      _ = bigger.quotientAndRemainder(dividingBy: smol)
+      // We don't know the exact values, but we still can do some tests.
+      let quotient: Int? = nil
+      let remainder: Int? = nil
+      assertDiv(bigger, smol, quotient: quotient, remainder: remainder)
     }
   }
 
