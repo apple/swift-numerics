@@ -17,9 +17,12 @@ class TrailingZeroBitCountTests: XCTestCase {
   // There is an edge case for '0':
   // - 'int' is finite, so they can return 'bitWidth'
   // - 'BigInt' is infinite, but we can't return this
+  //
+  // So, trailingZeroBitCount is equal to bitWidth, see:
+  // https://developer.apple.com/documentation/swift/binaryinteger/trailingzerobitcount
   func test_zero() {
     let zero = BigInt(0)
-    XCTAssertEqual(zero.trailingZeroBitCount, 0)
+    XCTAssertEqual(zero.trailingZeroBitCount, 1)
   }
 
   func test_int() {
