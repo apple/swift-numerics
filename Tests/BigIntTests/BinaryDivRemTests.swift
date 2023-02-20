@@ -65,11 +65,23 @@ private func assertDiv<Q: SignedInteger, R: SignedInteger>(_ lhs: BigInt,
   // In Python: |-2*4| <= |-5| -> 8 <= 5 -> FALSE
   // In Swift:  |-1*4| <= |-5| -> 4 <= 5 -> TRUE
   let qRhs = q * rhs
-  XCTAssertLessThanOrEqual(qRhs.magnitude, lhs.magnitude, "[\(lhs)/\(rhs)] Round toward 0", file: file, line: line)
+  XCTAssertLessThanOrEqual(qRhs.magnitude,
+                           lhs.magnitude,
+                           "[\(lhs)/\(rhs)] Round toward 0",
+                           file: file,
+                           line: line)
 
   let (qq, rr) = lhs.quotientAndRemainder(dividingBy: rhs)
-  XCTAssertEqual(qq, q, "[\(lhs)/\(rhs)] quotientAndRemainder-Quotient", file: file, line: line)
-  XCTAssertEqual(rr, r, "[\(lhs)/\(rhs)] quotientAndRemainder-Remainder", file: file, line: line)
+  XCTAssertEqual(qq,
+                 q,
+                 "[\(lhs)/\(rhs)] quotientAndRemainder-Quotient",
+                 file: file,
+                 line: line)
+  XCTAssertEqual(rr,
+                 r,
+                 "[\(lhs)/\(rhs)] quotientAndRemainder-Remainder",
+                 file: file,
+                 line: line)
 }
 
 class BinaryDivRemTests: XCTestCase {
