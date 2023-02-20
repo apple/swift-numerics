@@ -12,6 +12,10 @@
 import XCTest
 @testable import BigIntModule
 
+// swiftlint:disable type_name
+// swiftlint:disable function_body_length
+// swiftlint:disable file_length
+
 private typealias Word = BigInt.Word
 
 // MARK: - Test case
@@ -56,6 +60,7 @@ private struct TestCase {
   }
 }
 
+// swiftlint:disable:next discouraged_optional_collection function_default_parameter_at_end
 private func createTestCases(_ op: TestCase.Operation,
                              useBigNumbers: Bool = true,
                              file: StaticString,
@@ -142,14 +147,21 @@ class ApplyA_ApplyB_Equals_ApplyAB: XCTestCase {
       inoutA_B += testCase.a
       inoutA_B += testCase.b
 
+      XCTAssertEqual(
+        inoutA_B,
+        ab,
+        "\(value) += \(testCase.a) += \(testCase.b) vs \(value) + \(testCase.ab)",
+        file: file,
+        line: line
+      )
+
       var inoutAB = value
       inoutAB += testCase.ab
-      assert(inoutAB == ab)
 
       XCTAssertEqual(
         inoutA_B,
-        inoutAB,
-        "inout: \(value) + \(testCase.a) + \(testCase.b) vs \(value) + \(testCase.ab)",
+        ab,
+        "\(value) += \(testCase.ab) vs \(value) + \(testCase.ab)",
         file: file,
         line: line
       )
@@ -196,14 +208,21 @@ class ApplyA_ApplyB_Equals_ApplyAB: XCTestCase {
       inoutA_B -= testCase.a
       inoutA_B -= testCase.b
 
+      XCTAssertEqual(
+        inoutA_B,
+        ab,
+        "\(value) -= \(testCase.a) -= \(testCase.b) vs \(value) - \(testCase.ab)",
+        file: file,
+        line: line
+      )
+
       var inoutAB = value
       inoutAB -= testCase.ab
-      assert(inoutAB == ab)
 
       XCTAssertEqual(
         inoutA_B,
-        inoutAB,
-        "inout: \(value) - \(testCase.a) - \(testCase.b) vs \(value) - \(testCase.ab)",
+        ab,
+        "\(value) -= \(testCase.ab) vs \(value) - \(testCase.ab)",
         file: file,
         line: line
       )
@@ -252,14 +271,21 @@ class ApplyA_ApplyB_Equals_ApplyAB: XCTestCase {
       inoutA_B *= testCase.a
       inoutA_B *= testCase.b
 
-      var inoutAB = value
-      inoutAB *= testCase.ab
-      assert(inoutAB == ab)
-
       XCTAssertEqual(
         inoutA_B,
+        ab,
+        "\(value) *= \(testCase.a) *= \(testCase.b) vs \(value) * \(testCase.ab)",
+        file: file,
+        line: line
+      )
+
+      var inoutAB = value
+      inoutAB *= testCase.ab
+
+      XCTAssertEqual(
         inoutAB,
-        "inout: \(value) * \(testCase.a) * \(testCase.b) vs \(value) * \(testCase.ab)",
+        ab,
+        "\(value) *= \(testCase.ab) vs \(value) * \(testCase.ab)",
         file: file,
         line: line
       )
@@ -308,14 +334,21 @@ class ApplyA_ApplyB_Equals_ApplyAB: XCTestCase {
       inoutA_B /= testCase.a
       inoutA_B /= testCase.b
 
+      XCTAssertEqual(
+        inoutA_B,
+        ab,
+        "\(value) /= \(testCase.a) /= \(testCase.b) vs \(value) / \(testCase.ab)",
+        file: file,
+        line: line
+      )
+
       var inoutAB = value
       inoutAB /= testCase.ab
-      assert(inoutAB == ab)
 
       XCTAssertEqual(
         inoutA_B,
-        inoutAB,
-        "inout: \(value) / \(testCase.a) / \(testCase.b) vs \(value) / \(testCase.ab)",
+        ab,
+        "\(value) /= \(testCase.ab) vs \(value) / \(testCase.ab)",
         file: file,
         line: line
       )
@@ -368,14 +401,21 @@ class ApplyA_ApplyB_Equals_ApplyAB: XCTestCase {
       inoutA_B <<= testCase.a
       inoutA_B <<= testCase.b
 
+      XCTAssertEqual(
+        inoutA_B,
+        ab,
+        "(\(value) <<= \(testCase.a)) <<= \(testCase.b) vs \(value) << \(testCase.ab)",
+        file: file,
+        line: line
+      )
+
       var inoutAB = value
       inoutAB <<= testCase.ab
-      assert(inoutAB == ab)
 
       XCTAssertEqual(
         inoutA_B,
-        inoutAB,
-        "inout: (\(value) << \(testCase.a)) << \(testCase.b) vs \(value) << \(testCase.ab)",
+        ab,
+        "\(value) <<= \(testCase.ab) vs \(value) << \(testCase.ab)",
         file: file,
         line: line
       )
@@ -431,14 +471,21 @@ class ApplyA_ApplyB_Equals_ApplyAB: XCTestCase {
       inoutA_B >>= testCase.a
       inoutA_B >>= testCase.b
 
+      XCTAssertEqual(
+        inoutA_B,
+        ab,
+        "(\(value) >>= \(testCase.a)) >>= \(testCase.b) vs \(value) >> \(testCase.ab)",
+        file: file,
+        line: line
+      )
+
       var inoutAB = value
       inoutAB >>= testCase.ab
-      assert(inoutAB == ab)
 
       XCTAssertEqual(
         inoutA_B,
-        inoutAB,
-        "inout: (\(value) >> \(testCase.a)) >> \(testCase.b) vs \(value) >> \(testCase.ab)",
+        ab,
+        "\(value) >>= \(testCase.ab) vs \(value) >> \(testCase.ab)",
         file: file,
         line: line
       )

@@ -12,6 +12,8 @@
 import XCTest
 @testable import BigIntModule
 
+// swiftlint:disable type_name
+
 private typealias Word = BigInt.Word
 
 /// Operations for which exists 'reverse' operation that undoes its effect.
