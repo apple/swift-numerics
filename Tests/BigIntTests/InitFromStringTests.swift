@@ -12,6 +12,10 @@
 import XCTest
 @testable import BigIntModule
 
+// swiftlint:disable line_length
+// swiftlint:disable function_body_length
+// swiftlint:disable file_length
+
 private typealias TestSuite = StringTestCases.TestSuite
 private typealias TestCase = StringTestCases.TestCase
 private typealias BinaryTestCases = StringTestCases.Binary
@@ -76,11 +80,18 @@ class InitFromStringTests: XCTestCase {
 
   func test_zero_multiple() {
     let zero = BigInt()
-    let input = String(repeating: "0", count: 42)
 
-    for radix in [2, 4, 7, 32] {
-      let n = self.create(string: input, radix: radix)
-      XCTAssertEqual(n, zero)
+    for count in [42, 1_000] {
+      let plusString = String(repeating: "0", count: count)
+      let minusString = "-" + plusString
+
+      for radix in [2, 4, 7, 32] {
+        let plus = self.create(string: plusString, radix: radix)
+        XCTAssertEqual(plus, zero, "Count: \(count), radix: \(radix)")
+
+        let minus = self.create(string: minusString, radix: radix)
+        XCTAssertEqual(minus, zero, "Count: \(count), radix: \(radix)")
+      }
     }
   }
 
