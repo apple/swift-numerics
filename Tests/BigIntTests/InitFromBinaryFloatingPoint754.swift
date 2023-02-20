@@ -13,6 +13,11 @@ import XCTest
 import Foundation
 @testable import BigIntModule
 
+// swiftlint:disable xctfail_message
+// swiftlint:disable function_default_parameter_at_end
+// swiftlint:disable line_length
+// swiftlint:disable file_length
+
 // MARK: - Assertions
 
 /// BigInt(🐰)
@@ -214,34 +219,28 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
 
   // MARK: - Normal
 
-  struct PredefinedTestCase<T: BinaryFloatingPoint> {
-    let name: String
-    let value: T
-    let expected: BigInt
-    let exactly: BigInt?
-  }
-
+  // swiftlint:disable:next function_body_length
   func test_predefinedCases() {
-    typealias TC = PredefinedTestCase
-
     func test<T: BinaryFloatingPoint>(type: T.Type,
                                       file: StaticString = #file,
                                       line: UInt = #line) {
+      typealias Test = (name: String, value: T, expected: BigInt, exactly: BigInt?)
+
       let gfmUnpack = Unpack(T.greatestFiniteMagnitude)
       assert(gfmUnpack.isInteger)
       let gfm = gfmUnpack.whole
 
       let testCases = [
-        TC(name: "+π", value: +T.pi, expected: +3, exactly: nil),
-        TC(name: "-π", value: -T.pi, expected: -3, exactly: nil),
-        TC(name: "+ulpOfOne", value: +T.ulpOfOne, expected: 0, exactly: nil),
-        TC(name: "-ulpOfOne", value: -T.ulpOfOne, expected: 0, exactly: nil),
-        TC(name: "+leastNonzeroMagnitude", value: +T.leastNonzeroMagnitude, expected: 0, exactly: nil),
-        TC(name: "-leastNonzeroMagnitude", value: -T.leastNonzeroMagnitude, expected: 0, exactly: nil),
-        TC(name: "+leastNormalMagnitude", value: +T.leastNormalMagnitude, expected: 0, exactly: nil),
-        TC(name: "-leastNormalMagnitude", value: -T.leastNormalMagnitude, expected: 0, exactly: nil),
-        TC(name: "+greatestFiniteMagnitude", value: +T.greatestFiniteMagnitude, expected: +gfm, exactly: +gfm),
-        TC(name: "-greatestFiniteMagnitude", value: -T.greatestFiniteMagnitude, expected: -gfm, exactly: -gfm),
+        Test(name: "+π", value: +T.pi, expected: +3, exactly: nil),
+        Test(name: "-π", value: -T.pi, expected: -3, exactly: nil),
+        Test(name: "+ulpOfOne", value: +T.ulpOfOne, expected: 0, exactly: nil),
+        Test(name: "-ulpOfOne", value: -T.ulpOfOne, expected: 0, exactly: nil),
+        Test(name: "+leastNonzeroMagnitude", value: +T.leastNonzeroMagnitude, expected: 0, exactly: nil),
+        Test(name: "-leastNonzeroMagnitude", value: -T.leastNonzeroMagnitude, expected: 0, exactly: nil),
+        Test(name: "+leastNormalMagnitude", value: +T.leastNormalMagnitude, expected: 0, exactly: nil),
+        Test(name: "-leastNormalMagnitude", value: -T.leastNormalMagnitude, expected: 0, exactly: nil),
+        Test(name: "+greatestFiniteMagnitude", value: +T.greatestFiniteMagnitude, expected: +gfm, exactly: +gfm),
+        Test(name: "-greatestFiniteMagnitude", value: -T.greatestFiniteMagnitude, expected: -gfm, exactly: -gfm)
       ]
 
       for testCase in testCases {
@@ -345,12 +344,14 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
     }
 
     private static func pow<T: BinaryFloatingPoint>(_ d: T, _ p: T) -> T {
-      if (T.self == Float.self) { return Foundation.pow(d as! Float, p as! Float) as! T }
-      if (T.self == Double.self) { return Foundation.pow(d as! Double, p as! Double) as! T }
+      // swiftlint:disable force_cast
+      if T.self == Float.self { return Foundation.pow(d as! Float, p as! Float) as! T }
+      if T.self == Double.self { return Foundation.pow(d as! Double, p as! Double) as! T }
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
-      if (T.self == Float80.self) { return Foundation.pow(d as! Float80, p as! Float80) as! T }
+      if T.self == Float80.self { return Foundation.pow(d as! Float80, p as! Float80) as! T }
 #endif
       fatalError("You used 'pow' on \(T.self). It is not very effective.")
+      // swiftlint:enable force_cast
     }
 
     func makeIterator() -> AnyIterator<T> {
@@ -425,6 +426,7 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
   /// Please read IEEE_754_SPACING_NOTE above.
   struct SampleExactlyRepresentableIntegers<T: BinaryFloatingPoint>: Sequence {
 
+    // swiftlint:disable:next nesting
     struct Element {
       private let n: BigInt
       private let d: T
@@ -607,7 +609,7 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
   }
 
   private func create(_ s: String, radix: Int) -> BigInt? {
-    return BigInt(s, radix: radix)
+    return try? BigInt(s, radix: radix)
   }
 
   /// Spacing test where 'T.next[Up/Down]' moves to next integer.
