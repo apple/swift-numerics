@@ -43,6 +43,50 @@ def print_to_string_tests():
 ''')
 
 
+def print_equatable_tests():
+    print(f'''
+  // MARK: - Equatable
+
+  func test_equatable_int() {{
+    self.measure(metrics: metrics, options: options) {{
+      for (int, big) in equatableComparableValues.intBig {{
+        _ = big == int
+      }}
+    }}
+  }}
+
+  func test_equatable_big() {{
+    self.measure(metrics: metrics, options: options) {{
+      for (lhs, rhs) in equatableComparableValues.bigBig {{
+        _ = lhs == rhs
+      }}
+    }}
+  }}\
+''')
+
+
+def print_comparable_tests():
+    print(f'''
+  // MARK: - Comparable
+
+  func test_comparable_int() {{
+    self.measure(metrics: metrics, options: options) {{
+      for (int, big) in equatableComparableValues.intBig {{
+        _ = big < int
+      }}
+    }}
+  }}
+
+  func test_comparable_big() {{
+    self.measure(metrics: metrics, options: options) {{
+      for (lhs, rhs) in equatableComparableValues.bigBig {{
+        _ = lhs < rhs
+      }}
+    }}
+  }}\
+''')
+
+
 def print_unary_tests(name: str, operator: str):
     name_lower = name.lower()
     print(f'''
@@ -164,6 +208,70 @@ def print_shift_tests(direction: str, operator: str):
 ''')
 
 
+def print_pi_tests():
+
+    print()
+    print('  // MARK: - π')
+
+    for n in (500, 1_000, 5_000):
+        print(f'''
+  func test_pi_{n}() {{
+    self.measure(metrics: metrics, options: options) {{
+      self.π(count: {n})
+    }}
+  }}\
+''')
+
+    print('''
+  // Adapted from:
+  // https://github.com/apple/swift-numerics/pull/120 by Xiaodi Wu (xwu)
+  func π(count: Int) {
+    var acc: BigInt = 0
+    var num: BigInt = 1
+    var den: BigInt = 1
+
+    func extractDigit(_ n: UInt) -> UInt {
+      var tmp = num * BigInt(n)
+      tmp += acc
+      tmp /= den
+      return tmp.words[0]
+    }
+
+    func eliminateDigit(_ d: UInt) {
+      acc -= den * BigInt(d)
+      acc *= 10
+      num *= 10
+    }
+
+    func nextTerm(_ k: UInt) {
+      let k2 = BigInt(k * 2 + 1)
+      acc += num * 2
+      acc *= k2
+      den *= k2
+      num *= BigInt(k)
+    }
+
+    var i = 0
+    var k = 0 as UInt
+    var string = ""
+    while i < count {
+      k += 1
+      nextTerm(k)
+      if num > acc { continue }
+      let d = extractDigit(3)
+      if d != extractDigit(4) { continue }
+      string.append("\(d)")
+      i += 1
+      if i.isMultiple(of: 10) {
+        print("\(string)\\t:\(i)")
+        string = ""
+      }
+      eliminateDigit(d)
+    }
+  }\
+''')
+
+
 def main():
     print(f'''\
 //===--- PerformanceTests.generated.swift ---------------------*- swift -*-===//
@@ -198,6 +306,9 @@ private struct TestValues {{
     return CartesianProduct(self.big, self.big)
   }}
 
+  /// Please note that the 'count' parameter is ultra approximate.
+  /// The actual count of the generated numbers is different
+  /// (but not too far from `count`).
   fileprivate init(count: Int) {{
     self.int = generateInts(approximateCount: count).map(BigInt.init)
     self.big = generateBigInts(approximateCount: count, maxWordCount: maxWordCount).map {{ $0.create() }}
@@ -206,7 +317,8 @@ private struct TestValues {{
 
 private let maxWordCount = 100 // Word = UInt64
 private let stringValues = TestValues(count: 200)
-private let unaryValues = TestValues(count: 50_000)
+private let equatableComparableValues = TestValues(count: 1000)
+private let unaryValues = TestValues(count: 30_000)
 private let addSubValues = TestValues(count: 200)
 private let mulDivValues = TestValues(count: 100)
 private let andOrXorValues = TestValues(count: 200)
@@ -251,6 +363,9 @@ class PerformanceTests: XCTestCase {{\
     print_string_parse_tests()
     print_to_string_tests()
 
+    print_equatable_tests()
+    print_comparable_tests()
+
     print_unary_tests('Plus', '+')
     print_unary_tests('Minus', '-')
     print_unary_tests('Invert', '~')
@@ -266,6 +381,8 @@ class PerformanceTests: XCTestCase {{\
 
     print_shift_tests('Left', '<<')
     print_shift_tests('Right', '>>')
+
+    print_pi_tests()
 
     print('}')
     print()
