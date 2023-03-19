@@ -14,7 +14,14 @@
 //===----------------------------------------------------------------------===//
 
 import XCTest
+import Foundation
 @testable import BigIntModule
+
+// swiftlint:disable line_length
+// swiftlint:disable file_length
+// swiftlint:disable function_body_length
+// swiftlint:disable force_unwrapping
+// swiftlint:disable convenience_type
 
 #if PERFORMANCE_TEST
 
@@ -34,15 +41,15 @@ private struct TestValues {
   /// The actual count of the generated numbers is different
   /// (but not too far from `count`).
   fileprivate init(count: Int) {
-    self.int = generateInts(approximateCount: count).map(BigInt.init)
+    self.int = generateInts(approximateCount: count).map { BigInt($0) }
     self.big = generateBigInts(approximateCount: count, maxWordCount: maxWordCount).map { $0.create() }
   }
 }
 
 private let maxWordCount = 100 // Word = UInt64
-private let stringValues = TestValues(count: 200)
+private let stringValues = TestValues(count: 1000)
 private let equatableComparableValues = TestValues(count: 1000)
-private let unaryValues = TestValues(count: 30_000)
+private let unaryValues = TestValues(count: 100_000)
 private let addSubValues = TestValues(count: 200)
 private let mulDivValues = TestValues(count: 100)
 private let andOrXorValues = TestValues(count: 200)
@@ -53,6 +60,36 @@ private let metrics: [XCTMetric] = [XCTClockMetric()] // XCTMemoryMetric()?
 private let options = XCTMeasureOptions.default
 
 #if os(Linux)
+#if swift(<5.7)
+#if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+private typealias Duration = Float80
+#else
+private typealias Duration = Double
+#endif
+
+extension Duration {
+  fileprivate static func seconds(_ n: Int) -> Duration {
+    return Duration(exactly: n)!
+  }
+
+  fileprivate static func / (lhs: Duration, rhs: Int) -> Duration {
+    let r = Duration(exactly: rhs)!
+    return lhs / r
+  }
+}
+
+private struct ContinuousClock {
+  fileprivate func measure(_ fn: () -> Void) -> Duration {
+    let start = DispatchTime.now()
+    fn()
+    let end = DispatchTime.now()
+    let nano = end.uptimeNanoseconds - start.uptimeNanoseconds
+    let nanoDuration = Duration(exactly: nano)!
+    return nanoDuration / 1_000_000_000.0
+  }
+}
+#endif // #if swift(<5.7)
+
 private class XCTMetric {}
 private class XCTClockMetric: XCTMetric {}
 
@@ -61,7 +98,11 @@ private struct XCTMeasureOptions {
 }
 
 extension XCTestCase {
-  fileprivate func measure(metrics: [XCTMetric], options: XCTMeasureOptions, fn: () -> ()) {
+  fileprivate func measure(
+    metrics: [XCTMetric],
+    options: XCTMeasureOptions,
+    fn: () -> Void
+  ) {
     // Create static values, fill cache, etc.
     fn()
 
@@ -85,6 +126,16 @@ class PerformanceTests: XCTestCase {
 
   // MARK: - From String
 
+  func test_string_fromRadix8() {
+    let strings = stringValues.big.map { String($0, radix: 8, uppercase: false) }
+
+    self.measure(metrics: metrics, options: options) {
+      for s in strings {
+        _ = BigInt(s, radix: 8)
+      }
+    }
+  }
+
   func test_string_fromRadix10() {
     let strings = stringValues.big.map { String($0, radix: 10, uppercase: false) }
 
@@ -106,6 +157,14 @@ class PerformanceTests: XCTestCase {
   }
 
   // MARK: - To string
+
+  func test_string_toRadix8() {
+    self.measure(metrics: metrics, options: options) {
+      for n in stringValues.big {
+        _ = String(n, radix: 8, uppercase: false)
+      }
+    }
+  }
 
   func test_string_toRadix10() {
     self.measure(metrics: metrics, options: options) {
