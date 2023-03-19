@@ -72,7 +72,7 @@ private let signs: [FloatingPointSign] = [.plus, .minus]
 /// Based on 'IEEE-754 2008 Floating point specification'.
 /// Binary part; no decimals; no TensorFloat-32; no unums/posits.
 /// 2019 is also available, but I'm poor… 🤷.
-final class InitFromBinaryFloatingPoint754: XCTestCase {
+final class InitFromBinaryFloatingPoint754Tests: XCTestCase {
 
   // MARK: - Zero, infinity, Batman, subnormal
 
@@ -469,15 +469,15 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
 
       // Powers of 2 are exactly representable in 'T' (up to some point).
       self.lowerBound = BigInt(1) << exponent
-      self.upperBound = lowerBound << 1
+      self.upperBound = self.lowerBound << 1
 
       // Below we do: ((range / spacing) / count) * spacing.
       // You may be tempted to remove 'spacing' from this equation (/ then *),
       // but remember that in integer arithmetic '(n/a)*a' does not always give 'n'!
-      let totalSpacesCount = (self.upperBound - self.lowerBound) / spacing
+      let totalSpacesCount = (self.upperBound - self.lowerBound) / self.spacing
       let sampleIntervalInSpaces = totalSpacesCount / count
       assert(sampleIntervalInSpaces != 0, "Got \(totalSpacesCount) values, requested \(count) count")
-      self.sampleInterval = sampleIntervalInSpaces * spacing
+      self.sampleInterval = sampleIntervalInSpaces * self.spacing
     }
 
     func makeIterator() -> AnyIterator<Element> {
@@ -506,18 +506,18 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
     // In '2**T.significandBitCount' range using 'd.next' to go away from 0
     // will increment integer by 1.
 
-    spacingWhereNextGoesUpByInteger(type: Float.self,
-                                    exponent: Float.significandBitCount,
-                                    spacing: 1)
+    self.spacingWhereNextGoesUpByInteger(type: Float.self,
+                                         exponent: Float.significandBitCount,
+                                         spacing: 1)
 
-    spacingWhereNextGoesUpByInteger(type: Double.self,
-                                    exponent: Double.significandBitCount,
-                                    spacing: 1)
+    self.spacingWhereNextGoesUpByInteger(type: Double.self,
+                                         exponent: Double.significandBitCount,
+                                         spacing: 1)
 
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
-    spacingWhereNextGoesUpByInteger(type: Float80.self,
-                                    exponent: Float80.significandBitCount,
-                                    spacing: 1)
+    self.spacingWhereNextGoesUpByInteger(type: Float80.self,
+                                         exponent: Float80.significandBitCount,
+                                         spacing: 1)
 #endif
   }
 
@@ -526,18 +526,18 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
     // In '2**(T.significandBitCount+1)' range using 'd.next' to go away from 0
     // will increment integer by 2.
 
-    spacingWhereNextGoesUpByInteger(type: Float.self,
-                                    exponent: Float.significandBitCount + 1,
-                                    spacing: 2)
+    self.spacingWhereNextGoesUpByInteger(type: Float.self,
+                                         exponent: Float.significandBitCount + 1,
+                                         spacing: 2)
 
-    spacingWhereNextGoesUpByInteger(type: Double.self,
-                                    exponent: Double.significandBitCount + 1,
-                                    spacing: 2)
+    self.spacingWhereNextGoesUpByInteger(type: Double.self,
+                                         exponent: Double.significandBitCount + 1,
+                                         spacing: 2)
 
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
-    spacingWhereNextGoesUpByInteger(type: Float80.self,
-                                    exponent: Float80.significandBitCount + 1,
-                                    spacing: 2)
+    self.spacingWhereNextGoesUpByInteger(type: Float80.self,
+                                         exponent: Float80.significandBitCount + 1,
+                                         spacing: 2)
 #endif
   }
 
@@ -546,18 +546,18 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
     // In '2**(T.significandBitCount+2)' range using 'd.next' to go away from 0
     // will increment integer by 4.
 
-    spacingWhereNextGoesUpByInteger(type: Float.self,
-                                    exponent: Float.significandBitCount + 2,
-                                    spacing: 4)
+    self.spacingWhereNextGoesUpByInteger(type: Float.self,
+                                         exponent: Float.significandBitCount + 2,
+                                         spacing: 4)
 
-    spacingWhereNextGoesUpByInteger(type: Double.self,
-                                    exponent: Double.significandBitCount + 2,
-                                    spacing: 4)
+    self.spacingWhereNextGoesUpByInteger(type: Double.self,
+                                         exponent: Double.significandBitCount + 2,
+                                         spacing: 4)
 
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
-    spacingWhereNextGoesUpByInteger(type: Float80.self,
-                                    exponent: Float80.significandBitCount + 2,
-                                    spacing: 4)
+    self.spacingWhereNextGoesUpByInteger(type: Float80.self,
+                                         exponent: Float80.significandBitCount + 2,
+                                         spacing: 4)
 #endif
   }
 
@@ -573,7 +573,7 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
       return
     }
 
-    spacingWhereNextGoesUpByInteger(
+    self.spacingWhereNextGoesUpByInteger(
       type: Float.self,
       exponent: Float.greatestFiniteMagnitude.exponent - 1,
       spacing: floatSpacing
@@ -585,7 +585,7 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
       return
     }
 
-    spacingWhereNextGoesUpByInteger(
+    self.spacingWhereNextGoesUpByInteger(
       type: Double.self,
       exponent: Double.greatestFiniteMagnitude.exponent - 1,
       spacing: doubleSpacing
@@ -600,7 +600,7 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
       return
     }
 
-    spacingWhereNextGoesUpByInteger(
+    self.spacingWhereNextGoesUpByInteger(
       type: Float80.self,
       exponent: Float80.greatestFiniteMagnitude.exponent - 1,
       spacing: float80Spacing
@@ -609,7 +609,7 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
   }
 
   private func create(_ s: String, radix: Int) -> BigInt? {
-    return try? BigInt(s, radix: radix)
+    return BigInt(s, radix: radix)
   }
 
   /// Spacing test where 'T.next[Up/Down]' moves to next integer.
@@ -665,15 +665,15 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
     // In '2**(T.significandBitCount-1)' range using 'd.next' to go away from 0
     // will increment integer by 0.5.
 
-    spacingWhereNextGoesUpByFraction(type: Float.self,
-                                     exponent: Float.significandBitCount - 1)
+    self.spacingWhereNextGoesUpByFraction(type: Float.self,
+                                          exponent: Float.significandBitCount - 1)
 
-    spacingWhereNextGoesUpByFraction(type: Double.self,
-                                     exponent: Double.significandBitCount - 1)
+    self.spacingWhereNextGoesUpByFraction(type: Double.self,
+                                          exponent: Double.significandBitCount - 1)
 
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
-    spacingWhereNextGoesUpByFraction(type: Float80.self,
-                                     exponent: Float80.significandBitCount - 1)
+    self.spacingWhereNextGoesUpByFraction(type: Float80.self,
+                                          exponent: Float80.significandBitCount - 1)
 #endif
   }
 
@@ -682,15 +682,15 @@ final class InitFromBinaryFloatingPoint754: XCTestCase {
     // In '2**(T.significandBitCount-2)' range using 'd.next' to go away from 0
     // will increment integer by 0.25.
 
-    spacingWhereNextGoesUpByFraction(type: Float.self,
-                                     exponent: Float.significandBitCount - 2)
+    self.spacingWhereNextGoesUpByFraction(type: Float.self,
+                                          exponent: Float.significandBitCount - 2)
 
-    spacingWhereNextGoesUpByFraction(type: Double.self,
-                                     exponent: Double.significandBitCount - 2)
+    self.spacingWhereNextGoesUpByFraction(type: Double.self,
+                                          exponent: Double.significandBitCount - 2)
 
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
-    spacingWhereNextGoesUpByFraction(type: Float80.self,
-                                     exponent: Float80.significandBitCount - 2)
+    self.spacingWhereNextGoesUpByFraction(type: Float80.self,
+                                          exponent: Float80.significandBitCount - 2)
 #endif
   }
 
