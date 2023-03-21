@@ -294,7 +294,7 @@ def main():
 
 import XCTest
 import Foundation
-@testable import BigInt
+@testable import BigIntModule
 
 // swiftlint:disable line_length
 // swiftlint:disable file_length
