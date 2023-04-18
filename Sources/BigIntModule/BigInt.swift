@@ -30,11 +30,11 @@ public struct BigInt: SignedInteger {
     words[words.endIndex - 1] > Int.max
   }
 
-  private static let _digits: [BigInt] = (0 ... 36).map {
-    BigInt(_uncheckedWords: [UInt(bitPattern: $0)])
-  }
+//  private static let _digits: [BigInt] = (0 ... 36).map {
+//    BigInt(_uncheckedWords: [UInt(bitPattern: $0)])
+//  }
   
-  private static let _digitRadix = BigInt(_uncheckedWords: [0, 1])
+  // private static let _digitRadix = BigInt(_uncheckedWords: [0, 1])
 }
 
 // MARK: - Basic Behaviors
@@ -96,39 +96,108 @@ extension BigInt: LosslessStringConvertible {
   public init?(_ description: String) {
     self.init(description, radix: 10)
   }
+  
+  
+  ////////////////////////////////////////////////////////////////////////////
+  ///
+  ///  NEW CODE STARTS
 
+  private static func _pow(_ lhs: UInt, _ rhs: UInt) -> UInt {
+    // guard rhs>=0 else { return 0 } /* lhs ** (-rhs) = 0 */
+    var lexp = rhs
+    var x = lhs
+    var y = UInt(1)
+    while lexp > 0 {
+        if !lexp.isMultiple(of: 2) { y*=x }
+        lexp >>= 1
+        if lexp > 0 { x=x*x } // could be 2X faster with squared function
+    }
+    return y
+  }
+
+  private func _maxDigits(forRadix radix:Int) -> Int {
+    switch radix {
+      case 2:  return 62
+      case 8:  return 20
+      case 10: return 18
+      case 16: return 14
+      default: return 11  // safe but not optimal for other radices
+    }
+  }
+
+  ///  Speeds the time to initialize a BigInt by about a factor of 16 for
+  ///  the test case of the string for 512! using radix 10. A radix 36 test
+  ///  was 10X faster. BTW, the factorial test code was sped up by almost 2
+  ///  times (the string to number code accounted for a large part of the
+  ///  total time).
   public init?<T>(_ description: T, radix: Int = 10) where T: StringProtocol {
     precondition(2 ... 36 ~= radix, "Radix not in range 2 ... 36")
 
     self = 0
-
     let isNegative = description.hasPrefix("-")
     let hasPrefix = isNegative || description.hasPrefix("+")
-    let utf8 = description.utf8.dropFirst(hasPrefix ? 1 : 0)
-    guard !utf8.isEmpty else { return nil }
+    var str = description.dropFirst(hasPrefix ? 1 : 0)
+    guard !str.isEmpty else { return nil }
 
-    for var byte in utf8 {
-      switch byte {
-      case UInt8(ascii: "0") ... UInt8(ascii: "9"):
-        byte -= UInt8(ascii: "0")
-      case UInt8(ascii: "A") ... UInt8(ascii: "Z"):
-        byte -= UInt8(ascii: "A")
-        byte += 10
-      case UInt8(ascii: "a") ... UInt8(ascii: "z"):
-        byte -= UInt8(ascii: "a")
-        byte += 10
-      default:
+    /// Main speed-up is due to converting chunks of string via
+    /// the Int64() initializer instead of a character at a time.
+    /// We also get free radix digit checks.
+    let maxDigits = _maxDigits(forRadix: radix)
+    while !str.isEmpty {
+      let block = str.prefix(maxDigits)
+      let size = block.count
+      str.removeFirst(size)
+      if let word = UInt(block, radix: radix) {
+          self *= BigInt(Self._pow(UInt(radix), UInt(size)))
+          self += BigInt(word)
+      } else {
         return nil
       }
-      guard byte < radix else { return nil }
-      self *= BigInt._digits[radix]
-      self += BigInt._digits[Int(byte)]
     }
 
     if isNegative {
       self.negate()
     }
   }
+  
+  /// NEW CODE ENDS
+  ///
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  
+//// Original code
+//  public init?<T>(_ description: T, radix: Int = 10) where T: StringProtocol {
+//    precondition(2 ... 36 ~= radix, "Radix not in range 2 ... 36")
+//
+//    self = 0
+//
+//    let isNegative = description.hasPrefix("-")
+//    let hasPrefix = isNegative || description.hasPrefix("+")
+//    let utf8 = description.utf8.dropFirst(hasPrefix ? 1 : 0)
+//    guard !utf8.isEmpty else { return nil }
+//
+//    for var byte in utf8 {
+//      switch byte {
+//      case UInt8(ascii: "0") ... UInt8(ascii: "9"):
+//        byte -= UInt8(ascii: "0")
+//      case UInt8(ascii: "A") ... UInt8(ascii: "Z"):
+//        byte -= UInt8(ascii: "A")
+//        byte += 10
+//      case UInt8(ascii: "a") ... UInt8(ascii: "z"):
+//        byte -= UInt8(ascii: "a")
+//        byte += 10
+//      default:
+//        return nil
+//      }
+//      guard byte < radix else { return nil }
+//      self *= BigInt._digits[radix]
+//      self += BigInt._digits[Int(byte)]
+//    }
+//
+//    if isNegative {
+//      self.negate()
+//    }
+//  }
 }
 
 extension BigInt: Decodable {
@@ -158,8 +227,8 @@ extension BigInt: Encodable {
 extension BigInt: ExpressibleByIntegerLiteral {
 
   public init(integerLiteral value: Int) {
-    if value >= 0, value < BigInt._digits.count {
-      self = BigInt._digits[value]
+    if value >= 0, value <= UInt.max {
+      words = [UInt(value)]  // No need for a table lookup here
     } else {
       words = [UInt(bitPattern: value)]
     }
@@ -372,8 +441,8 @@ extension BigInt: BinaryInteger {
   }
 
   public init<T>(_ source: T) where T: BinaryInteger {
-    if source >= 0, source < BigInt._digits.count {
-      self = BigInt._digits[Int(source)]
+    if source >= 0, source < UInt.max {
+      words = [UInt(source)]  // no need for _digits
     } else {
       words = Words(source.words)
       if source > 0 && source.words[source.words.endIndex - 1] > Int.max {
@@ -464,7 +533,7 @@ extension BigInt: BinaryInteger {
     BigInt._signExtend(lhsWords: &lhs.words, rhsWords: &rhsWords)
 
     for i in 0 ..< rhsWords.count {
-      lhs.words[i] &= rhsWords[i]
+      lhs.words[i] ^= rhsWords[i]
     }
 
     BigInt._dropExcessWords(words: &lhs.words)
@@ -634,7 +703,7 @@ extension BigInt {
   /// See _The Art of Computer Programming_ volume 2 by Donald Knuth, Section 4.3.1: The Classical Algorithms
   @usableFromInline
   internal static func _div(lhs: BigInt, rhs: BigInt) -> (quotient: BigInt, remainder: BigInt) {
-    precondition(rhs != _digits[0], "Division by zero error!")
+    precondition(rhs != 0, "Division by zero error!")
 
     if lhs.words.count == 1, rhs.words.count == 1 {
       let (quot, rem) = Int(bitPattern: lhs.words[0]).quotientAndRemainder(dividingBy: Int(bitPattern: rhs.words[0]))
