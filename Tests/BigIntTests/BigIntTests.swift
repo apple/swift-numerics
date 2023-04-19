@@ -116,6 +116,19 @@ final class BigIntTests: XCTestCase {
   // MARK: - Basic arithmetic
 
   func testDivision() {
+    // Signed division test
+    let numa = BigInt("-18446744073709551616")!
+    let dena = BigInt(123)
+    let expecteda = BigInt(Int64(-149973529054549200))
+    XCTAssertEqual(numa / dena, expecteda)
+    
+    let numb = BigInt("18446744073709551616")!
+    let denb = BigInt(-123)
+    XCTAssertEqual(numb / denb, expecteda)
+    let expectedb = BigInt(Int64(149973529054549200))
+    XCTAssertEqual(numa / denb, expectedb)
+    
+    // Previous test cases
     let num1 = BigInt("18446744073709551616")!
     let den1 = BigInt(123)
     let expected1 = BigInt(UInt64(149973529054549200))

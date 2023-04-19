@@ -29,12 +29,6 @@ public struct BigInt: SignedInteger {
   internal var _isNegative: Bool {
     words[words.endIndex - 1] > Int.max
   }
-
-//  private static let _digits: [BigInt] = (0 ... 36).map {
-//    BigInt(_uncheckedWords: [UInt(bitPattern: $0)])
-//  }
-  
-  // private static let _digitRadix = BigInt(_uncheckedWords: [0, 1])
 }
 
 // MARK: - Basic Behaviors
@@ -379,6 +373,7 @@ extension BigInt: SignedNumeric {
 
   public mutating func negate() {
     var isOverflow = true
+    let isNegative = self._isNegative
     for i in 0 ..< words.count {
       if isOverflow {
         (words[i], isOverflow) = (~words[i]).addingReportingOverflow(1)
@@ -388,6 +383,12 @@ extension BigInt: SignedNumeric {
     }
 
     BigInt._dropExcessWords(words: &words)
+    if self != Self.zero && self._isNegative == isNegative {
+      // Corner case where numbers like `0x8000000000000000 ... 0000`
+      // remain unchanged after negation so we make sure any negative
+      // numbers are truly negated into positive numbers
+      if isNegative { words.append(0) } // make the number positive
+    }
   }
 
   @inlinable
@@ -442,7 +443,7 @@ extension BigInt: BinaryInteger {
 
   public init<T>(_ source: T) where T: BinaryInteger {
     if source >= 0, source < UInt.max {
-      words = [UInt(source)]  // no need for _digits
+      words = [UInt(source)]
     } else {
       words = Words(source.words)
       if source > 0 && source.words[source.words.endIndex - 1] > Int.max {
@@ -732,7 +733,13 @@ extension BigInt {
       }
 
       BigInt._dropExcessWords(words: &quot)
-      return (quotient: BigInt(_uncheckedWords: quot), remainder: BigInt(r))
+      // signs are based on the Int definitions
+      switch (lhsIsNeg, rhsIsNeg) {
+        case (false, true):  return (-BigInt(_uncheckedWords: quot),  BigInt(r))
+        case (false, false): return ( BigInt(_uncheckedWords: quot),  BigInt(r))
+        case (true, false):  return (-BigInt(_uncheckedWords: quot), -BigInt(r))
+        case (true, true):   return ( BigInt(_uncheckedWords: quot), -BigInt(r))
+      }
     }
 
     while rhsWords[rhsWords.endIndex - 1] == 0 {
@@ -839,8 +846,14 @@ extension BigInt {
 
     BigInt._dropExcessWords(words: &quot)
     BigInt._dropExcessWords(words: &rem)
-
-    return (BigInt(_uncheckedWords: quot), BigInt(_uncheckedWords: rem))
+    
+    // signs are based on the Int definitions
+    switch (lhsIsNeg, rhsIsNeg) {
+      case (false, true):  return (-BigInt(_uncheckedWords: quot),  BigInt(_uncheckedWords: rem))
+      case (false, false): return ( BigInt(_uncheckedWords: quot),  BigInt(_uncheckedWords: rem))
+      case (true, false):  return (-BigInt(_uncheckedWords: quot), -BigInt(_uncheckedWords: rem))
+      case (true, true):   return ( BigInt(_uncheckedWords: quot), -BigInt(_uncheckedWords: rem))
+    }
   }
 
   private static func _signExtend(lhsWords: inout Words, rhsWords: inout Words) {
@@ -877,3 +890,18 @@ extension BigInt {
     }
   }
 }
+
+//extension BigInt : CustomStringConvertible {
+//
+//  public var description: String {
+//    /// Kludge fix for negative numbers like `0x8000000000000000 ... 0000`
+//    /// whose strings otherwise look like this `-(\'((,*+*),-//+)\'+-(*,*+.+\'+-\',+/.-**(0(`
+//    /// Probably a division/remainder issue in not detecting the right sign
+//    if self._isNegative && words.count > 1 && self.magnitude == self {
+//      let num = BigInt(_uncheckedWords: self.words + [0])  // add leading zero word so sign is positive
+//      return "-" + String(num, radix: 10)
+//    }
+//    return String(self, radix: 10)
+//  }
+//
+//}
