@@ -670,9 +670,15 @@ extension BigInt {
   internal static func _div(lhs: BigInt, rhs: BigInt) -> (quotient: BigInt, remainder: BigInt) {
     precondition(rhs != 0, "Division by zero error!")
 
+    // Speed up single-word divisions
     if lhs.words.count == 1, rhs.words.count == 1 {
-      let (quot, rem) = Int(bitPattern: lhs.words[0]).quotientAndRemainder(dividingBy: Int(bitPattern: rhs.words[0]))
-      return (BigInt(_uncheckedWords: [UInt(bitPattern: quot)]), BigInt(_uncheckedWords: [UInt(bitPattern: rem)]))
+      // check for corner case that causes overflow: Int.min / -1
+      let lhsInt = Int(bitPattern: lhs.words[0])
+      let rhsInt = Int(bitPattern: rhs.words[0])
+      if !(lhsInt == Int.min && rhsInt == -1) {
+        let (quot, rem) = lhsInt.quotientAndRemainder(dividingBy: rhsInt)
+        return (BigInt(_uncheckedWords: [UInt(bitPattern: quot)]), BigInt(_uncheckedWords: [UInt(bitPattern: rem)]))
+      }
     }
 
     let lhsIsNeg = lhs._isNegative

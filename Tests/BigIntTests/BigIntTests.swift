@@ -308,7 +308,7 @@ final class BigIntTests: XCTestCase {
                    +BigInt("+1234567890123456789012345678901234567890")!)
   }
   
-  func testsFromViolet() {
+  func testsWhichCrashed() {
     // -9223372036854775808 = Int64.min, obviously '-Int64.min' overflows
     let int: Int64 = -9223372036854775808
     var big = BigInt(int)
@@ -317,13 +317,20 @@ final class BigIntTests: XCTestCase {
     // 9223372036854775808 = UInt64(1) << Float80.significandBitCount
     var int2 : UInt64 = 9223372036854775808
     big = BigInt(int2)
-    let fromInt = Float80(exactly: int2) // works
-    let fromBigInt = Float80(exactly: big) // crash (not anymore)
+    let _ = Float80(exactly: int2) // works
+    let _ = Float80(exactly: big) // crash (not anymore)
     
     // 18446744073709551615 = UInt64.max - was crashing
     int2 = 18446744073709551615
     big = BigInt(int2)
-    let revert = UInt64(big)
+    let _ = UInt64(big)
+    
+    // was generating an overflow
+    let lhsInt = -9223372036854775808
+    let rhsInt = -1
+    let lhs = BigInt(lhsInt)
+    let rhs = BigInt(rhsInt)
+    _ = lhs / rhs // Overflow
   }
   
   func test_initFromInt_exactly() {
@@ -348,7 +355,21 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(bigString, intString)
   }
   
-  func test_node_div_incorrectSign() {
+  func test_unaryMinus() {
+    // -9223372036854775808 = Int.min
+    // 'Int.min' negation overflows - ok now
+    let int = -9223372036854775808
+    let expected = BigInt(int.magnitude)
+    
+    let big = -BigInt(int)
+    XCTAssertEqual(big, expected)
+    
+    var negated = BigInt(int)
+    negated.negate()
+    XCTAssertEqual(negated, expected, "\(negated) == \(expected)")
+  }
+  
+  func test_div_sign() {
     // positive / negative = negative
     var lhs = BigInt("18446744073709551615")!
     var rhs = BigInt("-1")!
@@ -361,7 +382,34 @@ final class BigIntTests: XCTestCase {
     expected = BigInt("-18446744073709551604")!
     XCTAssertEqual(lhs / rhs, expected)
   }
+  
+  func test_magnitude() {
+    let big = BigInt(-9223372036854775808)
+    let expect = UInt64(9223372036854775808)
+    XCTAssertEqual(big.magnitude, BigInt(expect))
+  }
+  
+  // ApplyA_ApplyB_Equals_ApplyAB.swift
+  func test_a_b_ab() {
+    // (a/-3) / -5 = a/15
+    let lhs = BigInt("-18446744073709551615")!
+    let a = BigInt(-3)
+    let b = BigInt(-5)
+    let ab = BigInt(15)
 
+    let r0 = (lhs / a) / b
+    let r1 = lhs / ab
+    XCTAssertEqual(r0, r1)
+  }
+
+  // ApplyA_UndoA.swift
+  func test_a_undoA() {
+    let n = BigInt(-1)
+    let x = BigInt(-9223372036854775808)
+    XCTAssertEqual(n, (n + x) - x)
+    XCTAssertEqual(n, (n * x) / x)
+  }
+  
   func test_node_mod_incorrectSign() {
     // SMALL % BIG = SMALL
     // We need to satisfy: BIG * 0 + result = SMALL -> result = SMALL
@@ -394,6 +442,44 @@ final class BigIntTests: XCTestCase {
     expected = BigInt("-1")!
     XCTAssertEqual(lhs ^ rhs, expected)
     XCTAssertEqual(0 ^ -1, -1) // Proof
+  }
+  
+  func test_xor_truthTable() {
+    let lhsWord : UInt8 = 0b1100
+    let rhsWord : UInt8 = 0b1010
+
+    let lhs = BigInt(lhsWord)
+    let rhs = BigInt(rhsWord)
+
+    let expected = BigInt(lhsWord ^ rhsWord)
+    XCTAssertEqual(lhs ^ rhs, expected)
+    XCTAssertEqual(rhs ^ lhs, expected)
+  }
+  
+  func test_binarySub() {
+    // https://www.wolframalpha.com/input?i=-922337203685477587+-+%28-9223372036854775808%29
+    let lhs = BigInt("-922337203685477587")!
+    let rhs = BigInt("-9223372036854775808")!
+    let expected = BigInt("8301034833169298221")!
+    XCTAssertEqual(lhs - rhs, expected)
+    // The same on Swift.Int:
+    XCTAssertEqual(-922337203685477587 - (-9223372036854775808), 8301034833169298221)
+  }
+
+  func test_binarySub_2() {
+    typealias Word = UInt
+
+    let intMax = Int.max
+    let intMaxAsWord = Word(intMax.magnitude)
+
+    // intMax - (-(Word.max - intMaxAsWord)) =
+    // intMax - (-Word.max + intMaxAsWord) =
+    // intMax + Word.max - intMaxAsWord =
+    // Word.max
+    let max = BigInt(intMax)
+    let value = -BigInt((Word.max - intMaxAsWord))
+    let expected = BigInt(Word.max)
+    XCTAssertEqual(max - value, expected)
   }
 
   func testHashable() {
