@@ -307,6 +307,94 @@ final class BigIntTests: XCTestCase {
     XCTAssertEqual(-BigInt("-1234567890123456789012345678901234567890")!,
                    +BigInt("+1234567890123456789012345678901234567890")!)
   }
+  
+  func testsFromViolet() {
+    // -9223372036854775808 = Int64.min, obviously '-Int64.min' overflows
+    let int: Int64 = -9223372036854775808
+    var big = BigInt(int)
+    XCTAssertEqual(-big, big * -1)
+    
+    // 9223372036854775808 = UInt64(1) << Float80.significandBitCount
+    var int2 : UInt64 = 9223372036854775808
+    big = BigInt(int2)
+    let fromInt = Float80(exactly: int2) // works
+    let fromBigInt = Float80(exactly: big) // crash (not anymore)
+    
+    // 18446744073709551615 = UInt64.max - was crashing
+    int2 = 18446744073709551615
+    big = BigInt(int2)
+    let revert = UInt64(big)
+  }
+  
+  func test_initFromInt_exactly() {
+    let int: UInt64 = 18446744073709551614
+    let big = BigInt(exactly: int)!
+    let revert = UInt64(exactly: big)
+    XCTAssertEqual(int, revert)
+  }
+
+  func test_initFromInt_clamping() {
+    let int: UInt64 = 18446744073709551614
+    let big = BigInt(clamping: int)
+    let revert = UInt64(clamping: big)
+    XCTAssertEqual(int, revert)
+  }
+
+  func test_initFromInt_truncatingIfNeeded() {
+    let int: UInt64 = 18446744073709551615
+    let big = BigInt(truncatingIfNeeded: int)
+    let intString = String(int, radix: 10, uppercase: false)
+    let bigString = String(big, radix: 10, uppercase: false)
+    XCTAssertEqual(bigString, intString)
+  }
+  
+  func test_node_div_incorrectSign() {
+    // positive / negative = negative
+    var lhs = BigInt("18446744073709551615")!
+    var rhs = BigInt("-1")!
+    var expected = BigInt("-18446744073709551615")!
+    XCTAssertEqual(lhs / rhs, expected)
+
+    // negative / positive = negative
+    lhs = BigInt("-340282366920938463481821351505477763074")!
+    rhs = BigInt("18446744073709551629")!
+    expected = BigInt("-18446744073709551604")!
+    XCTAssertEqual(lhs / rhs, expected)
+  }
+
+  func test_node_mod_incorrectSign() {
+    // SMALL % BIG = SMALL
+    // We need to satisfy: BIG * 0 + result = SMALL -> result = SMALL
+    // The same, but on the standard Swift.Int to prove the point:
+    XCTAssertEqual(-1 % 123, -1)
+    XCTAssertEqual(-1 % -123, -1)
+    // In general the 'reminder' follows the 'lhs' sign (round toward 0).
+    // Except for the case where 'lhs' is negative and 'reminder' is 0.
+
+    var lhs = BigInt("-1")!
+    var rhs = BigInt("18446744073709551615")!
+    XCTAssertEqual(lhs % rhs, lhs)
+
+    // Also fails if 'rhs' is negative
+    lhs = BigInt("-7730941133")!
+    rhs = BigInt("-18446744073709551615")!
+    XCTAssertEqual(lhs % rhs, lhs)
+  }
+
+  // From my observations all of the `xor` tests are failing.
+  func test_node_xor() {
+    var lhs = BigInt("0")!
+    var rhs = BigInt("1")!
+    var expected = BigInt("1")!
+    XCTAssertEqual(lhs ^ rhs, expected)
+    XCTAssertEqual(0 ^ 1, 1) // Proof
+
+    lhs = BigInt("0")!
+    rhs = BigInt("-1")!
+    expected = BigInt("-1")!
+    XCTAssertEqual(lhs ^ rhs, expected)
+    XCTAssertEqual(0 ^ -1, -1) // Proof
+  }
 
   func testHashable() {
     let foo = BigInt("1234567890123456789012345678901234567890")!

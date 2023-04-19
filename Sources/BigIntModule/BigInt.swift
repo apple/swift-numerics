@@ -157,41 +157,6 @@ extension BigInt: LosslessStringConvertible {
   /// NEW CODE ENDS
   ///
   //////////////////////////////////////////////////////////////////////////////////////////////////
-
-  
-//// Original code
-//  public init?<T>(_ description: T, radix: Int = 10) where T: StringProtocol {
-//    precondition(2 ... 36 ~= radix, "Radix not in range 2 ... 36")
-//
-//    self = 0
-//
-//    let isNegative = description.hasPrefix("-")
-//    let hasPrefix = isNegative || description.hasPrefix("+")
-//    let utf8 = description.utf8.dropFirst(hasPrefix ? 1 : 0)
-//    guard !utf8.isEmpty else { return nil }
-//
-//    for var byte in utf8 {
-//      switch byte {
-//      case UInt8(ascii: "0") ... UInt8(ascii: "9"):
-//        byte -= UInt8(ascii: "0")
-//      case UInt8(ascii: "A") ... UInt8(ascii: "Z"):
-//        byte -= UInt8(ascii: "A")
-//        byte += 10
-//      case UInt8(ascii: "a") ... UInt8(ascii: "z"):
-//        byte -= UInt8(ascii: "a")
-//        byte += 10
-//      default:
-//        return nil
-//      }
-//      guard byte < radix else { return nil }
-//      self *= BigInt._digits[radix]
-//      self += BigInt._digits[Int(byte)]
-//    }
-//
-//    if isNegative {
-//      self.negate()
-//    }
-//  }
 }
 
 extension BigInt: Decodable {
@@ -442,7 +407,7 @@ extension BigInt: BinaryInteger {
   }
 
   public init<T>(_ source: T) where T: BinaryInteger {
-    if source >= 0, source < UInt.max {
+    if source >= 0 && source < Int.max {
       words = [UInt(source)]
     } else {
       words = Words(source.words)
@@ -460,7 +425,7 @@ extension BigInt: BinaryInteger {
   }
 
   public init<T>(truncatingIfNeeded source: T) where T: BinaryInteger {
-    words = Words(source.words)
+    self.init(source)  //words = Words(source.words)
   }
 
   public var bitWidth: Int { words.count * UInt.bitWidth }
@@ -492,7 +457,6 @@ extension BigInt: BinaryInteger {
   @inlinable
   public static func % (lhs: BigInt, rhs: BigInt) -> BigInt {
     let (_, result) = _div(lhs: lhs, rhs: rhs)
-
     return result
   }
 
@@ -890,18 +854,3 @@ extension BigInt {
     }
   }
 }
-
-//extension BigInt : CustomStringConvertible {
-//
-//  public var description: String {
-//    /// Kludge fix for negative numbers like `0x8000000000000000 ... 0000`
-//    /// whose strings otherwise look like this `-(\'((,*+*),-//+)\'+-(*,*+.+\'+-\',+/.-**(0(`
-//    /// Probably a division/remainder issue in not detecting the right sign
-//    if self._isNegative && words.count > 1 && self.magnitude == self {
-//      let num = BigInt(_uncheckedWords: self.words + [0])  // add leading zero word so sign is positive
-//      return "-" + String(num, radix: 10)
-//    }
-//    return String(self, radix: 10)
-//  }
-//
-//}
