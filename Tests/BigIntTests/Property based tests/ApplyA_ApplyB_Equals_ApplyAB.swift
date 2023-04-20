@@ -159,7 +159,7 @@ class ApplyA_ApplyB_Equals_ApplyAB: XCTestCase {
       inoutAB += testCase.ab
 
       XCTAssertEqual(
-        inoutA_B,
+        inoutAB,
         ab,
         "\(value) += \(testCase.ab) vs \(value) + \(testCase.ab)",
         file: file,
@@ -220,7 +220,7 @@ class ApplyA_ApplyB_Equals_ApplyAB: XCTestCase {
       inoutAB -= testCase.ab
 
       XCTAssertEqual(
-        inoutA_B,
+        inoutAB,
         ab,
         "\(value) -= \(testCase.ab) vs \(value) - \(testCase.ab)",
         file: file,
@@ -346,7 +346,7 @@ class ApplyA_ApplyB_Equals_ApplyAB: XCTestCase {
       inoutAB /= testCase.ab
 
       XCTAssertEqual(
-        inoutA_B,
+        inoutAB,
         ab,
         "\(value) /= \(testCase.ab) vs \(value) / \(testCase.ab)",
         file: file,
@@ -413,7 +413,7 @@ class ApplyA_ApplyB_Equals_ApplyAB: XCTestCase {
       inoutAB <<= testCase.ab
 
       XCTAssertEqual(
-        inoutA_B,
+        inoutAB,
         ab,
         "\(value) <<= \(testCase.ab) vs \(value) << \(testCase.ab)",
         file: file,
@@ -483,7 +483,7 @@ class ApplyA_ApplyB_Equals_ApplyAB: XCTestCase {
       inoutAB >>= testCase.ab
 
       XCTAssertEqual(
-        inoutA_B,
+        inoutAB,
         ab,
         "\(value) >>= \(testCase.ab) vs \(value) >> \(testCase.ab)",
         file: file,
