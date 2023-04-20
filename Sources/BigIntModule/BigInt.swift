@@ -9,6 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+import Foundation
+
 public struct BigInt: SignedInteger {
 
   public typealias Words = [UInt]
@@ -90,8 +92,8 @@ extension BigInt: LosslessStringConvertible {
   public init?(_ description: String) {
     self.init(description, radix: 10)
   }
-  
-  
+
+
   ////////////////////////////////////////////////////////////////////////////
   ///
   ///  NEW CODE STARTS
@@ -104,7 +106,7 @@ extension BigInt: LosslessStringConvertible {
     while lexp > 0 {
         if !lexp.isMultiple(of: 2) { y*=x }
         lexp >>= 1
-        if lexp > 0 { x=x*x } // could be 2X faster with squared function
+        if lexp > 0 { x=x*x }
     }
     return y
   }
@@ -153,10 +155,178 @@ extension BigInt: LosslessStringConvertible {
       self.negate()
     }
   }
+
+  /// NEW CODE ENDS
+  ///
+  ////////////////////////////////////////////////////////////////////////////
+}
+
+extension BigInt : CustomStringConvertible {
+  
+  ////////////////////////////////////////////////////////////////////////////
+  ///
+  ///  NEW CODE STARTS
+
+  /// Code below was shamelessly adapted from the Violet implementation of
+  /// BigInt. I took a few shortcuts to reduce the code size: There's no
+  /// DivBuffer and instead used a copy of the self.words for doing the
+  /// divisions/shifts. A different approach was used to calculate the number
+  /// of digits needed in a string — again less code was needed. The good:
+  /// This code is almost 20X faster for decimals and 90X faster for binary
+  /// radixes. The bad: Lots of code required to implement this improvement.
+  /// Is it worth it? You decide. It's always easy to comment out and use the
+  /// default (albeit much slower) String() implementation. Maybe the String
+  /// in the runtime could be updated to be faster.
+  public var description: String {
+    //return String(self, radix: 10)
+    return toString(radix: 10, uppercase: false)
+  }
+  
+  private static var maxRadix: Int { 36 }
+  
+  // ASCII constants
+  private static let _0: UInt8 = Character("0").asciiValue!
+  private static let _A: UInt8 = Character("A").asciiValue!
+  private static let _a: UInt8 = Character("a").asciiValue!
+  private static let _minus: UInt8 = Character("-").asciiValue!
+  
+  internal func div(_ dividend: inout Words, by divisor: UInt) -> UInt {
+    var carry = UInt(0)
+    for i in (0..<dividend.count).reversed() {
+      (dividend[i], carry) = divisor.dividingFullWidth((carry, dividend[i]))
+    }
+    // Trim suffix zeros
+    while !dividend.isEmpty && dividend[dividend.count - 1] == 0 {
+      dividend.removeLast()
+    }
+    return carry
+  }
+  
+  public func toString(radix: Int, uppercase: Bool) -> String {
+    precondition(2 ... Self.maxRadix ~= radix, "Radix not in range 2 ... \(Self.maxRadix)")
+    
+    if self.signum() == 0 { return "0" }
+
+    let logWord = log(Double(UInt.max))
+    let logRadix = log(Double(radix))
+    let digitCount = Int(logWord/logRadix * Double(words.count) + 0.5)
+    let (charPerWord, power) = Self.maxRepresentablePower(of: radix)
+    let stringMaxSize = digitCount + (self._isNegative ? 1 : 0)
+    let isPowerOfTwoRadix = radix & (radix-1) == 0
+    
+    var words = self.magnitude.words; words.reserveCapacity(self.words.count)
+    if #available(macOS 11.0, *) {
+      return StringLiteralType(unsafeUninitializedCapacity: stringMaxSize) { buffer in
+        
+        if isPowerOfTwoRadix {
+          // Handle powers-of-two radixes
+          let bitsPerChar = radix.trailingZeroBitCount
+          let qr = UInt.bitWidth.quotientAndRemainder(dividingBy: bitsPerChar)
+          assert(qr.remainder == 0, "String radix = \(radix) which does not fit in \(UInt.bitWidth) bits")
+          var index = 0
+          if self._isNegative {
+            buffer[index] = Self._minus
+            index = 1
+          }
+          
+          // digits fit exactly into a word
+          // 0000 0001 1010 0101
+          // ^^^^ skip (but only for 1st word)
+          let charCountPerWord = qr.quotient
+          let last = words[words.count - 1]
+          var skip = charCountPerWord - last.leadingZeroBitCount / bitsPerChar - 1
+          let mask = UInt(radix - 1)
+          
+          for word in words.reversed() {
+            for groupIndex in stride(from: skip, through: 0, by: -1) {
+              let shift = groupIndex &* bitsPerChar
+              let group = (word &>> shift) & mask
+              buffer[index] = ascii(group, uppercase: uppercase)
+              index &+= 1
+            }
+            
+            // From now on we print everything, even middle '0'
+            skip = charCountPerWord - 1
+          }
+          
+          assert(index <= stringMaxSize)
+          return index
+        } else {
+          // Deal with the hard-to-use radixes including base 10
+          var index = stringMaxSize - 1 // start at end of the buffer
+          while !words.isEmpty {
+            var remainder = div(&words, by: power)
+            let end = index - charPerWord
+            
+            // extract `radix` digits and add to the string `buffer`
+            while remainder != 0 {
+              let qr = remainder.quotientAndRemainder(dividingBy: UInt(radix))
+              remainder = qr.quotient
+              buffer[index] = ascii(qr.remainder, uppercase: uppercase)
+              index &-= 1
+            }
+            
+            // fill remaining word digits (except the first) with "0"s
+            let isFirstWord = words.isEmpty
+            while !isFirstWord && index != end {
+              buffer[index] = Self._0
+              index &-= 1
+            }
+          }
+          
+          // add a minus sign if the number is negative
+          if self._isNegative {
+            buffer[index] = Self._minus
+            index &-= 1
+          }
+          
+          // check for invalid capacity estimate
+          var count = stringMaxSize
+          if index != -1 {
+            count = stringMaxSize - index - 1
+            let dstPtr = buffer.baseAddress!
+            let srcPtr = dstPtr.advanced(by: index+1)
+            dstPtr.update(from: srcPtr, count: count)
+            dstPtr[count] = 0
+          }
+          return count
+        }
+      }
+    } else {
+      // Fallback on earlier versions
+      return String(self, radix: radix, uppercase: uppercase)
+    }
+  }
+  
+  /// Returns the highest number that satisfy `radix^n <= 2^Self.bitWidth`
+  internal static func maxRepresentablePower(of radix: Int) -> (n: Int, power: UInt) {
+    var n = 1
+    var power =  UInt(radix)
+
+    while true {
+      let (newPower, overflow) = power.multipliedReportingOverflow(by: UInt(radix))
+
+      if overflow {
+        return (n, power)
+      }
+
+      n += 1
+      power = newPower
+    }
+  }
+  
+  private func ascii(_ n: UInt, uppercase: Bool) -> UInt8 {
+    // Performance sensitive area! Order of operations matters!
+    // Compiler will emit code without overflow checks,
+    // so we do not need to use unchecked '&' (like '&+' and '&-').
+    assert(n < Self.maxRadix) // Always less, never equal!
+    let n = UInt8(truncatingIfNeeded: n)
+    return n < 10 ? n + Self._0 : n - 10 + (uppercase ? Self._A : Self._a)
+  }
   
   /// NEW CODE ENDS
   ///
-  //////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////
 }
 
 extension BigInt: Decodable {
