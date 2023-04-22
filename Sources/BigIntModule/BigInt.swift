@@ -92,70 +92,168 @@ extension BigInt: LosslessStringConvertible {
   public init?(_ description: String) {
     self.init(description, radix: 10)
   }
-
-
+  
   ////////////////////////////////////////////////////////////////////////////
   ///
   ///  NEW CODE STARTS
+  ///  Code liberated and adapted from the Violet BigInt implementation
+  ///  Speeds the time to initialize a BigInt by about a factor of 35 for
+  ///  the test case of the string for 512! using radix 10. A radix 16 test
+  ///  for the same number was 310X faster.
+  public init?(_ description: String, radix: Int = 10) {
+    guard 2 <= radix && radix <= Self.maxRadix else { return nil }
+    guard !description.isEmpty else { return nil }
 
-  private static func _pow(_ lhs: UInt, _ rhs: UInt) -> UInt {
-    // guard rhs>=0 else { return 0 } /* lhs ** (-rhs) = 0 */
-    var lexp = rhs
-    var x = lhs
-    var y = UInt(1)
-    while lexp > 0 {
-        if !lexp.isMultiple(of: 2) { y*=x }
-        lexp >>= 1
-        if lexp > 0 { x=x*x }
+    let utf8 = description.utf8
+
+    // Most of the time we will go 'fast' (in Swift dominant apps).
+    // Fast (on 'UnsafeBufferPointer') is 2x faster than on 'UTF8View'.
+    let fast = utf8.withContiguousStorageIfAvailable { buffer in
+      return Self.parse(buffer, radix: radix)
     }
-    return y
+
+    // Try again -- if necessary -- with a standard buffer
+    if let r = fast ?? Self.parse(utf8, radix: radix) {
+      self = r
+      return
+    }
+    return nil
   }
 
-  private func _maxDigits(forRadix radix:Int) -> Int {
-    switch radix {
-      case 2:  return 62
-      case 8:  return 20
-      case 10: return 18
-      case 16: return 14
-      default: return 11  // safe but not optimal for other radices
+  private static func mulAdd(result: inout Words, multiplier: UInt, addIn: UInt) {
+    var carry = addIn
+    var overflow = false
+    let highWord = result.count-1
+    for i in 0...highWord {
+      let product = result[i].multipliedFullWidth(by: multiplier)
+      (result[i], overflow) = carry.addingReportingOverflow(product.low)
+      (carry, overflow) = product.high.addingReportingOverflow(overflow ? 1 : 0)
     }
+    assert(!overflow, "Word size overflow during \(#function)")
   }
 
-  ///  Speeds the time to initialize a BigInt by about a factor of 16 for
-  ///  the test case of the string for 512! using radix 10. A radix 36 test
-  ///  was 10X faster. BTW, the factorial test code was sped up by almost 2
-  ///  times (the string to number code accounted for a large part of the
-  ///  total time).
-  public init?<T>(_ description: T, radix: Int = 10) where T: StringProtocol {
-    precondition(2 ... 36 ~= radix, "Radix not in range 2 ... 36")
+  // MARK: - Parse
 
-    self = 0
-    let isNegative = description.hasPrefix("-")
-    let hasPrefix = isNegative || description.hasPrefix("+")
-    var str = description.dropFirst(hasPrefix ? 1 : 0)
-    guard !str.isEmpty else { return nil }
+  private static func parse<C: BidirectionalCollection>(_ chars: C, radix: Int) -> BigInt? where C.Element == UInt8 {
+    var (isNegative, index) = Self.checkSign(chars)
+    let endIndex = chars.endIndex
+    if index == endIndex { return nil } // only the sign was found
 
-    /// Main speed-up is due to converting chunks of string via
-    /// the Int64() initializer instead of a character at a time.
-    /// We also get free radix digit checks.
-    let maxDigits = _maxDigits(forRadix: radix)
-    while !str.isEmpty {
-      let block = str.prefix(maxDigits)
-      let size = block.count
-      str.removeFirst(size)
-      if let word = UInt(block, radix: radix) {
-          self *= BigInt(Self._pow(UInt(radix), UInt(size)))
-          self += BigInt(word)
-      } else {
-        return nil
+    // note and discard leading zeros
+    let hasZeroPrefix = Self.stripLeadingZeros(chars, index: &index)
+    if index == endIndex { return hasZeroPrefix ? BigInt() : nil }  // only zeros - return 0
+    let (charCountPerWord, power) = Self.maxRepresentablePower(of: radix)
+    let remainingCount = chars.distance(from: index, to: endIndex)
+
+    // allocate one more word than estimated
+    let capacity = (remainingCount / charCountPerWord) + 1
+    let digitParser = DigitParser(radix: radix)
+    var currentWord = UInt(0)
+    let firstWordCount = remainingCount % charCountPerWord
+    var remainingCharsInCurrentWord = firstWordCount == 0 ? charCountPerWord : firstWordCount
+    let powerOfTwo = radix & (radix - 1) == 0
+
+    // working buffer
+    var buffer = Words(repeating: 0, count: capacity)
+    if powerOfTwo {
+      // Radix powers of 2 convert about 10X faster with this algorithm
+      var reverseIndex = chars.endIndex
+      chars.formIndex(before: &reverseIndex)
+      var wordIndex = 0
+      var wordShift = 0
+      let bitsPerChar = radix.trailingZeroBitCount
+      buffer[wordIndex] = 0
+      while reverseIndex >= index {
+        // check for illegal digits and convert to UInt
+        let char = chars[reverseIndex]
+        guard let digit = digitParser.parse(char) else { return nil }
+
+        buffer[wordIndex] |= digit &<< wordShift
+        wordShift &+= bitsPerChar
+        if wordShift >= UInt.bitWidth {
+          wordIndex &+= 1
+          wordShift = wordShift % UInt.bitWidth
+          assert(wordIndex < capacity)
+          buffer[wordIndex] = digit &>> (bitsPerChar &- wordShift)
+        }
+        chars.formIndex(before: &reverseIndex)
+      }
+    } else {
+      while index != endIndex {
+        // check for illegal digits and convert to UInt
+        let char = chars[index]
+        guard let digit = digitParser.parse(char) else { return nil }
+
+        // Overflows are guaranteed to not occur due to `charCountPerWord`
+        currentWord = currentWord &* UInt(radix) &+ digit
+        remainingCharsInCurrentWord &-= 1
+        if remainingCharsInCurrentWord == 0 {
+          // Append word even if it is zero -- zeros can occur in the middle of a number
+          mulAdd(result: &buffer, multiplier: power, addIn: currentWord)
+          currentWord = 0
+          remainingCharsInCurrentWord = charCountPerWord
+        }
+        chars.formIndex(after: &index)
       }
     }
 
-    if isNegative {
-      self.negate()
-    }
+    BigInt._dropExcessWords(words: &buffer)
+    var result = BigInt(_uncheckedWords: buffer)
+    if isNegative { result.negate() }
+    return result
   }
 
+  private static func checkSign<C: Collection>(_ chars: C) -> (isNegative:Bool, index: C.Index) where C.Element == UInt8 {
+    var index = chars.startIndex
+    let first = chars[index]
+    if first == _plus {
+      chars.formIndex(after: &index)
+      return (isNegative: false, index: index)
+    }
+    if first == _minus {
+      chars.formIndex(after: &index)
+      return (isNegative: true, index: index)
+    }
+    return (isNegative: false, index: index)
+  }
+
+  private static func stripLeadingZeros<C: Collection>(_ chars: C, index: inout C.Index) -> Bool where C.Element == UInt8 {
+    let hasZeroPrefix = chars[index] == _0
+    let endIndex = chars.endIndex
+
+    // skip leading zeros
+    while index != endIndex && chars[index] == _0 {
+      chars.formIndex(after: &index)
+    }
+    return hasZeroPrefix
+  }
+  
+  private struct DigitParser {
+    private let numericalUpperBound: UInt8
+    private let uppercaseUpperBound: UInt8
+    private let lowercaseUpperBound: UInt8
+
+    fileprivate init(radix: Int) {
+      if radix <= 10 {
+        self.numericalUpperBound = _0 &+ UInt8(truncatingIfNeeded: radix)
+        self.uppercaseUpperBound = _A
+        self.lowercaseUpperBound = _a
+      } else {
+        self.numericalUpperBound = _0 &+ 10
+        self.uppercaseUpperBound = _A &+ UInt8(truncatingIfNeeded: radix &- 10)
+        self.lowercaseUpperBound = _a &+ UInt8(truncatingIfNeeded: radix &- 10)
+      }
+    }
+
+    fileprivate func parse(_ char: UInt8) -> UInt? {
+      return
+        _0 <= char && char < numericalUpperBound ? UInt(truncatingIfNeeded: char &- _0) :
+        _A <= char && char < uppercaseUpperBound ? UInt(truncatingIfNeeded: char &- _A &+ 10) :
+        _a <= char && char < lowercaseUpperBound ? UInt(truncatingIfNeeded: char &- _a &+ 10) :
+        nil
+    }
+  }
+  
   /// NEW CODE ENDS
   ///
   ////////////////////////////////////////////////////////////////////////////
@@ -178,17 +276,18 @@ extension BigInt : CustomStringConvertible {
   /// default (albeit much slower) String() implementation. Maybe the String
   /// in the runtime could be updated to be faster.
   public var description: String {
-    //return String(self, radix: 10)
-    return toString(radix: 10, uppercase: false)
+    return self.toString(radix: 10, uppercase: false)
   }
   
   private static var maxRadix: Int { 36 }
   
   // ASCII constants
-  private static let _0: UInt8 = Character("0").asciiValue!
-  private static let _A: UInt8 = Character("A").asciiValue!
-  private static let _a: UInt8 = Character("a").asciiValue!
-  private static let _minus: UInt8 = Character("-").asciiValue!
+  
+  private static let _0     = UInt8(ascii: "0")
+  private static let _A     = UInt8(ascii: "A")
+  private static let _a     = UInt8(ascii: "a")
+  private static let _plus  = UInt8(ascii: "+")
+  private static let _minus = UInt8(ascii: "-")
   
   internal func div(_ dividend: inout Words, by divisor: UInt) -> UInt {
     var carry = UInt(0)
@@ -217,7 +316,6 @@ extension BigInt : CustomStringConvertible {
     var words = self.magnitude.words; words.reserveCapacity(self.words.count)
     if #available(macOS 11.0, *) {
       return StringLiteralType(unsafeUninitializedCapacity: stringMaxSize) { buffer in
-        
         if isPowerOfTwoRadix {
           // Handle powers-of-two radixes
           let bitsPerChar = radix.trailingZeroBitCount
@@ -302,23 +400,15 @@ extension BigInt : CustomStringConvertible {
   internal static func maxRepresentablePower(of radix: Int) -> (n: Int, power: UInt) {
     var n = 1
     var power =  UInt(radix)
-
     while true {
       let (newPower, overflow) = power.multipliedReportingOverflow(by: UInt(radix))
-
-      if overflow {
-        return (n, power)
-      }
-
+      if overflow { return (n, power) }
       n += 1
       power = newPower
     }
   }
   
   private func ascii(_ n: UInt, uppercase: Bool) -> UInt8 {
-    // Performance sensitive area! Order of operations matters!
-    // Compiler will emit code without overflow checks,
-    // so we do not need to use unchecked '&' (like '&+' and '&-').
     assert(n < Self.maxRadix) // Always less, never equal!
     let n = UInt8(truncatingIfNeeded: n)
     return n < 10 ? n + Self._0 : n - 10 + (uppercase ? Self._A : Self._a)
@@ -449,7 +539,7 @@ extension BigInt: Numeric {
 
     let count = lhsWords.count + rhsWords.count + 1
     var newWords = Words(repeating: 0, count: count)
-
+    
     for i in 0 ..< rhsWords.count {
       var carry: UInt = 0
       var digit: UInt = 0
@@ -482,7 +572,7 @@ extension BigInt: Numeric {
         newWords[lastJ + 1] = digit
       }
     }
-
+    
     for i in stride(from: count - 1, through: 1, by: -1) {
       if newWords[i] == 0, newWords[i - 1] <= Int.max {
         newWords.removeLast()
