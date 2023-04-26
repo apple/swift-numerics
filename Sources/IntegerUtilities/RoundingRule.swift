@@ -60,6 +60,34 @@ public enum RoundingRule {
   /// Adds a uniform random value from [0, d) to the value being rounded,
   /// where d is the distance between the two closest representable values,
   /// then rounds the sum downwards.
+  ///
+  /// Unlike all the other rounding modes, this mode is _not deterministic_;
+  /// repeated calls to rounding operations with this mode will generally
+  /// produce different results. There is a tradeoff implicit in using this
+  /// mode: you can sacrifice _reproducible_ results to get _more accurate_
+  /// results in aggregate. For a contrived but illustrative example, consider
+  /// the following:
+  /// ```
+  /// let data = Array(repeating: 1, count: 100)
+  /// let result = data.reduce(0) {
+  ///   $0 + $1.divided(by: 3, rounding: rule)
+  /// }
+  /// ```
+  /// because 1/3 is always the same value between 0 and 1, any
+  /// deterministic rounding rule must produce either 0 or 100 for
+  /// this computation. But rounding `stochastically` will
+  /// produce a value close to 33. The _error_ of the computation
+  /// is smaller, but the result will now change between runs of the
+  /// program.
+  ///
+  /// For this simple case a better solution would be to add the
+  /// values first, and then divide. This gives a result that is both
+  /// reproducible _and_ accurate:
+  /// ```
+  /// let result = data.reduce(0, +)/3
+  /// ```
+  /// but this isn't always possible in more sophisticated scenarios,
+  /// and in those cases this rounding rule may be useful.
   case stochastically
   
   /// If the value being rounded is representable, that value is returned.

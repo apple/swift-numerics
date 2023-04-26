@@ -126,12 +126,13 @@ extension BinaryInteger {
     }
   }
   
-  // TODO: make this API and make it possible to implement more
-  // efficiently. Customization point on new/revised integer
-  // protocol? Shouldn't have to go through .words.
+  // TODO: make this API and make it possible to implement more efficiently.
+  // Customization point on new/revised integer protocol? Shouldn't have to
+  // go through .words.
+  
   /// The index of the most-significant set bit.
   ///
-  /// - Precondition: self is assumed to be non-zero (to be changed
+  /// - Precondition: self is assumed to be non-zero (should be changed
   ///   if/when this becomes API).
   @usableFromInline
   internal var _msb: Int {
