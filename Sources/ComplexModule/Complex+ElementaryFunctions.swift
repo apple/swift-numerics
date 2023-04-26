@@ -119,7 +119,7 @@ extension Complex: ElementaryFunctions {
     }
     // Special cases out of the way, evaluate as discussed above.
     return Complex(
-      RealType._mulAdd(.cos(z.y), .expMinusOne(z.x), .cosMinusOne(z.y)),
+      Relaxed.multiplyAdd(.cos(z.y), .expMinusOne(z.x), .cosMinusOne(z.y)),
       .exp(z.x) * .sin(z.y)
     )
   }
@@ -300,7 +300,7 @@ extension Complex: ElementaryFunctions {
     // We are not trying for sub-ulp accuracy, just a good relative error
     // bound, so for our purposes it suffices to have log u dominate the
     // result:
-    if u >= 1 || u >= RealType._mulAdd(u,u,v*v) {
+    if u >= 1 || u >= Relaxed.multiplyAdd(u, u, v*v) {
       let r = v / u
       return Complex(.log(u) + .log(onePlus: r*r)/2, θ)
     }
