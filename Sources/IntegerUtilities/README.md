@@ -4,7 +4,7 @@ _Note: This module is only present on `main`, and has not yet been stabilized an
 
 ## Utilities defined for `BinaryInteger`
 
-The following API are defined for all integer types conforming to `BinaryInteger`:
+The following API are defined for all integer types:
 
 - The `gcd(_:_:)` free function implements the _Greatest Common Divisor_ operation.
   
@@ -36,6 +36,32 @@ The following API are defined for signed integer types:
 
 - The `rotated(right:)` and `rotated(left:)` methods implement _bitwise rotation_ for signed and unsigned integer types.
   The count parameter may be any `BinaryInteger` type.
+  
+### Saturating Arithmetic
+
+The following saturating operations are defined as methods on
+`FixedWidthInteger` types:
+
+- `addingWithSaturation(_:)`
+- `subtractingWithSaturation(_:)`
+- `negatedWithSaturation(_:)`
+- `multipliedWithSaturation(by:)`
+
+These implement _saturating arithmetic_. These are an alternative to the 
+usual `+`, `-`, and `*` operators, which trap if the result cannot be 
+represented in the argument type, and `&+`, `&-`, and `&*` which wrap
+out-of-range results modulo 2ⁿ for some n. Instead these methods clamp
+the result to the representable range of the type:
+```
+let x: Int8 = 84
+let y: Int8 = 100
+let a = x + y                     // traps due to overflow
+let b = x &+ y                    // wraps to -72
+let c = x.addingWithSaturation(y) // saturates to 127
+```
+
+There is one other method, `shiftedWithSaturation(leftBy:rounding:)`,
+which performs a bitwise shift with rounding and saturation.
 
 ## Types
 

@@ -62,10 +62,10 @@ extension BinaryInteger {
       // rounding, and then shifting the remaining bitWidth - 1 bits with
       // the desired rounding mode.
       let count = count - Count(bitWidth - 1)
-      var floor = self >> count
+      let floor = self >> count
       let lost = self - (floor << count)
-      if lost != 0 { floor |= 1 } // insert sticky bit
-      return floor.shifted(rightBy: bitWidth - 1, rounding: rule)
+      let sticky = floor | (lost == 0 ? 0 : 1)
+      return sticky.shifted(rightBy: bitWidth - 1, rounding: rule)
     }
     // Now we are in the happy case: 0 < count < bitWidth, which makes all
     // the math to handle rounding simpler.
