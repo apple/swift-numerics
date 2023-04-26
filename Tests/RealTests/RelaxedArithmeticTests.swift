@@ -21,7 +21,7 @@ func strictSum<T: Real>(_ array: [T]) -> T {
 }
 
 func relaxedSum<T: Real>(_ array: [T]) -> T {
-  array.reduce(0, T._relaxedAdd)
+  array.reduce(0, Relaxed.sum)
 }
 
 func strictSumOfSquares<T: Real>(_ array: [T]) -> T {
@@ -29,7 +29,7 @@ func strictSumOfSquares<T: Real>(_ array: [T]) -> T {
 }
 
 func relaxedSumOfSquares<T: Real>(_ array: [T]) -> T {
-  array.reduce(0) { ._relaxedAdd($0, ._relaxedMul($1, $1)) }
+  array.reduce(0) { Relaxed.multiplyAdd($1, $1, $0) }
 }
 
 // TODO: not a great harness, but making it better bumps up against the
@@ -61,6 +61,8 @@ final class RelaxedArithmeticTests: XCTestCase {
   }
   
   func testRelaxedSumPerformance() {
+    // Performance of this should be closer to vDSP.sum than to
+    // strict sum
     measure { benchmarkReduction(floatData, relaxedSum) }
   }
   
@@ -75,6 +77,8 @@ final class RelaxedArithmeticTests: XCTestCase {
   }
   
   func testRelaxedDotPerformance() {
+    // Performance of this should be closer to vDSP.sumOfSquares than to
+    // strict sumOfSquares
     measure { benchmarkReduction(floatData, relaxedSumOfSquares) }
   }
   
@@ -90,13 +94,13 @@ final class RelaxedArithmeticTests: XCTestCase {
     // produce the same result as a normal addition.
     let a = T.random(in: -1 ... 1)
     let b = T.random(in: -1 ... 1)
-    XCTAssertEqual(a + b, ._relaxedAdd(a, b))
+    XCTAssertEqual(a + b, Relaxed.sum(a, b))
     // Same is true for mul.
-    XCTAssertEqual(a * b, ._relaxedMul(a, b))
+    XCTAssertEqual(a * b, Relaxed.product(a, b))
     // add + mul must be either two operations or an FMA:
     let unfused = a + 1.5 * b
     let fused = a.addingProduct(1.5, b)
-    let relaxed = T._relaxedAdd(a, ._relaxedMul(1.5, b))
+    let relaxed = Relaxed.multiplyAdd(1.5, b, a)
     XCTAssert(relaxed == unfused || relaxed == fused)
     // Summing all values in an array can be associated however we want, but
     // has to satisfy the usual error bound of 0.5 * sum.ulp * numberOfElements.
