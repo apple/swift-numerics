@@ -16,9 +16,9 @@ import _TestSupport
 
 final class IntegerUtilitiesShiftTests: XCTestCase {
   
-  func testRoundingShift<T: FixedWidthInteger>(
-    _ value: T, _ count: Int, rounding rule: RoundingRule
-  ) {
+  func testRoundingShift<T, C>(
+    _ value: T, _ count: C, rounding rule: RoundingRule
+  ) where T: FixedWidthInteger, C: BinaryInteger {
     let floor = value >> count
     let lost = value &- floor << count
     let exact = count <= 0 || lost == 0
@@ -94,6 +94,10 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
       for _ in 0 ..< 100 {
         testRoundingShift(T.random(in: .min ... .max), count, rounding: rule)
       }
+    }
+    
+    for count in Int8.min ... .max {
+      testRoundingShift(T.random(in: .min ... .max), count, rounding: rule)
     }
   }
   
@@ -189,5 +193,56 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
     testStochasticAverage(UInt64.random(in: .min ... .max))
     testStochasticAverage(DoubleWidth<Int64>.random(in: .min ... .max))
     testStochasticAverage(DoubleWidth<UInt64>.random(in: .min ... .max))
+  }
+  
+  func testSaturatingShift<T, C>(
+    _ value: T, _ count: C, rounding rule: RoundingRule
+  ) where T: FixedWidthInteger, C: FixedWidthInteger {
+    let observed = value.shiftedWithSaturation(leftBy: count, rounding: rule)
+    var expected: T = 0
+    if count <= 0 {
+      expected = value.shifted(rightBy: -Int64(count), rounding: rule)
+    } else {
+      let multiplier: T = 1 << count
+      if multiplier <= 0 {
+        expected = value == 0 ? 0 :
+                   value  < 0 ? .min : .max
+      } else {
+        expected = value.multipliedWithSaturation(by: multiplier)
+      }
+    }
+    if observed != expected {
+      print("Error found in \(T.self).shiftedWithSaturation(leftBy: \(count), rounding: \(rule)).")
+      print("   Value: \(String(value, radix: 16))")
+      print("Expected: \(String(expected, radix: 16))")
+      print("Observed: \(String(observed, radix: 16))")
+      XCTFail()
+      return
+    }
+  }
+  
+  func testSaturatingShift<T: FixedWidthInteger>(
+    _ type: T.Type, rounding rule: RoundingRule
+  ) {
+    for count in Int8.min ... .max {
+      testSaturatingShift(0, count, rounding: rule)
+      for bits in 0 ..< T.bitWidth {
+        let msb: T.Magnitude = 1 << bits
+        let value = T(truncatingIfNeeded: msb) | .random(in: 0 ... T(msb-1))
+        testSaturatingShift(value, count, rounding: rule)
+        testSaturatingShift(0 &- value, count, rounding: rule)
+      }
+    }
+  }
+  
+  func testSaturatingShifts() {
+    testSaturatingShift(Int8.self, rounding: .toOdd)
+    testSaturatingShift(UInt8.self, rounding: .toOdd)
+    testSaturatingShift(Int.self, rounding: .toOdd)
+    testSaturatingShift(UInt.self, rounding: .toOdd)
+  }
+  
+  func testEdgeCaseForNegativeCount() {
+    XCTAssertEqual(1.shiftedWithSaturation(leftBy: Int.min), 0)
   }
 }
