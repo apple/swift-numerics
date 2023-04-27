@@ -42,8 +42,8 @@ extension BinaryInteger {
   ///     a.shifted(rightBy: count, rounding: rule)
   ///     a.divided(by: 1 << count, rounding: rule)
   @inlinable
-  public func shifted<Count: BinaryInteger>(
-    rightBy count: Count,
+  public func shifted(
+    rightBy count: Int,
     rounding rule: RoundingRule = .down
   ) -> Self {
     // Easiest case: count is zero or negative, so shift is always exact;
@@ -61,7 +61,7 @@ extension BinaryInteger {
       // shifts by first shifting all but bitWidth - 1 bits with sticky
       // rounding, and then shifting the remaining bitWidth - 1 bits with
       // the desired rounding mode.
-      let count = count - Count(bitWidth - 1)
+      let count = count - (bitWidth - 1)
       let floor = self >> count
       let lost = self - (floor << count)
       let sticky = floor | (lost == 0 ? 0 : 1)
@@ -154,5 +154,44 @@ extension BinaryInteger {
       precondition(lost == 0, "shift was not exact.")
       return floor
     }
+  }
+  
+  /// `self` divided by 2^(`count`), rounding the result according to `rule`.
+  ///
+  /// The default rounding rule is `.down`, which matches the behavior of
+  /// the `>>` operator from the standard library.
+  ///
+  /// Some examples of different rounding rules:
+  ///
+  ///     // 3/2 is 1.5, which rounds (down by default) to 1.
+  ///     3.shifted(rightBy: 1)
+  ///
+  ///     // 1.5 rounds up to 2.
+  ///     3.shifted(rightBy: 1, rounding: .up)
+  ///
+  ///     // The two closest values are 1 and 2, 1 is returned because it
+  ///     // is odd.
+  ///     3.shifted(rightBy: 1, rounding: .toOdd)
+  ///
+  ///     // 7/2^2 = 1.75, so the result is 1 with probability 1/4, and 2
+  ///     // with probability 3/4.
+  ///     7.shifted(rightBy: 2, rounding: .stochastically)
+  ///
+  ///     // 4/2^2 = 4/4 = 1, exactly.
+  ///     4.shifted(rightBy: 2, rounding: .trap)
+  ///
+  ///     // 5/2 is 2.5, which is not exact, so this traps.
+  ///     5.shifted(rightBy: 1, rounding: .requireExact)
+  ///
+  /// When `Self(1) << count` is positive, the following are equivalent:
+  ///
+  ///     a.shifted(rightBy: count, rounding: rule)
+  ///     a.divided(by: 1 << count, rounding: rule)
+  @_transparent
+  public func shifted(
+    rightBy count: some BinaryInteger,
+    rounding rule: RoundingRule = .down
+  ) -> Self {
+    self.shifted(rightBy: Int(clamping: count), rounding: rule)
   }
 }

@@ -10,8 +10,15 @@
 //===----------------------------------------------------------------------===//
 
 extension FixedWidthInteger {
-  @_transparent @usableFromInline
-  var sextOrZext: Self { self >> Self.bitWidth }
+  /// `~0` (all-ones) if this value is negative, otherwise `0`.
+  ///
+  /// Note that if `Self` is unsigned, this always returns `0`,
+  /// but it is useful for writing algorithms that are generic over
+  /// signed and unsigned integers.
+  @inline(__always) @usableFromInline
+  var signbit: Self {
+    return self < .zero ? ~.zero : .zero
+  }
   
   /// Saturating integer addition
   ///
@@ -29,8 +36,7 @@ extension FixedWidthInteger {
   @inlinable
   public func addingWithSaturation(_ other: Self) -> Self {
     let (wrapped, overflow) = addingReportingOverflow(other)
-    if !overflow { return wrapped }
-    return Self.max &- sextOrZext
+    return overflow ? Self.max &- signbit : wrapped
   }
   
   /// Saturating integer subtraction
@@ -54,7 +60,7 @@ extension FixedWidthInteger {
   public func subtractingWithSaturation(_ other: Self) -> Self {
     let (wrapped, overflow) = subtractingReportingOverflow(other)
     if !overflow { return wrapped }
-    return Self.isSigned ? Self.max &- sextOrZext : 0
+    return Self.isSigned ? Self.max &- signbit : 0
   }
   
   /// Saturating integer negation
@@ -85,10 +91,10 @@ extension FixedWidthInteger {
   public func multipliedWithSaturation(by other: Self) -> Self {
     let (high, low) = multipliedFullWidth(by: other)
     let wrapped = Self(truncatingIfNeeded: low)
-    if high == wrapped.sextOrZext { return wrapped }
-    return Self.max &- high.sextOrZext
+    if high == wrapped.signbit { return wrapped }
+    return Self.max &- high.signbit
   }
-  
+    
   /// Bitwise left with rounding and saturation.
   ///
   /// `self` multiplied by the rational number 2^(`count`), saturated to the
@@ -102,28 +108,20 @@ extension FixedWidthInteger {
   ///   and if negative a right shift.
   ///   - rounding rule: the direction in which to round if `count` is negative.
   @inlinable
-  public func shiftedWithSaturation<Count: BinaryInteger>(
-    leftBy count: Count, rounding rule: RoundingRule = .down
+  public func shiftedWithSaturation(
+    leftBy count: Int,
+    rounding rule: RoundingRule = .down
   ) -> Self {
-    // If count is zero or negative, negate it and do a right
-    // shift without saturation instead, since we already have
-    // that implemented.
+    if count == 0 { return self }
+    // If count is negative, negate it and do a right shift without
+    // saturation instead, since we already have that implemented.
     guard count > 0 else {
-      // negating count is tricky, because count's type can be
-      // an arbitrary BinaryInteger; in particular, it could be
-      // .min of a signed type, so that its negation cannot be
-      // represented in the same type. Fortunately, Int64 is
-      // always big enough to represent arbitrary shifts of
-      // arbitrary types, so we can use that as an intermediate
-      // type, and then we can use negatedWithSaturation() to
-      // handle the .min case.
-      let int64Count = Int64(clamping: count)
       return shifted(
-        rightBy: int64Count.negatedWithSaturation(),
+        rightBy: count.negatedWithSaturation(),
         rounding: rule
       )
     }
-    let clamped = Self.max &- sextOrZext
+    let clamped = Self.max &- signbit
     guard count < Self.bitWidth else {
       // If count is bitWidth or greater, we always overflow
       // unless self is zero.
@@ -143,7 +141,27 @@ extension FixedWidthInteger {
     //   does equal 0b0000_0000.
     let valueBits = Self.bitWidth &- (Self.isSigned ? 1 : 0)
     let wrapped = self &<< count
-    let complement = valueBits &- Int(count)
-    return self &>> complement == sextOrZext ? wrapped : clamped
+    let complement = valueBits &- count
+    return self &>> complement == signbit ? wrapped : clamped
+  }
+  
+  /// Bitwise left with rounding and saturation.
+  ///
+  /// `self` multiplied by the rational number 2^(`count`), saturated to the
+  /// range `Self.min ... Self.max`, and rounded according to `rule`.
+  ///
+  /// See `shifted(rightBy:rounding:)` for more discussion of rounding
+  /// shifts with examples.
+  ///
+  /// - Parameters:
+  ///   - leftBy count: the number of bits to shift by. If positive, this is a left-shift,
+  ///   and if negative a right shift.
+  ///   - rounding rule: the direction in which to round if `count` is negative.
+  @_transparent
+  public func shiftedWithSaturation(
+    leftBy count: some BinaryInteger,
+    rounding rule: RoundingRule = .down
+  ) -> Self {
+    self.shiftedWithSaturation(leftBy: Int(clamping: count), rounding: rule)
   }
 }

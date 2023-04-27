@@ -32,7 +32,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
     }
   }
   
-  func testSaturatingSubtractSigned() {
+  func testSaturatingSubSigned() {
     for a in Int8.min ... Int8.max {
       for b in Int8.min ... Int8.max {
         let expected = Int8(clamping: Int16(a) - Int16(b))
@@ -48,7 +48,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
     }
   }
   
-  func testSaturatingNegation() {
+  func testSaturatingNegSigned() {
     for a in Int8.min ... Int8.max {
       let expected = Int8(clamping: 0 - Int16(a))
       let observed = a.negatedWithSaturation()
@@ -62,7 +62,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
     }
   }
   
-  func testSaturatingMultiplicationSigned() {
+  func testSaturatingMulSigned() {
     for a in Int8.min ... Int8.max {
       for b in Int8.min ... Int8.max {
         let expected = Int8(clamping: Int16(a) * Int16(b))
@@ -94,7 +94,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
     }
   }
   
-  func testSaturatingSubtractUnsigned() {
+  func testSaturatingSubUnsigned() {
     for a in UInt8.min ... UInt8.max {
       for b in UInt8.min ... UInt8.max {
         let expected = UInt8(clamping: Int16(a) - Int16(b))
@@ -110,7 +110,20 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
     }
   }
   
-  func testSaturatingMultiplicationUnsigned() {
+  func testSaturatingNegUnsigned() {
+    for a in UInt8.min ... UInt8.max {
+      let observed = a.negatedWithSaturation()
+      if 0 != observed {
+        print("Error found in (\(a)).negatedWithSaturation().")
+        print("Expected: zero")
+        print("Observed: \(String(observed, radix: 16))")
+        XCTFail()
+        return
+      }
+    }
+  }
+  
+  func testSaturatingMulUnsigned() {
     for a in UInt8.min ... UInt8.max {
       for b in UInt8.min ... UInt8.max {
         let expected = UInt8(clamping: UInt16(a) * UInt16(b))

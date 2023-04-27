@@ -119,6 +119,21 @@ extension IntegerUtilitiesRotateTests {
   ])
 }
 
+extension IntegerUtilitiesSaturatingTests {
+  static var all = testCase([
+    ("testSaturatingAddSigned", IntegerUtilitiesSaturatingTests.testSaturatingAddSigned),
+    ("testSaturatingSubSigned", IntegerUtilitiesSaturatingTests.testSaturatingSubSigned),
+    ("testSaturatingNegSigned", IntegerUtilitiesSaturatingTests.testSaturatingNegSigned),
+    ("testSaturatingMulSigned", IntegerUtilitiesSaturatingTests.testSaturatingMulSigned),
+    ("testSaturatingAddUnsigned", IntegerUtilitiesSaturatingTests.testSaturatingAddUnsigned),
+    ("testSaturatingSubUnsigned", IntegerUtilitiesSaturatingTests.testSaturatingSubUnsigned),
+    ("testSaturatingNegUnsigned", IntegerUtilitiesSaturatingTests.testSaturatingNegUnsigned),
+    ("testSaturatingMulUnsigned", IntegerUtilitiesSaturatingTests.testSaturatingMulUnsigned),
+    ("testSaturatingShifts", IntegerUtilitiesSaturatingTests.testSaturatingShifts),
+    ("testEdgeCaseForNegativeCount", IntegerUtilitiesSaturatingTests.testEdgeCaseForNegativeCount)
+  ])
+}
+
 extension IntegerUtilitiesShiftTests {
   static var all = testCase([
     ("testRoundingShifts", IntegerUtilitiesShiftTests.testRoundingShifts),
@@ -170,6 +185,7 @@ var testCases = [
   IntegerUtilitiesGCDTests.all,
   IntegerUtilitiesRotateTests.all,
   IntegerUtilitiesShiftTests.all,
+  IntegerUtilitiesSaturatingTests.all,
   IntegerUtilitiesTests.DoubleWidthTests.all,
 ]
 
