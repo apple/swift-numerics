@@ -182,7 +182,7 @@ final class BigIntTests: XCTestCase {
     var expectedNumber: BigInt!
     
     measure {
-      expectedNumber = BigInt(Self.descriptionFactorial512_radix10, radix: 10)
+      expectedNumber = BigInt(Self.descriptionFactorial512_radix16, radix: 16)
     }
     
     XCTAssertEqual(expectedNumber, BigInt(Self.descriptionFactorial512_radix10, radix: 10))
@@ -193,10 +193,10 @@ final class BigIntTests: XCTestCase {
     var expectedString = ""
     
     measure {
-      expectedString = number.toString(radix: 10, uppercase: false)
+      expectedString = number.toString(radix: 16, uppercase: false)
     }
     
-    XCTAssertEqual(expectedString, Self.descriptionFactorial512_radix10)
+    XCTAssertEqual(expectedString, Self.descriptionFactorial512_radix16)
   }
 
   func testFactorial() {

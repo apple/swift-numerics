@@ -9,8 +9,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-import Foundation
-
 public struct BigInt: SignedInteger {
 
   public typealias Words = [UInt]
@@ -151,11 +149,11 @@ extension BigInt: LosslessStringConvertible {
     var currentWord = UInt(0)
     let firstWordCount = remainingCount % charCountPerWord
     var remainingCharsInCurrentWord = firstWordCount == 0 ? charCountPerWord : firstWordCount
-    let powerOfTwo = radix & (radix - 1) == 0
+    let isPowerOfTwo = radix & (radix - 1) == 0
 
     // working buffer
     var buffer = Words(repeating: 0, count: capacity)
-    if powerOfTwo {
+    if isPowerOfTwo {
       // Radix powers of 2 convert about 10X faster with this algorithm
       var reverseIndex = chars.endIndex
       chars.formIndex(before: &reverseIndex)
@@ -306,17 +304,16 @@ extension BigInt : CustomStringConvertible {
     
     if self.signum() == 0 { return "0" }
 
-    let logWord = log(Double(UInt.max))
-    let logRadix = log(Double(radix))
-    let digitCount = Int(logWord/logRadix * Double(words.count) + 0.5)
+    let digitCount = Int(Self.radixDigits[radix-2] * Double(words.count) + 0.5)
     let (charPerWord, power) = Self.maxRepresentablePower(of: radix)
     let stringMaxSize = digitCount + (self._isNegative ? 1 : 0)
-    let isPowerOfTwoRadix = radix & (radix-1) == 0
+    let radixValid = radix != 8 && radix != 32
+    let isValidPowerOfTwoRadix = (radix & (radix-1) == 0) && radixValid
     
     var words = self.magnitude.words; words.reserveCapacity(self.words.count)
-    if #available(macOS 11.0, *) {
+    if #available(macOS 11.0, iOS 14.0, *) {
       return StringLiteralType(unsafeUninitializedCapacity: stringMaxSize) { buffer in
-        if isPowerOfTwoRadix {
+        if isValidPowerOfTwoRadix {
           // Handle powers-of-two radixes
           let bitsPerChar = radix.trailingZeroBitCount
           let qr = UInt.bitWidth.quotientAndRemainder(dividingBy: bitsPerChar)
@@ -413,6 +410,18 @@ extension BigInt : CustomStringConvertible {
     let n = UInt8(truncatingIfNeeded: n)
     return n < 10 ? n + Self._0 : n - 10 + (uppercase ? Self._A : Self._a)
   }
+  
+  /// Table of the number of digits for each radix from 2 to 36
+  ///   y = log(Double(UInt.max)) / log(Double(radix))
+  static let radixDigits : [Double] = [
+    64,            40.3795042286, 32.0000000000, 27.5632997167, 24.7585796630,
+    22.7972599749, 21.3333333333, 20.1897521143, 19.2659197225, 18.5001488843,
+    17.8523485217, 17.2952418833, 16.8095702424, 16.3813135878, 16.0000000000,
+    15.6576346956, 15.3479978604, 15.0661704555, 14.8082056422, 14.5708959166,
+    14.3516047499, 14.1481426853, 13.9586746871, 13.7816498583, 13.6157474274,
+    13.4598347429, 13.3129342513, 13.1741972775, 13.0428830138, 12.9183415413,
+    12.8000000000, 12.6873512429, 12.5799444629, 12.4773774012, 12.3792898315
+  ]
   
   /// NEW CODE ENDS
   ///
