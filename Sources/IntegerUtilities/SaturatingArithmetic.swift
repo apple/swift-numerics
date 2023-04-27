@@ -54,7 +54,7 @@ extension FixedWidthInteger {
   public func subtractingWithSaturation(_ other: Self) -> Self {
     let (wrapped, overflow) = subtractingReportingOverflow(other)
     if !overflow { return wrapped }
-    return Self.max &- sextOrZext
+    return Self.isSigned ? Self.max &- sextOrZext : 0
   }
   
   /// Saturating integer negation
@@ -144,7 +144,6 @@ extension FixedWidthInteger {
     let valueBits = Self.bitWidth &- (Self.isSigned ? 1 : 0)
     let wrapped = self &<< count
     let complement = valueBits &- Int(count)
-    if self &>> complement == sextOrZext { return wrapped }
-    return clamped
+    return self &>> complement == sextOrZext ? wrapped : clamped
   }
 }
