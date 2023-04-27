@@ -65,9 +65,10 @@ which performs a bitwise shift with rounding and saturation.
 
 If you are using saturating arithmetic, you may also want to perform
 saturating conversions between integer types; this functionality is provided
-by the standard library via the [`init(clamping:)` API]
-(https://developer.apple.com/documentation/swift/binaryinteger/init(clamping:))
+by the standard library via the [`init(clamping:)` API][clamping]
 
 ## Types
 
 The `RoundingRule` enum is used with shift, division, and round operations to specify how to round their results to a representable value.
+
+[clamping]: https://developer.apple.com/documentation/swift/binaryinteger/init(clamping:)
