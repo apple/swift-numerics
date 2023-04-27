@@ -63,6 +63,11 @@ let c = x.addingWithSaturation(y) // saturates to 127
 There is one other method, `shiftedWithSaturation(leftBy:rounding:)`,
 which performs a bitwise shift with rounding and saturation.
 
+If you are using saturating arithmetic, you may also want to perform
+saturating conversions between integer types; this functionality is provided
+by the standard library via the [`init(clamping:)` API]
+(https://developer.apple.com/documentation/swift/binaryinteger/init(clamping:))
+
 ## Types
 
 The `RoundingRule` enum is used with shift, division, and round operations to specify how to round their results to a representable value.
