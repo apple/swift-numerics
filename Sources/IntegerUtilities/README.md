@@ -37,21 +37,19 @@ The following API are defined for signed integer types:
 - The `rotated(right:)` and `rotated(left:)` methods implement _bitwise rotation_ for signed and unsigned integer types.
   The count parameter may be any `BinaryInteger` type.
   
-### Saturating Arithmetic
+### [Saturating Arithmetic][saturating]
 
-The following saturating operations are defined as methods on
-`FixedWidthInteger` types:
+The following saturating operations are defined as methods on `FixedWidthInteger`:
 
 - `addingWithSaturation(_:)`
 - `subtractingWithSaturation(_:)`
 - `negatedWithSaturation(_:)`
 - `multipliedWithSaturation(by:)`
+- `shiftedWithSaturation(leftBy:rounding:)`
 
-These implement _saturating arithmetic_. These are an alternative to the 
-usual `+`, `-`, and `*` operators, which trap if the result cannot be 
-represented in the argument type, and `&+`, `&-`, and `&*` which wrap
-out-of-range results modulo 2ⁿ for some n. Instead these methods clamp
-the result to the representable range of the type:
+These implement _saturating arithmetic_.
+They are an alternative to the usual `+`, `-`, and `*` operators, which trap if the result cannot be represented in the argument type, and `&+`, `&-`, `&*`, and `<<`, which wrap out-of-range results modulo 2ⁿ for some n.
+Instead these methods clamp the result to the representable range of the type:
 ```
 let x: Int8 = 84
 let y: Int8 = 100
@@ -60,15 +58,11 @@ let b = x &+ y                    // wraps to -72
 let c = x.addingWithSaturation(y) // saturates to 127
 ```
 
-There is one other method, `shiftedWithSaturation(leftBy:rounding:)`,
-which performs a bitwise shift with rounding and saturation.
-
-If you are using saturating arithmetic, you may also want to perform
-saturating conversions between integer types; this functionality is provided
-by the standard library via the [`init(clamping:)` API][clamping]
+If you are using saturating arithmetic, you may also want to perform saturating conversions between integer types; this functionality is provided by the standard library via the [`init(clamping:)` API][clamping].
 
 ## Types
 
 The `RoundingRule` enum is used with shift, division, and round operations to specify how to round their results to a representable value.
 
+[saturating]: https://en.wikipedia.org/wiki/Saturation_arithmetic
 [clamping]: https://developer.apple.com/documentation/swift/binaryinteger/init(clamping:)
