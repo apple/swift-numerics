@@ -16,6 +16,7 @@ import _TestSupport
 import Accelerate
 #endif
 
+#if !DEBUG
 func strictSum<T: Real>(_ array: [T]) -> T {
   array.reduce(0, +)
 }
@@ -36,11 +37,7 @@ func relaxedSumOfSquares<T: Real>(_ array: [T]) -> T {
 // limitations of what XCT measure { } lets us do easily. Good enough for now.
 func benchmarkReduction(_ data: [Float], _ reduction: ([Float]) -> Float) {
   var accum: Float = 0
-#if DEBUG
-  let iters = 1_000
-#else
   let iters = 100_000
-#endif
   for _ in 0 ..< iters {
     accum += reduction(data)
   }
@@ -129,3 +126,4 @@ final class RelaxedArithmeticTests: XCTestCase {
 #endif
   }
 }
+#endif
