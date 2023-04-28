@@ -27,14 +27,14 @@ extension BinaryInteger {
   ///     // is odd.
   ///     3.shifted(rightBy: 1, rounding: .toOdd)
   ///
-  ///     // 7/2^2 = 1.75, so the result is 1 with probability 1/4, and 2
+  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, and 2
   ///     // with probability 3/4.
   ///     7.shifted(rightBy: 2, rounding: .stochastically)
   ///
-  ///     // 4/2^2 = 4/4 = 1, exactly.
+  ///     // 4/4 is exactly 1, so this does not trap.
   ///     4.shifted(rightBy: 2, rounding: .trap)
   ///
-  ///     // 5/2 is 2.5, which is not exact, so this traps.
+  ///     // 5/2 is 2.5, which is not an integer, so this traps.
   ///     5.shifted(rightBy: 1, rounding: .requireExact)
   ///
   /// When `Self(1) << count` is positive, the following are equivalent:
@@ -124,18 +124,18 @@ extension BinaryInteger {
       return floor + Self((round + lost) >> count)
     case .stochastically:
       // TODO: it's unfortunate that we can't specify a custom random source
-      // for the stochastically rounding rule, but I don't see a nice way to have
-      // that share the API with the other rounding rules, because we'd then
-      // have to take the RNG in-out. The same problem applies to rounding
-      // with dithering. We should consider adding a stateful rounding API
-      // down the road to support those use cases.
+      // for the stochastically rounding rule, but I don't see a nice way to
+      // have that share the API with the other rounding rules, because we'd
+      // then have to take the RNG in-out. The same problem applies to
+      // rounding with dithering. We should consider adding a stateful
+      // rounding API down the road to support those use cases.
       //
       // In theory, u01 should be Self.random(in: 0 ..< onesBit), but the
       // random(in:) method does not exist on BinaryInteger. This is
       // (arguably) good, though, because there's actually no reason to
-      // generate large amounts of randomness just to implement stochastically
-      // rounding for bigints; 32b suffices for most purposes, and 64b is
-      // more than enough.
+      // generate large amounts of randomness just to implement stochastic
+      // rounding; 32b suffices for almost all purposes, and 64b is more
+      // than enough.
       var g = SystemRandomNumberGenerator()
       let u01 = g.next()
       if count < 64 {
@@ -173,14 +173,14 @@ extension BinaryInteger {
   ///     // is odd.
   ///     3.shifted(rightBy: 1, rounding: .toOdd)
   ///
-  ///     // 7/2^2 = 1.75, so the result is 1 with probability 1/4, and 2
+  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, and 2
   ///     // with probability 3/4.
   ///     7.shifted(rightBy: 2, rounding: .stochastically)
   ///
-  ///     // 4/2^2 = 4/4 = 1, exactly.
+  ///     // 4/4 is exactly 1, so this does not trap.
   ///     4.shifted(rightBy: 2, rounding: .trap)
   ///
-  ///     // 5/2 is 2.5, which is not exact, so this traps.
+  ///     // 5/2 is 2.5, which is not an integer, so this traps.
   ///     5.shifted(rightBy: 1, rounding: .requireExact)
   ///
   /// When `Self(1) << count` is positive, the following are equivalent:
