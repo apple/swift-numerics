@@ -12,6 +12,7 @@ add_library(IntegerUtilitiesTests
   DoubleWidthTests.swift
   GCDTests.swift
   RotateTests.swift
+  SaturatingArithmeticTests.swift
   ShiftTests.swift)
 target_compile_options(IntegerUtilitiesTests PRIVATE
   -enable-testing)

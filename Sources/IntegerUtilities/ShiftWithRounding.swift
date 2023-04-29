@@ -27,14 +27,14 @@ extension BinaryInteger {
   ///     // is odd.
   ///     3.shifted(rightBy: 1, rounding: .toOdd)
   ///
-  ///     // 7/2^2 = 1.75, so the result is 1 with probability 1/4, and 2
+  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, or 2
   ///     // with probability 3/4.
   ///     7.shifted(rightBy: 2, rounding: .stochastically)
   ///
-  ///     // 4/2^2 = 4/4 = 1, exactly.
-  ///     4.shifted(rightBy: 2, rounding: .trap)
+  ///     // 4/4 is exactly 1, so this does not trap.
+  ///     4.shifted(rightBy: 2, rounding: .requireExact)
   ///
-  ///     // 5/2 is 2.5, which is not exact, so this traps.
+  ///     // 5/2 is 2.5, which is not an integer, so this traps.
   ///     5.shifted(rightBy: 1, rounding: .requireExact)
   ///
   /// When `Self(1) << count` is positive, the following are equivalent:
@@ -42,8 +42,8 @@ extension BinaryInteger {
   ///     a.shifted(rightBy: count, rounding: rule)
   ///     a.divided(by: 1 << count, rounding: rule)
   @inlinable
-  public func shifted<Count: BinaryInteger>(
-    rightBy count: Count,
+  public func shifted(
+    rightBy count: Int,
     rounding rule: RoundingRule = .down
   ) -> Self {
     // Easiest case: count is zero or negative, so shift is always exact;
@@ -61,11 +61,11 @@ extension BinaryInteger {
       // shifts by first shifting all but bitWidth - 1 bits with sticky
       // rounding, and then shifting the remaining bitWidth - 1 bits with
       // the desired rounding mode.
-      let count = count - Count(bitWidth - 1)
-      var floor = self >> count
+      let count = count - (bitWidth - 1)
+      let floor = self >> count
       let lost = self - (floor << count)
-      if lost != 0 { floor |= 1 } // insert sticky bit
-      return floor.shifted(rightBy: bitWidth - 1, rounding: rule)
+      let sticky = floor | (lost == 0 ? 0 : 1)
+      return sticky.shifted(rightBy: bitWidth - 1, rounding: rule)
     }
     // Now we are in the happy case: 0 < count < bitWidth, which makes all
     // the math to handle rounding simpler.
@@ -124,18 +124,18 @@ extension BinaryInteger {
       return floor + Self((round + lost) >> count)
     case .stochastically:
       // TODO: it's unfortunate that we can't specify a custom random source
-      // for the stochastically rounding rule, but I don't see a nice way to have
-      // that share the API with the other rounding rules, because we'd then
-      // have to take the RNG in-out. The same problem applies to rounding
-      // with dithering. We should consider adding a stateful rounding API
-      // down the road to support those use cases.
+      // for the stochastically rounding rule, but I don't see a nice way to
+      // have that share the API with the other rounding rules, because we'd
+      // then have to take the RNG in-out. The same problem applies to
+      // rounding with dithering. We should consider adding a stateful
+      // rounding API down the road to support those use cases.
       //
       // In theory, u01 should be Self.random(in: 0 ..< onesBit), but the
       // random(in:) method does not exist on BinaryInteger. This is
       // (arguably) good, though, because there's actually no reason to
-      // generate large amounts of randomness just to implement stochastically
-      // rounding for bigints; 32b suffices for most purposes, and 64b is
-      // more than enough.
+      // generate large amounts of randomness just to implement stochastic
+      // rounding; 32b suffices for almost all purposes, and 64b is more
+      // than enough.
       var g = SystemRandomNumberGenerator()
       let u01 = g.next()
       if count < 64 {
@@ -154,5 +154,44 @@ extension BinaryInteger {
       precondition(lost == 0, "shift was not exact.")
       return floor
     }
+  }
+  
+  /// `self` divided by 2^(`count`), rounding the result according to `rule`.
+  ///
+  /// The default rounding rule is `.down`, which matches the behavior of
+  /// the `>>` operator from the standard library.
+  ///
+  /// Some examples of different rounding rules:
+  ///
+  ///     // 3/2 is 1.5, which rounds (down by default) to 1.
+  ///     3.shifted(rightBy: 1)
+  ///
+  ///     // 1.5 rounds up to 2.
+  ///     3.shifted(rightBy: 1, rounding: .up)
+  ///
+  ///     // The two closest values are 1 and 2, 1 is returned because it
+  ///     // is odd.
+  ///     3.shifted(rightBy: 1, rounding: .toOdd)
+  ///
+  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, or 2
+  ///     // with probability 3/4.
+  ///     7.shifted(rightBy: 2, rounding: .stochastically)
+  ///
+  ///     // 4/4 is exactly 1, so this does not trap.
+  ///     4.shifted(rightBy: 2, rounding: .requireExact)
+  ///
+  ///     // 5/2 is 2.5, which is not an integer, so this traps.
+  ///     5.shifted(rightBy: 1, rounding: .requireExact)
+  ///
+  /// When `Self(1) << count` is positive, the following are equivalent:
+  ///
+  ///     a.shifted(rightBy: count, rounding: rule)
+  ///     a.divided(by: 1 << count, rounding: rule)
+  @_transparent
+  public func shifted(
+    rightBy count: some BinaryInteger,
+    rounding rule: RoundingRule = .down
+  ) -> Self {
+    self.shifted(rightBy: Int(clamping: count), rounding: rule)
   }
 }

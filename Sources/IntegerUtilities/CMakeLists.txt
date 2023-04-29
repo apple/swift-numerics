@@ -12,6 +12,7 @@ add_library(IntegerUtilities
   GCD.swift
   Rotate.swift
   RoundingRule.swift
+  SaturatingArithmetic.swift
   ShiftWithRounding.swift)
 set_target_properties(IntegerUtilities PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
