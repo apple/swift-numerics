@@ -32,7 +32,7 @@ extension BinaryInteger {
   ///     7.shifted(rightBy: 2, rounding: .stochastically)
   ///
   ///     // 4/4 is exactly 1, so this does not trap.
-  ///     4.shifted(rightBy: 2, rounding: .trap)
+  ///     4.shifted(rightBy: 2, rounding: .requireExact)
   ///
   ///     // 5/2 is 2.5, which is not an integer, so this traps.
   ///     5.shifted(rightBy: 1, rounding: .requireExact)
