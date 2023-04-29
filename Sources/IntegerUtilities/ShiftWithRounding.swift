@@ -27,7 +27,7 @@ extension BinaryInteger {
   ///     // is odd.
   ///     3.shifted(rightBy: 1, rounding: .toOdd)
   ///
-  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, and 2
+  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, or 2
   ///     // with probability 3/4.
   ///     7.shifted(rightBy: 2, rounding: .stochastically)
   ///
