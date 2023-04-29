@@ -173,12 +173,12 @@ extension BinaryInteger {
   ///     // is odd.
   ///     3.shifted(rightBy: 1, rounding: .toOdd)
   ///
-  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, and 2
+  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, or 2
   ///     // with probability 3/4.
   ///     7.shifted(rightBy: 2, rounding: .stochastically)
   ///
   ///     // 4/4 is exactly 1, so this does not trap.
-  ///     4.shifted(rightBy: 2, rounding: .trap)
+  ///     4.shifted(rightBy: 2, rounding: .requireExact)
   ///
   ///     // 5/2 is 2.5, which is not an integer, so this traps.
   ///     5.shifted(rightBy: 1, rounding: .requireExact)
