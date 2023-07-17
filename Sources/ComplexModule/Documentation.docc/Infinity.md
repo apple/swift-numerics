@@ -14,10 +14,11 @@ the same.
 
 ## Rationale
 
-This decision has some drawbacks,¹ but also some significant advantages.
-In particular, complex multiplication is one of the most common operations with
-a complex type, and one would like to be able to use the usual naive arithmetic
-implementation, consisting of four real multiplications and two real additions:
+This choice has some drawbacks,¹ but also some significant advantages.
+In particular, complex multiplication is the most common operation performed
+with a complex type, and one would like to be able to use the usual naive 
+arithmetic implementation, consisting of four real multiplications and two
+real additions:
 ```
 (a + bi) * (c + di) = (ac - bd) + (ad + bc)i
 ```
