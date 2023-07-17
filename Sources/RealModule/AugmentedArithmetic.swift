@@ -9,11 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// A namespace for "augmented arithmetic" operations for types conforming to
-/// `Real`.
-///
-/// Augmented arithmetic refers to a family of algorithms that represent
-/// the results of floating-point computations using multiple values such that
+/// Augmented arithmetic provides a family of algorithms that represent the
+/// results of floating-point computations using multiple values such that
 /// either the error is minimized or the result is exact.
 public enum Augmented { }
 

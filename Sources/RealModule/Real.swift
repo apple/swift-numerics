@@ -24,18 +24,19 @@
 /// }
 /// ```
 /// See also `ElementaryFunctions`, `RealFunctions` and `AlgebraicField`.
-public protocol Real: FloatingPoint, RealFunctions, AlgebraicField {
-}
+public protocol Real: FloatingPoint, RealFunctions, AlgebraicField { }
 
 //  While `Real` does not provide any additional customization points,
 //  it does allow us to default the implementation of a few operations,
 //  and also provides `signGamma`.
 extension Real {
   // Most math libraries do not provide exp10, so we need a default
-  // implementation.
+  // implementation. This is not a great one (if the underlying math
+  // library does not have a sub-ulp accurate pow, this will not get
+  // exact powers of ten right), but suffices in the short term.
   @_transparent
   public static func exp10(_ x: Self) -> Self {
-    return pow(10, x)
+    pow(10, x)
   }
   
   /// cos(x) - 1, computed in such a way as to maintain accuracy for small x.
@@ -90,7 +91,7 @@ extension Real {
   
   @_transparent
   public static func sqrt(_ x: Self) -> Self {
-    return x.squareRoot()
+    x.squareRoot()
   }
   
   /// The (approximate) reciprocal (multiplicative inverse) of this number,
@@ -128,13 +129,13 @@ extension Real {
   /// the real reciprocal (when it exists) as follows (I will use circle
   /// operators to denote real-number arithmetic, and normal operators
   /// for floating-point arithmetic):
-  ///
-  ///   a * b.reciprocal! = a * (1/b)
-  ///                     = a * (1 ⊘ b)(1 + δ₁)
-  ///                     = (a ⊘ b)(1 + δ₁)(1 + δ₂)
-  ///                     = (a ⊘ b)(1 + δ₁ + δ₂ + δ₁δ₂)
-  ///
-  /// where 0 < δᵢ <= ulpOfOne/2. This gives a roughly 1-ulp error,
+  /// ```
+  /// a * b.reciprocal! = a * (1/b)
+  ///                   = a * (1 ⊘ b)(1 + δ₁)
+  ///                   = (a ⊘ b)(1 + δ₁)(1 + δ₂)
+  ///                   = (a ⊘ b)(1 + δ₁ + δ₂ + δ₁δ₂)
+  /// ```
+  /// where `0 < δᵢ <= ulpOfOne/2`. This gives a roughly 1-ulp error,
   /// about twice the error bound we get using division. For most
   /// purposes this is an acceptable error, but if you need to match
   /// results obtained using division, you should not use this.

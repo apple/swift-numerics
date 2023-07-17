@@ -12,26 +12,29 @@
 extension BinaryInteger {
   /// `self` divided by `other`, rounding the result according to `rule`.
   ///
-  /// The default rounding rule is `.down`, which _is not the same_ as the
-  /// behavior of the `/` operator from the Swift standard library, but is
-  /// chosen because it generally produces a more useful remainder. In
-  /// particular, when `b` is positive, the remainder is always positive.
-  /// To match the behavior of `/`, use the `.towardZero` rounding mode.
+  /// By default, this function uses ``RoundingRule/down``, which **is not
+  /// the same** as the rounding of the `/` operator from the Swift standard
+  /// library. They agree when the signs of the arguments match, but produce
+  /// different results when the quotient is negative. This behavior is
+  /// chosen because it generally produces a more useful remainder; in
+  /// particular, when the divisor is positive, the remainder is always
+  /// positive. To match the behavior of `/`, use ``RoundingRule/towardZero``.
   ///
   /// Note that the remainder of division is not always representable in an
-  /// unsigned type if a rounding rule other than `.down`, `.towardZero`, or
-  /// `.requireExact` is used. For example:
-  ///
-  ///     let a: UInt = 5
-  ///     let b: UInt = 3
-  ///     let q = a.divided(by: b, rounding: .up) // 2
-  ///     let r = a - b*q // 5 - 3*2 overflows UInt.
-  ///
+  /// unsigned type if a rounding rule other than ``RoundingRule/down``,
+  /// ``RoundingRule/towardZero``, or ``RoundingRule/requireExact`` is
+  /// used. For example:
+  /// ```swift
+  /// let a: UInt = 5
+  /// let b: UInt = 3
+  /// let q = a.divided(by: b, rounding: .up) // 2
+  /// let r = a - b*q // 5 - 3*2 overflows UInt.
+  /// ```
   /// For this reason, there is no `remainder(dividingBy:rounding:)`
   /// operation defined on `BinaryInteger`. Signed integers do not have
-  /// this problem, so it is defined on the `SignedInteger` protocol
-  /// instead, as is an overload of `divided(by:rounding:)` that returns
-  /// both quotient and remainder.
+  /// this problem, so the `SignedInteger` protocol is extended with
+  /// ``SignedInteger/divided(by:rounding:)`` returning both quotient
+  /// and remainder.
   @inlinable
   public func divided(
     by other: Self,
@@ -52,7 +55,7 @@ extension BinaryInteger {
     // rounded toward zero.
     //
     // If we subtract 1 from q, we add other to r to compensate, because:
-    //
+    // 
     //   self = q*other + r
     //        = (q-1)*other + (r+other)
     //
@@ -151,10 +154,10 @@ extension SignedInteger {
   /// Divides `self` by `other`, rounding the quotient according to `rule`,
   /// and returns the remainder.
   ///
-  /// The default rounding rule is `.down`, which _is not the same_ as the
-  /// behavior of the `%` operator from the Swift standard library, but is
-  /// chosen because it generally produces a more useful remainder. To
-  /// match the behavior of `%`, use the `.towardZero` rounding mode.
+  /// The default rounding rule is ``RoundingRule/down``, which _is not the
+  /// same_ as the behavior of the `%` operator from the Swift standard
+  /// library, but is chosen because it generally produces a more useful
+  /// remainder. To match the behavior of `%`, use ``RoundingRule/towardZero``.
   ///
   /// - Precondition: `other` cannot be zero.
   @inlinable
@@ -170,10 +173,10 @@ extension SignedInteger {
   /// Divides `self` by `other`, rounding the quotient according to `rule`,
   /// and returns both the quotient and remainder.
   ///
-  /// The default rounding rule is `.down`, which _is not the same_ as the
-  /// behavior of the `/` operator from the Swift standard library, but is
-  /// chosen because it generally produces a more useful remainder. To
-  /// match the behavior of `/`, use the `.towardZero` rounding mode.
+  /// The default rounding rule is ``RoundingRule/down``, which _is not the
+  /// same_ as the behavior of the `%` operator from the Swift standard
+  /// library, but is chosen because it generally produces a more useful
+  /// remainder. To match the behavior of `/`, use ``RoundingRule/towardZero``.
   ///
   /// Because the default rounding mode does not match Swift's standard
   /// library, this function is a disfavored overload of `divided(by:)`
