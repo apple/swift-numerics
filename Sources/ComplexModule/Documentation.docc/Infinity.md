@@ -19,17 +19,21 @@ In particular, complex multiplication is the most common operation performed
 with a complex type, and one would like to be able to use the usual naive 
 arithmetic implementation, consisting of four real multiplications and two
 real additions:
+
 ```
 (a + bi) * (c + di) = (ac - bd) + (ad + bc)i
 ```
+
 `Complex` can use this implementation, because we do not differentiate between
 infinities and NaN values. C and C++, by contrast, cannot use this
 implementation by default, because, for example:
+
 ```
 (1 + ∞i) * (0 - 2i) = (1*0 - ∞*(-2)) + (1*(-2) + ∞*0)i
                     = (0 - ∞) + (-2 + nan)i
                     = -∞ + nan i
 ```
+
 `Complex` treats this as "infinity", which is the correct result. C and C++
 treat it as a nan value, however, which is incorrect; infinity multiplied
 by a non-zero number should be infinity. Thus, C and C++ (by default) must

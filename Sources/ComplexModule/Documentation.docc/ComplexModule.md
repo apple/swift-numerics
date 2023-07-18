@@ -7,6 +7,7 @@ Types and operations for working with complex numbers.
 The `Complex` type is generic over an associated `RealType`; complex numbers
 are represented as two `RealType` values, the real and imaginary parts of the
 number.
+
 ```
 let z = Complex<Double>(1, 2)
 let re = z.real
@@ -32,32 +33,42 @@ map them into Swift types by converting pointers.
 Because the real numbers are a subset of the complex numbers, many
 languages support arithmetic with mixed real and complex operands.
 For example, C allows the following:
+
 ```c
 #include <complex.h>
 double r = 1;
 double complex z = CMPLX(0, 2); // 2i
 double complex w = r + z;       // 1 + 2i
 ```
-The `Complex` type does not provide such mixed operators. There are two
-reasons for this choice. First, Swift generally avoids mixed-type
-arithmetic, period. Second, mixed-type arithmetic operators lead to
-undesirable behavior in common expressions when combined with literal
-type inference. Consider the following example:
+
+The `Complex` type does not provide such mixed operators:
+
+```swift
+let r = 1.0
+let z = Complex(imaginary: 2.0)
+let w = r + z // error: binary operator '+' cannot be applied to operands of type 'Double' and 'Complex<Double>'
+```
+
+In order to write the example from C above in Swift, you have to perform an
+explicit conversion:
+
+```swift
+let r = 1.0
+let z = Complex(imaginary: 2.0)
+let w = Complex(r) + z // OK
+```
+
+There are two reasons for this choice. Most importantly, Swift generally avoids
+mixed-type arithmetic. Second, if we _did_ provide such heterogeneous operators,
+it would lead to undesirable behavior in common expressions when combined with
+literal type inference. Consider the following example:
+
 ```swift
 let a: Double = 1
 let b = 2*a
 ```
-If we had a heterogeneous `*` operator defined, then if there's no prevailing
-type context (i.e. we aren't in an extension on some type), the expression
-`2*a` is ambiguous; `2` could be either a `Double` or `Complex<Double>`. In
-a `Complex` context, the situation is even worse: `2*a` is inferred to have
-type `Complex`.
 
-Therefore, the `Complex` type does not have these operators. In order to write
-the example from C above, you would use an explicit conversion:
-```swift
-import ComplexModule
-let r = 1.0
-let z = Complex<Double>(0, 2)
-let w = Complex(r) + z
-```
+`b` ought to have type `Double`, but if we did have a Complex-by-Real `*` 
+operation, `2*a` would either be ambiguous (if there were no type context),
+or be inferred to have type `Complex<Double>` (if the expression appeared
+in the context of an extension defined on `Compex`).

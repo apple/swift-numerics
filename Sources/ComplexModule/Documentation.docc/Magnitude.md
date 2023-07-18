@@ -62,6 +62,7 @@ However, there are good reasons to make a different choice:
 
 For these reasons, the `magnitude` property of `Complex` binds the
 maximum norm:
+
 ```swift
 Complex(2, 3).magnitude    // 3
 Complex(-1, 0.5).magnitude // 1
@@ -92,6 +93,7 @@ The `length` property takes special care to produce an accurate answer,
 even when the value is poorly-scaled. The naive expression for `length`
 would be `sqrt(x*x + y*y)`, but this can overflow or underflow even when
 the final result should be a finite number.
+
 ```swift
 // Suppose that length were implemented like this:
 extension Complex {
