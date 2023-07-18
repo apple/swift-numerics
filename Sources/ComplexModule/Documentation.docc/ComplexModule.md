@@ -71,4 +71,4 @@ let b = 2*a
 `b` ought to have type `Double`, but if we did have a Complex-by-Real `*` 
 operation, `2*a` would either be ambiguous (if there were no type context),
 or be inferred to have type `Complex<Double>` (if the expression appeared
-in the context of an extension defined on `Compex`).
+in the context of an extension defined on `Complex`).
