@@ -72,3 +72,15 @@ let b = 2*a
 operation, `2*a` would either be ambiguous (if there were no type context),
 or be inferred to have type `Complex<Double>` (if the expression appeared
 in the context of an extension defined on `Complex`).
+
+Note that we _do_ provide heterogeneous multiplication and division by a real
+value, spelled as ``Complex/divided(by:)`` and ``Complex/multiplied(by:)``
+to avoid ambiguity.
+
+```swift
+let z = Complex<Double>(1,3)
+let w = z.multiplied(by: 2)
+```
+
+These operations are generally more efficient than converting the scale to
+a complex number and then using `*` or `/`.
