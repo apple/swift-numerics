@@ -1,8 +1,6 @@
 # ``Complex``
 
-## Topics
-
-### Real and imaginary parts
+## Real and imaginary parts
 
 A `Complex` value is represented with two `RealType` values, corresponding to
 the real and imaginary parts of the number:
@@ -13,7 +11,7 @@ let re = z.real       //  1
 let im = z.imaginary  // -1
 ```
 
-All `Complex` numbers with a non-finite component is treated as a single
+All `Complex` numbers with a non-finite component are treated as a single
 "point at infinity," with infinite magnitude and indeterminant phase. Thus,
 the real and imaginary parts of an infinity are nan.
 
@@ -26,30 +24,9 @@ let im = w.imag       // .nan
 
 See <doc:Infinity> for more details.
 
-- ``init(_:_:)``
-- ``init(_:)-5aesj``
-- ``init(imaginary:)``
-- ``real``
-- ``imaginary``
+### Length and magnitude
 
-### Magnitude and norms
-
-See the article <doc:Magnitude> for more details.
-
-- ``magnitude``
-- ``length``
-- ``lengthSquared``
-- ``normalized``
-
-### Polar representations
-
-- ``init(length:phase:)``
-- ``phase``
-- ``length``
-- ``polar``
-
-### Conversions from other types
-
-- ``init(_:)-4csd3``
-- ``init(_:)-80jml``
-- ``init(exactly:)-767k9``
+The ``magnitude`` property of a complex number is the infinity norm of the
+value (a.k.a. “maximum norm” or “Чебышёв norm”). To get the two norm (a.k.a
+"Euclidean norm"), use the ``length`` property. See <doc:Magnitude> for more
+details.
