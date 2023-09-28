@@ -158,8 +158,8 @@ extension FixedWidthInteger {
   ///   and if negative a right shift.
   ///   - rounding rule: the direction in which to round if `count` is negative.
   @_transparent
-  public func shiftedWithSaturation(
-    leftBy count: some BinaryInteger,
+  public func shiftedWithSaturation<Count: BinaryInteger>(
+    leftBy count: Count,
     rounding rule: RoundingRule = .down
   ) -> Self {
     self.shiftedWithSaturation(leftBy: Int(clamping: count), rounding: rule)

@@ -188,8 +188,8 @@ extension BinaryInteger {
   ///     a.shifted(rightBy: count, rounding: rule)
   ///     a.divided(by: 1 << count, rounding: rule)
   @_transparent
-  public func shifted(
-    rightBy count: some BinaryInteger,
+  public func shifted<Count: BinaryInteger>(
+    rightBy count: Count,
     rounding rule: RoundingRule = .down
   ) -> Self {
     self.shifted(rightBy: Int(clamping: count), rounding: rule)
