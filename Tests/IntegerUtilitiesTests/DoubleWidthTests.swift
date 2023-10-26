@@ -129,6 +129,22 @@ final class DoubleWidthTests: XCTestCase {
 
     XCTAssertEqual(x % 3, 1)
     XCTAssertEqual(x % y, x)
+
+    do {
+      let lhs = _UInt16((high: 0b0011_0000, low: 0))
+      let rhs = _UInt16((high: 0b0010_0000, low: 0))
+      XCTAssertEqual(lhs % rhs, 4096)
+    }
+    do {
+      let lhs = _UInt128((high: 0xa0c7d7165cf01386, low: 0xbf3f66a93056143f))
+      let rhs = _UInt128((high: 0x9ac3a19b1e7d6b83, low: 0x513929792d588736))
+      XCTAssertEqual(String(lhs % rhs), "7997221894243298914179865336050715913")
+    }
+    do {
+      let lhs = _UInt128((high: 0xea8a9116b7af33b7, low: 0x3d9d6779ddd22ca3))
+      let rhs = _UInt128((high: 0xc3673efc7f1f37cc, low: 0x312f661057d0ba94))
+      XCTAssertEqual(String(lhs % rhs), "52023287460685389410162512181093036559")
+    }
   }
 
   func testArithmetic_Signed() {

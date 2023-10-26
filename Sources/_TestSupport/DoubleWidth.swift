@@ -735,11 +735,12 @@ extension DoubleWidth : UnsignedInteger where Base : UnsignedInteger {
 
     // Left shift both rhs and lhs, then divide and right shift the remainder.
     let shift = rhs.leadingZeroBitCount
+    let high = (lhs >> (Magnitude.bitWidth &- shift)).low
     let rhs = rhs &<< shift
-    let high = (lhs &>> (Magnitude.bitWidth &- shift)).low
     let lhs = lhs &<< shift
-    let (quotient, remainder) =
-      Magnitude._divide((high, lhs.high, lhs.low), by: rhs)
+    let (quotient, remainder) = high == (0 as Low)
+      ? (1, lhs &- rhs)
+      : Magnitude._divide((high, lhs.high, lhs.low), by: rhs)
     return (Magnitude(0, quotient), remainder &>> shift)
   }
 }
