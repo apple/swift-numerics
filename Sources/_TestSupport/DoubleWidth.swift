@@ -363,8 +363,10 @@ extension DoubleWidth : FixedWidthInteger {
         
     let low =
       DoubleWidth<Low>(mid1.partial, a.partial)
+    let (sum_, overflow_) =
+      mid1.carry.addingReportingOverflow(mid2.partial)
     let high =
-      DoubleWidth(High(mid2.carry + d.carry), mid1.carry + mid2.partial)
+      DoubleWidth(High(mid2.carry + d.carry + (overflow_ ? 1 : 0)), sum_)
         
     if isNegative {
       let (lowComplement, overflow) = (~low).addingReportingOverflow(1)
@@ -631,9 +633,13 @@ extension DoubleWidth : UnsignedInteger where Base : UnsignedInteger {
   ) -> (quotient: Low, remainder: Magnitude) {
     // The following invariants are guaranteed to hold by dividingFullWidth or
     // quotientAndRemainder before this method is invoked:
-    assert(lhs.high != (0 as Low))
     assert(rhs.leadingZeroBitCount == 0)
     assert(Magnitude(lhs.high, lhs.mid) < rhs)
+
+    guard lhs.high != (0 as Low) else {
+      let lhs_ = Magnitude(lhs.mid, lhs.low)
+      return lhs_ < rhs ? (0, lhs_) : (1, lhs_ &- rhs)
+    }
 
     // Estimate the quotient.
     var quotient = lhs.high == rhs.high
@@ -735,12 +741,13 @@ extension DoubleWidth : UnsignedInteger where Base : UnsignedInteger {
 
     // Left shift both rhs and lhs, then divide and right shift the remainder.
     let shift = rhs.leadingZeroBitCount
+    // Note the use of `>>` instead of `&>>` below,
+    // as `high` should be zero if `shift` is zero.
     let high = (lhs >> (Magnitude.bitWidth &- shift)).low
     let rhs = rhs &<< shift
     let lhs = lhs &<< shift
-    let (quotient, remainder) = high == (0 as Low)
-      ? (1, lhs &- rhs)
-      : Magnitude._divide((high, lhs.high, lhs.low), by: rhs)
+    let (quotient, remainder) =
+      Magnitude._divide((high, lhs.high, lhs.low), by: rhs)
     return (Magnitude(0, quotient), remainder &>> shift)
   }
 }
