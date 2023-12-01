@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2020 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2020 - 2022 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -365,11 +365,6 @@ final class TransformationTests: XCTestCase {
     testActOnVectorUnderflow(Float32.self)
     testActOnVectorUnderflow(Float64.self)
   }
-}
-
-// MARK: - Helper
-extension SIMD3 where Scalar: FloatingPoint {
-  fileprivate var isNaN: Bool { x.isNaN && y.isNaN && z.isNaN }
 }
 
 // TODO: replace with approximately equals

@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift.org open source project
 //
-// Copyright (c) 2019 - 2022 Apple Inc. and the Swift project authors
+// Copyright (c) 2019 - 2023 Apple Inc. and the Swift project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -16,7 +16,7 @@
 // them as real part (r) and imaginary vector part (v),
 // i.e: r + xi + yj + zk = r + v; and so we diverge a little from the
 // representation that is used in the documentation in other files and use this
-// notation of quaternions in the comments of the following functions.
+// notation of quaternions in (internal) comments of the following functions.
 //
 // Quaternionic elementary functions have many similarities with elementary
 // functions of complex numbers and their definition in terms of real
@@ -26,13 +26,12 @@
 
 import RealModule
 
-extension Quaternion/*: ElementaryFunctions */ {
-
+extension Quaternion: ElementaryFunctions {
   // MARK: - exp-like functions
   @inlinable
   public static func exp(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the `Real`
-    // operations `exp`, `cos` and `sin` as follows (`let θ = ||v||`):
+    // Mathematically, this operation can be expanded in terms of
+    // the `Real` operations `exp`, `cos` and `sin` (`let θ = ||v||`):
     //
     // ```
     // exp(r + v) = exp(r) exp(v)
@@ -42,7 +41,7 @@ extension Quaternion/*: ElementaryFunctions */ {
     // Note that naive evaluation of this expression in floating-point would be
     // prone to premature overflow, since `cos` and `sin` both have magnitude
     // less than 1 for most inputs (i.e. `exp(r)` may be infinity when
-    // `exp(r) cos(||v||)` would not be.
+    // `exp(r) cos(||v||)` would not be).
     guard q.isFinite else { return q }
     let (â, θ) = q.imaginary.unitAxisAndLength
     let rotation = Quaternion(halfAngle: θ, unitAxis: â)
@@ -59,8 +58,8 @@ extension Quaternion/*: ElementaryFunctions */ {
 
   @inlinable
   public static func expMinusOne(_ q: Quaternion) -> Quaternion {
-    // Mathematically, this operation can be expanded in terms of the `Real`
-    // operations `exp`, `cos` and `sin` as follows (`let θ = ||v||`):
+    // Mathematically, this operation can be expanded in terms of
+    // the `Real` operations `exp`, `cos` and `sin` (`let θ = ||v||`):
     //
     // ```
     // exp(r + v) - 1 = exp(r) exp(v) - 1
@@ -102,7 +101,7 @@ extension Quaternion/*: ElementaryFunctions */ {
   @inlinable
   public static func cosh(_ q: Quaternion) -> Quaternion {
     // Mathematically, this operation can be expanded in terms of
-    // trigonometric `Real` operations as follows (`let θ = ||v||`):
+    // trigonometric `Real` operations (`let θ = ||v||`):
     //
     // ```
     // cosh(q) = (exp(q) + exp(-q)) / 2
@@ -136,7 +135,7 @@ extension Quaternion/*: ElementaryFunctions */ {
   @inlinable
   public static func sinh(_ q: Quaternion) -> Quaternion {
     // Mathematically, this operation can be expanded in terms of
-    // trigonometric `Real` operations as follows (`let θ = ||v||`):
+    // trigonometric `Real` operations (`let θ = ||v||`):
     //
     // ```
     // sinh(q) = (exp(q) - exp(-q)) / 2
@@ -159,7 +158,7 @@ extension Quaternion/*: ElementaryFunctions */ {
   @inlinable
   public static func tanh(_ q: Quaternion) -> Quaternion {
     // Mathematically, this operation can be expanded in terms of
-    // trigonometric `Real` operations as follows (`let θ = ||v||`):
+    // quaternionic `sinh` and `cosh` operations:
     //
     // ```
     // tanh(q) = sinh(q) / cosh(q)
@@ -181,7 +180,12 @@ extension Quaternion/*: ElementaryFunctions */ {
 
   @inlinable
   public static func cos(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // quaternionic `cosh` operations (`let θ = ||v||`):
+    //
+    // ```
     // cos(q) = cosh(q * (v/θ)))
+    // ```
     let (â,_) = q.imaginary.unitAxisAndLength
     let p = Quaternion(imaginary: â)
     return cosh(q * p)
@@ -189,7 +193,12 @@ extension Quaternion/*: ElementaryFunctions */ {
 
   @inlinable
   public static func sin(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // quaternionic `sinh` operations (`let θ = ||v||`):
+    //
+    // ```
     // sin(q) = -(v/θ) * sinh(q * (v/θ)))
+    // ```
     let (â,_) = q.imaginary.unitAxisAndLength
     let p = Quaternion(imaginary: â)
     return -p * sinh(q * p)
@@ -197,18 +206,289 @@ extension Quaternion/*: ElementaryFunctions */ {
 
   @inlinable
   public static func tan(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // quaternionic `tanh` operations (`let θ = ||v||`):
+    //
+    // ```
     // tan(q) = -(v/θ) * tanh(q * (v/θ)))
+    // ```
     let (â,_) = q.imaginary.unitAxisAndLength
     let p = Quaternion(imaginary: â)
     return -p * tanh(q * p)
   }
+
+  // MARK: - log-like functions
+  @inlinable
+  public static func log(_ q: Quaternion) -> Quaternion {
+    // If q is zero or infinite, the phase is undefined, so the result is
+    // the single exceptional value.
+    guard q.isFinite && !q.isZero else { return .infinity }
+    // Having eliminated non-finite values and zero, the imaginary part is
+    // straightforward:
+    let (â, θ) = q.imaginary.unitAxisAndLength
+    let argument = RealType.atan2(y: θ, x: q.real)
+    let imaginary = â * argument
+    // The real part of the result is trickier and we employ the same approach
+    // as we did for the complex numbers logarithm to improve the relative error
+    // bounds (`Complex.log`). There you may also find a lot more details to
+    // the following approach.
+    //
+    // To handle very large arguments without overflow, _rescale the problem.
+    // This is done by finding whichever part has greater magnitude, and
+    // dividing through by it.
+    let u = max(q.real.magnitude, θ)
+    let v = min(q.real.magnitude, θ)
+    // Now expand out log |w|:
+    //
+    //     log |w| = log(u² + v²)/2
+    //             = log(u + log(onePlus: (u/v)²))/2
+    //
+    // This handles overflow well, because log(u) is finite for every finite u,
+    // and we have 0 ≤ v/u ≤ 1. Unfortunately, it does not handle all points
+    // close to the unit circle so well, as cancellation might occur.
+    //
+    // We are not trying for sub-ulp accuracy, just a good relative error
+    // bound, so for our purposes it suffices to have log u dominate the
+    // result:
+    if u >= 1 || u >= RealType._mulAdd(u,u,v*v) {
+      let r = v / u
+      return Quaternion(
+        real: .log(u) + .log(onePlus: r*r)/2,
+        imaginary: imaginary
+      )
+    }
+    // Here we're in the tricky case; cancellation is likely to occur.
+    // Instead of the factorization used above, we will want to evaluate
+    // log(onePlus: u² + v² - 1)/2. This all boils down to accurately
+    // evaluating u² + v² - 1.
+    let (a,b) = Augmented.product(u, u)
+    let (c,d) = Augmented.product(v, v)
+    var (s,e) = Augmented.sum(large: -1, small: a)
+    // Now we are ready to assemble the result. If cancellation happens,
+    // then |c| > |e| > |b| > |d|, so this assembly order is safe.
+    s = (s + c) + e + b + d
+    return Quaternion(real: .log(onePlus: s)/2, imaginary: imaginary)
+  }
+
+  @inlinable
+  public static func log(onePlus q: Quaternion) -> Quaternion {
+    // If either |r| or ||v||₁ is bounded away from the origin, we don't need
+    // any extra precision, and can just literally compute log(1+z). Note
+    // that this includes part of the sphere |1+q| = 1 where log(onePlus:)
+    // vanishes (where r <= -0.5), but on this portion of the sphere 1+r
+    // is always exact by Sterbenz' lemma, so as long as log( ) produces
+    // a good result, log(1+q) will too.
+    guard 2*q.real.magnitude < 1 && q.imaginary.oneNorm < 1 else {
+      return log(.one + q)
+    }
+    // q is in (±0.5, ±1), so we need to evaluate more carefully.
+    // The imaginary part is straightforward:
+    let argument = (.one + q).halfAngle
+    let (â,_) = q.imaginary.unitAxisAndLength
+    let imaginary = â * argument
+    // For the real part, we _could_ use the same approach that we do for
+    // log( ), but we'd need an extra-precise (1+r)², which can potentially
+    // be quite painful to calculate. Instead, we can use an approach that
+    // NevinBR suggested on the Swift forums for complex numbers:
+    //
+    //     Re(log(1+q)) = (log(1+q) + log(1+q̅)) / 2
+    //                  = log((1+q)(1+q̅)) / 2
+    //                  = log(1 + q + q̅ + qq̅) / 2
+    //                  = log(1 + 2r + r² + v²)) / 2
+    //                  = log(1 + (2+r)r + v²)) / 2
+    //                  = log(1 + (2+r)r + x² + y² + z²)) / 2
+    //                  = log(onePlus: (2+r)r + x² + y² + z²) / 2
+    //
+    // So now we need to evaluate (2+r)r + x² + y² + z² accurately.
+    // To do this, we employ augmented arithmetic
+    // (2+r)r + x² + y² + z²
+    //  --↓--
+    let rp2 = Augmented.sum(large: 2, small: q.real) // Known that 2 > |r|
+    var (head, δ) = Augmented.product(q.real, rp2.head)
+    var tail = δ
+    // head + x² + y² + z²
+    // ----↓----
+    let x² = Augmented.product(q.imaginary.x, q.imaginary.x)
+    (head, δ) = Augmented.sum(head, x².head)
+    tail += (δ + x².tail)
+    // head + y² + z²
+    // ----↓----
+    let y² = Augmented.product(q.imaginary.y, q.imaginary.y)
+    (head, δ) = Augmented.sum(head, y².head)
+    tail += (δ + y².tail)
+    // head + z²
+    // ----↓----
+    let z² = Augmented.product(q.imaginary.z, q.imaginary.z)
+    (head, δ) = Augmented.sum(head, z².head)
+    tail += (δ + z².tail)
+
+    let s = (head + tail).addingProduct(q.real, rp2.tail)
+    return Quaternion(real: .log(onePlus: s)/2, imaginary: imaginary)
+  }
+
+  @inlinable
+  public static func acos(_ q: Quaternion) -> Quaternion {
+    let (â, θ) = (sqrt(1+q).conjugate * sqrt(1-q)).imaginary.unitAxisAndLength
+    return Quaternion(
+      real: 2*RealType.atan2(y: sqrt(1-q).real, x: sqrt(1+q).real),
+      imaginary: â * RealType.asinh(θ)
+    )
+  }
+
+  @inlinable
+  public static func asin(_ q: Quaternion) -> Quaternion {
+    let (â, θ) = (sqrt(1-q).conjugate * sqrt(1+q)).imaginary.unitAxisAndLength
+    return Quaternion(
+      real: RealType.atan2(y: q.real, x: (sqrt(1-q) * sqrt(1+q)).real),
+      imaginary: â * RealType.asinh(θ)
+    )
+  }
+
+  @inlinable
+  public static func atan(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `atanh` operation (`let θ = ||v||`):
+    //
+    // ```
+    // atan(q) = -(v/θ) * atanh(q * (v/θ))
+    // ```
+    let (â, _) = q.imaginary.unitAxisAndLength
+    let p = Quaternion(imaginary: â)
+    return -p * .atanh(q * p)
+  }
+
+  @inlinable
+  public static func acosh(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `acos` operation (`let θ = ||v||`):
+    //
+    // ```
+    // acosh(q) = (v/θ) * acos(q)
+    // ```
+    let (â,_) = q.imaginary.unitAxisAndLength
+    let p = Quaternion(imaginary: â)
+    return p * acos(q)
+  }
+
+  @inlinable
+  public static func asinh(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `asin` operation (`let θ = ||v||`):
+    //
+    // ```
+    // sin(q) = -(v/θ) * asin(q * (v/θ)))
+    // ```
+    let (â,_) = q.imaginary.unitAxisAndLength
+    let p = Quaternion(imaginary: â)
+    return -p * .asin(q * p)
+  }
+
+  @inlinable
+  public static func atanh(_ q: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `log` operation:
+    //
+    // ```
+    // atanh(q) = (log(1 + q) - log(1 - q))/2
+    //          = (log(onePlus: q) - log(onePlus: -q))/2
+    // ```
+    (log(onePlus: q) - log(onePlus:-q))/2
+  }
+
+  // MARK: - pow-like functions
+  @inlinable
+  public static func pow(_ q: Quaternion, _ p: Quaternion) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `exp` and `log` operations:
+    //
+    // ```
+    // pow(q, p) = exp(log(pow(q, p)))
+    //           = exp(p * log(q))
+    // ```
+    if q.isZero { return p.real > 0 ? zero : infinity }
+    return exp(p * log(q))
+  }
+
+  @inlinable
+  public static func pow(_ q: Quaternion, _ n: Int) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `exp` and `log` operations:
+    //
+    // ```
+    // pow(q, n) = exp(log(pow(q, n)))
+    //           = exp(log(q) * n)
+    // ```
+    if q.isZero { return n < 0 ? infinity : n == 0 ? one : zero }
+    // TODO: this implementation is not quite correct, because n may be
+    // rounded in conversion to RealType. This only effects very extreme
+    // cases, so we'll leave it alone for now.
+    return exp(log(q).multiplied(by: RealType(n)))
+  }
+
+  @inlinable
+  public static func sqrt(_ q: Quaternion) -> Quaternion {
+    let lengthSquared = q.lengthSquared
+    if lengthSquared.isNormal {
+      // If |q|^2 doesn't overflow, then define s and t by (`let θ = ||v||`):
+      //
+      //    s = sqrt((|q|+|r|) / 2)
+      //    t = θ/2s
+      //
+      // If r is positive, the result is just w = (s, (v/θ) * t). If r is
+      // negative, the result is (|t|, (v/θ) * copysign(s, θ)) instead.
+      let (â, θ) = q.imaginary.unitAxisAndLength
+      let norm: RealType = .sqrt(lengthSquared)
+      let s: RealType = .sqrt((norm + q.real.magnitude) / 2)
+      let t: RealType = θ / (2*s)
+      if q.real.sign == .plus {
+        return Quaternion(
+          real: s,
+          imaginary: â * t)
+      } else {
+        return Quaternion(
+          real: t.magnitude,
+          imaginary: â * RealType(signOf: θ, magnitudeOf: s)
+        )
+      }
+    }
+    // Handle edge cases:
+    guard !q.isZero else {
+      return Quaternion(
+        real: 0,
+        imaginary:
+          RealType(signOf: q.components.x, magnitudeOf: 0),
+          RealType(signOf: q.components.y, magnitudeOf: 0),
+          RealType(signOf: q.components.z, magnitudeOf: 0)
+      )
+    }
+    guard q.isFinite else { return q }
+    // q is finite but badly-scaled. Rescale and replay by factoring out
+    // the larger of r and v.
+    let scale = q.magnitude
+    return Quaternion.sqrt(q.divided(by: scale)).multiplied(by: .sqrt(scale))
+  }
+
+  @inlinable
+  public static func root(_ q: Quaternion, _ n: Int) -> Quaternion {
+    // Mathematically, this operation can be expanded in terms of
+    // the quaternionic `exp` and `log` operations:
+    //
+    // ```
+    // root(q, n) = q^(1/n) = exp(log(q^(1/n)))
+    //                      = exp(log(q) / n)
+    // ```
+    guard !q.isZero else { return .zero }
+    // TODO: this implementation is not quite correct, because n may be
+    // rounded in conversion to RealType. This only effects very extreme
+    // cases, so we'll leave it alone for now.
+    return exp(log(q).divided(by: RealType(n)))
+  }
 }
 
 extension SIMD3 where Scalar: FloatingPoint {
-
   /// Returns the normalized axis and the length of this vector.
-  @usableFromInline @inline(__always)
-  internal var unitAxisAndLength: (Self, Scalar) {
+  @_alwaysEmitIntoClient
+  fileprivate var unitAxisAndLength: (Self, Scalar) {
     if self == .zero {
       return (SIMD3(
         Scalar(signOf: x, magnitudeOf: 0),

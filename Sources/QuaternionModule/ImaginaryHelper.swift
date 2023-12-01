@@ -19,12 +19,6 @@ extension SIMD3 where Scalar: FloatingPoint {
     SIMD3(repeating: .infinity)
   }
 
-  /// Returns a vector with nan in all lanes
-  @usableFromInline @inline(__always)
-  internal static var nan: Self {
-    SIMD3(repeating: .nan)
-  }
-
   /// True if all values of this instance are finite
   @usableFromInline @inline(__always)
   internal var isFinite: Bool {
