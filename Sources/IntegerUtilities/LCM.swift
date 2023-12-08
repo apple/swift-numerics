@@ -26,6 +26,9 @@ public func lcm<T: BinaryInteger>(_ n: T...) -> T {
 
 @inlinable
 internal func _lcm<T: BinaryInteger>(_ a: T, _ b: T) -> T {
+    
+    // Using the gcd algorithm with accounting
+    // for possible overflow of x*y
     let x = T(a.magnitude)
     let y = T(b.magnitude)
     
