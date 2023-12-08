@@ -16,9 +16,7 @@
 /// [wiki]: https://en.wikipedia.org/wiki/Least_common_multiple
 @inlinable
 public func lcm<T: BinaryInteger>(_ n: T...) -> T {
-    assert(!n.isEmpty, "lcm must be positive")
-    
-    return n.reduce(1, _lcm(_:_:))
+    n.reduce(1, _lcm(_:_:))
 }
 
 @inlinable
