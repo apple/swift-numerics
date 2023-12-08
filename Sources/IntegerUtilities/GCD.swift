@@ -14,6 +14,8 @@
 /// If no values are provided or all values are zero, the result is zero.
 /// If one input is zero, the result is the absolute value of the other input.
 ///
+/// TODO
+///
 /// The result must be representable within its type. In particular, the gcd
 /// of a signed, fixed-width integer type's minimum with itself (or zero)
 /// cannot be represented, and results in a trap.
