@@ -18,10 +18,9 @@
 /// [wiki]: https://en.wikipedia.org/wiki/Least_common_multiple
 @inlinable
 public func lcm<T: BinaryInteger>(_ n: T...) -> T {
-    guard let first = n.first else { return 0 }
-    guard n.count > 1 else { return first}
+    guard n.count > 0 else { return 0 }
     
-    return n.reduce(first, _lcm)
+    return n.reduce(1, _lcm(_:_:))
 }
 
 @inlinable

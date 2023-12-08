@@ -26,10 +26,7 @@
 /// [wiki]: https://en.wikipedia.org/wiki/Greatest_common_divisor
 @inlinable
 public func gcd<T: BinaryInteger>(_ n: T...) -> T {
-    guard let first = n.first else { return 0 }
-    guard n.count > 1 else { return first }
-    
-    return n.reduce(first, _gcd(_:_:))
+    n.reduce(0, _gcd(_:_:))
 }
 
 @inlinable
