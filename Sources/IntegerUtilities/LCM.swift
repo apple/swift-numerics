@@ -14,6 +14,8 @@
 /// If no values are provided, the result is zero.
 ///
 /// TODO
+///
+/// [wiki]: https://en.wikipedia.org/wiki/Least_common_multiple
 @inlinable
 public func lcm<T: BinaryInteger>(_ n: T...) -> T {
     guard let first = n.first else { return 0 }
@@ -27,5 +29,9 @@ internal func _lcm<T: BinaryInteger>(_ a: T, _ b: T) -> T {
     let x = T(a.magnitude)
     let y = T(b.magnitude)
     
-    return x * (y / gcd(x, y))
+    let z = gcd(x, y)
+    
+    guard z != 0 else { return 0 }
+    
+    return x * (y / z)
 }

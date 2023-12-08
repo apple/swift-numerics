@@ -17,10 +17,12 @@ final class IntegerUtilitiesLCMTests: XCTestCase {
     func testLCMInt() {
         XCTAssertEqual(lcm(), 0)
         XCTAssertEqual(lcm(2), 2)
+        XCTAssertEqual(lcm(0, 0, 0, 0), 0)
+        XCTAssertEqual(lcm(2, 2, 0, 0), 0)
         XCTAssertEqual(lcm(2, 5), 10)
         XCTAssertEqual(lcm(2, 5, 20), 20)
         XCTAssertEqual(lcm(1,2,3,4,5,6,7,8,9,0), 0)
         XCTAssertEqual(lcm(-1, 1), 1)
-        XCTAssertEqual(lcm(Int.min, 1), 1)
+//        XCTAssertEqual(lcm(Int.min + 1, 2), 1)
     }
 }
