@@ -9,10 +9,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// The greatest common divisor of `a` and `b`.
+/// The greatest common divisor of a given list of values.
 ///
-/// If both inputs are zero, the result is zero. If one input is zero, the
-/// result is the absolute value of the other input.
+/// If no values are provided or all values are zero, the result is zero.
+/// If one input is zero, the result is the absolute value of the other input.
 ///
 /// The result must be representable within its type. In particular, the gcd
 /// of a signed, fixed-width integer type's minimum with itself (or zero)
@@ -23,7 +23,15 @@
 ///
 /// [wiki]: https://en.wikipedia.org/wiki/Greatest_common_divisor
 @inlinable
-public func gcd<T: BinaryInteger>(_ a: T, _ b: T) -> T {
+public func gcd<T: BinaryInteger>(_ n: T...) -> T {
+    guard let first = n.first else { return 0 }
+    guard n.count > 1 else { return first }
+    
+    return n.reduce(first, _gcd(_:_:))
+}
+
+@inlinable
+internal func _gcd<T: BinaryInteger>(_ a: T, _ b: T) -> T {
   var x = a.magnitude
   var y = b.magnitude
   

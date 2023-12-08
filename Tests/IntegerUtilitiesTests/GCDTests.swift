@@ -41,4 +41,10 @@ final class IntegerUtilitiesGCDTests: XCTestCase {
     // XCTExpectFailure{ gcd(Int.min, 0) }
     // XCTExpectFailure{ gcd(Int.min, Int.min) }
   }
+    
+  func testGCDVariadicInt() {
+    XCTAssertEqual(gcd(5, 10, 15, 20, 25), 5)
+    XCTAssertEqual(gcd(5, 10, 15, 0, -5), 5)
+    XCTAssertEqual(gcd(10, 15, Int.min), 1)
+  }
 }
