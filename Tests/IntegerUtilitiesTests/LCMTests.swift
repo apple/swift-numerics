@@ -15,7 +15,6 @@ import XCTest
 
 final class IntegerUtilitiesLCMTests: XCTestCase {
     func testLCMInt() {
-        XCTAssertEqual(lcm(), 0)
         XCTAssertEqual(lcm(2), 2)
         XCTAssertEqual(lcm(0, 0, 0, 0), 0)
         XCTAssertEqual(lcm(2, 2, 0, 0), 0)

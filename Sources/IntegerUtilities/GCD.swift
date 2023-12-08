@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// The greatest common divisor of a given list of values.
+/// The greatest common divisor of a list of values.
 ///
 /// If no values are provided or all values are zero, the result is zero.
 /// If one input is zero, the result is the absolute value of the other input.

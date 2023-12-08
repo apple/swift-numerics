@@ -9,16 +9,14 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// The least common multiple of a given list of values.
-///
-/// If no values are provided, the result is zero.
+/// The least common multiple of a list of values.
 ///
 /// TODO
 ///
 /// [wiki]: https://en.wikipedia.org/wiki/Least_common_multiple
 @inlinable
 public func lcm<T: BinaryInteger>(_ n: T...) -> T {
-    guard n.count > 0 else { return 0 }
+    assert(!n.isEmpty, "lcm must be positive")
     
     return n.reduce(1, _lcm(_:_:))
 }
