@@ -9,10 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// The greatest common divisor of a list of values.
-///
-/// If no values are provided or all values are zero, the result is zero.
-/// If one input is zero, the result is the absolute value of the other input.
+/// The greatest common divisor of passed values.
 ///
 /// TODO
 ///
@@ -25,8 +22,8 @@
 ///
 /// [wiki]: https://en.wikipedia.org/wiki/Greatest_common_divisor
 @inlinable
-public func gcd<T: BinaryInteger>(_ n: T...) -> T {
-    n.reduce(0, _gcd(_:_:))
+public func gcd<T: BinaryInteger>(_ a: T, _ n: T...) -> T {
+    _gcd(a, n.reduce(0, _gcd(_:_:)))
 }
 
 @inlinable

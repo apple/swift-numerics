@@ -9,14 +9,14 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// The least common multiple of a list of values.
+/// The least common multiple of passed values.
 ///
 /// TODO
 ///
 /// [wiki]: https://en.wikipedia.org/wiki/Least_common_multiple
 @inlinable
-public func lcm<T: BinaryInteger>(_ n: T...) -> T {
-    n.reduce(1, _lcm(_:_:))
+public func lcm<T: BinaryInteger>(_ a: T, _ n: T...) -> T {
+    _lcm(a, n.reduce(1, _lcm(_:_:)))
 }
 
 @inlinable

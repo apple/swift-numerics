@@ -15,6 +15,9 @@ import XCTest
 
 final class IntegerUtilitiesGCDTests: XCTestCase {
   func testGCDInt() {
+    XCTAssertEqual(gcd(0), 0)
+    XCTAssertEqual(gcd(5, 10, 15, 20, 25), 5)
+    XCTAssertEqual(gcd(5, 10, 15, 0, -5), 5)
     XCTAssertEqual(gcd(0, 0), 0)
     XCTAssertEqual(gcd(0, 1), 1)
     XCTAssertEqual(gcd(1, 0), 1)
@@ -40,11 +43,5 @@ final class IntegerUtilitiesGCDTests: XCTestCase {
     // XCTExpectFailure{ gcd(0, Int.min) }
     // XCTExpectFailure{ gcd(Int.min, 0) }
     // XCTExpectFailure{ gcd(Int.min, Int.min) }
-  }
-    
-  func testGCDVariadicInt() {
-    XCTAssertEqual(gcd(5, 10, 15, 20, 25), 5)
-    XCTAssertEqual(gcd(5, 10, 15, 0, -5), 5)
-//    XCTAssertEqual(gcd(10, 15, Int.min), 1)
   }
 }
