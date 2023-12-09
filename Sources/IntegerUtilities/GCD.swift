@@ -23,7 +23,7 @@
 /// [wiki]: https://en.wikipedia.org/wiki/Greatest_common_divisor
 @inlinable
 public func gcd<T: BinaryInteger>(_ a: T, _ n: T...) -> T {
-    _gcd(a, n.reduce(0, _gcd(_:_:)))
+    n.reduce(a, _gcd(_:_:))
 }
 
 @inlinable

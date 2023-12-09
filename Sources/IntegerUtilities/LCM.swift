@@ -16,7 +16,7 @@
 /// [wiki]: https://en.wikipedia.org/wiki/Least_common_multiple
 @inlinable
 public func lcm<T: BinaryInteger>(_ a: T, _ n: T...) -> T {
-    _lcm(a, n.reduce(1, _lcm(_:_:)))
+    n.reduce(a, _lcm(_:_:))
 }
 
 @inlinable
@@ -27,7 +27,7 @@ internal func _lcm<T: BinaryInteger>(_ a: T, _ b: T) -> T {
     let x = T(a.magnitude)
     let y = T(b.magnitude)
     
-    let z = gcd(x, y)
+    let z = _gcd(x, y)
     
     guard z != 0 else { return 0 }
     
