@@ -46,16 +46,16 @@ let package = Package(
     .target(
       name: "RealModule",
       dependencies: ["_NumericsShims"],
-      exclude: excludedFilenames
+      exclude: excludedFilenames,
+      linkerSettings: [
+        .linkedLibrary("m", .when(platforms: [.linux, .android]))
+      ]
     ),
     
     // MARK: - Implementation details
     .target(
       name: "_NumericsShims",
-      exclude: excludedFilenames,
-      linkerSettings: [
-        .linkedLibrary("m", .when(platforms: [.linux, .android]))
-      ]
+      exclude: excludedFilenames
     ),
     
     .target(
