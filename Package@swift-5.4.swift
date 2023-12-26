@@ -18,6 +18,7 @@ let package = Package(
   
   name: "swift-numerics",
   products: [
+    .library(name: "BigIntModule", targets: ["BigIntModule"]),
     .library(name: "ComplexModule", targets: ["ComplexModule"]),
     .library(name: "Numerics", targets: ["Numerics"]),
     .library(name: "RealModule", targets: ["RealModule"]),
@@ -25,6 +26,12 @@ let package = Package(
   
   targets: [
     // MARK: - Public API
+    .target(
+      name: "BigIntModule",
+      dependencies: [],
+      exclude: excludedFilenames
+    ),
+    
     .target(
       name: "ComplexModule",
       dependencies: ["RealModule"],
@@ -39,7 +46,7 @@ let package = Package(
     
     .target(
       name: "Numerics",
-      dependencies: ["ComplexModule", "IntegerUtilities", "RealModule"],
+      dependencies: ["ComplexModule", "IntegerUtilities", "RealModule", "BigIntModule"],
       exclude: excludedFilenames
     ),
     
@@ -65,6 +72,11 @@ let package = Package(
     ),
     
     // MARK: - Unit test bundles
+    .testTarget(
+      name: "BigIntTests",
+      dependencies: ["BigIntModule"]
+    ),
+    
     .testTarget(
       name: "ComplexTests",
       dependencies: ["_TestSupport"],
