@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.4
 //===--- Package.swift ----------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
@@ -18,7 +18,6 @@ let package = Package(
   
   name: "swift-numerics",
   products: [
-    .library(name: "BigIntModule", targets: ["BigIntModule"]),
     .library(name: "ComplexModule", targets: ["ComplexModule"]),
     .library(name: "Numerics", targets: ["Numerics"]),
     .library(name: "RealModule", targets: ["RealModule"]),
@@ -26,11 +25,6 @@ let package = Package(
   
   targets: [
     // MARK: - Public API
-    .target(
-      name: "BigIntModule",
-      dependencies: []
-    ),
-    
     .target(
       name: "ComplexModule",
       dependencies: ["RealModule"],
@@ -71,11 +65,6 @@ let package = Package(
     ),
     
     // MARK: - Unit test bundles
-    .testTarget(
-      name: "BigIntTests",
-      dependencies: ["BigIntModule"]
-    ),
-    
     .testTarget(
       name: "ComplexTests",
       dependencies: ["_TestSupport"],
