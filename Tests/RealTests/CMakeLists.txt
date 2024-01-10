@@ -9,8 +9,10 @@ See https://swift.org/LICENSE.txt for license information
 
 add_library(RealTests
   ApproximateEqualityTests.swift
+  AugmentedArithmeticTests.swift
   ElementaryFunctionChecks.swift
-  IntegerExponentTests.swift)
+  IntegerExponentTests.swift
+  RelaxedArithmeticTests.swift)
 target_compile_options(RealTests PRIVATE
   -enable-testing)
 target_link_libraries(RealTests PUBLIC

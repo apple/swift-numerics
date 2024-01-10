@@ -19,6 +19,7 @@ target_compile_options(Numerics PUBLIC
   # load symbol when validating the TBD
   -Xfrontend -validate-tbd-against-ir=none)
 target_link_libraries(Numerics PUBLIC
+  BigIntModule
   ComplexModule
   IntegerUtilities
   RealModule)

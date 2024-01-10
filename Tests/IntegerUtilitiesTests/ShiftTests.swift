@@ -16,9 +16,9 @@ import _TestSupport
 
 final class IntegerUtilitiesShiftTests: XCTestCase {
   
-  func testRoundingShift<T: FixedWidthInteger>(
-    _ value: T, _ count: Int, rounding rule: RoundingRule
-  ) {
+  func testRoundingShift<T, C>(
+    _ value: T, _ count: C, rounding rule: RoundingRule
+  ) where T: FixedWidthInteger, C: BinaryInteger {
     let floor = value >> count
     let lost = value &- floor << count
     let exact = count <= 0 || lost == 0
@@ -94,6 +94,10 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
       for _ in 0 ..< 100 {
         testRoundingShift(T.random(in: .min ... .max), count, rounding: rule)
       }
+    }
+    
+    for count in Int8.min ... .max {
+      testRoundingShift(T.random(in: .min ... .max), count, rounding: rule)
     }
   }
   

@@ -67,6 +67,18 @@ extension IntegerExponentTests {
 }
 #endif
 
+extension RealTests.AugmentedArithmeticTests {
+  static var all = testCase([
+    ("testTwoSum", RealTests.AugmentedArithmeticTests.testTwoSum),
+  ])
+}
+
+extension RealTests.RelaxedArithmeticTests {
+  static var all = testCase([
+    ("testRelaxedArithmetic", RealTests.RelaxedArithmeticTests.testRelaxedArithmetic),
+  ])
+}
+
 extension ArithmeticTests {
   static var all = testCase([
     ("testPolar", ArithmeticTests.testPolar),
@@ -104,6 +116,21 @@ extension IntegerUtilitiesRotateTests {
   static var all = testCase([
     ("testRotateUInt8", IntegerUtilitiesRotateTests.testRotateUInt8),
     ("testRotateInt16", IntegerUtilitiesRotateTests.testRotateInt16),
+  ])
+}
+
+extension IntegerUtilitiesSaturatingTests {
+  static var all = testCase([
+    ("testSaturatingAddSigned", IntegerUtilitiesSaturatingTests.testSaturatingAddSigned),
+    ("testSaturatingSubSigned", IntegerUtilitiesSaturatingTests.testSaturatingSubSigned),
+    ("testSaturatingNegSigned", IntegerUtilitiesSaturatingTests.testSaturatingNegSigned),
+    ("testSaturatingMulSigned", IntegerUtilitiesSaturatingTests.testSaturatingMulSigned),
+    ("testSaturatingAddUnsigned", IntegerUtilitiesSaturatingTests.testSaturatingAddUnsigned),
+    ("testSaturatingSubUnsigned", IntegerUtilitiesSaturatingTests.testSaturatingSubUnsigned),
+    ("testSaturatingNegUnsigned", IntegerUtilitiesSaturatingTests.testSaturatingNegUnsigned),
+    ("testSaturatingMulUnsigned", IntegerUtilitiesSaturatingTests.testSaturatingMulUnsigned),
+    ("testSaturatingShifts", IntegerUtilitiesSaturatingTests.testSaturatingShifts),
+    ("testEdgeCaseForNegativeCount", IntegerUtilitiesSaturatingTests.testEdgeCaseForNegativeCount)
   ])
 }
 
@@ -158,6 +185,7 @@ var testCases = [
   IntegerUtilitiesGCDTests.all,
   IntegerUtilitiesRotateTests.all,
   IntegerUtilitiesShiftTests.all,
+  IntegerUtilitiesSaturatingTests.all,
   IntegerUtilitiesTests.DoubleWidthTests.all,
 ]
 

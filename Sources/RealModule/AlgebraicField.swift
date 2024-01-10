@@ -89,6 +89,12 @@ public protocol AlgebraicField: SignedNumeric {
   /// }
   /// ```
   var reciprocal: Self? { get }
+  
+  /// a + b, with the optimizer licensed to reassociate and form FMAs.
+  static func _relaxedAdd(_ a: Self, _ b: Self) -> Self
+  
+  /// a * b, with the optimizer licensed to reassociate and form FMAs.
+  static func _relaxedMul(_ a: Self, _ b: Self) -> Self
 }
 
 extension AlgebraicField {
@@ -99,12 +105,27 @@ extension AlgebraicField {
     return result
   }
   
-  /// Implementations should be *conservative* with the reciprocal property;
-  /// it is OK to return `nil` even in cases where a reciprocal could be
-  /// represented. For this reason, a default implementation that simply
-  /// always returns `nil` is correct, but conforming types should provide
-  /// a better implementation if possible.
+  // Implementations should be *conservative* with the reciprocal property;
+  // it is OK to return `nil` even in cases where a reciprocal could be
+  // represented. For this reason, a default implementation that simply
+  // always returns `nil` is correct, but conforming types should provide
+  // a better implementation if possible.
+  @_transparent
   public var reciprocal: Self? {
     return nil
+  }
+  
+  // It's always OK to simply fall back on normal arithmetic, and for any
+  // field with exact arithmetic, this is the correct definition.
+  @_transparent
+  public static func _relaxedAdd(_ a: Self, _ b: Self) -> Self {
+    a + b
+  }
+  
+  // It's always OK to simply fall back on normal arithmetic, and for any
+  // field with exact arithmetic, this is the correct definition.
+  @_transparent
+  public static func _relaxedMul(_ a: Self, _ b: Self) -> Self {
+    a * b
   }
 }
