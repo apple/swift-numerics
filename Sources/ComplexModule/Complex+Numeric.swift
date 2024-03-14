@@ -49,7 +49,7 @@ extension Complex: Numeric {
   ///
   /// See also `.length` and `.lengthSquared`.
   @_transparent
-  public var magnitude: RealType {
+  public var magnitude: RealType.Magnitude {
     guard isFinite else { return .infinity }
     return max(abs(x), abs(y))
   }
