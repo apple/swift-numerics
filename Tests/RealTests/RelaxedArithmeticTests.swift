@@ -116,7 +116,7 @@ final class RelaxedArithmeticTests: XCTestCase {
   }
   
   func testRelaxedArithmetic() {
-#if swift(>=5.4) && !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
     testRelaxedArithmetic(Float16.self)
 #endif
     testRelaxedArithmetic(Float.self)
