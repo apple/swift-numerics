@@ -39,83 +39,67 @@ extension Complex: AlgebraicField {
     // computation carefully (see below).
     let lenSq = w.lengthSquared
     guard lenSq.isNormal else { return rescaledDivide(z, w) }
-    return z * (w.conjugate.divided(by: lenSq))
+    return z * w.conjugate.divided(by: lenSq)
   }
   
-  @inline(never)
-  @_specialize(exported: true, where RealType == Float)
-  @_specialize(exported: true, where RealType == Double)
-  @usableFromInline
-  internal static func rescaledDivide(_ z: Complex, _ w: Complex) -> Complex {
+  public static func rescaledDivide(_ z: Complex, _ w: Complex) -> Complex {
     if w.isZero { return .infinity }
     if !w.isFinite { return .zero }
-    // Scaling algorithm adapted from Doug Priest's "Efficient Scaling for
-    // Complex Division":
+    //  Scaling algorithm adapted from Doug Priest's "Efficient Scaling for
+    //  Complex Division":
     //
-    // 1. Choose real scale s ≅ |w|^(-¾), an exact power of the radix.
-    // 2. wʹ ← sw
-    // 3. zʹ ← sz
-    // 4. return zʹ * (wʹ.conjugate / wʹ.lengthSquared)
+    //  1. Choose real scale s ~ |w|^(-¾), an exact power of the radix.
+    //  2. wʹ ← sw
+    //  3. zʹ ← sz
+    //  4. return zʹ * (wʹ.conjugate / wʹ.lengthSquared) (i.e. zʹ/wʹ).
     //
-    // Why is this safe and accurate? First, observe that wʹ and zʹ are both
-    // computed exactly because:
+    //  Why is this safe and accurate? First, observe that wʹ and zʹ are both
+    //  computed exactly because:
     //
-    // - s is an exact power of radix.
-    // - wʹ ~ |w|^(¼), and hence cannot overflow or underflow.
-    // - zʹ can overflow or underflow, but only if the final result also
-    //      overflows or underflows (this is more subtle than it might
-    //      appear at first; Priest has to be very careful about it
-    //      because you get into trouble precisely in the case where
-    //      |w| is very close to 1. However, if we were in that case, we would
-    //      have just handled the division inline and never would have ended
-    //      up here.
+    //  - s is an exact power of radix.
+    //  - wʹ ~ |w|^(¼), and hence cannot overflow or underflow.
+    //  - zʹ might overflow or underflow, but only if the final result also
+    //       overflows or underflows. (This is more subtle than I make it
+    //       sound. In particular, most of the fast ways one might try to
+    //       compute s give rise to a situation where when |w| is close to
+    //       one, multiplication by s is a dilation even though the actual
+    //       division is a contraction or vice-versa, and thus intermediate
+    //       computations might incorrectly overflow or underflow. Priest
+    //       had to take some care to avoid this situation, but we do not,
+    //       because we have already ruled out |w| ~ 1 before we call this
+    //       function.)
     //
-    // Next observe that |wʹ.lengthSquared| ~ |w|^(½), so again this cannot
-    // overflow or underflow, and neither can
-    // (wʹ.conjugate / wʹ.lengthSquared)
-    
-    
-    // are of comparable
-    // magnitude, and in particular the exponents of their magnitudes have the
-    // same sign, so either both are a contraction or both are an expansion,
-    // so any intermediate overflow or underflow is deserved.²
+    //  Next observe that |wʹ.lengthSquared| ~ |w|^(½), so again this cannot
+    //  overflow or underflow, and neither can (wʹ.conjugate/wʹ.lengthSquared),
+    //  which has magnitude like |w|^(-¼).
     //
-    // Note that because the scale factor is always a power of the radix,
-    // the rescaling does not affect rounding, and so this algorithm is scale-
-    // invariant compared to the mainline `/` implementation, up to the
-    // underflow boundary.
+    //  Note that because the scale factor is always a power of the radix,
+    //  the rescaling does not affect rounding, and so this algorithm is scale-
+    //  invariant compared to the mainline `/` implementation, up to the
+    //  underflow boundary.
     //
-    // ¹ This falls apart for formats where the number of significand bits is
-    // comparable to the exponent range (in particular Float16), because then
-    // the desired s is not representable. E.g. if w ~ .leastNonzeroMagnitude
-    // in Float16 (0x1p-24), we want to have s = 0x1p18, which is outside the
-    // range of representable values. This does not occur for any other types,
-    // so we just carry a special-case implementation for Float16 to fix it.
-    //
-    // Priest never had to worry about this because Float16 didn't really exist
-    // yet when he published and he was interested in double anyway.
-    //
-    // ² This WOULD NOT BE TRUE if we hadn't already handled well-scaled
-    // divisors in the mainline path for the `/` operator above; it only
-    // holds for sufficiently badly-scaled `w`. If the well-scaled cases
-    // were not already eliminated, it would be possible to have |wʹ| a
-    // little bigger than one and |wʺ| a bit smaller than one (or vice-versa), so
-    // that intermediate undeserved overflow or underflow might occur. Priest
-    // has to worry about this, but we do not.
+    //  Another difference from Priest's algorithm is that he didn't have
+    //  to worry about types like Float16, where the significand width is
+    //  comparable to the exponent range, such that |leastNormalMagnitude|^(-¾)
+    //  isn't representable (e.g. for Float16 it would want to be 2¹⁸, while
+    //  the largest allowed exponent is 15). Note that it's critical to
+    //  use zʹ/wʹ after rescaling to avoid this, rather than falling through
+    //  into the normal rescaling, because otherwise we might end up back in
+    //  the situation where |w| ~ 1.
     if w.magnitude < RealType.leastNormalMagnitude {
-      let z = z.divided(by: RealType.leastNormalMagnitude)
-      let w = w.divided(by: RealType.leastNormalMagnitude)
-      return rescaledDivide(z, w)
+      let wʹ = w.multiplied(by: 1/(2*RealType.leastNormalMagnitude))
+      let zʹ = z.multiplied(by: 1/(2*RealType.leastNormalMagnitude))
+      return zʹ/wʹ
+    } else {
+      let s = RealType(
+        sign: .plus,
+        exponent: -3*w.magnitude.exponent/4,
+        significand: 1
+      )
+      let wʹ = w.multiplied(by: s)
+      let zʹ = z.multiplied(by: s)
+      return zʹ * wʹ.conjugate.divided(by: wʹ.lengthSquared)
     }
-    var exponent = -3 * w.magnitude.exponent / 4
-    let s = RealType(
-      sign: .plus,
-      exponent: exponent,
-      significand: 1
-    )
-    let wʹ = w.multiplied(by: s)
-    let zʹ = z.multiplied(by: s)
-    return zʹ / wʹ
   }
   
   /// A normalized complex number with the same phase as this value.

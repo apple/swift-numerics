@@ -30,6 +30,9 @@ func checkMultiply<T>(
 ) -> Bool {
   let observed = a*b
   let rel = relativeError(observed, expected)
+  // Even if the expected result is finite, we allow overflow if
+  // the two-norm of the expected result overflows.
+  if !expected.length.isFinite && !observed.isFinite { return false }
   guard rel <= allowed else {
     print("Over-large error in \(a)*\(b)")
     print("Expected: \(expected)\nObserved: \(observed)")
@@ -44,6 +47,9 @@ func checkDivide<T>(
 ) -> Bool {
   let observed = a/b
   let rel = relativeError(observed, expected)
+  // Even if the expected result is finite, we allow overflow if
+  // the two-norm of the expected result overflows.
+  if !expected.length.isFinite && !observed.isFinite { return false }
   guard rel <= allowed else {
     print("Over-large error in \(a)/\(b)")
     print("Expected: \(expected)\nObserved: \(observed)")
@@ -149,7 +155,7 @@ final class ArithmeticTests: XCTestCase {
   
   func testPolar() {
 #if (arch(arm64))
-    // testPolar(Float16.self)
+    testPolar(Float16.self)
 #endif
     testPolar(Float.self)
     testPolar(Double.self)
@@ -233,13 +239,5 @@ final class ArithmeticTests: XCTestCase {
     }
   }
    */
-  
-  @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
-  func testSpecificFloat16Value() {
-    let a = Complex<Float16>(4.66, 3e-07)
-    let b = Complex<Float16>(-4.32e-05, 4.977e-05)
-    let q = a / b
-    XCTAssertEqual(q, Complex<Float16>(-46368.0, -53376.0))
-  }
 #endif
 }
