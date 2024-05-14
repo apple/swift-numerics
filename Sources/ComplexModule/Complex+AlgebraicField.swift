@@ -27,52 +27,95 @@ extension Complex: AlgebraicField {
   }
   
   @_transparent
+  public static func /=(z: inout Complex, w: Complex) {
+    z = z / w
+  }
+  
+  @_transparent
   public static func /(z: Complex, w: Complex) -> Complex {
-    // Try the naive expression z/w = z*conj(w) / |w|^2; if we can compute
-    // this without over/underflow, everything is fine and the result is
-    // correct. If not, we have to rescale and do the computation carefully.
+    // Try the naive expression z/w = z * (conj(w) / |w|^2); if we can
+    // compute this without over/underflow, everything is fine and the
+    // result is correct. If not, we have to rescale and do the
+    // computation carefully (see below).
     let lenSq = w.lengthSquared
     guard lenSq.isNormal else { return rescaledDivide(z, w) }
     return z * (w.conjugate.divided(by: lenSq))
   }
   
-  @_transparent
-  public static func /=(z: inout Complex, w: Complex) {
-    z = z / w
-  }
-  
-  @usableFromInline @_alwaysEmitIntoClient @inline(never)
+  @inline(never)
+  @_specialize(exported: true, where RealType == Float)
+  @_specialize(exported: true, where RealType == Double)
+  @usableFromInline
   internal static func rescaledDivide(_ z: Complex, _ w: Complex) -> Complex {
     if w.isZero { return .infinity }
-    if z.isZero || !w.isFinite { return .zero }
-    // TODO: detect when RealType is Float and just promote to Double, then
-    // use the naive algorithm.
-    let zScale = z.magnitude
-    let wScale = w.magnitude
-    let zNorm = z.divided(by: zScale)
-    let wNorm = w.divided(by: wScale)
-    let r = (zNorm * wNorm.conjugate).divided(by: wNorm.lengthSquared)
-    // At this point, the result is (r * zScale)/wScale computed without
-    // undue overflow or underflow. We know that r is close to unity, so
-    // the question is simply what order in which to do this computation
-    // to avoid spurious overflow or underflow. There are three options
-    // to choose from:
+    if !w.isFinite { return .zero }
+    // Scaling algorithm adapted from Doug Priest's "Efficient Scaling for
+    // Complex Division":
     //
-    // - r * (zScale / wScale)
-    // - (r * zScale) / wScale
-    // - (r / wScale) * zScale
+    // 1. Choose real scale s ≅ |w|^(-¾), an exact power of the radix.
+    // 2. wʹ ← sw
+    // 3. zʹ ← sz
+    // 4. return zʹ * (wʹ.conjugate / wʹ.lengthSquared)
     //
-    // The simplest case is when zScale / wScale is normal:
-    if (zScale / wScale).isNormal {
-      return r.multiplied(by: zScale / wScale)
+    // Why is this safe and accurate? First, observe that wʹ and zʹ are both
+    // computed exactly because:
+    //
+    // - s is an exact power of radix.
+    // - wʹ ~ |w|^(¼), and hence cannot overflow or underflow.
+    // - zʹ can overflow or underflow, but only if the final result also
+    //      overflows or underflows (this is more subtle than it might
+    //      appear at first; Priest has to be very careful about it
+    //      because you get into trouble precisely in the case where
+    //      |w| is very close to 1. However, if we were in that case, we would
+    //      have just handled the division inline and never would have ended
+    //      up here.
+    //
+    // Next observe that |wʹ.lengthSquared| ~ |w|^(½), so again this cannot
+    // overflow or underflow, and neither can
+    // (wʹ.conjugate / wʹ.lengthSquared)
+    
+    
+    // are of comparable
+    // magnitude, and in particular the exponents of their magnitudes have the
+    // same sign, so either both are a contraction or both are an expansion,
+    // so any intermediate overflow or underflow is deserved.²
+    //
+    // Note that because the scale factor is always a power of the radix,
+    // the rescaling does not affect rounding, and so this algorithm is scale-
+    // invariant compared to the mainline `/` implementation, up to the
+    // underflow boundary.
+    //
+    // ¹ This falls apart for formats where the number of significand bits is
+    // comparable to the exponent range (in particular Float16), because then
+    // the desired s is not representable. E.g. if w ~ .leastNonzeroMagnitude
+    // in Float16 (0x1p-24), we want to have s = 0x1p18, which is outside the
+    // range of representable values. This does not occur for any other types,
+    // so we just carry a special-case implementation for Float16 to fix it.
+    //
+    // Priest never had to worry about this because Float16 didn't really exist
+    // yet when he published and he was interested in double anyway.
+    //
+    // ² This WOULD NOT BE TRUE if we hadn't already handled well-scaled
+    // divisors in the mainline path for the `/` operator above; it only
+    // holds for sufficiently badly-scaled `w`. If the well-scaled cases
+    // were not already eliminated, it would be possible to have |wʹ| a
+    // little bigger than one and |wʺ| a bit smaller than one (or vice-versa), so
+    // that intermediate undeserved overflow or underflow might occur. Priest
+    // has to worry about this, but we do not.
+    if w.magnitude < RealType.leastNormalMagnitude {
+      let z = z.divided(by: RealType.leastNormalMagnitude)
+      let w = w.divided(by: RealType.leastNormalMagnitude)
+      return rescaledDivide(z, w)
     }
-    // Otherwise, we need to compute either rNorm * zScale or rNorm / wScale
-    // first. Choose the first if the first scaling behaves well, otherwise
-    // choose the other one.
-    if (r.magnitude * zScale).isNormal {
-      return r.multiplied(by: zScale).divided(by: wScale)
-    }
-    return r.divided(by: wScale).multiplied(by: zScale)
+    var exponent = -3 * w.magnitude.exponent / 4
+    let s = RealType(
+      sign: .plus,
+      exponent: exponent,
+      significand: 1
+    )
+    let wʹ = w.multiplied(by: s)
+    let zʹ = z.multiplied(by: s)
+    return zʹ / wʹ
   }
   
   /// A normalized complex number with the same phase as this value.
