@@ -41,10 +41,11 @@ func checkMultiply<T>(
   _ a: Complex<T>, _ b: Complex<T>, expected: Complex<T>, ulps allowed: T
 ) -> Bool {
   let observed = a*b
-  let rel = relativeError(observed, expected)
+  if observed == expected { return false }
   // Even if the expected result is finite, we allow overflow if
   // the two-norm of the expected result overflows.
   if !observed.isFinite && !expected.length.isFinite { return false }
+  let rel = relativeError(observed, expected)
   guard rel <= allowed else {
     print("Over-large error in \(a)*\(b)")
     print("Expected: \(expected)\nObserved: \(observed)")
@@ -58,10 +59,11 @@ func checkDivide<T>(
   _ a: Complex<T>, _ b: Complex<T>, expected: Complex<T>, ulps allowed: T
 ) -> Bool {
   let observed = a/b
-  let rel = relativeError(observed, expected)
+  if observed == expected { return false }
   // Even if the expected result is finite, we allow overflow if
   // the two-norm of the expected result overflows.
   if !observed.isFinite && !expected.length.isFinite { return false }
+  let rel = relativeError(observed, expected)
   guard rel <= allowed else {
     print("Over-large error in \(a)/\(b)")
     print("Expected: \(expected)\nObserved: \(observed)")

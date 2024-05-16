@@ -42,13 +42,27 @@ extension Complex: AlgebraicField {
     return z * w.conjugate.divided(by: lenSq)
   }
   
-  @_alwaysEmitIntoClient // specialization
-  @inline(never)
-  public static func rescaledDivide(_ z: Complex, _ w: Complex) -> Complex {
+  @usableFromInline @_alwaysEmitIntoClient @inline(never)
+  internal static func rescaledDivide(_ z: Complex, _ w: Complex) -> Complex {
     if w.isZero { return .infinity }
     if !w.isFinite { return .zero }
     //  Scaling algorithm adapted from Doug Priest's "Efficient Scaling for
     //  Complex Division":
+    if w.magnitude < .leastNormalMagnitude {
+      //  A difference from Priest's algorithm is that he didn't have to worry
+      //  about types like Float16, where the significand width is comparable
+      //  to the exponent range, such that |leastNormalMagnitude|^(-¾) isn't
+      //  representable (e.g. for Float16 it would want to be 2¹⁸, but the
+      //  largest allowed exponent is 15). Note that it's critical to use zʹ/wʹ
+      //  after rescaling to avoid this, rather than falling through into the
+      //  normal rescaling, because otherwise we might end up back in the
+      //  situation where |w| ~ 1.
+      let s = 1/(RealType(RealType.radix) * .leastNormalMagnitude)
+      let wʹ = w.multiplied(by: s)
+      let zʹ = z.multiplied(by: s)
+      return zʹ / wʹ
+    }
+    //  Having handled that case, we proceed pretty similarly to Priest:
     //
     //  1. Choose real scale s ~ |w|^(-¾), an exact power of the radix.
     //  2. wʹ ← sw
@@ -80,28 +94,26 @@ extension Complex: AlgebraicField {
     //  invariant compared to the mainline `/` implementation, up to the
     //  underflow boundary.
     //
-    //  Another difference from Priest's algorithm is that he didn't have
-    //  to worry about types like Float16, where the significand width is
-    //  comparable to the exponent range, such that |leastNormalMagnitude|^(-¾)
-    //  isn't representable (e.g. for Float16 it would want to be 2¹⁸, while
-    //  the largest allowed exponent is 15). Note that it's critical to
-    //  use zʹ/wʹ after rescaling to avoid this, rather than falling through
-    //  into the normal rescaling, because otherwise we might end up back in
-    //  the situation where |w| ~ 1.
-    if w.magnitude < RealType.leastNormalMagnitude {
-      let wʹ = w.multiplied(by: 1/(2*RealType.leastNormalMagnitude))
-      let zʹ = z.multiplied(by: 1/(2*RealType.leastNormalMagnitude))
-      return zʹ/wʹ
-    } else {
-      let s = RealType(
-        sign: .plus,
-        exponent: -3*w.magnitude.exponent/4,
-        significand: 1
-      )
-      let wʹ = w.multiplied(by: s)
-      let zʹ = z.multiplied(by: s)
-      return zʹ * wʹ.conjugate.divided(by: wʹ.lengthSquared)
-    }
+    //  Note that our final assembly of the result is different from Priest;
+    //  he applies s to w twice, instead of once to w and once to z, and
+    //  does the product as (zw̅ʺ)*1/|wʹ|², while we do zʹ(w̅ʹ/|wʹ|²). We
+    //  prefer our version for three reasons:
+    //
+    //  1. it extracts a little more ILP
+    //  2. it makes it so that we get exactly the same roundings on the
+    //     rescaled divide path as on the fast path, so that z/w = tz/tw
+    //     when tz and tw are computed exactly.
+    //  3. it unlocks a future optimization where we hoist s and
+    //     (w̅ʹ/|wʹ|²) and make divisions all fast-path without perturbing
+    //     rouding.
+    let s = RealType(
+      sign: .plus,
+      exponent: -3*w.magnitude.exponent/4,
+      significand: 1
+    )
+    let wʹ = w.multiplied(by: s)
+    let zʹ = z.multiplied(by: s)
+    return zʹ * wʹ.conjugate.divided(by: wʹ.lengthSquared)
   }
   
   /// A normalized complex number with the same phase as this value.
