@@ -42,6 +42,8 @@ extension Complex: AlgebraicField {
     return z * w.conjugate.divided(by: lenSq)
   }
   
+  @_alwaysEmitIntoClient // specialization
+  @inline(never)
   public static func rescaledDivide(_ z: Complex, _ w: Complex) -> Complex {
     if w.isZero { return .infinity }
     if !w.isFinite { return .zero }
