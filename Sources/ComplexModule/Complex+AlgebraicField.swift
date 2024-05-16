@@ -105,7 +105,7 @@ extension Complex: AlgebraicField {
     //     when tz and tw are computed exactly.
     //  3. it unlocks a future optimization where we hoist s and
     //     (w̅ʹ/|wʹ|²) and make divisions all fast-path without perturbing
-    //     rouding.
+    //     rounding.
     let s = RealType(
       sign: .plus,
       exponent: -3*w.magnitude.exponent/4,
