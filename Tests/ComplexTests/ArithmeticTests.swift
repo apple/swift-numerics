@@ -168,8 +168,10 @@ final class ArithmeticTests: XCTestCase {
         }
   
   func testPolar() {
-#if (arch(arm64))
-    testPolar(Float16.self)
+#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+    if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
+      testPolar(Float16.self)
+    }
 #endif
     testPolar(Float.self)
     testPolar(Double.self)
