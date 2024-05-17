@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019-2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2024 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -27,52 +27,93 @@ extension Complex: AlgebraicField {
   }
   
   @_transparent
-  public static func /(z: Complex, w: Complex) -> Complex {
-    // Try the naive expression z/w = z*conj(w) / |w|^2; if we can compute
-    // this without over/underflow, everything is fine and the result is
-    // correct. If not, we have to rescale and do the computation carefully.
-    let lenSq = w.lengthSquared
-    guard lenSq.isNormal else { return rescaledDivide(z, w) }
-    return z * (w.conjugate.divided(by: lenSq))
+  public static func /=(z: inout Complex, w: Complex) {
+    z = z / w
   }
   
   @_transparent
-  public static func /=(z: inout Complex, w: Complex) {
-    z = z / w
+  public static func /(z: Complex, w: Complex) -> Complex {
+    // Try the naive expression z/w = z * (conj(w) / |w|^2); if we can
+    // compute this without over/underflow, everything is fine and the
+    // result is correct. If not, we have to rescale and do the
+    // computation carefully (see below).
+    let lenSq = w.lengthSquared
+    guard lenSq.isNormal else { return rescaledDivide(z, w) }
+    return z * w.conjugate.divided(by: lenSq)
   }
   
   @usableFromInline @_alwaysEmitIntoClient @inline(never)
   internal static func rescaledDivide(_ z: Complex, _ w: Complex) -> Complex {
     if w.isZero { return .infinity }
-    if z.isZero || !w.isFinite { return .zero }
-    // TODO: detect when RealType is Float and just promote to Double, then
-    // use the naive algorithm.
-    let zScale = z.magnitude
-    let wScale = w.magnitude
-    let zNorm = z.divided(by: zScale)
-    let wNorm = w.divided(by: wScale)
-    let r = (zNorm * wNorm.conjugate).divided(by: wNorm.lengthSquared)
-    // At this point, the result is (r * zScale)/wScale computed without
-    // undue overflow or underflow. We know that r is close to unity, so
-    // the question is simply what order in which to do this computation
-    // to avoid spurious overflow or underflow. There are three options
-    // to choose from:
-    //
-    // - r * (zScale / wScale)
-    // - (r * zScale) / wScale
-    // - (r / wScale) * zScale
-    //
-    // The simplest case is when zScale / wScale is normal:
-    if (zScale / wScale).isNormal {
-      return r.multiplied(by: zScale / wScale)
+    if !w.isFinite { return .zero }
+    //  Scaling algorithm adapted from Doug Priest's "Efficient Scaling for
+    //  Complex Division":
+    if w.magnitude < .leastNormalMagnitude {
+      //  A difference from Priest's algorithm is that he didn't have to worry
+      //  about types like Float16, where the significand width is comparable
+      //  to the exponent range, such that |leastNormalMagnitude|^(-¾) isn't
+      //  representable (e.g. for Float16 it would want to be 2¹⁸, but the
+      //  largest allowed exponent is 15). Note that it's critical to use zʹ/wʹ
+      //  after rescaling to avoid this, rather than falling through into the
+      //  normal rescaling, because otherwise we might end up back in the
+      //  situation where |w| ~ 1.
+      let s = 1/(RealType(RealType.radix) * .leastNormalMagnitude)
+      let wʹ = w.multiplied(by: s)
+      let zʹ = z.multiplied(by: s)
+      return zʹ / wʹ
     }
-    // Otherwise, we need to compute either rNorm * zScale or rNorm / wScale
-    // first. Choose the first if the first scaling behaves well, otherwise
-    // choose the other one.
-    if (r.magnitude * zScale).isNormal {
-      return r.multiplied(by: zScale).divided(by: wScale)
-    }
-    return r.divided(by: wScale).multiplied(by: zScale)
+    //  Having handled that case, we proceed pretty similarly to Priest:
+    //
+    //  1. Choose real scale s ~ |w|^(-¾), an exact power of the radix.
+    //  2. wʹ ← sw
+    //  3. zʹ ← sz
+    //  4. return zʹ * (wʹ.conjugate / wʹ.lengthSquared) (i.e. zʹ/wʹ).
+    //
+    //  Why is this safe and accurate? First, observe that wʹ and zʹ are both
+    //  computed exactly because:
+    //
+    //  - s is an exact power of radix.
+    //  - wʹ ~ |w|^(¼), and hence cannot overflow or underflow.
+    //  - zʹ might overflow or underflow, but only if the final result also
+    //       overflows or underflows. (This is more subtle than I make it
+    //       sound. In particular, most of the fast ways one might try to
+    //       compute s give rise to a situation where when |w| is close to
+    //       one, multiplication by s is a dilation even though the actual
+    //       division is a contraction or vice-versa, and thus intermediate
+    //       computations might incorrectly overflow or underflow. Priest
+    //       had to take some care to avoid this situation, but we do not,
+    //       because we have already ruled out |w| ~ 1 before we call this
+    //       function.)
+    //
+    //  Next observe that |wʹ.lengthSquared| ~ |w|^(½), so again this cannot
+    //  overflow or underflow, and neither can (wʹ.conjugate/wʹ.lengthSquared),
+    //  which has magnitude like |w|^(-¼).
+    //
+    //  Note that because the scale factor is always a power of the radix,
+    //  the rescaling does not affect rounding, and so this algorithm is scale-
+    //  invariant compared to the mainline `/` implementation, up to the
+    //  underflow boundary.
+    //
+    //  Note that our final assembly of the result is different from Priest;
+    //  he applies s to w twice, instead of once to w and once to z, and
+    //  does the product as (zw̅ʺ)*(1/|wʹ|²), while we do zʹ(w̅ʹ/|wʹ|²). We
+    //  prefer our version for three reasons:
+    //
+    //  1. it extracts a little more ILP
+    //  2. it makes it so that we get exactly the same roundings on the
+    //     rescaled divide path as on the fast path, so that z/w = tz/tw
+    //     when tz and tw are computed exactly.
+    //  3. it unlocks a future optimization where we hoist s and
+    //     (w̅ʹ/|wʹ|²) and make divisions all fast-path without perturbing
+    //     rounding.
+    let s = RealType(
+      sign: .plus,
+      exponent: -3*w.magnitude.exponent/4,
+      significand: 1
+    )
+    let wʹ = w.multiplied(by: s)
+    let zʹ = z.multiplied(by: s)
+    return zʹ * wʹ.conjugate.divided(by: wʹ.lengthSquared)
   }
   
   /// A normalized complex number with the same phase as this value.

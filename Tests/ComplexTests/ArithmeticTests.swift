@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2024 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -13,11 +13,23 @@ import XCTest
 import ComplexModule
 import RealModule
 
+func ulpsFromInfinity<T: Real>(_ a: T) -> T {
+  (.greatestFiniteMagnitude - a) / .greatestFiniteMagnitude.ulp + 1
+}
+
 // TODO: improve this to be a general-purpose complex comparison with tolerance
 func relativeError<T>(_ a: Complex<T>, _ b: Complex<T>) -> T {
   if a == b { return 0 }
-  let scale = max(a.magnitude, b.magnitude, T.leastNormalMagnitude).ulp
-  return (a - b).magnitude / scale
+  if a.isFinite && b.isFinite {
+    let scale = max(a.magnitude, b.magnitude, T.leastNormalMagnitude).ulp
+    return (a - b).magnitude / scale
+  } else {
+    if a.isFinite {
+      return ulpsFromInfinity(a.magnitude)
+    } else {
+      return ulpsFromInfinity(b.magnitude)
+    }
+  }
 }
 
 func closeEnough<T: Real>(_ a: T, _ b: T, ulps allowed: T) -> Bool {
@@ -29,11 +41,15 @@ func checkMultiply<T>(
   _ a: Complex<T>, _ b: Complex<T>, expected: Complex<T>, ulps allowed: T
 ) -> Bool {
   let observed = a*b
+  if observed == expected { return false }
+  // Even if the expected result is finite, we allow overflow if
+  // the two-norm of the expected result overflows.
+  if !observed.isFinite && !expected.length.isFinite { return false }
   let rel = relativeError(observed, expected)
-  if rel > allowed {
+  guard rel <= allowed else {
     print("Over-large error in \(a)*\(b)")
     print("Expected: \(expected)\nObserved: \(observed)")
-    print("Relative error was \(rel) (tolerance: \(allowed).")
+    print("Relative error was \(rel) (tolerance: \(allowed)).")
     return true
   }
   return false
@@ -43,11 +59,15 @@ func checkDivide<T>(
   _ a: Complex<T>, _ b: Complex<T>, expected: Complex<T>, ulps allowed: T
 ) -> Bool {
   let observed = a/b
+  if observed == expected { return false }
+  // Even if the expected result is finite, we allow overflow if
+  // the two-norm of the expected result overflows.
+  if !observed.isFinite && !expected.length.isFinite { return false }
   let rel = relativeError(observed, expected)
-  if rel > allowed {
+  guard rel <= allowed else {
     print("Over-large error in \(a)/\(b)")
     print("Expected: \(expected)\nObserved: \(observed)")
-    print("Relative error was \(rel) (tolerance: \(allowed).")
+    print("Relative error was \(rel) (tolerance: \(allowed)).")
     return true
   }
   return false
@@ -63,7 +83,6 @@ final class ArithmeticTests: XCTestCase {
   func testPolar<T>(_ type: T.Type)
   where T: BinaryFloatingPoint, T: Real,
         T.Exponent: FixedWidthInteger, T.RawSignificand: FixedWidthInteger {
-    
     // In order to support round-tripping from rectangular to polar coordinate
     // systems, as a special case phase can be non-finite when length is
     // either zero or infinity.
@@ -76,10 +95,9 @@ final class ArithmeticTests: XCTestCase {
     XCTAssertEqual(Complex<T>(length:-.infinity, phase: .infinity), .infinity)
     XCTAssertEqual(Complex<T>(length:-.infinity, phase:-.infinity), .infinity)
     XCTAssertEqual(Complex<T>(length:-.infinity, phase: .nan     ), .infinity)
-          
+    
     let exponentRange =
-      (T.leastNormalMagnitude.exponent + T.Exponent(T.significandBitCount)) ...
-        T.greatestFiniteMagnitude.exponent
+    T.leastNormalMagnitude.exponent ... T.greatestFiniteMagnitude.exponent
     let inputs = (0..<100).map { _ in
       Polar(length: T(
         sign: .plus,
@@ -136,20 +154,29 @@ final class ArithmeticTests: XCTestCase {
       // Now test multiplication and division using the polar inputs:
       for q in inputs {
         let w = Complex(length: q.length, phase: q.phase)
-        let product = Complex(length: p.length * q.length, phase: p.phase + q.phase)
+        var product = Complex(length: p.length, phase: p.phase + q.phase)
+        product.real *= q.length
+        product.imaginary *= q.length
         if checkMultiply(z, w, expected: product, ulps: 16) { XCTFail() }
-        let quotient = Complex(length: p.length / q.length, phase: p.phase - q.phase)
+        var quotient = Complex(length: p.length, phase: p.phase - q.phase)
+        quotient.real /= q.length
+        quotient.imaginary /= q.length
         if checkDivide(z, w, expected: quotient, ulps: 16) { XCTFail() }
       }
     }
   }
   
   func testPolar() {
+#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64)) && LONG_TESTS
+    if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
+      testPolar(Float16.self)
+    }
+#endif
     testPolar(Float.self)
     testPolar(Double.self)
-    #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+#if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
     testPolar(Float80.self)
-    #endif
+#endif
   }
   
   func testBaudinSmith() {
@@ -191,16 +218,38 @@ final class ArithmeticTests: XCTestCase {
                       Complex(1.02951151789360578e-84, 6.97145987515076231e-220)),
     ]
     for test in vectors {
-      if checkDivide(test.a, test.b, expected: test.c, ulps: 0.5) { XCTFail() }
+      if checkDivide(test.a, test.b, expected: test.c, ulps: 1.0) { XCTFail() }
       if checkDivide(test.a, test.c, expected: test.b, ulps: 1.0) { XCTFail() }
       if checkMultiply(test.b, test.c, expected: test.a, ulps: 1.0) { XCTFail() }
     }
   }
-
+  
   func testDivisionByZero() {
     XCTAssertFalse((Complex(0, 0) / Complex(0, 0)).isFinite)
     XCTAssertFalse((Complex(1, 1) / Complex(0, 0)).isFinite)
     XCTAssertFalse((Complex.infinity / Complex(0, 0)).isFinite)
     XCTAssertFalse((Complex.i / Complex(0, 0)).isFinite)
+    
   }
+  
+#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64)) && LONG_TESTS
+  @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
+  func testFloat16DivisionSemiExhaustive() {
+    func complex(bitPattern: UInt32) -> Complex<Float16> {
+      Complex(
+        Float16(bitPattern: UInt16(truncatingIfNeeded: bitPattern)),
+        Float16(bitPattern: UInt16(truncatingIfNeeded: bitPattern >> 16))
+      )
+    }
+    for bits in 0 ... UInt32.max {
+      let a = complex(bitPattern: bits)
+      if bits & 0xfffff == 0 { print(a) }
+      let b = complex(bitPattern: UInt32.random(in: 0 ... .max))
+      var q = Complex<Float>(a)/Complex<Float>(b)
+      if checkDivide(a, b, expected: Complex<Float16>(q), ulps: 4) { XCTFail() }
+      q = Complex<Float>(b)/Complex<Float>(a)
+      if checkDivide(b, a, expected: Complex<Float16>(q), ulps: 4) { XCTFail() }
+    }
+  }
+#endif
 }
