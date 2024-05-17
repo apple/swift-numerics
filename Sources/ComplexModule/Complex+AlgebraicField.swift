@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019-2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2024 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -96,7 +96,7 @@ extension Complex: AlgebraicField {
     //
     //  Note that our final assembly of the result is different from Priest;
     //  he applies s to w twice, instead of once to w and once to z, and
-    //  does the product as (zw̅ʺ)*1/|wʹ|², while we do zʹ(w̅ʹ/|wʹ|²). We
+    //  does the product as (zw̅ʺ)*(1/|wʹ|²), while we do zʹ(w̅ʹ/|wʹ|²). We
     //  prefer our version for three reasons:
     //
     //  1. it extracts a little more ILP

@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2024 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -83,92 +83,91 @@ final class ArithmeticTests: XCTestCase {
   func testPolar<T>(_ type: T.Type)
   where T: BinaryFloatingPoint, T: Real,
         T.Exponent: FixedWidthInteger, T.RawSignificand: FixedWidthInteger {
-          
-          // In order to support round-tripping from rectangular to polar coordinate
-          // systems, as a special case phase can be non-finite when length is
-          // either zero or infinity.
-          XCTAssertEqual(Complex<T>(length: .zero, phase: .infinity), .zero)
-          XCTAssertEqual(Complex<T>(length: .zero, phase:-.infinity), .zero)
-          XCTAssertEqual(Complex<T>(length: .zero, phase: .nan     ), .zero)
-          XCTAssertEqual(Complex<T>(length: .infinity, phase: .infinity), .infinity)
-          XCTAssertEqual(Complex<T>(length: .infinity, phase:-.infinity), .infinity)
-          XCTAssertEqual(Complex<T>(length: .infinity, phase: .nan     ), .infinity)
-          XCTAssertEqual(Complex<T>(length:-.infinity, phase: .infinity), .infinity)
-          XCTAssertEqual(Complex<T>(length:-.infinity, phase:-.infinity), .infinity)
-          XCTAssertEqual(Complex<T>(length:-.infinity, phase: .nan     ), .infinity)
-          
-          let exponentRange =
-          T.leastNormalMagnitude.exponent ... T.greatestFiniteMagnitude.exponent
-          let inputs = (0..<100).map { _ in
-            Polar(length: T(
-              sign: .plus,
-              exponent: T.Exponent.random(in: exponentRange),
-              significand: T.random(in: 1 ..< 2)
-            ), phase: T.random(in: -.pi ... .pi))
-          }
-          for p in inputs {
-            // first test that each value can round-trip between rectangular and
-            // polar coordinates with reasonable accuracy. We'll probably need to
-            // relax this for some platforms (currently we're using the default
-            // RNG, which means we don't get the same sequence of values each time;
-            // this is good--more test coverage!--and bad, because without tight
-            // bounds on every platform's libm, we can't get tight bounds on the
-            // accuracy of these operations, so we need to relax them gradually).
-            let z = Complex(length: p.length, phase: p.phase)
-            if !closeEnough(z.length, p.length, ulps: 16) {
-              print("p = \(p)\nz = \(z)\nz.length = \(z.length)")
-              XCTFail()
-            }
-            if !closeEnough(z.phase, p.phase, ulps: 16) {
-              print("p = \(p)\nz = \(z)\nz.phase = \(z.phase)")
-              XCTFail()
-            }
-            // Complex(length: -r, phase: θ) = -Complex(length: r, phase: θ).
-            let w = Complex(length: -p.length, phase: p.phase)
-            if w != -z {
-              print("p = \(p)\nw = \(w)\nz = \(z)")
-              XCTFail()
-            }
-            XCTAssertEqual(w, -z)
-            // if length*length is normal, it should be lengthSquared, up
-            // to small error.
-            if (p.length*p.length).isNormal {
-              if !closeEnough(z.lengthSquared, p.length*p.length, ulps: 16) {
-                print("p = \(p)\nz = \(z)\nz.lengthSquared = \(z.lengthSquared)")
-                XCTFail()
-              }
-            }
-            // Test reciprocal and normalized:
-            let r = Complex(length: 1/p.length, phase: -p.phase)
-            if r.isNormal {
-              if relativeError(r, z.reciprocal!) > 16 {
-                print("p = \(p)\nz = \(z)\nz.reciprocal = \(r)")
-                XCTFail()
-              }
-            } else { XCTAssertNil(z.reciprocal) }
-            let n = Complex(length: 1, phase: p.phase)
-            if relativeError(n, z.normalized!) > 16 {
-              print("p = \(p)\nz = \(z)\nz.normalized = \(n)")
-              XCTFail()
-            }
-            
-            // Now test multiplication and division using the polar inputs:
-            for q in inputs {
-              let w = Complex(length: q.length, phase: q.phase)
-              var product = Complex(length: p.length, phase: p.phase + q.phase)
-              product.real *= q.length
-              product.imaginary *= q.length
-              if checkMultiply(z, w, expected: product, ulps: 16) { XCTFail() }
-              var quotient = Complex(length: p.length, phase: p.phase - q.phase)
-              quotient.real /= q.length
-              quotient.imaginary /= q.length
-              if checkDivide(z, w, expected: quotient, ulps: 16) { XCTFail() }
-            }
-          }
+    // In order to support round-tripping from rectangular to polar coordinate
+    // systems, as a special case phase can be non-finite when length is
+    // either zero or infinity.
+    XCTAssertEqual(Complex<T>(length: .zero, phase: .infinity), .zero)
+    XCTAssertEqual(Complex<T>(length: .zero, phase:-.infinity), .zero)
+    XCTAssertEqual(Complex<T>(length: .zero, phase: .nan     ), .zero)
+    XCTAssertEqual(Complex<T>(length: .infinity, phase: .infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length: .infinity, phase:-.infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length: .infinity, phase: .nan     ), .infinity)
+    XCTAssertEqual(Complex<T>(length:-.infinity, phase: .infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length:-.infinity, phase:-.infinity), .infinity)
+    XCTAssertEqual(Complex<T>(length:-.infinity, phase: .nan     ), .infinity)
+    
+    let exponentRange =
+    T.leastNormalMagnitude.exponent ... T.greatestFiniteMagnitude.exponent
+    let inputs = (0..<100).map { _ in
+      Polar(length: T(
+        sign: .plus,
+        exponent: T.Exponent.random(in: exponentRange),
+        significand: T.random(in: 1 ..< 2)
+      ), phase: T.random(in: -.pi ... .pi))
+    }
+    for p in inputs {
+      // first test that each value can round-trip between rectangular and
+      // polar coordinates with reasonable accuracy. We'll probably need to
+      // relax this for some platforms (currently we're using the default
+      // RNG, which means we don't get the same sequence of values each time;
+      // this is good--more test coverage!--and bad, because without tight
+      // bounds on every platform's libm, we can't get tight bounds on the
+      // accuracy of these operations, so we need to relax them gradually).
+      let z = Complex(length: p.length, phase: p.phase)
+      if !closeEnough(z.length, p.length, ulps: 16) {
+        print("p = \(p)\nz = \(z)\nz.length = \(z.length)")
+        XCTFail()
+      }
+      if !closeEnough(z.phase, p.phase, ulps: 16) {
+        print("p = \(p)\nz = \(z)\nz.phase = \(z.phase)")
+        XCTFail()
+      }
+      // Complex(length: -r, phase: θ) = -Complex(length: r, phase: θ).
+      let w = Complex(length: -p.length, phase: p.phase)
+      if w != -z {
+        print("p = \(p)\nw = \(w)\nz = \(z)")
+        XCTFail()
+      }
+      XCTAssertEqual(w, -z)
+      // if length*length is normal, it should be lengthSquared, up
+      // to small error.
+      if (p.length*p.length).isNormal {
+        if !closeEnough(z.lengthSquared, p.length*p.length, ulps: 16) {
+          print("p = \(p)\nz = \(z)\nz.lengthSquared = \(z.lengthSquared)")
+          XCTFail()
         }
+      }
+      // Test reciprocal and normalized:
+      let r = Complex(length: 1/p.length, phase: -p.phase)
+      if r.isNormal {
+        if relativeError(r, z.reciprocal!) > 16 {
+          print("p = \(p)\nz = \(z)\nz.reciprocal = \(r)")
+          XCTFail()
+        }
+      } else { XCTAssertNil(z.reciprocal) }
+      let n = Complex(length: 1, phase: p.phase)
+      if relativeError(n, z.normalized!) > 16 {
+        print("p = \(p)\nz = \(z)\nz.normalized = \(n)")
+        XCTFail()
+      }
+      
+      // Now test multiplication and division using the polar inputs:
+      for q in inputs {
+        let w = Complex(length: q.length, phase: q.phase)
+        var product = Complex(length: p.length, phase: p.phase + q.phase)
+        product.real *= q.length
+        product.imaginary *= q.length
+        if checkMultiply(z, w, expected: product, ulps: 16) { XCTFail() }
+        var quotient = Complex(length: p.length, phase: p.phase - q.phase)
+        quotient.real /= q.length
+        quotient.imaginary /= q.length
+        if checkDivide(z, w, expected: quotient, ulps: 16) { XCTFail() }
+      }
+    }
+  }
   
   func testPolar() {
-#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64)) && LONG_TESTS
     if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
       testPolar(Float16.self)
     }
