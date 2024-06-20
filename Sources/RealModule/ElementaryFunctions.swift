@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// A type that has elementary functions available.
+/// A type that has elementary functions (`sin`, `cos`, etc.) available.
 ///
 /// An ["elementary function"][elfn] is a function built up from powers, roots,
 /// exponentials, logarithms, trigonometric functions (sin, cos, tan) and
