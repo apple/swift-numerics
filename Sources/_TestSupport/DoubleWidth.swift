@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2017-2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2017-2024 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -281,17 +281,11 @@ extension DoubleWidth : FixedWidthInteger {
     by rhs: DoubleWidth
   ) -> (partialValue: DoubleWidth, overflow: Bool) {
     let (carry, product) = multipliedFullWidth(by: rhs)
-    let result = DoubleWidth(truncatingIfNeeded: product)
-    
-    let isNegative = DoubleWidth.isSigned &&
-      (self < (0 as DoubleWidth)) != (rhs < (0 as DoubleWidth))
-    let didCarry = isNegative
-      ? carry != ~(0 as DoubleWidth)
-      : carry != (0 as DoubleWidth)
-    let hadPositiveOverflow =
-      DoubleWidth.isSigned && !isNegative && product.leadingZeroBitCount == 0
-
-    return (result, didCarry || hadPositiveOverflow)
+    let partialValue = DoubleWidth(truncatingIfNeeded: product)
+    // Overflow has occured if carry is not just the sign-extension of
+    // partialValue (which is zero when Base is unsigned).
+    let overflow = carry != (partialValue >> DoubleWidth.bitWidth)
+    return (partialValue, overflow)
   }
 
   public func quotientAndRemainder(
@@ -331,7 +325,11 @@ extension DoubleWidth : FixedWidthInteger {
     if DoubleWidth.isSigned && other == -1 && self == .min { return (0, true) }
     return (quotientAndRemainder(dividingBy: other).remainder, false)
   }
-
+  
+  // When using a pre-Swift 6.0 runtime, `&*` is not a protocol requirement of
+  // FixedWidthInteger, which results in the default implementation of this
+  // operation ending up recursively calling itself forever. In order to avoid
+  // this, we keep the concrete implementation around.
   public func multipliedFullWidth(
     by other: DoubleWidth
   ) -> (high: DoubleWidth, low: DoubleWidth.Magnitude) {
@@ -453,18 +451,21 @@ extension DoubleWidth : FixedWidthInteger {
 
   /// Returns this value "masked" by its bit width.
   ///
-  /// "Masking" notionally involves repeatedly incrementing or decrementing this
-  /// value by `self.bitWidth` until the result is contained in the range
-  /// `0..<self.bitWidth`.
+  /// "Masking" notionally involves repeatedly incrementing or decrementing
+  /// this value by `self.bitWidth` until the result is contained in the
+  /// range `0..<self.bitWidth`.
   internal func _masked() -> DoubleWidth {
-    // FIXME(integers): test types with bit widths that aren't powers of 2
+    let bits = DoubleWidth(DoubleWidth.bitWidth)
     if DoubleWidth.bitWidth.nonzeroBitCount == 1 {
-      return self & DoubleWidth(DoubleWidth.bitWidth &- 1)
+      return self & (bits &- 1)
     }
-    if DoubleWidth.isSigned && self._storage.high < (0 as High) {
-      return self % DoubleWidth(DoubleWidth.bitWidth) + self
-    }
-    return self % DoubleWidth(DoubleWidth.bitWidth)
+    let reduced = self % bits
+    // bitWidth is always positive, but the value being reduced might have
+    // been negative, in which case reduced will also be negative. We need
+    // the representative in [0, bitWidth), so conditionally add the count
+    // to get the positive residue.
+    if Base.isSigned && reduced < 0 { return reduced &+ bits }
+    return reduced
   }
 
   public static func &<<=(lhs: inout DoubleWidth, rhs: DoubleWidth) {
@@ -589,6 +590,31 @@ extension DoubleWidth : FixedWidthInteger {
     let (result, overflow) = lhs.remainderReportingOverflow(dividingBy:rhs)
     precondition(!overflow, "Overflow in %=")
     lhs = result
+  }
+  
+  public static func &+(
+    lhs: DoubleWidth, rhs: DoubleWidth
+  ) -> DoubleWidth {
+    let (low, carry) = lhs.low.addingReportingOverflow(rhs.low)
+    let high = lhs.high &+ rhs.high &+ (carry ? 1 : 0)
+    return DoubleWidth(high, low)
+  }
+  
+  public static func &-(
+    lhs: DoubleWidth, rhs: DoubleWidth
+  ) -> DoubleWidth {
+    let (low, borrow) = lhs.low.subtractingReportingOverflow(rhs.low)
+    let high = lhs.high &- rhs.high &- (borrow ? 1 : 0)
+    return DoubleWidth(high, low)
+  }
+  
+  public static func &*(
+    lhs: DoubleWidth, rhs: DoubleWidth
+  ) -> DoubleWidth {
+    let p00 = lhs.low.multipliedFullWidth(by: rhs.low)
+    let p10 = lhs.high &* Base(truncatingIfNeeded: rhs.low)
+    let p01 = Base(truncatingIfNeeded: lhs.low) &* rhs.high
+    return DoubleWidth(p10 &+ p01 &+ Base(truncatingIfNeeded: p00.high), p00.low)
   }
 
   public init(_truncatingBits bits: UInt) {

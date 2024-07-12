@@ -522,4 +522,8 @@ final class DoubleWidthTests: XCTestCase {
     checkUnsignedIntegerConformance(0 as _UInt128)
     checkUnsignedIntegerConformance(0 as _UInt1024)
   }
+  
+  func testMultiplyOverflow() {
+    XCTAssertFalse(_Int128(-1).multipliedReportingOverflow(by: 0).overflow)
+  }
 }
