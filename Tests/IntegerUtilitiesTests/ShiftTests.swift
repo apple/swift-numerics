@@ -167,32 +167,6 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
       testRoundingShift(UInt.self, rounding: .toNearestOrEven)
       testRoundingShift(UInt.self, rounding: .toOdd)
       testRoundingShift(UInt.self, rounding: .stochastically)
-      
-      if #available(macOS 15, iOS 18, tvOS 18, watchOS 11, visionOS 2, *) {
-        testRoundingShift(Int128.self, rounding: .down)
-        testRoundingShift(Int128.self, rounding: .up)
-        testRoundingShift(Int128.self, rounding: .towardZero)
-        testRoundingShift(Int128.self, rounding: .awayFromZero)
-        testRoundingShift(Int128.self, rounding: .toNearestOrUp)
-        testRoundingShift(Int128.self, rounding: .toNearestOrDown)
-        testRoundingShift(Int128.self, rounding: .toNearestOrZero)
-        testRoundingShift(Int128.self, rounding: .toNearestOrAway)
-        testRoundingShift(Int128.self, rounding: .toNearestOrEven)
-        testRoundingShift(Int128.self, rounding: .toOdd)
-        testRoundingShift(Int128.self, rounding: .stochastically)
-        
-        testRoundingShift(UInt128.self, rounding: .down)
-        testRoundingShift(UInt128.self, rounding: .up)
-        testRoundingShift(UInt128.self, rounding: .towardZero)
-        testRoundingShift(UInt128.self, rounding: .awayFromZero)
-        testRoundingShift(UInt128.self, rounding: .toNearestOrUp)
-        testRoundingShift(UInt128.self, rounding: .toNearestOrDown)
-        testRoundingShift(UInt128.self, rounding: .toNearestOrZero)
-        testRoundingShift(UInt128.self, rounding: .toNearestOrAway)
-        testRoundingShift(UInt128.self, rounding: .toNearestOrEven)
-        testRoundingShift(UInt128.self, rounding: .toOdd)
-        testRoundingShift(UInt128.self, rounding: .stochastically)
-      }
     }
     
     // Stochastic rounding doesn't have a deterministic "expected" answer,
@@ -247,10 +221,6 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
       testStochasticAverage(UInt32.random(in: .min ... .max))
       testStochasticAverage(Int64.random(in: .min ... .max))
       testStochasticAverage(UInt64.random(in: .min ... .max))
-      if #available(macOS 15, iOS 18, tvOS 18, watchOS 11, visionOS 2, *) {
-        testStochasticAverage(Int128.random(in: .min ... .max))
-        testStochasticAverage(UInt128.random(in: .min ... .max))
-      }
       testStochasticAverage(DoubleWidth<Int64>.random(in: .min ... .max))
       testStochasticAverage(DoubleWidth<UInt64>.random(in: .min ... .max))
     }

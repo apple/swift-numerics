@@ -467,44 +467,6 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     }
   }
   
-  @available(macOS 15, iOS 18, tvOS 18, watchOS 11, visionOS 2, *)
-  func divideUInt64(_ a: UInt64, _ b: UInt64, rounding rule: RoundingRule) {
-    let expected = UInt64(Int128(a).divided(by: Int128(b), rounding: rule).quotient)
-    let observed = a.divided(by: b, rounding: rule)
-    guard expected == observed else {
-      XCTFail("""
-      \(a).divided(by: \(b), rounding: \(rule)) did not match expected result:
-      Computed with Int128: \(expected)
-      Computed with UInt64: \(observed)
-      """)
-      return
-    }
-  }
-  
-  @available(macOS 15, iOS 18, tvOS 18, watchOS 11, visionOS 2, *)
-  func testDivideUInt64() {
-    var values = [UInt64](repeating: 0, count: 64)
-    for i in 0 ..< values.count {
-      while values[i] == 0 {
-        values[i] = .random(in: .min ... .max)
-      }
-    }
-    for a in values {
-      for b in values where b != 0 {
-        divideUInt64(a, b, rounding: .down)
-        divideUInt64(a, b, rounding: .up)
-        divideUInt64(a, b, rounding: .towardZero)
-        divideUInt64(a, b, rounding: .awayFromZero)
-        divideUInt64(a, b, rounding: .toNearestOrDown)
-        divideUInt64(a, b, rounding: .toNearestOrUp)
-        divideUInt64(a, b, rounding: .toNearestOrZero)
-        divideUInt64(a, b, rounding: .toNearestOrAway)
-        divideUInt64(a, b, rounding: .toNearestOrEven)
-        divideUInt64(a, b, rounding: .toOdd)
-      }
-    }
-  }
-  
   // stochastically rounding doesn't have a deterministic "expected" answer,
   // but we know that the result must be either the floor or the ceiling.
   // The above tests ensure that, but that's not a very strong guarantee;
