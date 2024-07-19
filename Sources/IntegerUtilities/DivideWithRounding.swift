@@ -64,44 +64,58 @@ extension BinaryInteger {
       // disagree, we have to adjust q downward and r to match.
       if other.signum() != r.signum() { return q-1 }
       return q
+      
     case .up:
       // For rounding up, we want to have r have the opposite sign of
       // other; if not, we adjust q upward and r to match.
       if other.signum() == r.signum() { return q+1 }
       return q
+      
     case .towardZero:
       // This is exactly what the `/` operator did for us.
       return q
-    case .toOdd:
-      // If q is already odd, we're done.
-      if q._lowWord & 1 == 1 { return q }
-      // Otherwise, q is even but inexact; it was originally rounded toward
-      // zero, so rounding away from zero instead will make it odd.
-      fallthrough
+      
     case .awayFromZero:
-      // To round away from zero, we apply the adjustments for both down
-      // and up.
-      if other.signum() != r.signum() { return q-1 }
-      return q+1
-    case .toNearestOrAwayFromZero:
-      // For round to nearest or away, the condition we want to satisfy is
-      // |r| <= |other/2|, with sign(q) != sign(r) when equality holds.
+      break
+      
+    case .toNearestOrDown:
+      if r.magnitude > other.magnitude.shifted(rightBy: 1, rounding: .down) ||
+          2*r.magnitude == other.magnitude && other.signum() != r.signum() {
+        break
+      }
+      return q
+      
+    case .toNearestOrUp:
+      if r.magnitude > other.magnitude.shifted(rightBy: 1, rounding: .down) ||
+          2*r.magnitude == other.magnitude && other.signum() == r.signum() {
+        break
+      }
+      return q
+      
+    case .toNearestOrZero:
+      if r.magnitude <= other.magnitude.shifted(rightBy: 1, rounding: .down) {
+        return q
+      }
+      // Otherwise, round q away from zero.
+      
+    case .toNearestOrAway:
       if r.magnitude < other.magnitude.shifted(rightBy: 1, rounding: .up) {
         return q
       }
-      // The (q,r) we have does not satisfy the to nearest or away condition;
-      // round away from zero to choose the other representative of (q, r).
-      if other.signum() != r.signum() { return q-1 }
-      return q+1
+      
     case .toNearestOrEven:
-      // For round to nearest or away, the condition we want to satisfy is
-      // |r| <= |other/2|, with q even when equality holds.
-      if r.magnitude >  other.magnitude.shifted(rightBy: 1, rounding: .down) ||
-          2*r.magnitude == other.magnitude && q._lowWord & 1 == 1 {
-        if (other > 0) != (r > 0) { return q-1 }
-        return q+1
+      // First guarantee that |r| <= |other/2|; if not we have to round away
+      // instead, so break to do that.
+      if r.magnitude > other.magnitude.shifted(rightBy: 1, rounding: .down) ||
+         2*r.magnitude == other.magnitude && !q.isMultiple(of: 2) {
+        break
       }
       return q
+      
+    case .toOdd:
+      // If q is already odd, we have the correct result.
+      if q._lowWord & 1 == 1 { return q }
+      
     case .stochastically:
       var qhi: UInt64
       var rhi: UInt64
@@ -121,9 +135,13 @@ extension BinaryInteger {
         return q+1
       }
       return q
+      
     case .requireExact:
       preconditionFailure("Division was not exact.")
     }
+    
+    // We didn't have the right result, so round q away from zero.
+    return other.signum() == r.signum() ? q+1 : q-1
   }
   
   // TODO: make this API and make it possible to implement more efficiently.
@@ -221,46 +239,70 @@ extension SignedInteger {
       // For rounding down, we want to have r match the sign of other
       // rather than self; this means that if the signs of r and other
       // disagree, we have to adjust q downward and r to match.
-      if other.signum() != r.signum() { return (q-1, r+other) }
-      return (q, r)
+      return other.signum() == r.signum() ? (q, r) : (q-1, r+other)
+      
     case .up:
       // For rounding up, we want to have r have the opposite sign of
       // other; if not, we adjust q upward and r to match.
-      if other.signum() == r.signum() { return (q+1, r-other) }
-      return (q, r)
+      return other.signum() == r.signum() ? (q+1, r-other) : (q, r)
+      
     case .towardZero:
       // This is exactly what the `/` operator did for us.
       return (q, r)
-    case .toOdd:
-      // If q is already odd, we're done.
-      if q._lowWord & 1 == 1 { return (q, r) }
-      // Otherwise, q is even but inexact; it was originally rounded toward
-      // zero, so rounding away from zero instead will make it odd.
-      fallthrough
+      
     case .awayFromZero:
-      // To round away from zero, we apply the adjustments for both down
-      // and up.
-      if other.signum() != r.signum() { return (q-1, r+other) }
-      return (q+1, r-other)
-    case .toNearestOrAwayFromZero:
-      // For round to nearest or away, the condition we want to satisfy is
-      // |r| <= |other/2|, with sign(q) != sign(r) when equality holds.
-      if r.magnitude < other.magnitude.shifted(rightBy: 1, rounding: .up) {
+      break
+      
+    case .toNearestOrDown:
+      // If |r| < |other/2|, we already rounded q to nearest. If the are
+      // equal and q is negative, then we already broke the tie in the right
+      // direction. However, we don't have access to the before-rounding q,
+      // which may have rounded up to zero, losing the sign information, so
+      // we have to look at other and r instead.
+      if 2*r.magnitude  < other.magnitude ||
+         2*r.magnitude == other.magnitude && other.signum() == r.signum() {
         return (q, r)
       }
-      // The (q,r) we have does not satisfy the to nearest or away condition;
-      // round away from zero to choose the other representative of (q, r).
-      if other.signum() != r.signum() { return (q-1, r+other) }
-      return (q+1, r-other)
-    case .toNearestOrEven:
-      // For round to nearest or away, the condition we want to satisfy is
-      // |r| <= |other/2|, with q even when equality holds.
-      if r.magnitude >  other.magnitude.shifted(rightBy: 1, rounding: .down) ||
-          2*r.magnitude == other.magnitude && q._lowWord & 1 == 1 {
-        if (other > 0) != (r > 0) { return (q-1, r+other) }
-        return (q+1, r-other)
+      
+    case .toNearestOrUp:
+      // If |r| < |other/2|, we already rounded q to nearest. If the are
+      // equal and q is non-negative, then we already broke the tie in the
+      // right direction.
+      if 2*r.magnitude  < other.magnitude ||
+         2*r.magnitude == other.magnitude && other.signum() != r.signum() {
+        return (q, r)
       }
-      return (q, r)
+      
+    case .toNearestOrZero:
+      // Check first if |r| <= |other/2|. If this holds, we have already
+      // rounded q correctly. Because we're working with magnitudes, we can
+      // safely compute 2r without worrying about overflow, even for fixed-
+      // width types, because r cannot be .min (because |r| < |other| by
+      // construction).
+      if 2*r.magnitude <= other.magnitude {
+        return (q, r)
+      }
+      
+    case .toNearestOrAway:
+      // Check first if |r| < |other/2|. If this holds, we already rounded
+      // q to nearest.
+      if 2*r.magnitude < other.magnitude {
+        return (q, r)
+      }
+      
+    case .toNearestOrEven:
+      // If |r| < |other/2|, we already rounded q to nearest. If the are
+      // equal and q is even, then we already broke the tie in the right
+      // direction.
+      if 2*r.magnitude  < other.magnitude ||
+         2*r.magnitude == other.magnitude && q.isMultiple(of: 2) {
+        return (q, r)
+      }
+      
+    case .toOdd:
+      // If q is already odd, we have the correct result.
+      if q._lowWord & 1 == 1 { return (q, r) }
+      
     case .stochastically:
       var qhi: UInt64
       var rhi: UInt64
@@ -280,9 +322,14 @@ extension SignedInteger {
         return (q+1, r-other)
       }
       return (q, r)
+      
     case .requireExact:
       preconditionFailure("Division was not exact.")
     }
+    
+    // Fallthrough behavior is to round q away from zero and adjust r to
+    // match.
+    return other.signum() == r.signum() ? (q+1, r-other) : (q-1, r+other)
   }
 }
 

@@ -105,6 +105,7 @@ extension BinaryInteger {
     let lost = Magnitude(truncatingIfNeeded: self) & mask
     let floor = self >> count
     let ceiling = floor + (lost == 0 ? 0 : 1)
+    let half: Magnitude = (1 as Magnitude) << (count &- 1)
     switch rule {
     case .down:
       return floor
@@ -114,22 +115,22 @@ extension BinaryInteger {
       return self > 0 ? floor : ceiling
     case .awayFromZero:
       return self < 0 ? floor : ceiling
-    case .toOdd:
-      return floor | (lost == 0 ? 0 : 1)
-    case .toNearestOrAwayFromZero:
-      let round = mask >> 1 + (self > 0 ? 1 : 0)
+    case .toNearestOrDown:
+      return floor + Self((lost + (half - 1)) >> count)
+    case .toNearestOrUp:
+      return floor + Self((lost + half) >> count)
+    case .toNearestOrZero:
+      let round = half - (self < 0 ? 0 : 1)
+      return floor + Self((round + lost) >> count)
+    case .toNearestOrAway:
+      let round = half - (self > 0 ? 0 : 1)
       return floor + Self((round + lost) >> count)
     case .toNearestOrEven:
       let round = mask >> 1 + Magnitude(floor & 1)
       return floor + Self((round + lost) >> count)
+    case .toOdd:
+      return floor | (lost == 0 ? 0 : 1)
     case .stochastically:
-      // TODO: it's unfortunate that we can't specify a custom random source
-      // for the stochastically rounding rule, but I don't see a nice way to
-      // have that share the API with the other rounding rules, because we'd
-      // then have to take the RNG in-out. The same problem applies to
-      // rounding with dithering. We should consider adding a stateful
-      // rounding API down the road to support those use cases.
-      //
       // In theory, u01 should be Self.random(in: 0 ..< onesBit), but the
       // random(in:) method does not exist on BinaryInteger. This is
       // (arguably) good, though, because there's actually no reason to
