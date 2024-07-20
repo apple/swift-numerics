@@ -2,12 +2,20 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2021-2024 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
 //
 //===----------------------------------------------------------------------===//
+
+// TODO: it's unfortunate that we can't specify a custom random source
+// for the stochastic rounding rule, but I don't see a nice way to have
+// that share the API with the other rounding rules, because we'd then
+// have to take either the rule in-out or have an additional RNG/state
+// parameter. The same problem applies to rounding with dithering and
+// any other stateful rounding method. We should consider adding a
+// stateful rounding API down the road to support those use cases.
 
 /// A rule that defines how to select one of the two representable results
 /// closest to a given value.
@@ -17,38 +25,56 @@
 ///
 /// Examples using rounding to integer to illustrate the various options:
 /// ```
+///                          Directed rounding rules
+/// 
 ///  value |     down     |      up      |  towardZero  | awayFromZero |
 /// =======+==============+==============+==============+==============+
-///   1.5  |       1      |       2      |       1      |       2      |
+///  -1.5  |      -2      |      -1      |      -1      |      -2      |
 /// -------+--------------+--------------+--------------+--------------+
 ///  -0.5  |      -1      |       0      |       0      |      -1      |
 /// -------+--------------+--------------+--------------+--------------+
-///   0.3  |       0      |       1      |       0      |       1      |
+///   0.5  |       0      |       1      |       0      |       1      |
 /// -------+--------------+--------------+--------------+--------------+
-///    2   |       2      |       2      |       2      |       2      |
+///   0.7  |       0      |       1      |       0      |       1      |
+/// -------+--------------+--------------+--------------+--------------+
+///   1.2  |       1      |       2      |       1      |       2      |
+/// -------+--------------+--------------+--------------+--------------+
+///   2.0  |       2      |       2      |       2      |       2      |
 /// -------+--------------+--------------+--------------+--------------+
 ///
-///  value |    toOdd     | toNearestOrAwayFromZero |  toNearestOrEven |
-/// =======+==============+=========================+==================+
-///   1.5  |       1      |            2            |         2        |
-/// -------+--------------+-------------------------+------------------+
-///  -0.5  |      -1      |           -1            |         0        |
-/// -------+--------------+-------------------------+------------------+
-///   0.3  |       1      |            0            |         0        |
-/// -------+--------------+-------------------------+------------------+
-///    2   |       2      |            2            |         2        |
-/// -------+--------------+-------------------------+------------------+
+///                      toNearestOr... rounding rules
 ///
-///  value |    stochastically     |  requireExact  |
-/// =======+=======================+================+
-///   1.5  |     50% 1, 50% 2      |      trap      |
-/// -------+-----------------------+----------------+
-///  -0.5  |    50% -1, 50% 0      |      trap      |
-/// -------+-----------------------+----------------+
-///   0.3  |     70% 0, 30% 1      |      trap      |
-/// -------+-----------------------+----------------+
-///    2   |          2            |        2       |
-/// -------+-----------------------+----------------+
+///  value |  orDown  |   orUp   |  orZero  |  orAway  |  orEven  |
+/// =======+==========+==========+==========+==========+==========+
+///  -1.5  |    -2    |    -1    |    -1    |    -2    |    -2    |
+/// -------+----------+----------+----------+----------+----------+
+///  -0.5  |    -1    |     0    |     0    |    -1    |     0    |
+/// -------+----------+----------+----------+----------+----------+
+///   0.5  |     0    |     1    |     0    |     1    |     0    |
+/// -------+----------+----------+----------+----------+----------+
+///   0.7  |     1    |     1    |     1    |     1    |     1    |
+/// -------+----------+----------+----------+----------+----------+
+///   1.2  |     1    |     1    |     1    |     1    |     1    |
+/// -------+----------+----------+----------+----------+----------+
+///   2.0  |     2    |     2    |     2    |     2    |     2    |
+/// -------+----------+----------+----------+----------+----------+
+///
+///                      Specialized rounding rules
+///
+///  value |    toOdd     |    stochastically     |  requireExact  |
+/// =======+==============+=======================+================+
+///  -1.5  |      -1      |    50% -2, 50% -1     |      trap      |
+/// -------+--------------+-----------------------+----------------+
+///  -0.5  |      -1      |    50% -1, 50% 0      |      trap      |
+/// -------+--------------+-----------------------+----------------+
+///   0.5  |       1      |     50% 0, 50% 1      |      trap      |
+/// -------+--------------+-----------------------+----------------+
+///   0.7  |       1      |     30% 0, 70% 1      |      trap      |
+/// -------+--------------+-----------------------+----------------+
+///   1.2  |       1      |     80% 1, 20% 2      |      trap      |
+/// -------+--------------+-----------------------+----------------+
+///   2.0  |       2      |          2            |        2       |
+/// -------+--------------+-----------------------+----------------+
 /// ```
 public enum RoundingRule {
   /// Produces the closest representable value that is less than or equal
@@ -114,17 +140,53 @@ public enum RoundingRule {
   case toOdd
   
   /// Produces the representable value that is closest to the value being
+  /// rounded. If two values are equally close, the one that is less than
+  /// the value being rounded is chosen.
+  ///
+  /// Examples:
+  /// - `(-4).divided(by: 3, rounding: .toNearestOrDown)`
+  /// is `-1`, because –4/3 = –1.3̅ is closer to –1 than it is to –2.
+  ///
+  /// - `5.shifted(rightBy: 1, rounding: .toNearestOrDown)` is `2`,
+  /// because 5/2 = 2.5 is equally close to 2 and 3, and 2 is less.
+  case toNearestOrDown
+  
+  /// Produces the representable value that is closest to the value being
+  /// rounded. If two values are equally close, the one that is greater than
+  /// the value being rounded is chosen.
+  ///
+  /// Examples:
+  /// - `(-4).divided(by: 3, rounding: .toNearestOrUp)`
+  /// is `-1`, because –4/3 = –1.3̅ is closer to –1 than it is to –2.
+  ///
+  /// - `5.shifted(rightBy: 1, rounding: .toNearestOrUp)` is `3`,
+  /// because 5/2 = 2.5 is equally close to 2 and 3, and 3 is greater.
+  case toNearestOrUp
+  
+  /// Produces the representable value that is closest to the value being
+  /// rounded. If two values are equally close, the one that has smaller
+  /// magnitude is returned.
+  ///
+  /// Examples:
+  /// - `(-4).divided(by: 3, rounding: .toNearestOrZero)`
+  /// is `-1`, because –4/3 = –1.3̅ is closer to –1 than it is to –2.
+  ///
+  /// - `5.shifted(rightBy: 1, rounding: .toNearestOrZero)` is `3`,
+  /// because 5/2 = 2.5 is equally close to 2 and 3, and 2 is closer to zero.
+  case toNearestOrZero
+  
+  /// Produces the representable value that is closest to the value being
   /// rounded. If two values are equally close, the one that has greater
   /// magnitude is returned.
   ///
   /// Examples:
-  /// - `(-4).divided(by: 3, rounding: .toNearestOrAwayFromZero)`
+  /// - `(-4).divided(by: 3, rounding: .toNearestOrAway)`
   /// is `-1`, because –4/3 = –1.3̅ is closer to –1 than it is to –2.
   ///
-  /// - `5.shifted(rightBy: 1, rounding: .toNearestOrAwayFromZero)` is `3`,
+  /// - `5.shifted(rightBy: 1, rounding: .toNearestOrAway)` is `3`,
   /// because 5/2 = 2.5 is equally close to 2 and 3, and 3 is further away
   /// from zero.
-  case toNearestOrAwayFromZero
+  case toNearestOrAway
   
   /// Produces the representable value that is closest to the value being
   /// rounded. If two values are equally close, the one whose least
@@ -184,4 +246,15 @@ public enum RoundingRule {
   /// - `(-4).divided(by: 3, rounding: .requireExact)` will trap,
   /// because –4/3 = –1.3̅ is not an integer.
   case requireExact
+}
+
+extension RoundingRule {
+  /// Produces the representable value that is closest to the value being
+  /// rounded. If two values are equally close, the one that has greater
+  /// magnitude is returned.
+  ///
+  /// > Deprecated: Use `.toNearestOrAway` instead.
+  @inlinable
+  @available(*, deprecated, renamed: "toNearestOrAway")
+  static var toNearestOrAwayFromZero: Self { .toNearestOrAway }
 }

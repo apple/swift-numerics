@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 import IntegerUtilities
+import _TestSupport
 import XCTest
 
 final class IntegerUtilitiesDivideTests: XCTestCase {
@@ -25,14 +26,14 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     let ref = a - q*b1 - q*b2
     if r != ref {
       XCTFail("""
-      \(a).divided(by: \(b), rounding: .down) failed the division rule.
+      \(a).divided(by: \(b)) failed the division rule.
       a - qb was \(ref), but r is \(r).
       """)
       return false
     }
     if r.magnitude >= b.magnitude {
       XCTFail("""
-      \(a).divided(by: \(b), rounding: .down) failed check on r.
+      \(a).divided(by: \(b)) failed check on r.
       |remainder| must be smaller than |divisor|, but was \(r).
       """)
       return false
@@ -46,6 +47,15 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
         // Skip any SignedInt.min / -1 cases, because those will trap.
         if a == .min && b == -1 { continue }
         let (q, r) = a.divided(by: b, rounding: .down)
+        let justq = a.divided(by: b, rounding: .down)
+        if q != justq {
+          XCTFail("""
+          \(a).divided(by: \(b), rounding: .down) failed check:
+          BinaryInteger overload did not produce the same quotient as SignedInteger.
+          BinaryInteger result was \(justq), but SignedInteger was \(q).
+          """)
+          return
+        }
         if divisionRuleHolds(a, b, q, r) {
           // We know a = bq + r with |r| < |b|. Now validate sign(r) == sign(b).
           guard r == 0 || r.signum() == b.signum() else {
@@ -66,6 +76,15 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
         // Skip any SignedInt.min / -1 cases, because those will trap.
         if a == .min && b == -1 { continue }
         let (q, r) = a.divided(by: b, rounding: .up)
+        let justq = a.divided(by: b, rounding: .up)
+        if q != justq {
+          XCTFail("""
+          \(a).divided(by: \(b), rounding: .up) failed check:
+          BinaryInteger overload did not produce the same quotient as SignedInteger.
+          BinaryInteger result was \(justq), but SignedInteger was \(q).
+          """)
+          return
+        }
         if divisionRuleHolds(a, b, q, r) {
           // We know a = bq + r with |r| < |b|. Now validate sign(r) != sign(b).
           guard r == 0 || r.signum() != b.signum() else {
@@ -86,6 +105,15 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
         // Skip any SignedInt.min / -1 cases, because those will trap.
         if a == .min && b == -1 { continue }
         let (q, r) = a.divided(by: b, rounding: .towardZero)
+        let justq = a.divided(by: b, rounding: .towardZero)
+        if q != justq {
+          XCTFail("""
+          \(a).divided(by: \(b), rounding: .towardZero) failed check:
+          BinaryInteger overload did not produce the same quotient as SignedInteger.
+          BinaryInteger result was \(justq), but SignedInteger was \(q).
+          """)
+          return
+        }
         if divisionRuleHolds(a, b, q, r) {
           // We know a = bq + r with |r| < |b|. Now validate sign(r) == sign(a).
           guard r == 0 || r.signum() == a.signum() else {
@@ -106,6 +134,15 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
         // Skip any SignedInt.min / -1 cases, because those will trap.
         if a == .min && b == -1 { continue }
         let (q, r) = a.divided(by: b, rounding: .awayFromZero)
+        let justq = a.divided(by: b, rounding: .awayFromZero)
+        if q != justq {
+          XCTFail("""
+          \(a).divided(by: \(b), rounding: .awayFromZero) failed check:
+          BinaryInteger overload did not produce the same quotient as SignedInteger.
+          BinaryInteger result was \(justq), but SignedInteger was \(q).
+          """)
+          return
+        }
         if divisionRuleHolds(a, b, q, r) {
           // We know a = bq + r with |r| < |b|. Now validate sign(r) != sign(a).
           guard r == 0 || r.signum() != a.signum() else {
@@ -120,19 +157,111 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     }
   }
   
-  func testDivideToOdd<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
+  func testDivideToNearestOrDown<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
         // Skip any SignedInt.min / -1 cases, because those will trap.
         if a == .min && b == -1 { continue }
-        let (q, r) = a.divided(by: b, rounding: .toOdd)
+        let (q, r) = a.divided(by: b, rounding: .toNearestOrDown)
+        let justq = a.divided(by: b, rounding: .toNearestOrDown)
+        if q != justq {
+          XCTFail("""
+          \(a).divided(by: \(b), rounding: .toNearestOrDown) failed check:
+          BinaryInteger overload did not produce the same quotient as SignedInteger.
+          BinaryInteger result was \(justq), but SignedInteger was \(q).
+          """)
+          return
+        }
+        
+        XCTAssertEqual(q, justq)
         if divisionRuleHolds(a, b, q, r) {
-          // We know a = bq + r with |r| < |b|. Now validate q is odd if r is
-          // non-zero.
-          guard r == 0 || q & 1 == 1 else {
+          // We know a = bq + r with |r| < |b|. Now check |r| <= |b|/2
+          // with equality only if q rounded down.
+          if 2*r.magnitude > b.magnitude {
             XCTFail("""
-            \(a).divided(by: \(b), rounding: .toOdd) failed check:
-            quotient must be odd if remainder is non-zero, but quotient was \(q) and remainder was \(r).
+            \(a).divided(by: \(b), rounding: .toNearestOrDown) failed check:
+            |remainder| must be less than or equal to |divisor|/2, but remainder was \(r).
+            """)
+            return
+          }
+          if 2*r.magnitude == b.magnitude && r.signum() != b.signum() {
+            XCTFail("""
+            \(a).divided(by: \(b), rounding: .toNearestOrDown) failed check:
+            If |remainder| equals |divisor|/2, remainder must have same sign as divisor, but was \(r).
+            """)
+            return
+          }
+        }
+      }
+    }
+  }
+  
+  func testDivideToNearestOrUp<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
+    for a in values {
+      for b in values where b != 0 {
+        // Skip any SignedInt.min / -1 cases, because those will trap.
+        if a == .min && b == -1 { continue }
+        let (q, r) = a.divided(by: b, rounding: .toNearestOrUp)
+        let justq = a.divided(by: b, rounding: .toNearestOrUp)
+        if q != justq {
+          XCTFail("""
+          \(a).divided(by: \(b), rounding: .toNearestOrUp) failed check:
+          BinaryInteger overload did not produce the same quotient as SignedInteger.
+          BinaryInteger result was \(justq), but SignedInteger was \(q).
+          """)
+          return
+        }
+        if divisionRuleHolds(a, b, q, r) {
+          // We know a = bq + r with |r| < |b|. Now check |r| <= |b|/2
+          // with equality only if q rounded up.
+          if 2*r.magnitude > b.magnitude {
+            XCTFail("""
+            \(a).divided(by: \(b), rounding: .toNearestOrUp) failed check:
+            |remainder| must be less than or equal to |divisor|/2, but remainder was \(r).
+            """)
+            return
+          }
+          if 2*r.magnitude == b.magnitude && r.signum() == b.signum() {
+            XCTFail("""
+            \(a).divided(by: \(b), rounding: .toNearestOrUp) failed check:
+            If |remainder| equals |divisor|/2, remainder must have opposite sign of divisor, but was \(r).
+            """)
+            return
+          }
+        }
+      }
+    }
+  }
+  
+  func testDivideToNearestOrZero<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
+    for a in values {
+      for b in values where b != 0 {
+        // Skip any SignedInt.min / -1 cases, because those will trap.
+        if a == .min && b == -1 { continue }
+        let (q, r) = a.divided(by: b, rounding: .toNearestOrZero)
+        let justq = a.divided(by: b, rounding: .toNearestOrZero)
+        if q != justq {
+          XCTFail("""
+          \(a).divided(by: \(b), rounding: .toNearestOrZero) failed check:
+          BinaryInteger overload did not produce the same quotient as SignedInteger.
+          BinaryInteger result was \(justq), but SignedInteger was \(q).
+          """)
+          return
+        }
+        if divisionRuleHolds(a, b, q, r) {
+          // We know a = bq + r with |r| < |b|. Now check |r| <= |b|/2
+          // with equality only if sign(r) == sign(a).
+          if 2*r.magnitude > b.magnitude {
+            XCTFail("""
+            \(a).divided(by: \(b), rounding: .toNearestOrZero) failed check:
+            |remainder| must be less than or equal to |divisor|/2, but remainder was \(r).
+            """)
+            return
+          }
+          if 2*r.magnitude == b.magnitude && r.signum() != a.signum() {
+            XCTFail("""
+            \(a).divided(by: \(b), rounding: .toNearestOrZero) failed check:
+            If |remainder| equals |divisor|/2, remainder must match sign of dividend, but was \(r).
             """)
             return
           }
@@ -146,20 +275,29 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       for b in values where b != 0 {
         // Skip any SignedInt.min / -1 cases, because those will trap.
         if a == .min && b == -1 { continue }
-        let (q, r) = a.divided(by: b, rounding: .toNearestOrAwayFromZero)
+        let (q, r) = a.divided(by: b, rounding: .toNearestOrAway)
+        let justq = a.divided(by: b, rounding: .toNearestOrAway)
+        if q != justq {
+          XCTFail("""
+          \(a).divided(by: \(b), rounding: .toNearestOrAway) failed check:
+          BinaryInteger overload did not produce the same quotient as SignedInteger.
+          BinaryInteger result was \(justq), but SignedInteger was \(q).
+          """)
+          return
+        }
         if divisionRuleHolds(a, b, q, r) {
           // We know a = bq + r with |r| < |b|. Now check |r| <= |b|/2
           // with equality only if sign(r) != sign(a).
           if 2*r.magnitude > b.magnitude {
             XCTFail("""
-            \(a).divided(by: \(b), rounding: .toNearestOrAwayFromZero) failed check:
+            \(a).divided(by: \(b), rounding: .toNearestOrAway) failed check:
             |remainder| must be less than or equal to |divisor|/2, but remainder was \(r).
             """)
             return
           }
           if 2*r.magnitude == b.magnitude && r.signum() == a.signum() {
             XCTFail("""
-            \(a).divided(by: \(b), rounding: .toNearestOrAwayFromZero) failed check:
+            \(a).divided(by: \(b), rounding: .toNearestOrAway) failed check:
             If |remainder| equals |divisor|/2, remainder must oppose sign of dividend, but was \(r).
             """)
             return
@@ -175,9 +313,18 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
         // Skip any SignedInt.min / -1 cases, because those will trap.
         if a == .min && b == -1 { continue }
         let (q, r) = a.divided(by: b, rounding: .toNearestOrEven)
+        let justq = a.divided(by: b, rounding: .toNearestOrEven)
+        if q != justq {
+          XCTFail("""
+          \(a).divided(by: \(b), rounding: .toNearestOrEven) failed check:
+          BinaryInteger overload did not produce the same quotient as SignedInteger.
+          BinaryInteger result was \(justq), but SignedInteger was \(q).
+          """)
+          return
+        }
         if divisionRuleHolds(a, b, q, r) {
           // We know a = bq + r with |r| < |b|. Now check |r| <= |b|/2
-          // with equality only if sign(r) != sign(a).
+          // with equality only if q is even.
           if 2*r.magnitude > b.magnitude {
             XCTFail("""
             \(a).divided(by: \(b), rounding: .toNearestOrEven) failed check:
@@ -189,6 +336,36 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
             XCTFail("""
             \(a).divided(by: \(b), rounding: .toNearestOrEven) failed check:
             If |remainder| equals |divisor|/2, quotient must be even, but quotient was \(q) and remainder was \(r).
+            """)
+            return
+          }
+        }
+      }
+    }
+  }
+  
+  func testDivideToOdd<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
+    for a in values {
+      for b in values where b != 0 {
+        // Skip any SignedInt.min / -1 cases, because those will trap.
+        if a == .min && b == -1 { continue }
+        let (q, r) = a.divided(by: b, rounding: .toOdd)
+        let justq = a.divided(by: b, rounding: .toOdd)
+        if q != justq {
+          XCTFail("""
+          \(a).divided(by: \(b), rounding: .toOdd) failed check:
+          BinaryInteger overload did not produce the same quotient as SignedInteger.
+          BinaryInteger result was \(justq), but SignedInteger was \(q).
+          """)
+          return
+        }
+        if divisionRuleHolds(a, b, q, r) {
+          // We know a = bq + r with |r| < |b|. Now validate q is odd if r is
+          // non-zero.
+          guard r == 0 || q & 1 == 1 else {
+            XCTFail("""
+            \(a).divided(by: \(b), rounding: .toOdd) failed check:
+            quotient must be odd if remainder is non-zero, but quotient was \(q) and remainder was \(r).
             """)
             return
           }
@@ -229,9 +406,12 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     testDivideUp(values)
     testDivideTowardZero(values)
     testDivideAwayFromZero(values)
-    testDivideToOdd(values)
+    testDivideToNearestOrDown(values)
+    testDivideToNearestOrUp(values)
+    testDivideToNearestOrZero(values)
     testDivideToNearestOrAway(values)
     testDivideToNearestOrEven(values)
+    testDivideToOdd(values)
     testDivideStochastic(values)
     testDivideExact(values)
   }
@@ -247,9 +427,33 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     testDivideUp(values)
     testDivideTowardZero(values)
     testDivideAwayFromZero(values)
-    testDivideToOdd(values)
+    testDivideToNearestOrDown(values)
+    testDivideToNearestOrUp(values)
+    testDivideToNearestOrZero(values)
     testDivideToNearestOrAway(values)
     testDivideToNearestOrEven(values)
+    testDivideToOdd(values)
+    testDivideStochastic(values)
+    testDivideExact(values)
+  }
+
+  func testDivideInt128() {
+    var values = [DoubleWidth<Int64>](repeating: 0, count: 64)
+    for i in 0 ..< values.count {
+      while values[i] == 0 {
+        values[i] = .random(in: .min ... .max)
+      }
+    }
+    testDivideDown(values)
+    testDivideUp(values)
+    testDivideTowardZero(values)
+    testDivideAwayFromZero(values)
+    testDivideToNearestOrDown(values)
+    testDivideToNearestOrUp(values)
+    testDivideToNearestOrZero(values)
+    testDivideToNearestOrAway(values)
+    testDivideToNearestOrEven(values)
+    testDivideToOdd(values)
     testDivideStochastic(values)
     testDivideExact(values)
   }
@@ -275,9 +479,12 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
         divideUInt8(a, b, rounding: .up)
         divideUInt8(a, b, rounding: .towardZero)
         divideUInt8(a, b, rounding: .awayFromZero)
-        divideUInt8(a, b, rounding: .toOdd)
-        divideUInt8(a, b, rounding: .toNearestOrAwayFromZero)
+        divideUInt8(a, b, rounding: .toNearestOrDown)
+        divideUInt8(a, b, rounding: .toNearestOrUp)
+        divideUInt8(a, b, rounding: .toNearestOrZero)
+        divideUInt8(a, b, rounding: .toNearestOrAway)
         divideUInt8(a, b, rounding: .toNearestOrEven)
+        divideUInt8(a, b, rounding: .toOdd)
       }
     }
   }
@@ -292,11 +499,12 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
   // check that it is acceptably close to the exact expected value; simple
   // use of any deterministic rounding rule will not achieve this.
   func testStochasticDivide<T: FixedWidthInteger>(_ a: T, _ b: T) -> Bool {
+    let trunc = a/b
     let sum = (0..<1024).reduce(into: 0.0) { sum, _ in
-      let rounded = a.divided(by: b, rounding: .stochastically)
-      sum += Double(rounded)
+      let rounding = a.divided(by: b, rounding: .stochastically) - trunc
+      sum += Double(rounding)
     }
-    let expected = 1024 * Double(a) / Double(b)
+    let expected = 1024*Double(a%b)/Double(b)
     let difference = abs(sum - expected)
     // Waving my hands slightly instead of giving a precise explanation
     // here, the expectation is that difference should be about

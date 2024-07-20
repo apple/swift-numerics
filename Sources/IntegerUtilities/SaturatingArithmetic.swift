@@ -95,7 +95,7 @@ extension FixedWidthInteger {
     return Self.max &- high.signbit
   }
     
-  /// Bitwise left with rounding and saturation.
+  /// Bitwise left shift with rounding and saturation.
   ///
   /// `self` multiplied by the rational number 2^(`count`), saturated to the
   /// range `Self.min ... Self.max`, and rounded according to `rule`.
@@ -154,8 +154,8 @@ extension FixedWidthInteger {
   /// shifts with examples.
   ///
   /// - Parameters:
-  ///   - leftBy count: the number of bits to shift by. If positive, this is a left-shift,
-  ///   and if negative a right shift.
+  ///   - leftBy count: the number of bits to shift by. If positive, this is a
+  ///     left-shift, and if negative a right shift.
   ///   - rounding rule: the direction in which to round if `count` is negative.
   @_transparent
   public func shiftedWithSaturation<Count: BinaryInteger>(
