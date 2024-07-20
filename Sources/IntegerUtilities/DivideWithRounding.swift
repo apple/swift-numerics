@@ -117,24 +117,20 @@ extension BinaryInteger {
       if q._lowWord & 1 == 1 { return q }
       
     case .stochastically:
-      var qhi: UInt64
+      let bmag = other.magnitude
+      let rmag = r.magnitude
+      var bhi: UInt64
       var rhi: UInt64
       if other.magnitude <= UInt64.max {
-        qhi = UInt64(other.magnitude)
-        rhi = UInt64(r.magnitude)
+        bhi = UInt64(bmag)
+        rhi = UInt64(rmag)
       } else {
-        // TODO: this is untested currently.
-        let qmag = other.magnitude
-        let shift = qmag._msb - 1
-        qhi = UInt64(truncatingIfNeeded: qmag >> shift)
-        rhi = UInt64(truncatingIfNeeded: r.magnitude >> shift)
+        let shift = bmag._msb - 63
+        bhi = UInt64(truncatingIfNeeded: bmag >> shift)
+        rhi = UInt64(truncatingIfNeeded: rmag >> shift)
       }
-      let (sum, car) = rhi.addingReportingOverflow(.random(in: 0 ..< qhi))
-      if car || sum >= qhi {
-        if (other > 0) != (r > 0) { return q-1 }
-        return q+1
-      }
-      return q
+      let (sum, car) = rhi.addingReportingOverflow(.random(in: 0 ..< bhi))
+      if sum < bhi && !car { return q }
       
     case .requireExact:
       preconditionFailure("Division was not exact.")
@@ -304,24 +300,20 @@ extension SignedInteger {
       if q._lowWord & 1 == 1 { return (q, r) }
       
     case .stochastically:
-      var qhi: UInt64
+      let bmag = other.magnitude
+      let rmag = r.magnitude
+      var bhi: UInt64
       var rhi: UInt64
       if other.magnitude <= UInt64.max {
-        qhi = UInt64(other.magnitude)
-        rhi = UInt64(r.magnitude)
+        bhi = UInt64(bmag)
+        rhi = UInt64(rmag)
       } else {
-        // TODO: this is untested currently.
-        let qmag = other.magnitude
-        let shift = qmag._msb - 1
-        qhi = UInt64(truncatingIfNeeded: qmag >> shift)
-        rhi = UInt64(truncatingIfNeeded: r.magnitude >> shift)
+        let shift = bmag._msb - 63
+        bhi = UInt64(truncatingIfNeeded: bmag >> shift)
+        rhi = UInt64(truncatingIfNeeded: rmag >> shift)
       }
-      let (sum, car) = rhi.addingReportingOverflow(.random(in: 0 ..< qhi))
-      if car || sum >= qhi {
-        if (other > 0) != (r > 0) { return (q-1, r+other) }
-        return (q+1, r-other)
-      }
-      return (q, r)
+      let (sum, car) = rhi.addingReportingOverflow(.random(in: 0 ..< bhi))
+      if sum < bhi && !car { return (q, r) }
       
     case .requireExact:
       preconditionFailure("Division was not exact.")

@@ -11,6 +11,7 @@
 //===----------------------------------------------------------------------===//
 
 import IntegerUtilities
+import _TestSupport
 import XCTest
 
 final class IntegerUtilitiesDivideTests: XCTestCase {
@@ -435,6 +436,27 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     testDivideStochastic(values)
     testDivideExact(values)
   }
+
+  func testDivideInt128() {
+    var values = [DoubleWidth<Int64>](repeating: 0, count: 64)
+    for i in 0 ..< values.count {
+      while values[i] == 0 {
+        values[i] = .random(in: .min ... .max)
+      }
+    }
+    testDivideDown(values)
+    testDivideUp(values)
+    testDivideTowardZero(values)
+    testDivideAwayFromZero(values)
+    testDivideToNearestOrDown(values)
+    testDivideToNearestOrUp(values)
+    testDivideToNearestOrZero(values)
+    testDivideToNearestOrAway(values)
+    testDivideToNearestOrEven(values)
+    testDivideToOdd(values)
+    testDivideStochastic(values)
+    testDivideExact(values)
+  }
   
   func divideUInt8(_ a: UInt8, _ b: UInt8, rounding rule: RoundingRule) {
     let expected = UInt8(Int16(a).divided(by: Int16(b), rounding: rule).quotient)
@@ -477,11 +499,12 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
   // check that it is acceptably close to the exact expected value; simple
   // use of any deterministic rounding rule will not achieve this.
   func testStochasticDivide<T: FixedWidthInteger>(_ a: T, _ b: T) -> Bool {
+    let trunc = a/b
     let sum = (0..<1024).reduce(into: 0.0) { sum, _ in
-      let rounded = a.divided(by: b, rounding: .stochastically)
-      sum += Double(rounded)
+      let rounding = a.divided(by: b, rounding: .stochastically) - trunc
+      sum += Double(rounding)
     }
-    let expected = 1024 * Double(a) / Double(b)
+    let expected = 1024*Double(a%b)/Double(b)
     let difference = abs(sum - expected)
     // Waving my hands slightly instead of giving a precise explanation
     // here, the expectation is that difference should be about
