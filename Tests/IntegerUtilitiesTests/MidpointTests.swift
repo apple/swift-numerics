@@ -20,8 +20,11 @@ final class IntegerUtilitiesMidpointTests: XCTestCase {
       .up,
       .towardZero,
       .awayFromZero,
+      .toNearestOrDown,
+      .toNearestOrUp,
+      .toNearestOrZero,
+      .toNearestOrAway,
       .toNearestOrEven,
-      .toNearestOrAwayFromZero,
       .toOdd
     ] {
       for a in -128 ... 127 {
