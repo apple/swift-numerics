@@ -256,5 +256,5 @@ extension RoundingRule {
   /// > Deprecated: Use `.toNearestOrAway` instead.
   @inlinable
   @available(*, deprecated, renamed: "toNearestOrAway")
-  static var toNearestOrAwayFromZero: Self { .toNearestOrAway }
+  public static var toNearestOrAwayFromZero: Self { .toNearestOrAway }
 }
