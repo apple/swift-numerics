@@ -256,5 +256,67 @@ extension RoundingRule {
   /// > Deprecated: Use `.toNearestOrAway` instead.
   @inlinable
   @available(*, deprecated, renamed: "toNearestOrAway")
-  static var toNearestOrAwayFromZero: Self { .toNearestOrAway }
+  public static var toNearestOrAwayFromZero: Self { .toNearestOrAway }
+}
+
+extension FloatingPoint {
+  /// `self` rounded to integer according to `rule`.
+  ///
+  /// This mirrors the standard library `rounded` API, providing access to
+  /// the expanded set of rounding rules defined in IntegerUtilities. It is
+  /// not just a shadow because that would lead to ambiguity errors in
+  /// existing code that uses the shortened `rounded(.down)` form.
+  @inlinable @inline(__always)
+  public func rounding(_ rule: RoundingRule) -> Self {
+    switch rule {
+    case .down:
+      return rounded(.down)
+    case .up:
+      return rounded(.up)
+    case .towardZero:
+      return rounded(.towardZero)
+    case .awayFromZero:
+      return rounded(.awayFromZero)
+    case .toNearestOrDown:
+      // FP doesn't have toNearestOrDown, so round toNearestOrEven and fixup
+      // any exact-halfway cases.
+      let nearest = rounded(.toNearestOrEven)
+      return nearest - self == 1/2 ? rounded(.down) : nearest
+    case .toNearestOrUp:
+      // FP doesn't have toNearestOrUp, so round toNearestOrEven and fixup
+      // any exact-halfway cases.
+      let nearest = rounded(.toNearestOrEven)
+      return self - nearest == 1/2 ? rounded(.up) : nearest
+    case .toNearestOrZero:
+      // FP doesn't have toNearestOrZero, so round toNearestOrEven and fixup
+      // any exact-halfway cases.
+      let nearest = rounded(.toNearestOrEven)
+      return (self - nearest).magnitude == 1/2 ? rounded(.towardZero) : nearest
+    case .toNearestOrAway:
+      return self.rounded(.toNearestOrAwayFromZero)
+    case .toNearestOrEven:
+      return self.rounded(.toNearestOrEven)
+    case .toOdd:
+      let trunc = rounded(.towardZero)
+      if trunc == self { return trunc }
+      let one = Self(signOf: self, magnitudeOf: 1)
+      // We have eliminated all large values at this point; add ±0.5, and see
+      // which way that rounds, then select the other value.
+      let even = (trunc + one/2).rounded(.toNearestOrEven)
+      return trunc == even ? trunc + one : trunc
+    case .stochastically:
+      let trunc = rounded(.towardZero)
+      if trunc == self { return trunc }
+      // We have eliminated all large values at this point; add dither in
+      // ±[0,1) and then truncate.
+      let bits = Swift.min(-Self.ulpOfOne.exponent, 32)
+      let random = Self(UInt32.random(in: 0 ... (1 << bits &- 1)))
+      let dither = Self(sign: sign, exponent: -bits, significand: random)
+      return (self + dither).rounded(.towardZero)
+    case .requireExact:
+      let trunc = rounded(.towardZero)
+      precondition(isInfinite || trunc == self, "\(self) is not an exact integer.")
+      return self
+    }
+  }
 }
