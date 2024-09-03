@@ -11,39 +11,11 @@
 
 import RealModule
 
-/// A complex number represented by real and imaginary parts.
+/// A [complex number](https://en.wikipedia.org/wiki/Complex_number).
 ///
-/// TODO: introductory text on complex numbers
-///
-/// Implementation notes:
-///
-/// This type does not provide heterogeneous real/complex arithmetic,
-/// not even the natural vector-space operations like real * complex.
-/// There are two reasons for this choice: first, Swift broadly avoids
-/// mixed-type arithmetic when the operation can be adequately expressed
-/// by a conversion and homogeneous arithmetic. Second, with the current
-/// typechecker rules, it would lead to undesirable ambiguity in common
-/// expressions (see README.md for more details).
-///
-/// Unlike C's `_Complex` and C++'s `std::complex<>` types, we do not
-/// attempt to make meaningful semantic distinctions between different
-/// representations of infinity or NaN. Any Complex value with at least
-/// one non-finite component is simply "non-finite". In as much as
-/// possible, we use the semantics of the point at infinity on the
-/// Riemann sphere for such values. This approach simplifies the number of
-/// edge cases that need to be considered for multiplication, division, and
-/// the elementary functions considerably.
-///
-/// `.magnitude` does not return the Euclidean norm; it uses the "infinity
-/// norm" (`max(|real|,|imaginary|)`) instead. There are two reasons for this
-/// choice: first, it's simply faster to compute on most hardware. Second,
-/// there exist values for which the Euclidean norm cannot be represented
-/// (consider a number with `.real` and `.imaginary` both equal to
-/// `RealType.greatestFiniteMagnitude`; the Euclidean norm would be
-/// `.sqrt(2) * .greatestFiniteMagnitude`, which overflows). Using
-/// the infinity norm avoids this problem entirely without significant
-/// downsides. You can access the Euclidean norm using the `length`
-/// property.
+/// `Complex` is an `AlgebraicField`, so it has all the normal arithmetic
+/// operators. It conforms to `ElementaryFunctions`, so it has all the usual
+/// math functions.
 @frozen
 public struct Complex<RealType> where RealType: Real {
   //  A note on the `x` and `y` properties
@@ -53,11 +25,11 @@ public struct Complex<RealType> where RealType: Real {
   //  `.real` and `.imaginary` properties, which wrap this storage and
   //  fixup the semantics for non-finite values.
   
-  /// The real component of the value.
+  /// The storage for the real component of the value.
   @usableFromInline @inline(__always)
   internal var x: RealType
   
-  /// The imaginary part of the value.
+  /// The storage for the imaginary part of the value.
   @usableFromInline @inline(__always)
   internal var y: RealType
   
@@ -95,11 +67,24 @@ extension Complex {
     set { y = newValue }
   }
   
+  /// The raw representation of the value.
+  ///
+  /// Use this when you need the underlying RealType values,
+  /// without fixup for NaN or infinity.
+  public var rawStorage: (x: RealType, y: RealType) {
+    @_transparent
+    get { (x, y) }
+    @_transparent
+    set { (x, y) = newValue }
+  }
+  
   /// The raw representation of the real part of this value.
+  @available(*, deprecated, message: "Use rawStorage")
   @_transparent
   public var _rawX: RealType { x }
   
   /// The raw representation of the imaginary part of this value.
+  @available(*, deprecated, message: "Use rawStorage")
   @_transparent
   public var _rawY: RealType { y }
 }
