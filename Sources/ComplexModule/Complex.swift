@@ -69,6 +69,8 @@ public struct Complex<RealType> where RealType: Real {
   }
 }
 
+extension Complex: Sendable where RealType: Sendable { }
+
 // MARK: - Basic properties
 extension Complex {
   /// The real part of this complex value.
