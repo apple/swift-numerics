@@ -10,6 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+import RealModule
 import ComplexModule
 
 public func relativeError(_ tst: Float, _ ref: Double) -> Double {
