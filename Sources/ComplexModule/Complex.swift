@@ -69,7 +69,9 @@ public struct Complex<RealType> where RealType: Real {
   }
 }
 
+#if swift(>=5.5)
 extension Complex: Sendable where RealType: Sendable { }
+#endif
 
 // MARK: - Basic properties
 extension Complex {
