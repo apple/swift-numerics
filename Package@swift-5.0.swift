@@ -1,5 +1,5 @@
-// swift-tools-version:5.2
-//===--- Package.swift ----------------------------------------*- swift -*-===//
+// swift-tools-version:5.0
+//===--- Package@swift-5.0.swift ------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -28,9 +28,7 @@ let package = Package(
     .target(
       name: "RealModule",
       dependencies: ["_NumericsShims"],
-      linkerSettings: [
-        .linkedLibrary("m", .when(platforms: [.linux, .android]))
-      ]
+      linkerSettings: [ .linkedLibrary("m", .when(platforms: [.linux])) ]
     ),
     
     // Implementation details

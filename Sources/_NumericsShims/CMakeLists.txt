@@ -10,5 +10,7 @@ See https://swift.org/LICENSE.txt for license information
 add_library(_NumericsShims INTERFACE)
 target_include_directories(_NumericsShims INTERFACE
   include)
+target_link_libraries(_NumericsShims INTERFACE
+  $<$<PLATFORM_ID:Linux>:m>)
 
 set_property(GLOBAL APPEND PROPERTY SWIFT_NUMERICS_EXPORTS _NumericsShims)
