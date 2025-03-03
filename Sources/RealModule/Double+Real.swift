@@ -150,6 +150,7 @@ extension Double: Real {
   @_transparent
   public static func pow(_ x: Double, _ y: Double) -> Double {
     guard x >= 0 else { return .nan }
+    if x == 0 && y == 0 { return .nan }
     return libm_pow(x, y)
   }
   

@@ -128,6 +128,22 @@ internal extension Real where Self: BinaryFloatingPoint {
   }
 }
 
+extension Real {
+  static func powZeroChecks() {
+    // pow(_:Self,_:Self) is defined by exp(y log(x)) and has edge-cases to
+    // match. In particular, if x is zero, log(x) is -infinity, so pow(0,0)
+    // is exp(0 * -infinity) = exp(nan) = nan.
+    XCTAssertEqual(pow(0, -1 as Self), infinity)
+    XCTAssert(pow(0, 0 as Self).isNaN)
+    XCTAssertEqual(pow(0,  1 as Self), zero)
+    // pow(_:Self,_:Int) is defined by repeated multiplication or division,
+    // and hence pow(0, 0) is 1.
+    XCTAssertEqual(pow(0, -1), infinity)
+    XCTAssertEqual(pow(0,  0), 1)
+    XCTAssertEqual(pow(0,  1), zero)
+  }
+}
+
 final class ElementaryFunctionChecks: XCTestCase {
   
   #if swift(>=5.4) && !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
@@ -135,6 +151,7 @@ final class ElementaryFunctionChecks: XCTestCase {
     if #available(macOS 11.0, iOS 14.0, watchOS 14.0, tvOS 7.0, *) {
       Float16.elementaryFunctionChecks()
       Float16.realFunctionChecks()
+      Float16.powZeroChecks()
     }
   }
   #endif
@@ -142,17 +159,20 @@ final class ElementaryFunctionChecks: XCTestCase {
   func testFloat() {
     Float.elementaryFunctionChecks()
     Float.realFunctionChecks()
+    Float.powZeroChecks()
   }
   
   func testDouble() {
     Double.elementaryFunctionChecks()
     Double.realFunctionChecks()
+    Double.powZeroChecks()
   }
   
   #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     Float80.elementaryFunctionChecks()
     Float80.realFunctionChecks()
+    Float80.powZeroChecks()
   }
   #endif
 }

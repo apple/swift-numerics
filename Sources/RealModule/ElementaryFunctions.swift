@@ -292,20 +292,24 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   
   /// exp(y * log(x)) computed with additional internal precision.
   ///
-  /// See also:
-  /// -
-  /// - `sqrt()`
-  /// - `root()`
+  /// The edge-cases of this function are defined based on the behavior of the
+  /// expression `exp(y log x)`, matching IEEE 754's `powr` operation.
+  /// In particular, this means that if `x` and `y` are both zero, `pow(x,y)`
+  /// is `nan` for real types and `infinity` for complex types, rather than 1.
   ///
+  /// There is also a `pow(_:Self,_:Int)` overload, whose behavior is defined
+  /// in terms of repeated multiplication, and hence returns 1 for this case.
+  ///
+  /// See also `sqrt()` and `root()`.
   static func pow(_ x: Self, _ y: Self) -> Self
   
   /// `x` raised to the nth power.
   ///
-  /// See also:
-  /// -
-  /// - `sqrt()`
-  /// - `root()`
+  /// The edge-cases of this function are defined in terms of repeated
+  /// multiplication or division, rather than exp(n log x). In particular,
+  /// `Float.pow(0, 0)` is 1.
   ///
+  /// See also `sqrt()` and `root()`.
   static func pow(_ x: Self, _ n: Int) -> Self
   
   /// The [square root][wiki] of `x`.

@@ -413,14 +413,21 @@ extension Complex: ElementaryFunctions {
   }
   
   // MARK: - pow-like functions
+  /// `exp(w*log(z))`
+  ///
+  /// Edge cases for this function are defined according to the defining
+  /// expression exp(w log(z)), except that we define pow(0, w) to be 0
+  /// instead of infinity when w is in the (strict) right half-plane, so that
+  /// we agree with RealType.pow on the positive real line.
   @inlinable
   public static func pow(_ z: Complex, _ w: Complex) -> Complex {
+    if z.isZero { return w.real > 0 ? zero : infinity }
     return exp(w * log(z))
   }
   
   @inlinable
   public static func pow(_ z: Complex, _ n: Int) -> Complex {
-    if z.isZero { return .zero }
+    if z.isZero { return n < 0 ? infinity : n == 0 ? one : zero }
     // TODO: this implementation is not quite correct, because n may be
     // rounded in conversion to RealType. This only effects very extreme
     // cases, so we'll leave it alone for now.
