@@ -148,7 +148,7 @@ final class ElementaryFunctionChecks: XCTestCase {
   
 #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
   func testFloat16() {
-    if #available(macOS 11.0, iOS 14.0, watchOS 14.0, tvOS 7.0, *) {
+    if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
       Float16.elementaryFunctionChecks()
       Float16.realFunctionChecks()
       Float16.powZeroChecks()
