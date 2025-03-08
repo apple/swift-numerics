@@ -84,7 +84,7 @@ Swift Numerics uses GitHub issues to track bugs and features. We use pull reques
 1. Raise an issue with the [new module] tag.
 2. Raise a PR with an implementation sketch.
 3. Once you have some consensus, ask an admin to create a feature branch against which PRs can be raised.
-4. When the design has stabilized and is functional enough to be useful, raise a PR to merge the new module to master.
+4. When the design has stabilized and is functional enough to be useful, raise a PR to merge the new module to main.
 
 ### How to propose a new feature for an existing module
 
