@@ -13,3 +13,7 @@ jobs:
     uses: swiftlang/github-workflows/.github/workflows/soundness.yml@main
     with:
       license_header_check_project_name: "Swift Numerics"
+      # https://github.com/apple/swift-numerics/issues/303
+      license_header_check_enabled: false
+      # https://github.com/apple/swift-numerics/issues/302
+      format_check_enabled: false
