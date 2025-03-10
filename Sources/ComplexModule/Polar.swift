@@ -12,7 +12,7 @@
 import RealModule
 
 extension Complex {
-  /// The Euclidean norm (a.k.a. 2-norm, `sqrt(real*real + imaginary*imaginary)`).
+  /// The Euclidean norm (a.k.a. 2-norm).
   ///
   /// This property takes care to avoid spurious over- or underflow in
   /// this computation. For example:
@@ -28,7 +28,7 @@ extension Complex {
   ///
   /// For most use cases, you can use the cheaper `.magnitude`
   /// property (which computes the ∞-norm) instead, which always produces
-  /// a representable result.
+  /// a representable result. See <doc:Magnitude> for more details.
   ///
   /// Edge cases:
   /// - If a complex value is not finite, its `.length` is `infinity`.
@@ -63,25 +63,24 @@ extension Complex {
   /// For many cases, `.magnitude` can be used instead, which is similarly
   /// cheap to compute and always returns a representable value.
   ///
-  /// See also `.length` and `.magnitude`.
+  /// Note that because of how `lengthSquared` is used, it is a primary
+  /// design goal that it be as fast as possible. Therefore, it does not
+  /// normalize infinities, and may return either `.infinity` or `.nan`
+  /// for non-finite values.
+  ///
+  /// See also ``length`` and ``magnitude``.
   @_transparent
   public var lengthSquared: RealType {
     x*x + y*y
   }
   
-  @available(*, unavailable, renamed: "lengthSquared")
-  public var unsafeLengthSquared: RealType { lengthSquared }
-  
   /// The phase (angle, or "argument").
   ///
-  /// Returns the angle (measured above the real axis) in radians. If
+  /// - Returns: The angle (measured above the real axis) in radians. If
   /// the complex value is zero or infinity, the phase is not defined,
   /// and `nan` is returned.
   ///
-  /// Edge cases:
-  /// - If the complex value is zero or non-finite, phase is `nan`.
-  ///
-  /// See also `.length`, `.polar` and `init(r:θ:)`.
+  /// See also ``length``, ``polar`` and ``init(length:phase:)``.
   @inlinable
   public var phase: RealType {
     guard isFinite && !isZero else { return .nan }
