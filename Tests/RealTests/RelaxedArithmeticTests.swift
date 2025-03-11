@@ -102,7 +102,7 @@ final class RelaxedArithmeticTests: XCTestCase {
     // Summing all values in an array can be associated however we want, but
     // has to satisfy the usual error bound of 0.5 * sum.ulp * numberOfElements.
     // We don't have a golden reference, but we can compare two sums with twice
-    // the bound for a sanity check. // ignore-unacceptable-language
+    // the bound for a basic check.
     let array = (0 ..< 128).map { _ in T.random(in: 1 ..< 2) }
     var ref = strictSum(array)
     var tst = relaxedSum(array)
