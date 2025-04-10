@@ -374,17 +374,6 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     }
   }
   
-  func testDivideStochastic<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
-    for a in values {
-      for b in values where b != 0 {
-        // Skip any SignedInt.min / -1 cases, because those will trap.
-        if a == .min && b == -1 { continue }
-        let (q, r) = a.divided(by: b, rounding: .stochastically)
-        let _ = divisionRuleHolds(a, b, q, r)
-      }
-    }
-  }
-  
   func testDivideExact<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -412,7 +401,6 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     testDivideToNearestOrAway(values)
     testDivideToNearestOrEven(values)
     testDivideToOdd(values)
-    testDivideStochastic(values)
     testDivideExact(values)
   }
   
@@ -433,7 +421,6 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     testDivideToNearestOrAway(values)
     testDivideToNearestOrEven(values)
     testDivideToOdd(values)
-    testDivideStochastic(values)
     testDivideExact(values)
   }
 
@@ -454,7 +441,6 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     testDivideToNearestOrAway(values)
     testDivideToNearestOrEven(values)
     testDivideToOdd(values)
-    testDivideStochastic(values)
     testDivideExact(values)
   }
   
@@ -489,74 +475,10 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     }
   }
   
-  // stochastically rounding doesn't have a deterministic "expected" answer,
-  // but we know that the result must be either the floor or the ceiling.
-  // The above tests ensure that, but that's not a very strong guarantee;
-  // an implementation could just implement it as self / other and pass
-  // that test.
-  //
-  // Here we round the _same_ value many times, compute the average, and
-  // check that it is acceptably close to the exact expected value; simple
-  // use of any deterministic rounding rule will not achieve this.
-  func testStochasticDivide<T: FixedWidthInteger>(_ a: T, _ b: T) -> Bool {
-    let trunc = a/b
-    let sum = (0..<1024).reduce(into: 0.0) { sum, _ in
-      let rounding = a.divided(by: b, rounding: .stochastically) - trunc
-      sum += Double(rounding)
-    }
-    let expected = 1024*Double(a%b)/Double(b)
-    let difference = abs(sum - expected)
-    // Waving my hands slightly instead of giving a precise explanation
-    // here, the expectation is that difference should be about
-    // 1/2 sqrt(1024). If we're more than a couple standard deviations
-    // off, we should flag that. This isn't _necessarily_ a problem,
-    // but if you see a repeated failure, that's almost surely a real bug.
-    //
-    // TODO: precise justification of thresholds
-    XCTAssertLessThanOrEqual(difference, 64,
-                             "Accumulated error (\(difference)) was unexpectedly large in \(a).divided(by: \(b))"
-    )
-    return difference > 16
-  }
-  
-  func testDivideStochasticInt8() {
-    var values = [Int8](repeating: 0, count: 32)
-    for i in 0 ..< values.count {
-      while values[i] == 0 {
-        values[i] = .random(in: .min ... .max)
-      }
-    }
-    var fails = 0
-    for a in values {
-      for b in values {
-        if a == .min && b == -1 { continue }
-        fails += testStochasticDivide(a, b) ? 1 : 0
-      }
-    }
-    XCTAssertLessThanOrEqual(fails, 32*16)
-  }
-  
-  func testDivideStochasticUInt32() {
-    var values = [UInt32](repeating: 0, count: 32)
-    for i in 0 ..< values.count {
-      while values[i] == 0 {
-        values[i] = .random(in: .min ... .max)
-      }
-    }
-    var fails = 0
-    for a in values {
-      for b in values {
-        fails += testStochasticDivide(a, b) ? 1 : 0
-      }
-    }
-    XCTAssertLessThanOrEqual(fails, 32*16)
-  }
-  
   func testRemainderByMinusOne() {
     // These would trap if implemented as a - bq or similar, even though
     // the remainder is well-defined.
     XCTAssertEqual(0, Int.min.remainder(dividingBy: -1))
     XCTAssertEqual(0, Int.min.remainder(dividingBy: -1, rounding: .up))
-    XCTAssertEqual(0, Int.min.remainder(dividingBy: -1, rounding: .stochastically))
   }
 }

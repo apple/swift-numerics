@@ -157,10 +157,10 @@ extension Double {
 #endif
     assertClose( 1.7976931348623151738531864721534215e308, Double.pow(-u, 3196577161300664268), allowedError: tol)
     assertClose(-1.7976931348623155730212483790972209e308, Double.pow(-u, 3196577161300664269), allowedError: tol)
-    assertClose( 1.7976931348623159721893102860411089e308, Double.pow(-u, 3196577161300664270), allowedError: tol)
+    assertClose( 1.7976931348623159721893102860411089e308, Double.pow(-u, 3196577161300664270), allowedError: tol)  // warning expected on non-x86
     assertClose( 1.7976931348623157075547244136070910e308, Double.pow(-d, -6393154322601327474), allowedError: tol)
-    assertClose(-1.7976931348623159071387553670790721e308, Double.pow(-d, -6393154322601327475), allowedError: tol)
-    assertClose( 1.7976931348623161067227863205510754e308, Double.pow(-d, -6393154322601327476), allowedError: tol)
+    assertClose(-1.7976931348623159071387553670790721e308, Double.pow(-d, -6393154322601327475), allowedError: tol) // warning expected on non-x86
+    assertClose( 1.7976931348623161067227863205510754e308, Double.pow(-d, -6393154322601327476), allowedError: tol) // warning expected on non-x86
     // Exponents close to underflow boundary.
     assertClose( 2.4703282292062334560337346683707907e-324, Double.pow(-u, -3355781687888880946))
     assertClose(-2.4703282292062329075106789791206172e-324, Double.pow(-u, -3355781687888880947))
