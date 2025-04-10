@@ -2,20 +2,12 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2021-2024 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2021-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
 //
 //===----------------------------------------------------------------------===//
-
-// TODO: it's unfortunate that we can't specify a custom random source
-// for the stochastic rounding rule, but I don't see a nice way to have
-// that share the API with the other rounding rules, because we'd then
-// have to take either the rule in-out or have an additional RNG/state
-// parameter. The same problem applies to rounding with dithering and
-// any other stateful rounding method. We should consider adding a
-// stateful rounding API down the road to support those use cases.
 
 /// A rule that defines how to select one of the two representable results
 /// closest to a given value.
@@ -59,22 +51,22 @@
 ///   2.0  |     2    |     2    |     2    |     2    |     2    |
 /// -------+----------+----------+----------+----------+----------+
 ///
-///                      Specialized rounding rules
+///            Specialized rounding rules
 ///
-///  value |    toOdd     |    stochastically     |  requireExact  |
-/// =======+==============+=======================+================+
-///  -1.5  |      -1      |    50% -2, 50% -1     |      trap      |
-/// -------+--------------+-----------------------+----------------+
-///  -0.5  |      -1      |    50% -1, 50% 0      |      trap      |
-/// -------+--------------+-----------------------+----------------+
-///   0.5  |       1      |     50% 0, 50% 1      |      trap      |
-/// -------+--------------+-----------------------+----------------+
-///   0.7  |       1      |     30% 0, 70% 1      |      trap      |
-/// -------+--------------+-----------------------+----------------+
-///   1.2  |       1      |     80% 1, 20% 2      |      trap      |
-/// -------+--------------+-----------------------+----------------+
-///   2.0  |       2      |          2            |        2       |
-/// -------+--------------+-----------------------+----------------+
+///  value |    toOdd     |  requireExact  |
+/// =======+==============+================+
+///  -1.5  |      -1      |      trap      |
+/// -------+--------------+----------------+
+///  -0.5  |      -1      |      trap      |
+/// -------+--------------+----------------+
+///   0.5  |       1      |      trap      |
+/// -------+--------------+----------------+
+///   0.7  |       1      |      trap      |
+/// -------+--------------+----------------+
+///   1.2  |       1      |      trap      |
+/// -------+--------------+----------------+
+///   2.0  |       2      |        2       |
+/// -------+--------------+----------------+
 /// ```
 public enum RoundingRule {
   /// Produces the closest representable value that is less than or equal
@@ -200,45 +192,6 @@ public enum RoundingRule {
   /// because 5/2 = 2.5 is equally close to 2 and 3, and 2 is even.
   case toNearestOrEven
   
-  /// Adds a uniform random value from [0, d) to the value being rounded,
-  /// where d is the distance between the two closest representable values,
-  /// then rounds the sum downwards.
-  ///
-  /// Unlike all the other rounding modes, this mode is _not deterministic_;
-  /// repeated calls to rounding operations with this mode will generally
-  /// produce different results. There is a tradeoff implicit in using this
-  /// mode: you can sacrifice _reproducible_ results to get _more accurate_
-  /// results in aggregate. For a contrived but illustrative example, consider
-  /// the following:
-  /// ```
-  /// let data = Array(repeating: 1, count: 100)
-  /// let result = data.reduce(0) {
-  ///   $0 + $1.divided(by: 3, rounding: rule)
-  /// }
-  /// ```
-  /// because 1/3 is always the same value between 0 and 1, any
-  /// deterministic rounding rule must produce either 0 or 100 for
-  /// this computation. But rounding `stochastically` will
-  /// produce a value close to 33. The _error_ of the computation
-  /// is smaller, but the result will now change between runs of the
-  /// program.
-  ///
-  /// For this simple case a better solution would be to add the
-  /// values first, and then divide. This gives a result that is both
-  /// reproducible _and_ accurate:
-  /// ```
-  /// let result = data.reduce(0, +)/3
-  /// ```
-  /// but this isn't always possible in more sophisticated scenarios,
-  /// and in those cases this rounding rule may be useful.
-  ///
-  /// Examples:
-  /// - `(-4).divided(by: 3, rounding: .stochastically)`
-  /// will be –1 with probability 2/3 and –2 with probability 1/3.
-  /// - `5.shifted(rightBy: 1, rounding: .stochastically)`
-  /// will be 2 with probability 1/2 and 3 with probability 1/2.
-  case stochastically
-  
   /// If the value being rounded is representable, that value is returned.
   /// Otherwise, a precondition failure occurs.
   ///
@@ -304,15 +257,6 @@ extension FloatingPoint {
       // which way that rounds, then select the other value.
       let even = (trunc + one/2).rounded(.toNearestOrEven)
       return trunc == even ? trunc + one : trunc
-    case .stochastically:
-      let trunc = rounded(.towardZero)
-      if trunc == self { return trunc }
-      // We have eliminated all large values at this point; add dither in
-      // ±[0,1) and then truncate.
-      let bits = Swift.min(-Self.ulpOfOne.exponent, 32)
-      let random = Self(UInt32.random(in: 0 ... (1 << bits &- 1)))
-      let dither = Self(sign: sign, exponent: -bits, significand: random)
-      return (self + dither).rounded(.towardZero)
     case .requireExact:
       let trunc = rounded(.towardZero)
       precondition(isInfinite || trunc == self, "\(self) is not an exact integer.")

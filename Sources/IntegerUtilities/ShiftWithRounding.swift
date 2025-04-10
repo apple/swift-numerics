@@ -130,27 +130,6 @@ extension BinaryInteger {
       return floor + Self((round + lost) >> count)
     case .toOdd:
       return floor | (lost == 0 ? 0 : 1)
-    case .stochastically:
-      // In theory, u01 should be Self.random(in: 0 ..< onesBit), but the
-      // random(in:) method does not exist on BinaryInteger. This is
-      // (arguably) good, though, because there's actually no reason to
-      // generate large amounts of randomness just to implement stochastic
-      // rounding; 32b suffices for almost all purposes, and 64b is more
-      // than enough.
-      var g = SystemRandomNumberGenerator()
-      let u01 = g.next()
-      if count < 64 {
-        // count is small, so mask and lost are representable as both
-        // UInt64 and Self, regardless of what type Self actually is.
-        return floor + Self(((u01 & UInt64(mask)) + UInt64(lost)) >> count)
-      } else {
-        // count is large, so lost may not be representable as UInt64; pre-
-        // shift by count-64 to isolate the high 64b of the fraction, then
-        // add u01 and carry-out to round.
-        let highWord = UInt64(truncatingIfNeeded: lost >> (Int(count) - 64))
-        let (_, carry) = highWord.addingReportingOverflow(u01)
-        return floor + (carry ? 1 : 0)
-      }
     case .requireExact:
       precondition(lost == 0, "shift was not exact.")
       return floor

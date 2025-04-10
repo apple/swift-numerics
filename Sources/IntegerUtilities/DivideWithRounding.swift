@@ -116,22 +116,6 @@ extension BinaryInteger {
       // If q is already odd, we have the correct result.
       if q._lowWord & 1 == 1 { return q }
       
-    case .stochastically:
-      let bmag = other.magnitude
-      let rmag = r.magnitude
-      var bhi: UInt64
-      var rhi: UInt64
-      if other.magnitude <= UInt64.max {
-        bhi = UInt64(bmag)
-        rhi = UInt64(rmag)
-      } else {
-        let shift = bmag._msb - 63
-        bhi = UInt64(truncatingIfNeeded: bmag >> shift)
-        rhi = UInt64(truncatingIfNeeded: rmag >> shift)
-      }
-      let (sum, car) = rhi.addingReportingOverflow(.random(in: 0 ..< bhi))
-      if sum < bhi && !car { return q }
-      
     case .requireExact:
       preconditionFailure("Division was not exact.")
     }
@@ -299,22 +283,6 @@ extension SignedInteger {
       // If q is already odd, we have the correct result.
       if q._lowWord & 1 == 1 { return (q, r) }
       
-    case .stochastically:
-      let bmag = other.magnitude
-      let rmag = r.magnitude
-      var bhi: UInt64
-      var rhi: UInt64
-      if other.magnitude <= UInt64.max {
-        bhi = UInt64(bmag)
-        rhi = UInt64(rmag)
-      } else {
-        let shift = bmag._msb - 63
-        bhi = UInt64(truncatingIfNeeded: bmag >> shift)
-        rhi = UInt64(truncatingIfNeeded: rmag >> shift)
-      }
-      let (sum, car) = rhi.addingReportingOverflow(.random(in: 0 ..< bhi))
-      if sum < bhi && !car { return (q, r) }
-      
     case .requireExact:
       preconditionFailure("Division was not exact.")
     }
@@ -347,7 +315,7 @@ extension SignedInteger {
 ///   is not representable.
 ///
 /// - Returns: `(quotient, remainder)`, with `0 <= remainder < b.magnitude`.
-func euclideanDivision<T>(_ a: T, _ b: T) -> (quotient: T, remainder: T)
+public func euclideanDivision<T>(_ a: T, _ b: T) -> (quotient: T, remainder: T)
 where T: SignedInteger
 {
   a.divided(by: b, rounding: a >= 0 ? .towardZero : .awayFromZero)
