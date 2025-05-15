@@ -17,9 +17,6 @@ let excludedFilenames = ["CMakeLists.txt", "README.md"]
 let package = Package(
   
   name: "swift-numerics",
-  swiftSettings: [
-      .define("BUILD_LIBRARY_FOR_DISTRIBUTION")
-  ]
   products: [
     .library(name: "ComplexModule", targets: ["ComplexModule"]),
     .library(name: "Numerics", targets: ["Numerics"]),
@@ -31,19 +28,28 @@ let package = Package(
     .target(
       name: "ComplexModule",
       dependencies: ["RealModule"],
-      exclude: excludedFilenames
+      exclude: excludedFilenames,
+      swiftSettings: [
+          .define("BUILD_LIBRARY_FOR_DISTRIBUTION")
+      ]
     ),
     
     .target(
       name: "IntegerUtilities",
       dependencies: [],
-      exclude: excludedFilenames
+      exclude: excludedFilenames,
+      swiftSettings: [
+          .define("BUILD_LIBRARY_FOR_DISTRIBUTION")
+      ]
     ),
     
     .target(
       name: "Numerics",
       dependencies: ["ComplexModule", "IntegerUtilities", "RealModule"],
-      exclude: excludedFilenames
+      exclude: excludedFilenames,
+      swiftSettings: [
+          .define("BUILD_LIBRARY_FOR_DISTRIBUTION")
+      ]
     ),
     
     .target(
@@ -52,19 +58,28 @@ let package = Package(
       exclude: excludedFilenames,
       linkerSettings: [
         .linkedLibrary("m", .when(platforms: [.linux, .android]))
+      ],
+      swiftSettings: [
+          .define("BUILD_LIBRARY_FOR_DISTRIBUTION")
       ]
     ),
     
     // MARK: - Implementation details
     .target(
       name: "_NumericsShims",
-      exclude: excludedFilenames
+      exclude: excludedFilenames,
+      swiftSettings: [
+          .define("BUILD_LIBRARY_FOR_DISTRIBUTION")
+      ]
     ),
     
     .target(
       name: "_TestSupport",
       dependencies: ["Numerics"],
-      exclude: ["CMakeLists.txt"]
+      exclude: ["CMakeLists.txt"],
+      swiftSettings: [
+          .define("BUILD_LIBRARY_FOR_DISTRIBUTION")
+      ]
     ),
     
     // MARK: - Unit test bundles
