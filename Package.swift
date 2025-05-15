@@ -17,6 +17,9 @@ let excludedFilenames = ["CMakeLists.txt", "README.md"]
 let package = Package(
   
   name: "swift-numerics",
+  swiftSettings: [
+      .define("BUILD_LIBRARY_FOR_DISTRIBUTION")
+  ]
   products: [
     .library(name: "ComplexModule", targets: ["ComplexModule"]),
     .library(name: "Numerics", targets: ["Numerics"]),
