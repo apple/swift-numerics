@@ -22,9 +22,6 @@ include(CTest)
 include(SwiftSupport)
 
 add_subdirectory(Sources)
-if(BUILD_TESTING)
-  add_subdirectory(Tests)
-endif()
 
 get_property(SWIFT_NUMERICS_EXPORTS GLOBAL PROPERTY SWIFT_NUMERICS_EXPORTS)
 export(TARGETS ${SWIFT_NUMERICS_EXPORTS}

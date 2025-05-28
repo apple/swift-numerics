@@ -73,5 +73,5 @@ Not having this protocol is a significant missing feature for numerical computin
 
 [ErrorFunction]: https://en.wikipedia.org/wiki/Error_function
 [GammaFunction]: https://en.wikipedia.org/wiki/Gamma_function
-[SE-0246]: https://github.com/apple/swift-evolution/blob/master/proposals/0246-mathable.md
+[SE-0246]: https://github.com/swiftlang/swift-evolution/blob/main/proposals/0246-mathable.md
 [Sigmoid]: https://en.wikipedia.org/wiki/Sigmoid_function
