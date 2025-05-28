@@ -9,6 +9,10 @@
 //
 //===----------------------------------------------------------------------===//
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define HEADER_SHIM static inline __attribute__((__always_inline__))
 
 // This header uses most of the libm functions, but we don't want to end up
@@ -397,3 +401,7 @@ HEADER_SHIM double _numerics_muladd(double a, double b, double c) {
 
 // No long-double muladd operation, because no one has built an FMA for it
 // (except for Itanium, which Swift doesn't support).
+
+#ifdef __cplusplus
+}
+#endif
