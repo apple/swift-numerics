@@ -9,6 +9,10 @@
 //
 //===----------------------------------------------------------------------===//
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define HEADER_SHIM static inline __attribute__((__always_inline__))
 
 // This header uses most of the libm functions, but we don't want to end up
@@ -450,3 +454,7 @@ HEADER_SHIM void _numerics_optimization_barrier(const void *pointer) {
 }
 
 #undef CLANG_RELAX_FP
+
+#ifdef __cplusplus
+}
+#endif
