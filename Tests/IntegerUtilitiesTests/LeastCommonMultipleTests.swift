@@ -71,7 +71,7 @@ struct LeastCommonMultipleTests {
 				)
 			)
 			await #expect(processExitsWith: .failure) {
-				_ = lcm_BinaryInteger(Int.max, Int.max - 1)
+				_ = lcm_BinaryInteger(Int8.min, Int8.max)
 			}
 		#endif
 	}
