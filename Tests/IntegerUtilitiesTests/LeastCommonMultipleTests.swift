@@ -13,37 +13,67 @@
 import IntegerUtilities
 import Testing
 
+private func lcm_BinaryInteger<T: BinaryInteger>(_ a: T, _ b: T) -> T {
+	IntegerUtilities.lcm(a,b)
+}
+
 @Suite("Least Common Multiple Tests")
 struct LeastCommonMultipleTests {
 	@Test("lcm<BinaryInteger>") func lcm_BinaryIntegerTest() async throws {
-		func lcm<T: BinaryInteger>(_ a: T, _ b: T) -> T {
-			IntegerUtilities.lcm(a,b)
-		}
 
-		#expect(lcm(1024, 0) == 0)
-		#expect(lcm(0, 1024) == 0)
-		#expect(lcm(0, 0) == 0)
-		#expect(lcm(1024, 768) == 3072)
-		#expect(lcm(768, 1024) == 3072)
-		#expect(lcm(24, 18) == 72)
-		#expect(lcm(18, 24) == 72)
-		#expect(lcm(6930, 288) == 110880)
-		#expect(lcm(288, 6930) == 110880)
-		#expect(lcm(Int.max, 1) == Int.max)
-		#expect(lcm(1, Int.max) == Int.max)
+		#expect(lcm_BinaryInteger(1024, 0) == 0)
+		#expect(lcm_BinaryInteger(0, 1024) == 0)
+		#expect(lcm_BinaryInteger(0, 0) == 0)
+		#expect(lcm_BinaryInteger(1024, 768) == 3072)
+		#expect(lcm_BinaryInteger(768, 1024) == 3072)
+		#expect(lcm_BinaryInteger(24, 18) == 72)
+		#expect(lcm_BinaryInteger(18, 24) == 72)
+		#expect(lcm_BinaryInteger(6930, 288) == 110880)
+		#expect(lcm_BinaryInteger(288, 6930) == 110880)
+		#expect(lcm_BinaryInteger(Int.max, 1) == Int.max)
+		#expect(lcm_BinaryInteger(1, Int.max) == Int.max)
 
-		//		#expect(processExitsWith: .failure) {
-		//			lcm(Int.min, Int.min)
-		//		}
-		//		#expect(processExitsWith: .failure) {
-		//			lcm(Int.min, 1)
-		//		}
-		//		#expect(processExitsWith: .failure) {
-		//			lcm(1, Int.min)
-		//		}
-		//		#expect(processExitsWith: .failure) {
-		//			lcm(Int.max, Int.max)
-		//		}
+		#if compiler(>=6.2)
+			try await #expect(
+				#require(
+					String(
+						bytes:	#require(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+							_ = lcm_BinaryInteger(Int.min, Int.min)
+						}.standardErrorContent,
+						encoding: .utf8
+					)
+				).contains(
+					"Fatal error: LCM 9223372036854775808 is not representable as Int."
+				)
+			)
+			try await #expect(
+				#require(
+					String(
+						bytes:	#require(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+							_ = lcm_BinaryInteger(Int.min, 1)
+						}.standardErrorContent,
+						encoding: .utf8
+					)
+				).contains(
+					"Fatal error: LCM 9223372036854775808 is not representable as Int."
+				)
+			)
+			try await #expect(
+				#require(
+					String(
+						bytes:	#require(processExitsWith: .failure, observing: [\.standardErrorContent]) {
+							_ = lcm_BinaryInteger(1, Int.min)
+						}.standardErrorContent,
+						encoding: .utf8
+					)
+				).contains(
+					"Fatal error: LCM 9223372036854775808 is not representable as Int."
+				)
+			)
+			await #expect(processExitsWith: .failure) {
+				_ = lcm_BinaryInteger(Int.max, Int.max - 1)
+			}
+		#endif
 	}
 
 	@Test("lcm<FixedWidthInteger>") func lcm_FixedWidthIntegerTests() async throws {
