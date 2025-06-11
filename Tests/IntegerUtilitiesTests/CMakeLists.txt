@@ -10,7 +10,8 @@ See https://swift.org/LICENSE.txt for license information
 add_library(IntegerUtilitiesTests
   DivideTests.swift
   DoubleWidthTests.swift
-  GCDTests.swift
+  GreatestCommonDivisorTests.swift
+  LeastCommonMultipleTests.swift
   RotateTests.swift
   SaturatingArithmeticTests.swift
   ShiftTests.swift)
