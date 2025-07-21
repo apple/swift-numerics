@@ -1,16 +1,16 @@
-#if canImport(_Differentiation)
-import _Differentiation
-#endif
-
-#if !canImport(_Differentiation)
-// add `AdditiveArithmetic` conformance since this is only present in the _Differentiation module which is not present everywhere
 extension SIMD2: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
 extension SIMD4: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
 extension SIMD8: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
 extension SIMD16: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
 extension SIMD32: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
 extension SIMD64: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
-#endif
+
+extension SIMD2: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
+extension SIMD4: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
+extension SIMD8: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
+extension SIMD16: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
+extension SIMD32: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
+extension SIMD64: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
 
 extension SIMD where Scalar: ElementaryFunctions {
     @_transparent
@@ -193,10 +193,3 @@ extension SIMD where Scalar: ElementaryFunctions {
         return v
     }
 }
-
-extension SIMD2: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
-extension SIMD4: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
-extension SIMD8: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
-extension SIMD16: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
-extension SIMD32: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
-extension SIMD64: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
