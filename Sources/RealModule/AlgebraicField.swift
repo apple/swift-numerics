@@ -40,7 +40,7 @@
 /// See also `Real`, `SignedNumeric`, `Numeric` and `AdditiveArithmetic`.
 ///
 /// [field]: https://en.wikipedia.org/wiki/Field_(mathematics)
-public protocol AlgebraicField: SignedNumeric {
+public protocol AlgebraicField: SignedNumeric where Magnitude: AlgebraicField {
   
   /// Replaces a with the (approximate) quotient `a/b`.
   static func /=(a: inout Self, b: Self)
