@@ -389,7 +389,6 @@ HEADER_SHIM long double libm_lgammal(long double x, int *signp) {
 // MARK: - math inlines with relaxed semantics to support optimization.
 #define CLANG_RELAX_FP _Pragma("clang fp reassociate(on) contract(fast)")
 
-#if !(__i386__ || __x86_64__)
 /// a + b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
 HEADER_SHIM _Float16 _numerics_relaxed_addf16(_Float16 a, _Float16 b) {
@@ -403,7 +402,6 @@ HEADER_SHIM _Float16 _numerics_relaxed_mulf16(_Float16 a, _Float16 b) {
   CLANG_RELAX_FP
   return a * b;
 }
-#endif
 
 /// a + b with the "allow reassociation" and "allow FMA formation" flags
 /// set in the IR.
