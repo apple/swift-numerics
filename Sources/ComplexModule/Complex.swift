@@ -13,8 +13,6 @@ import RealModule
 
 /// A complex number represented by real and imaginary parts.
 ///
-/// TODO: introductory text on complex numbers
-///
 /// Implementation notes:
 ///
 /// This type does not provide heterogeneous real/complex arithmetic,

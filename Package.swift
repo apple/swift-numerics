@@ -32,14 +32,8 @@ let package = Package(
     ),
     
     .target(
-      name: "IntegerUtilities",
-      dependencies: [],
-      exclude: excludedFilenames
-    ),
-    
-    .target(
       name: "Numerics",
-      dependencies: ["ComplexModule", "IntegerUtilities", "RealModule"],
+      dependencies: ["ComplexModule", "RealModule"],
       exclude: excludedFilenames
     ),
     
@@ -68,12 +62,6 @@ let package = Package(
     .testTarget(
       name: "ComplexTests",
       dependencies: ["_TestSupport"],
-      exclude: ["CMakeLists.txt"]
-    ),
-    
-    .testTarget(
-      name: "IntegerUtilitiesTests",
-      dependencies: ["IntegerUtilities", "_TestSupport"],
       exclude: ["CMakeLists.txt"]
     ),
     

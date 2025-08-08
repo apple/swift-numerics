@@ -20,7 +20,6 @@ target_compile_options(Numerics PUBLIC
   -Xfrontend -validate-tbd-against-ir=none)
 target_link_libraries(Numerics PUBLIC
   ComplexModule
-  IntegerUtilities
   RealModule)
 
 

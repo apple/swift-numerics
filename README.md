@@ -105,7 +105,6 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
 
 1. [`RealModule`](Sources/RealModule/README.md)
 2. [`ComplexModule`](Sources/ComplexModule/README.md)
-3. [`IntegerUtilities`](Sources/IntegerUtilities/README.md) (on main only, not yet present in a released tag)
 
 ## Future expansion
 
