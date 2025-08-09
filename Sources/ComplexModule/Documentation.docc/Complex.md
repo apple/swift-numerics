@@ -1,9 +1,14 @@
 # ``Complex``
 
-## Real and imaginary parts
+A Complex number type that conforms to ``AlgebraicField`` (so all the normal
+arithmetic operations are available) and ``ElementaryFunctions`` (so all
+the usual math functions are available).
 
 A `Complex` value is represented with two `RealType` values, corresponding to
-the real and imaginary parts of the number:
+the real and imaginary parts of the number.
+
+You can access these Cartesian components using the real and imaginary
+properties.
 
 ```swift
 let z = Complex(1,-1) //  1 - i
@@ -24,9 +29,41 @@ let im = w.imag       // .nan
 
 See <doc:Infinity> for more details.
 
-### Length and magnitude
-
 The ``magnitude`` property of a complex number is the infinity norm of the
 value (a.k.a. “maximum norm” or “Чебышёв norm”). To get the two norm (a.k.a
 "Euclidean norm"), use the ``length`` property. See <doc:Magnitude> for more
 details.
+
+## Topics 
+
+### Real and imaginary parts
+
+- ``real``
+- ``imaginary``
+- ``rawStorage``
+- ``init(_:_:)``
+- ``init(_:)-(RealType)``
+- ``init(imaginary:)``
+
+### Phase, length and magnitude
+
+- ``magnitude``
+- ``length``
+- ``lengthSquared``
+- ``normalized``
+- ``phase``
+- ``polar``
+- ``init(length:phase:)``
+
+### Scaling by real numbers
+- ``multiplied(by:)``
+- ``divided(by:)``
+
+### Complex-specific operations
+- ``conjugate``
+
+### Classification
+- ``isZero``
+- ``isSubnormal``
+- ``isNormal``
+- ``isFinite``

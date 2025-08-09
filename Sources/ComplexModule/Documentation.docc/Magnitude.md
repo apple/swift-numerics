@@ -83,8 +83,8 @@ that the maximum norm lacks:
   ‖zw‖₂ = ‖z‖₂‖w‖₂ for any two complex numbers z and w.
 
 > Exercises:
-> 1. Why isn't the maximum norm multiplicative?
-  (Hint: Let `z = Complex(1,1)`, and consider `z*z`.)
+> 1. Find z and w that show that the maximum norm is not multiplicative.
+  (i.e. exhibit z and w such that ‖zw‖ ≠ ‖z‖‖w‖.)
 > 2. Is the 1-norm multiplicative?
 
 ### Implementation notes:
