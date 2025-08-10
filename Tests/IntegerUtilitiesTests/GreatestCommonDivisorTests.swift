@@ -1,4 +1,5 @@
-//===--- GCDTests.swift ---------------------------------------*- swift -*-===//
+//===--- GreatestCommonDivisorTests.swift ---------------------*- swift -*-===//
+//===--- GreatestCommonDivisorTests.swift ---------------------------------------*- swift -*-===//
 //
 // This source file is part of the Swift Numerics open source project
 //
@@ -11,34 +12,32 @@
 //===----------------------------------------------------------------------===//
 
 import IntegerUtilities
-import XCTest
+import Testing
 
-final class IntegerUtilitiesGCDTests: XCTestCase {
-  func testGCDInt() {
-    XCTAssertEqual(gcd(0, 0), 0)
-    XCTAssertEqual(gcd(0, 1), 1)
-    XCTAssertEqual(gcd(1, 0), 1)
-    XCTAssertEqual(gcd(0, -1), 1)
-    XCTAssertEqual(gcd(1, 1), 1)
-    XCTAssertEqual(gcd(1, 2), 1)
-    XCTAssertEqual(gcd(2, 2), 2)
-    XCTAssertEqual(gcd(4, 2), 2)
-    XCTAssertEqual(gcd(6, 8), 2)
-    XCTAssertEqual(gcd(77, 91), 7)
-    XCTAssertEqual(gcd(24, -36), 12)
-    XCTAssertEqual(gcd(-24, -36), 12)
-    XCTAssertEqual(gcd(51, 34), 17)
-    XCTAssertEqual(gcd(64, 96), 32)
-    XCTAssertEqual(gcd(-64, 96), 32)
-    XCTAssertEqual(gcd(4*7*19, 27*25), 1)
-    XCTAssertEqual(gcd(16*315, 11*315), 315)
-    XCTAssertEqual(gcd(97*67*53*27*8, 83*67*53*9*32), 67*53*9*8)
-    XCTAssertEqual(gcd(Int.min, 2), 2)
-    
-    // TODO: Enable these when version compatibility allows.
-    //
-    // XCTExpectFailure{ gcd(0, Int.min) }
-    // XCTExpectFailure{ gcd(Int.min, 0) }
-    // XCTExpectFailure{ gcd(Int.min, Int.min) }
-  }
+struct `Greatest Common Divisor Tests` {
+    @Test func `gcd<BinaryInteger>`() async throws {
+        #expect(gcd(0, 0) == 0)
+        #expect(gcd(0, 1) == 1)
+        #expect(gcd(1, 0) == 1)
+        #expect(gcd(0, -1) == 1)
+        #expect(gcd(-1, 0) == 1)
+        #expect(gcd(1, 1) == 1)
+        #expect(gcd(1, 2) == 1)
+        #expect(gcd(2, 2) == 2)
+        #expect(gcd(4, 2) == 2)
+        #expect(gcd(6, 8) == 2)
+        #expect(gcd(77, 91) == 7)
+        #expect(gcd(24, -36) == 12)
+        #expect(gcd(-24, -36) == 12)
+        #expect(gcd(51, 34) == 17)
+        #expect(gcd(64, 96) == 32)
+        #expect(gcd(-64, 96) == 32)
+        #expect(gcd(4*7*19, 27*25) == 1)
+        #expect(gcd(16*315, 11*315) == 315)
+        #expect(gcd(97*67*53*27*8, 83*67*53*9*32) == 67*53*9*8)
+        #expect(gcd(Int.max, Int.max) == Int.max)
+        #expect(gcd(0, Int.min) == Int.min.magnitude)
+        #expect(gcd(Int.min, 0) == Int.min.magnitude)
+        #expect(gcd(Int.min, Int.min) == Int.min.magnitude)
+    }
 }
