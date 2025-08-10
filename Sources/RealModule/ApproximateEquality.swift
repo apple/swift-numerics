@@ -47,7 +47,7 @@ extension Numeric where Magnitude: FloatingPoint {
   ///   property implements a valid norm.)
   ///
   /// - `isApproximatelyEqual(to:relativeTolerance:norm:)` is _scale invariant_,
-  ///   so long as no underflow or overflow has occured, and no exceptional
+  ///   so long as no underflow or overflow has occurred, and no exceptional
   ///   value is produced by the scaling.
   ///
   /// See also `isApproximatelyEqual(to:absoluteTolerance:[relativeTolerance:norm:])`.
