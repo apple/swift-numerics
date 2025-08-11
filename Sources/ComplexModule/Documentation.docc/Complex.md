@@ -1,8 +1,9 @@
 # ``Complex``
 
-A Complex number type that conforms to ``AlgebraicField`` (so all the normal
-arithmetic operations are available) and ``ElementaryFunctions`` (so all
-the usual math functions are available).
+A Complex number type that conforms to `AlgebraicField`
+(so all the normal arithmetic operations are available) and
+`ElementaryFunctions` (so all the usual math functions are
+available).
 
 A `Complex` value is represented with two `RealType` values, corresponding to
 the real and imaginary parts of the number.
@@ -42,7 +43,7 @@ details.
 - ``imaginary``
 - ``rawStorage``
 - ``init(_:_:)``
-- ``init(_:)-(RealType)``
+- ``init(_:)-5aesj``
 - ``init(imaginary:)``
 
 ### Phase, length and magnitude

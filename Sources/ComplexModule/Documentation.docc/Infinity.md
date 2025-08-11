@@ -3,6 +3,8 @@
 Semantics of `Complex` zero and infinity values, and important considerations
 when porting code from other languages.
 
+## Overview
+
 Unlike C and C++'s complex types, `Complex` does not attempt to make a 
 semantic distinction between different infinity and NaN values. Any `Complex`
 datum with a non-finite component is treated as the "point at infinity" on 
@@ -12,7 +14,7 @@ As a consequence, all values with either component infinite or NaN compare
 equal, and hash the same. Similarly, all zero values compare equal and hash
 the same.
 
-## Rationale
+### Rationale
 
 This choice has some drawbacks,¹ but also some significant advantages.
 In particular, complex multiplication is the most common operation performed

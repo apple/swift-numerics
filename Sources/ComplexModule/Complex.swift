@@ -185,7 +185,7 @@ extension Complex {
     self.init(real, 0)
   }
   
-  /// The complex number with specified imaginary part and zero real part.
+  /// The complex number with zero real part and specified imaginary part.
   ///
   /// Equivalent to `Complex(0, imaginary)`.
   @inlinable

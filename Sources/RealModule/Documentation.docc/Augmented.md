@@ -1,5 +1,9 @@
 # ``Augmented``
 
+A namespace for a family of algorithms that compute the results of floating-
+point arithmetic using multiple values such that either the error is minimized
+or the result is exact.
+
 ## Overview
 
 Consider multiplying two Doubles. A Double has 53 significand bits, so their
@@ -17,4 +21,11 @@ the low-order part of the product suddenly becomes significant:
 let result = 1 - c      // exactly zero, but "should be" 2⁻¹⁰⁴
 ```
 Augmented arithmetic is a building-block that library writers can use to
-handle cases like this more carefully.
+handle cases like this more carefully. For the example above, one might
+compute:
+```swift
+let (head, tail) = Augmented.product(a,b)
+```
+`head` is then 1.0 and `tail` is -2⁻¹⁰⁴, so no information has been lost.
+Of course, the result is now split across two Doubles instead of one, but the
+information in `tail` can be carried forward into future computations.

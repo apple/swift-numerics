@@ -3,6 +3,8 @@
 Introduction to the concept of norm and discussion of the `Complex` type's
 `.magnitude` property.
 
+## Overview
+
 In mathematics, a *norm* is a function that gives each element of a vector
 space a non-negative length.¹
 
@@ -33,7 +35,7 @@ The three most commonly-used norms are:
 The `Complex` type gives special names to two of these norms; `length`
 for the 2-norm, and `magnitude` for the ∞-norm.
 
-## Magnitude:
+### Magnitude:
 
 The `Numeric` protocol requires us to choose a norm to call `magnitude`,
 but does not give guidance as to which one we should pick. The easiest choice
@@ -68,7 +70,7 @@ Complex(2, 3).magnitude    // 3
 Complex(-1, 0.5).magnitude // 1
 ```
 
-## Length:
+### Length:
 
 The `length` property of a `Complex` value is its Euclidean norm.
 

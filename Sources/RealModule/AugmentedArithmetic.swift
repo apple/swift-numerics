@@ -9,6 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+/// Namespace for augmented arithmetic operations.
 public enum Augmented { }
 
 extension Augmented {
@@ -96,10 +97,11 @@ extension Augmented {
   /// error from that computation rounded to the closest representable
   /// value.
   ///
-  /// Unlike ``sum(large:small:)``, the magnitude of the summands does not
-  /// matter. If you know statically that `a.magnitude >= b.magnitude`, you
-  /// should use ``sum(large:small:)``. If you do not have such a static
-  /// bound, you should use this function instead.
+  /// The magnitude of the summands does not change the result of this
+  /// operation. If you know statically that `a.magnitude >= b.magnitude`,
+  /// you may want to consider using ``sum(large:small:)`` to get the same
+  /// result somewhat more efficiently. If you do not have such a static
+  /// bound, you usually want to use this function instead.
   ///
   /// Unlike ``product(_:_:)``, the rounding error of a sum never underflows.
   ///

@@ -2,7 +2,9 @@
 
 Types and operations for working with complex numbers.
 
-## Representation
+## Overview
+
+### Representation
 
 The `Complex` type is generic over an associated `RealType`; complex numbers
 are represented as two `RealType` values, the real and imaginary parts of the
@@ -28,7 +30,7 @@ Functions taking complex arguments in these other languages are not
 automatically converted on import, but you can safely write shims that
 map them into Swift types by converting pointers.
 
-## Real-Complex arithmetic
+### Real-Complex arithmetic
 
 Because the real numbers are a subset of the complex numbers, many
 languages support arithmetic with mixed real and complex operands.

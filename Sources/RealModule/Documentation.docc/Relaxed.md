@@ -1,5 +1,8 @@
 # ``Relaxed``
 
+A namespace for a family of operations that "relax" the usual rules for
+floating-point to allow reassociation of arithmetic and FMA formation.
+
 ## Overview
 
 Because of rounding, and the arithmetic rules for infinity and NaN values,
