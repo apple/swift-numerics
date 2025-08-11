@@ -56,6 +56,10 @@ extension Augmented {
   
   /// The sum `a + b` represented as an implicit sum `head + tail`.
   ///
+  /// - Parameters:
+  ///   - a: The summand with larger magnitude.
+  ///   - b: The summand with smaller magnitude.
+  ///
   /// `head` is the correctly rounded value of `a + b`. `tail` is the
   /// error from that computation rounded to the closest representable
   /// value.
@@ -65,15 +69,13 @@ extension Augmented {
   ///
   /// This operation is sometimes called ["fastTwoSum"].
   ///
-  /// - Parameters:
-  ///   - a: The summand with larger magnitude.
-  ///   - b: The summand with smaller magnitude.
-  ///
-  /// Preconditions:
-  ///
-  /// - `large.magnitude` must not be smaller than `small.magnitude`.
-  ///   They may be equal, or one or both may be `NaN`.
-  ///   This precondition is only enforced in debug builds.
+  /// > Note:
+  /// > `tail` is guaranteed to be the best approximation to the error of
+  ///   the sum only if `large.magnitude` >= `small.magnitude`. If this is
+  ///   not the case, then `head` is the correctly rounded sum, but `tail`
+  ///   is not guaranteed to be the exact error. If you do not know a priori
+  ///   how the magnitudes of `a` and `b` compare, you likely want to use
+  ///   ``sum(_:_:)`` instead.
   ///
   /// Edge Cases:
   ///
@@ -89,29 +91,23 @@ extension Augmented {
   /// ["fastTwoSum"]:  https://en.wikipedia.org/wiki/2Sum
   @_transparent
   public static func sum<T:Real>(large a: T, small b: T) -> (head: T, tail: T) {
-    assert(!(b.magnitude > a.magnitude))
     let head = a + b
     let tail = a - head + b
     return (head, tail)
   }
-
+  
   /// The sum `a + b` represented as an implicit sum `head + tail`.
   ///
   /// `head` is the correctly rounded value of `a + b`. `tail` is the
   /// error from that computation rounded to the closest representable
   /// value.
   ///
-  /// Unlike `Augmented.sum(large: a, small: b)`, the magnitude of the summands
-  /// does not matter and `a.magnitude` might as well be strictly less than
-  /// `b.magnitude`. However, it is recommended to only use this function over
-  /// `Augmented.sum(large: a, small: b)` in cases where the ordering of the
-  /// summands magnitude is unknown at compile time. In cases where either of
-  /// the summands magnitude is guaranteed to be greater than or equal the
-  /// magnitude of the other summand, use `Augmented.sum(large: a, small: b)`
-  /// over this function; as it faster to calculate.
+  /// Unlike ``sum(large:small:)``, the magnitude of the summands does not
+  /// matter. If you know statically that `a.magnitude >= b.magnitude`, you
+  /// should use ``sum(large:small:)``. If you do not have such a static
+  /// bound, you should use this function instead.
   ///
-  /// Unlike `Augmented.product(a, b)`, the rounding error of a sum can
-  /// never underflow.
+  /// Unlike ``product(_:_:)``, the rounding error of a sum never underflows.
   ///
   /// This operation is sometimes called ["twoSum"].
   ///
@@ -126,7 +122,7 @@ extension Augmented {
   ///   interpreted as having any meaning (it may be `NaN` or `infinity`).
   ///
   /// Postconditions:
-  /// 
+  ///
   /// - If `head` is normal, then `abs(tail) < head.ulp`.
   ///   Assuming IEEE 754 default rounding, `abs(tail) <= head.ulp/2`.
   ///
