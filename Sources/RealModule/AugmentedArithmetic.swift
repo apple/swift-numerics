@@ -108,7 +108,7 @@ extension Augmented {
   /// This operation is sometimes called ["twoSum"].
   ///
   /// - Parameters:
-  ///   - a: One of the summand
+  ///   - a: One of the summands
   ///   - b: The other summand
   ///
   /// Edge Cases:
