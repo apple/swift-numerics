@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 - 2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -26,15 +26,15 @@ extension Complex {
   /// because the length can be as much as sqrt(2) times larger than
   /// either component, and thus may not be representable in the real type.
   ///
-  /// For most use cases, you can use the cheaper `.magnitude`
+  /// For most use cases, you can use the cheaper ``magnitude``
   /// property (which computes the ∞-norm) instead, which always produces
   /// a representable result. See <doc:Magnitude> for more details.
   ///
   /// Edge cases:
-  /// - If a complex value is not finite, its `.length` is `infinity`.
+  /// - If a complex value is not finite, its `length` is `infinity`.
   ///
-  /// See also `.magnitude`, `.lengthSquared`, `.phase`, `.polar`
-  /// and `init(r:θ:)`.
+  /// See also ``lengthSquared``, ``phase``, ``polar``
+  /// and ``init(length:phase:)``.
   @_transparent
   public var length: RealType {
     let naive = lengthSquared
@@ -42,7 +42,7 @@ extension Complex {
     return .sqrt(naive)
   }
   
-  //  Internal implementation detail of `length`, moving slow path off
+  //  Internal implementation detail of ``length``, moving slow path off
   //  of the inline function. Note that even `carefulLength` can overflow
   //  for finite inputs, but only when the result is outside the range
   //  of representable values.
@@ -54,21 +54,19 @@ extension Complex {
   
   /// The squared length `(real*real + imaginary*imaginary)`.
   ///
-  /// This property is more efficient to compute than `length`, but is
+  /// This property is more efficient to compute than ``length``, but is
   /// highly prone to overflow or underflow; for finite values that are
   /// not well-scaled, `lengthSquared` is often either zero or
   /// infinity, even when `length` is a finite number. Use this property
   /// only when you are certain that this value is well-scaled.
   ///
-  /// For many cases, `.magnitude` can be used instead, which is similarly
+  /// For many cases, ``magnitude`` can be used instead, which is similarly
   /// cheap to compute and always returns a representable value.
   ///
   /// Note that because of how `lengthSquared` is used, it is a primary
   /// design goal that it be as fast as possible. Therefore, it does not
   /// normalize infinities, and may return either `.infinity` or `.nan`
   /// for non-finite values.
-  ///
-  /// See also ``length`` and ``magnitude``.
   @_transparent
   public var lengthSquared: RealType {
     x*x + y*y
@@ -93,7 +91,7 @@ extension Complex {
   /// - If the complex value is zero or non-finite, phase is `.nan`.
   /// - If the complex value is non-finite, length is `.infinity`.
   ///
-  /// See also: `.length`, `.phase` and `init(r:θ:)`.
+  /// See also: ``length``, ``phase`` and ``init(length:phase:)``.
   public var polar: (length: RealType, phase: RealType) {
     (length, phase)
   }
@@ -116,7 +114,7 @@ extension Complex {
   ///   ```
   /// - Otherwise, `θ` must be finite, or a precondition failure occurs.
   ///
-  /// See also `.length`, `.phase` and `.polar`.
+  /// See also ``length``, ``phase`` and ``polar``.
   @inlinable
   public init(length: RealType, phase: RealType) {
     if phase.isFinite {

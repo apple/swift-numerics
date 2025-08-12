@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 - 2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -11,11 +11,8 @@
 
 import RealModule
 
-/// A [complex number](https://en.wikipedia.org/wiki/Complex_number).
-///
-/// `Complex` is an `AlgebraicField`, so it has all the normal arithmetic
-/// operators. It conforms to `ElementaryFunctions`, so it has all the usual
-/// math functions.
+// A [complex number](https://en.wikipedia.org/wiki/Complex_number).
+// See Documentation.docc/Complex.md for more details.
 @frozen
 public struct Complex<RealType> where RealType: Real {
   //  A note on the `x` and `y` properties
@@ -92,7 +89,7 @@ extension Complex {
 extension Complex {
   /// The imaginary unit.
   ///
-  /// See also `.zero`, `.one` and `.infinity`.
+  /// See also ``zero``, ``one`` and ``infinity``.
   @_transparent
   public static var i: Complex {
     Complex(0, 1)
@@ -100,7 +97,7 @@ extension Complex {
   
   /// The point at infinity.
   ///
-  /// See also `.zero`, `.one` and `.i`.
+  /// See also ``zero``, ``one`` and ``i``.
   @_transparent
   public static var infinity: Complex {
     Complex(.infinity, 0)
@@ -110,7 +107,7 @@ extension Complex {
   ///
   /// A complex value is finite if neither component is an infinity or nan.
   ///
-  /// See also `.isNormal`, `.isSubnormal` and `.isZero`.
+  /// See also ``isNormal``, ``isSubnormal`` and ``isZero``.
   @_transparent
   public var isFinite: Bool {
     x.isFinite && y.isFinite
@@ -123,7 +120,7 @@ extension Complex {
   /// one of the components is normal if its exponent allows a full-precision
   /// representation.
   ///
-  /// See also `.isFinite`, `.isSubnormal` and `.isZero`.
+  /// See also ``isFinite``, ``isSubnormal`` and ``isZero``.
   @_transparent
   public var isNormal: Bool {
     isFinite && (x.isNormal || y.isNormal)
@@ -135,7 +132,7 @@ extension Complex {
   /// When the result of a computation is subnormal, underflow has occurred and
   /// the result generally does not have full precision.
   ///
-  /// See also `.isFinite`, `.isNormal` and `.isZero`.
+  /// See also ``isFinite``, ``isNormal`` and ``isZero``.
   @_transparent
   public var isSubnormal: Bool {
     isFinite && !isNormal && !isZero
@@ -146,7 +143,7 @@ extension Complex {
   /// A complex number is zero if *both* the real and imaginary components
   /// are zero.
   ///
-  /// See also `.isFinite`, `.isNormal` and `isSubnormal`.
+  /// See also ``isFinite``, ``isNormal`` and ``isSubnormal``.
   @_transparent
   public var isZero: Bool {
     x == 0 && y == 0

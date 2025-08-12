@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019-2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -33,10 +33,9 @@ extension Complex {
   /// `self` divided by the real value `a`.
   ///
   /// More efficient than `self / Complex(a)`. May not produce exactly the
-  /// same result, but will always be more accurate when they differ.
+  /// same result, but will always be more accurate if they differ.
   @inlinable @inline(__always)
   public func divided(by a: RealType) -> Complex {
-    // See implementation notes for `multiplied` above.
     Complex(x/a, y/a)
   }
 }
