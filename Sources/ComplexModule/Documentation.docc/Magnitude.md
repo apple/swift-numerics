@@ -50,15 +50,16 @@ However, there are good reasons to make a different choice:
 - Even when special care is used, the Euclidean and taxicab norms are
   not necessarily representable. Both can be infinite even for finite
   numbers.
+  
   ```swift
   let big = Double.greatestFiniteMagnitude
   let z = Complex(big, big)
   ```
+  
   The taxicab norm of `z` would be `big + big`, which overflows; the
   Euclidean norm would be `sqrt(2) * big`, which also overflows.
-  
   But the maximum norm is always equal to the magnitude of either `real`
-  or `imaginary`, so it is necessarily representable if `z` is finite.
+  or `imaginary`, so it is necessarily representable.
 - The ∞-norm is the choice of established computational libraries, like
   BLAS and LAPACK.
 
@@ -113,11 +114,13 @@ z.naiveLength // Inf
 // or underflow:
 w.naiveLength // 0
 ```
+
 Instead, `length` is implemented using a two-step algorithm. First we
 compute `lengthSquared`, which is `x*x + y*y`. If this is a normal
 number (meaning that no overflow or underflow has occured), we can safely
 return its square root. Otherwise, we redo the computation with a more
 careful computation, which avoids spurious under- or overflow:
+
 ```swift
 let z = Complex<Float>(1e20, 1e20)
 let w = Complex<Float>(1e-24, 1e-24)
