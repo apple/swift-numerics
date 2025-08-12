@@ -37,7 +37,8 @@ extension Complex: Numeric {
     self.init(real, 0)
   }
   
-  /// The infinity-norm of the value (a.k.a. "maximum norm" or "Чебышёв norm").
+  /// The infinity-norm of the value (a.k.a. "maximum norm" or "Чебышёв
+  /// [Chebyshev] norm").
   ///
   /// Equal to `max(abs(real), abs(imaginary))`.
   ///

@@ -31,9 +31,9 @@ let im = w.imag       // .nan
 See <doc:Infinity> for more details.
 
 The ``magnitude`` property of a complex number is the infinity norm of the
-value (a.k.a. “maximum norm” or “Чебышёв norm”). To get the two norm (a.k.a
-"Euclidean norm"), use the ``length`` property. See <doc:Magnitude> for more
-details.
+value (a.k.a. “maximum norm” or “Чебышёв [Chebyshev] norm”). To get the two
+norm (a.k.a. "Euclidean norm"), use the ``length`` property. See
+<doc:Magnitude> for more details.
 
 ## Topics 
 
