@@ -1,12 +1,9 @@
 # ``Complex``
 
-A Complex number type that conforms to `AlgebraicField`
-(so all the normal arithmetic operations are available) and
-`ElementaryFunctions` (so all the usual math functions are
-available).
+A complex number type represented by its real and imaginary parts, and equipped
+with the usual arithmetic operators and math functions.
 
-A `Complex` value is represented with two `RealType` values, corresponding to
-the real and imaginary parts of the number.
+## Overview
 
 You can access these Cartesian components using the real and imaginary
 properties.

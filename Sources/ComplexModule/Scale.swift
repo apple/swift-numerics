@@ -22,7 +22,7 @@
 // Complex! Obviously, that doesn't help anyone.
 
 extension Complex {
-  /// `self` multiplied by the real value `a`.
+  /// The result of multiplying this value by the real number `a`.
   ///
   /// Equivalent to `self * Complex(a)`, but may be computed more efficiently.
   @inlinable @inline(__always)
@@ -30,7 +30,7 @@ extension Complex {
     Complex(x*a, y*a)
   }
   
-  /// `self` divided by the real value `a`.
+  /// The result of dividing this value by the real number `a`.
   ///
   /// More efficient than `self / Complex(a)`. May not produce exactly the
   /// same result, but will always be more accurate if they differ.
