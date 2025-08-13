@@ -34,7 +34,7 @@
 /// I.e. if a is any integer other than 1 or -1, there is no integer b such
 /// that `a*b = 1`. The existence of inverses is requried to form a field.
 ///
-/// If a type `T` conforms to the ``Real`` protocol, then `T` and ``Complex<T>``
+/// If a type `T` conforms to the ``Real`` protocol, then `T` and `Complex<T>`
 /// both conform to `AlgebraicField`.
 ///
 /// See also Swift's `SignedNumeric`, `Numeric` and `AdditiveArithmetic`
