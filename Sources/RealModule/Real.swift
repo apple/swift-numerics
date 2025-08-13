@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -41,7 +41,7 @@ extension Real {
   
   /// cos(x) - 1, computed in such a way as to maintain accuracy for small x.
   ///
-  /// See also `ElementaryFunctions.expMinusOne()`.
+  /// See also ``ElementaryFunctions.expMinusOne()``.
   @_transparent
   public static func cosMinusOne(_ x: Self) -> Self {
     let sinxOver2 = sin(x/2)

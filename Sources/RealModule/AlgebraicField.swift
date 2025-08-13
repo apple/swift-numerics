@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -32,12 +32,13 @@
 /// Because integer multiplication does not form a group; it's commutative and
 /// associative, but integers do not have multiplicative inverses.
 /// I.e. if a is any integer other than 1 or -1, there is no integer b such
-/// that a*b = 1. The existence of inverses is requried to form a field.
+/// that `a*b = 1`. The existence of inverses is requried to form a field.
 ///
-/// If a type `T` conforms to the `Real` protocol, then `T` and `Complex<T>`
+/// If a type `T` conforms to the ``Real`` protocol, then `T` and ``Complex<T>``
 /// both conform to `AlgebraicField`.
 ///
-/// See also `Real`, `SignedNumeric`, `Numeric` and `AdditiveArithmetic`.
+/// See also Swift's `SignedNumeric`, `Numeric` and `AdditiveArithmetic`
+/// protocols.
 ///
 /// [field]: https://en.wikipedia.org/wiki/Field_(mathematics)
 public protocol AlgebraicField: SignedNumeric where Magnitude: AlgebraicField {
@@ -90,10 +91,10 @@ public protocol AlgebraicField: SignedNumeric where Magnitude: AlgebraicField {
   /// ```
   var reciprocal: Self? { get }
   
-  /// a + b, with the optimizer licensed to reassociate and form FMAs.
+  /// `a + b`, with the optimizer licensed to reassociate and form FMAs.
   static func _relaxedAdd(_ a: Self, _ b: Self) -> Self
   
-  /// a * b, with the optimizer licensed to reassociate and form FMAs.
+  /// `a * b`, with the optimizer licensed to reassociate and form FMAs.
   static func _relaxedMul(_ a: Self, _ b: Self) -> Self
 }
 
