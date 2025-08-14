@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 - 2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -11,39 +11,8 @@
 
 import RealModule
 
-/// A complex number represented by real and imaginary parts.
-///
-/// TODO: introductory text on complex numbers
-///
-/// Implementation notes:
-///
-/// This type does not provide heterogeneous real/complex arithmetic,
-/// not even the natural vector-space operations like real * complex.
-/// There are two reasons for this choice: first, Swift broadly avoids
-/// mixed-type arithmetic when the operation can be adequately expressed
-/// by a conversion and homogeneous arithmetic. Second, with the current
-/// typechecker rules, it would lead to undesirable ambiguity in common
-/// expressions (see README.md for more details).
-///
-/// Unlike C's `_Complex` and C++'s `std::complex<>` types, we do not
-/// attempt to make meaningful semantic distinctions between different
-/// representations of infinity or NaN. Any Complex value with at least
-/// one non-finite component is simply "non-finite". In as much as
-/// possible, we use the semantics of the point at infinity on the
-/// Riemann sphere for such values. This approach simplifies the number of
-/// edge cases that need to be considered for multiplication, division, and
-/// the elementary functions considerably.
-///
-/// `.magnitude` does not return the Euclidean norm; it uses the "infinity
-/// norm" (`max(|real|,|imaginary|)`) instead. There are two reasons for this
-/// choice: first, it's simply faster to compute on most hardware. Second,
-/// there exist values for which the Euclidean norm cannot be represented
-/// (consider a number with `.real` and `.imaginary` both equal to
-/// `RealType.greatestFiniteMagnitude`; the Euclidean norm would be
-/// `.sqrt(2) * .greatestFiniteMagnitude`, which overflows). Using
-/// the infinity norm avoids this problem entirely without significant
-/// downsides. You can access the Euclidean norm using the `length`
-/// property.
+// A [complex number](https://en.wikipedia.org/wiki/Complex_number).
+// See Documentation.docc/Complex.md for more details.
 @frozen
 public struct Complex<RealType> where RealType: Real {
   //  A note on the `x` and `y` properties
@@ -53,11 +22,11 @@ public struct Complex<RealType> where RealType: Real {
   //  `.real` and `.imaginary` properties, which wrap this storage and
   //  fixup the semantics for non-finite values.
   
-  /// The real component of the value.
+  /// The storage for the real component of the value.
   @usableFromInline @inline(__always)
   internal var x: RealType
   
-  /// The imaginary part of the value.
+  /// The storage for the imaginary part of the value.
   @usableFromInline @inline(__always)
   internal var y: RealType
   
@@ -95,11 +64,24 @@ extension Complex {
     set { y = newValue }
   }
   
+  /// The raw representation of the value.
+  ///
+  /// Use this when you need the underlying RealType values,
+  /// without fixup for NaN or infinity.
+  public var rawStorage: (x: RealType, y: RealType) {
+    @_transparent
+    get { (x, y) }
+    @_transparent
+    set { (x, y) = newValue }
+  }
+  
   /// The raw representation of the real part of this value.
+  @available(*, deprecated, message: "Use rawStorage")
   @_transparent
   public var _rawX: RealType { x }
   
   /// The raw representation of the imaginary part of this value.
+  @available(*, deprecated, message: "Use rawStorage")
   @_transparent
   public var _rawY: RealType { y }
 }
@@ -107,7 +89,7 @@ extension Complex {
 extension Complex {
   /// The imaginary unit.
   ///
-  /// See also `.zero`, `.one` and `.infinity`.
+  /// See also ``zero``, ``one`` and ``infinity``.
   @_transparent
   public static var i: Complex {
     Complex(0, 1)
@@ -115,7 +97,7 @@ extension Complex {
   
   /// The point at infinity.
   ///
-  /// See also `.zero`, `.one` and `.i`.
+  /// See also ``zero``, ``one`` and ``i``.
   @_transparent
   public static var infinity: Complex {
     Complex(.infinity, 0)
@@ -125,7 +107,7 @@ extension Complex {
   ///
   /// A complex value is finite if neither component is an infinity or nan.
   ///
-  /// See also `.isNormal`, `.isSubnormal` and `.isZero`.
+  /// See also ``isNormal``, ``isSubnormal`` and ``isZero``.
   @_transparent
   public var isFinite: Bool {
     x.isFinite && y.isFinite
@@ -138,7 +120,7 @@ extension Complex {
   /// one of the components is normal if its exponent allows a full-precision
   /// representation.
   ///
-  /// See also `.isFinite`, `.isSubnormal` and `.isZero`.
+  /// See also ``isFinite``, ``isSubnormal`` and ``isZero``.
   @_transparent
   public var isNormal: Bool {
     isFinite && (x.isNormal || y.isNormal)
@@ -150,7 +132,7 @@ extension Complex {
   /// When the result of a computation is subnormal, underflow has occurred and
   /// the result generally does not have full precision.
   ///
-  /// See also `.isFinite`, `.isNormal` and `.isZero`.
+  /// See also ``isFinite``, ``isNormal`` and ``isZero``.
   @_transparent
   public var isSubnormal: Bool {
     isFinite && !isNormal && !isZero
@@ -161,7 +143,7 @@ extension Complex {
   /// A complex number is zero if *both* the real and imaginary components
   /// are zero.
   ///
-  /// See also `.isFinite`, `.isNormal` and `isSubnormal`.
+  /// See also ``isFinite``, ``isNormal`` and ``isSubnormal``.
   @_transparent
   public var isZero: Bool {
     x == 0 && y == 0
@@ -200,7 +182,7 @@ extension Complex {
     self.init(real, 0)
   }
   
-  /// The complex number with specified imaginary part and zero real part.
+  /// The complex number with zero real part and specified imaginary part.
   ///
   /// Equivalent to `Complex(0, imaginary)`.
   @inlinable

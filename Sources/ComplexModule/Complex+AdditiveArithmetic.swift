@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019-2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -14,7 +14,7 @@ import RealModule
 extension Complex: AdditiveArithmetic {
   /// The additive identity, with real and imaginary parts both zero.
   ///
-  /// See also: `one`, `i`, `infinity`
+  /// See also: ``one``, ``i``, ``infinity``
   @_transparent
   public static var zero: Complex {
     Complex(0, 0)
