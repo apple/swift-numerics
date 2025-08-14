@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019-2024 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -13,6 +13,8 @@ import RealModule
 
 extension Complex: AlgebraicField {
   /// The multiplicative identity `1 + 0i`.
+  ///
+  /// See also: ``zero``, ``i``, ``infinity``
   @_transparent
   public static var one: Complex {
     Complex(1, 0)

@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2021-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -11,12 +11,11 @@
 
 import _NumericsShims
 
-/// A namespace for "relaxed arithmetic" operations for types conforming to
-/// `AlgebraicField`.
 public enum Relaxed { }
 
 extension Relaxed {
-  /// a+b with the optimizer licensed to reassociate expressions and form FMAs.
+  /// a+b, but grants the optimizer permission to reassociate expressions
+  /// and form FMAs.
   ///
   /// Floating-point addition is not an associative operation, so the Swift
   /// compiler does not have any flexibility in how it evaluates an expression
@@ -45,7 +44,8 @@ extension Relaxed {
     T._relaxedAdd(a, b)
   }
   
-  /// a*b with the optimizer licensed to reassociate expressions and form FMAs.
+  /// a*b, but grants the optimizer permission to reassociate expressions
+  /// and form FMAs.
   ///
   /// Floating-point addition and multiplication are not associative operations,
   /// so the Swift compiler does not have any flexibility in how it evaluates
