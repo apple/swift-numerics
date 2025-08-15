@@ -9,6 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+import RealModule
+
 // Norms and related quantities defined for Quaternion.
 //
 // The following API are provided by this extension:

@@ -9,6 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+import RealModule
+
 extension Quaternion {
   /// The [rotation angle][wiki] of the Angle-Axis representation.
   ///

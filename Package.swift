@@ -27,6 +27,16 @@ let package = Package(
   targets: [
     // MARK: - Public API
     .target(
+      name: "Numerics",
+      dependencies: [
+        "ComplexModule",
+        "IntegerUtilities",
+        "QuaternionModule",
+        "RealModule"],
+      exclude: excludedFilenames
+    ),
+    
+    .target(
       name: "ComplexModule",
       dependencies: ["RealModule"],
       exclude: excludedFilenames
@@ -35,12 +45,6 @@ let package = Package(
     .target(
       name: "IntegerUtilities",
       dependencies: [],
-      exclude: excludedFilenames
-    ),
-    
-    .target(
-      name: "Numerics",
-      dependencies: ["ComplexModule", "IntegerUtilities", "RealModule"],
       exclude: excludedFilenames
     ),
     
