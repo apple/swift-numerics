@@ -16,6 +16,7 @@ extension Complex: CustomStringConvertible {
   }
 }
 
+@_unavailableInEmbedded
 extension Complex: CustomDebugStringConvertible {
   public var debugDescription: String {
     "Complex<\(RealType.self)>(\(String(reflecting: x)), \(String(reflecting: y)))"
