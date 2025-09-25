@@ -12,6 +12,9 @@
 import RealModule
 
 // FloatingPoint does not refine Codable, so this is a conditional conformance.
+#if compiler(>=6.0)
+@_unavailableInEmbedded
+#endif
 extension Complex: Decodable where RealType: Decodable {
   public init(from decoder: Decoder) throws {
     var unkeyedContainer = try decoder.unkeyedContainer()
@@ -21,6 +24,9 @@ extension Complex: Decodable where RealType: Decodable {
   }
 }
 
+#if compiler(>=6.0)
+@_unavailableInEmbedded
+#endif
 extension Complex: Encodable where RealType: Encodable {
   public func encode(to encoder: Encoder) throws {
     var unkeyedContainer = encoder.unkeyedContainer()
