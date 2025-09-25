@@ -16,7 +16,9 @@ extension Complex: CustomStringConvertible {
   }
 }
 
+#if compiler(>=6.0)
 @_unavailableInEmbedded
+#endif
 extension Complex: CustomDebugStringConvertible {
   public var debugDescription: String {
     "Complex<\(RealType.self)>(\(String(reflecting: x)), \(String(reflecting: y)))"
