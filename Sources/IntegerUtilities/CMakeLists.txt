@@ -9,7 +9,7 @@ See https://swift.org/LICENSE.txt for license information
 
 add_library(IntegerUtilities
   DivideWithRounding.swift
-  GCD.swift
+  GreatestCommonDivisor.swift
   Rotate.swift
   RoundingRule.swift
   SaturatingArithmetic.swift
