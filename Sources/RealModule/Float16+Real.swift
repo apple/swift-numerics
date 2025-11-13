@@ -173,9 +173,10 @@ extension Float16: Real {
   }
   #endif
   
-  // TODO: once clang stabilizes the calling conventions for _Float16 on Intel,
-  // we can re-enable these; presently the type is disabled on the target.
-  #if !(arch(i386) || arch(x86_64))
+  #if !arch(wasm32)
+  // WASM doesn't have _Float16 on the C side, so we can't define the C hooks
+  // that these use. TODO: implement these as Swift builtins instead.
+  
   @_transparent
   public static func _relaxedAdd(_ a: Float16, _ b: Float16) -> Float16 {
     _numerics_relaxed_addf16(a, b)

@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2020 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2020-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -47,7 +47,7 @@ extension Numeric where Magnitude: FloatingPoint {
   ///   property implements a valid norm.)
   ///
   /// - `isApproximatelyEqual(to:relativeTolerance:norm:)` is _scale invariant_,
-  ///   so long as no underflow or overflow has occured, and no exceptional
+  ///   so long as no underflow or overflow has occurred, and no exceptional
   ///   value is produced by the scaling.
   ///
   /// See also `isApproximatelyEqual(to:absoluteTolerance:[relativeTolerance:norm:])`.
@@ -218,7 +218,7 @@ extension AdditiveArithmetic {
   ///       norm: \.length
   ///     )
   ///     ```
-  ///     (if we used the default norm, `.magnitude`, we would be testing if
+  ///     (if we used the default norm, `\.magnitude`, we would be testing if
   ///     `z` were inside a square region instead.)
   @inlinable
   public func isApproximatelyEqual<Magnitude>(
@@ -227,12 +227,6 @@ extension AdditiveArithmetic {
     relativeTolerance: Magnitude = 0,
     norm: (Self) -> Magnitude
   ) -> Bool
-  // TODO: constraint should really be weaker than FloatingPoint,
-  // but we need to have `isFinite` for it to work correctly with
-  // floating-point magnitudes in generic contexts, which is the
-  // most common case. The fix for this is to lift the isFinite
-  // requirement to Numeric in the standard library, but that's
-  // source-breaking, so requires an ABI rumspringa.
   where Magnitude: FloatingPoint {
     assert(
       absoluteTolerance >= 0 && absoluteTolerance.isFinite,
