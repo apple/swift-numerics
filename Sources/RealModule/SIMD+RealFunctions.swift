@@ -1,6 +1,7 @@
 
-// Unfortunately we can't conform concrete simd types to `RealFunctions` as we can't implement a simd equivalent of
+// All `RealFunctions` implementations are here except for
 // `static func signGamma(_ x: Self) -> FloatingPointSign`
+// as SIMD can't work with `FloatingPointSign`
 extension SIMD where Scalar: RealFunctions {
     @_transparent
     public static func atan2(y: Self, x: Self) -> Self {

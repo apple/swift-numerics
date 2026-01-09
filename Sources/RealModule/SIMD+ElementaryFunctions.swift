@@ -1,16 +1,3 @@
-extension SIMD2: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
-extension SIMD4: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
-extension SIMD8: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
-extension SIMD16: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
-extension SIMD32: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
-extension SIMD64: @retroactive AdditiveArithmetic where Scalar: FloatingPoint {}
-
-extension SIMD2: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
-extension SIMD4: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
-extension SIMD8: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
-extension SIMD16: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
-extension SIMD32: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
-extension SIMD64: ElementaryFunctions where Scalar: ElementaryFunctions & FloatingPoint { }
 
 extension SIMD where Scalar: ElementaryFunctions {
     @_transparent
