@@ -2,19 +2,13 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2020-2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2020-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
 //
 //===----------------------------------------------------------------------===//
 
-/// A namespace for "augmented arithmetic" operations for types conforming to
-/// `Real`.
-///
-/// Augmented arithmetic refers to a family of algorithms that represent
-/// the results of floating-point computations using multiple values such that
-/// either the error is minimized or the result is exact.
 public enum Augmented { }
 
 extension Augmented {
@@ -45,7 +39,9 @@ extension Augmented {
   /// - If both `head` and `tail` are normal, then `a * b` is exactly
   ///   equal to `head + tail` when computed as real numbers.
   @_transparent
-  public static func product<T:Real>(_ a: T, _ b: T) -> (head: T, tail: T) {
+  public static func product<T:FloatingPoint>(
+    _ a: T, _ b: T
+  ) -> (head: T, tail: T) {
     let head = a*b
     // TODO: consider providing an FMA-less implementation for use when
     // targeting platforms without hardware FMA support. This works everywhere,
@@ -56,24 +52,30 @@ extension Augmented {
   
   /// The sum `a + b` represented as an implicit sum `head + tail`.
   ///
-  /// `head` is the correctly rounded value of `a + b`. `tail` is the
-  /// error from that computation rounded to the closest representable
-  /// value.
-  ///
-  /// Unlike `Augmented.product(a, b)`, the rounding error of a sum can
-  /// never underflow.
-  ///
-  /// This operation is sometimes called ["fastTwoSum"].
-  ///
   /// - Parameters:
   ///   - a: The summand with larger magnitude.
   ///   - b: The summand with smaller magnitude.
   ///
-  /// Preconditions:
+  /// `head` is the correctly rounded value of `a + b`. `tail` is the
+  /// error from that computation rounded to the closest representable
+  /// value.
   ///
-  /// - `large.magnitude` must not be smaller than `small.magnitude`.
-  ///   They may be equal, or one or both may be `NaN`.
-  ///   This precondition is only enforced in debug builds.
+  /// > Note:
+  /// > `tail` is guaranteed to be the best approximation to the error of
+  ///   the sum only if `large.magnitude` >= `small.magnitude`. If this is
+  ///   not the case, then `head` is the correctly rounded sum, but `tail`
+  ///   is not guaranteed to be the exact error. If you do not know a priori
+  ///   how the magnitudes of `a` and `b` compare, you likely want to use
+  ///   ``sum(_:_:)`` instead.
+  ///
+  /// Unlike ``product(_:_:)``, the rounding error of `sum` never underflows.
+  ///
+  /// This operation is sometimes called ["fastTwoSum"].
+  ///
+  /// > Note:
+  /// > Classical fastTwoSum does not work when `radix` is 10. This function
+  ///   will fall back on another algorithm for decimal floating-point types
+  ///   to ensure correct results.
   ///
   /// Edge Cases:
   ///
@@ -88,35 +90,37 @@ extension Augmented {
   ///
   /// ["fastTwoSum"]:  https://en.wikipedia.org/wiki/2Sum
   @_transparent
-  public static func sum<T:Real>(large a: T, small b: T) -> (head: T, tail: T) {
-    assert(!(b.magnitude > a.magnitude))
+  public static func sum<T: FloatingPoint>(
+    large a: T, small b: T
+  ) -> (head: T, tail: T) {
+    // Fall back on 2Sum if radix != 2. Future implementations might use an
+    // cheaper algorithm specialized for decimal FP, but must deliver a
+    // correct result if the preconditions are satisfied.
+    guard T.radix == 2 else { return sum(a, b) }
+    // Fast2Sum:
     let head = a + b
     let tail = a - head + b
     return (head, tail)
   }
-
+  
   /// The sum `a + b` represented as an implicit sum `head + tail`.
   ///
   /// `head` is the correctly rounded value of `a + b`. `tail` is the
   /// error from that computation rounded to the closest representable
   /// value.
   ///
-  /// Unlike `Augmented.sum(large: a, small: b)`, the magnitude of the summands
-  /// does not matter and `a.magnitude` might as well be strictly less than
-  /// `b.magnitude`. However, it is recommended to only use this function over
-  /// `Augmented.sum(large: a, small: b)` in cases where the ordering of the
-  /// summands magnitude is unknown at compile time. In cases where either of
-  /// the summands magnitude is guaranteed to be greater than or equal the
-  /// magnitude of the other summand, use `Augmented.sum(large: a, small: b)`
-  /// over this function; as it faster to calculate.
+  /// The magnitude of the summands does not change the result of this
+  /// operation. If you know statically that `a.magnitude >= b.magnitude`,
+  /// you may want to consider using ``sum(large:small:)`` to get the same
+  /// result somewhat more efficiently. If you do not have such a static
+  /// bound, you usually want to use this function instead.
   ///
-  /// Unlike `Augmented.product(a, b)`, the rounding error of a sum can
-  /// never underflow.
+  /// Unlike ``product(_:_:)``, the rounding error of `sum` never underflows.
   ///
   /// This operation is sometimes called ["twoSum"].
   ///
   /// - Parameters:
-  ///   - a: One of the summand
+  ///   - a: One of the summands
   ///   - b: The other summand
   ///
   /// Edge Cases:
@@ -126,13 +130,15 @@ extension Augmented {
   ///   interpreted as having any meaning (it may be `NaN` or `infinity`).
   ///
   /// Postconditions:
-  /// 
+  ///
   /// - If `head` is normal, then `abs(tail) < head.ulp`.
   ///   Assuming IEEE 754 default rounding, `abs(tail) <= head.ulp/2`.
   ///
   /// ["twoSum"]:  https://en.wikipedia.org/wiki/2Sum
   @_transparent
-  public static func sum<T: Real>(_ a: T, _ b: T) -> (head: T, tail: T) {
+  public static func sum<T: FloatingPoint>(
+    _ a: T, _ b: T
+  ) -> (head: T, tail: T) {
     let head = a + b
     let x = head - b
     let y = head - x

@@ -12,8 +12,8 @@
 extension BinaryInteger {
   /// `self` divided by 2^(`count`), rounding the result according to `rule`.
   ///
-  /// The default rounding rule is `.down`, which matches the behavior of
-  /// the `>>` operator from the standard library.
+  /// The default rounding rule is ``RoundingRule/down``, which matches the
+  /// behavior of the `>>` operator from the standard library.
   ///
   /// Some examples of different rounding rules:
   ///
@@ -138,8 +138,8 @@ extension BinaryInteger {
   
   /// `self` divided by 2^(`count`), rounding the result according to `rule`.
   ///
-  /// The default rounding rule is `.down`, which matches the behavior of
-  /// the `>>` operator from the standard library.
+  /// The default rounding rule is ``RoundingRule/down``, which matches the
+  /// behavior of the `>>` operator from the standard library.
   ///
   /// Some examples of different rounding rules:
   ///

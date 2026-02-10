@@ -31,8 +31,8 @@ extension FixedWidthInteger {
   /// let c = a.addingWithSaturation(b)
   /// ```
   ///
-  /// Anytime the "normal addition" `self + other` does not trap,
-  /// `addingWithSaturation` produces the same result.
+  /// If the "normal addition" `self + other` does not trap,
+  /// this method produces the same result.
   @inlinable
   public func addingWithSaturation(_ other: Self) -> Self {
     let (wrapped, overflow) = addingReportingOverflow(other)
@@ -54,8 +54,8 @@ extension FixedWidthInteger {
   /// `a.subtractingWithSaturation(b)`, because `-b` is not representable
   /// if `b` is the minimum value of a signed type.
   ///
-  /// Anytime the "normal subtraction" `self - other` does not trap,
-  /// `subtractingWithSaturation` produces the same result.
+  /// If the "normal subtraction" `self - other` does not trap,
+  /// this method produces the same result.
   @inlinable
   public func subtractingWithSaturation(_ other: Self) -> Self {
     let (wrapped, overflow) = subtractingReportingOverflow(other)
@@ -85,8 +85,8 @@ extension FixedWidthInteger {
   /// let c = a.multipliedWithSaturation(by: b)
   /// ```
   ///
-  /// Anytime the "normal multiplication" `self * other` does not trap,
-  /// `multipliedWithSaturation` produces the same result.
+  /// If the "normal multiplication" `self * other` does not trap,
+  /// this method produces the same result.
   @inlinable
   public func multipliedWithSaturation(by other: Self) -> Self {
     let (high, low) = multipliedFullWidth(by: other)
@@ -100,12 +100,12 @@ extension FixedWidthInteger {
   /// `self` multiplied by the rational number 2^(`count`), saturated to the
   /// range `Self.min ... Self.max`, and rounded according to `rule`.
   ///
-  /// See `shifted(rightBy:rounding:)` for more discussion of rounding
-  /// shifts with examples.
+  /// See `shifted(rightBy:rounding:)`, defined on `BinaryInteger`, for more
+  /// discussion of rounding shifts with examples.
   ///
   /// - Parameters:
-  ///   - leftBy count: the number of bits to shift by. If positive, this is a left-shift,
-  ///   and if negative a right shift.
+  ///   - leftBy count: the number of bits to shift by. If positive, this is
+  ///     a left-shift, and if negative a right shift.
   ///   - rounding rule: the direction in which to round if `count` is negative.
   @inlinable
   public func shiftedWithSaturation(

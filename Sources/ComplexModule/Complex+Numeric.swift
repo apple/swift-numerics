@@ -2,7 +2,7 @@
 //
 // This source file is part of the Swift Numerics open source project
 //
-// Copyright (c) 2019 - 2021 Apple Inc. and the Swift Numerics project authors
+// Copyright (c) 2019-2025 Apple Inc. and the Swift Numerics project authors
 // Licensed under Apache License v2.0 with Runtime Library Exception
 //
 // See https://swift.org/LICENSE.txt for license information
@@ -37,17 +37,20 @@ extension Complex: Numeric {
     self.init(real, 0)
   }
   
-  /// The ∞-norm of the value (`max(abs(real), abs(imaginary))`).
+  /// The infinity-norm of the value (a.k.a. "maximum norm" or "Чебышёв
+  /// [Chebyshev] norm").
   ///
-  /// If you need the Euclidean norm (a.k.a. 2-norm) use the `length` or
-  /// `lengthSquared` properties instead.
+  /// Equal to `max(abs(real), abs(imaginary))`.
   ///
-  /// Edge cases:
-  /// - If `z` is not finite, `z.magnitude` is `.infinity`.
-  /// - If `z` is zero, `z.magnitude` is `0`.
+  /// If you need to work with the Euclidean norm (a.k.a. 2-norm) instead,
+  /// use the ``length`` or ``lengthSquared`` properties. If you just need
+  /// to know "how big" a number is, use this property.
+  ///
+  /// **Edge cases:**
+  ///
+  /// - If `z` is not finite, `z.magnitude` is infinity.
+  /// - If `z` is zero, `z.magnitude` is zero.
   /// - Otherwise, `z.magnitude` is finite and non-zero.
-  ///
-  /// See also `.length` and `.lengthSquared`.
   @_transparent
   public var magnitude: RealType {
     guard isFinite else { return .infinity }
