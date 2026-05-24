@@ -68,9 +68,33 @@ This gives us an implementation that works for `Float`, `Double`, and `Float80` 
 When new basic floating-point types are added to Swift, like `Float16` or `Float128`, it will work for them as well.
 Not having this protocol is a significant missing feature for numerical computing in Swift, and I'm really looking forward to seeing what people do with it.
 
+## Approximate equality
+
+Because floating-point arithmetic is inexact, two values that are
+mathematically equal often differ slightly once computed, so comparing them
+with `==` is usually a mistake.
+`RealModule` provides a family of `isApproximatelyEqual` methods that test
+whether two values agree up to a relative or absolute tolerance:
+
+```swift
+import Numerics
+
+let x = 0.1 + 0.2
+x == 0.3                        // false
+x.isApproximatelyEqual(to: 0.3) // true
+```
+
+These methods are available on any `Numeric` type whose `Magnitude` is a
+`FloatingPoint` type, with a more general form on `AdditiveArithmetic` that
+takes a custom norm.
+See the [Approximate Equality][ApproximateEquality] article for a discussion of
+how to choose a tolerance, how special values are handled, and why approximate
+equality must not be used to implement `Equatable`.
+
 ### Dependencies:
 - The C standard math library (`libm`) via the `_NumericsShims` target.
 
+[ApproximateEquality]: Documentation.docc/ApproximateEquality.md
 [ErrorFunction]: https://en.wikipedia.org/wiki/Error_function
 [GammaFunction]: https://en.wikipedia.org/wiki/Gamma_function
 [SE-0246]: https://github.com/swiftlang/swift-evolution/blob/main/proposals/0246-mathable.md
