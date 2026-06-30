@@ -282,7 +282,7 @@ extension DoubleWidth : FixedWidthInteger {
   ) -> (partialValue: DoubleWidth, overflow: Bool) {
     let (carry, product) = multipliedFullWidth(by: rhs)
     let partialValue = DoubleWidth(truncatingIfNeeded: product)
-    // Overflow has occured if carry is not just the sign-extension of
+    // Overflow has occurred if carry is not just the sign-extension of
     // partialValue (which is zero when Base is unsigned).
     let overflow = carry != (partialValue >> DoubleWidth.bitWidth)
     return (partialValue, overflow)

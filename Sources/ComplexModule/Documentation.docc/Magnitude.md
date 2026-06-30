@@ -117,7 +117,7 @@ w.naiveLength // 0
 
 Instead, `length` is implemented using a two-step algorithm. First we
 compute `lengthSquared`, which is `x*x + y*y`. If this is a normal
-number (meaning that no overflow or underflow has occured), we can safely
+number (meaning that no overflow or underflow has occurred), we can safely
 return its square root. Otherwise, we redo the computation with a more
 careful computation, which avoids spurious under- or overflow:
 

@@ -20,7 +20,7 @@ and exponential functions, sine, cosine and tangent as well as their inverses,
 and other functions that you may be familiar with from trigonometry and
 calculus. RealFunctions refines ElementaryFunctions and provides functions that
 are primarily used with the real numbers, such as atan2, erf and gamma, and
-the base-2 and -10 logarithm and exponential funtions.
+the base-2 and -10 logarithm and exponential functions.
 
 The Real protocol is a convenient name for the intersection of `FloatingPoint`,
 `RealFunctions`, and `AlgebraicField`; this is the protocol that you are most
