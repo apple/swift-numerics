@@ -81,7 +81,7 @@ extension Numeric where Magnitude: FloatingPoint {
       norm: norm
     )
   }
-  
+
   /// Test if `self` and `other` are approximately equal with specified tolerances.
   ///
   /// `true` if `self` and `other` are equal, or if they are finite and either

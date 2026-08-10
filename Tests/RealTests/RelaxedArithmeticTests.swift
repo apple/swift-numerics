@@ -45,46 +45,46 @@ func benchmarkReduction(_ data: [Float], _ reduction: ([Float]) -> Float) {
 }
 
 final class RelaxedArithmeticTests: XCTestCase {
-  
+
   var floatData: [Float] = []
-  
+
   override func setUp() {
     super.setUp()
     floatData = (0 ..< 1024).map { _ in .random(in: .sqrt(1/2) ..< .sqrt(2)) }
   }
-  
+
   func testStrictSumPerformance() {
     measure { benchmarkReduction(floatData, strictSum) }
   }
-  
+
   func testRelaxedSumPerformance() {
     // Performance of this should be closer to vDSP.sum than to
     // strict sum
     measure { benchmarkReduction(floatData, relaxedSum) }
   }
-  
+
 #if canImport(Accelerate)
   func testvDSPSumPerformance() {
     measure { benchmarkReduction(floatData, vDSP.sum) }
   }
 #endif
-  
+
   func testStrictDotPerformance() {
     measure { benchmarkReduction(floatData, strictSumOfSquares) }
   }
-  
+
   func testRelaxedDotPerformance() {
     // Performance of this should be closer to vDSP.sumOfSquares than to
     // strict sumOfSquares
     measure { benchmarkReduction(floatData, relaxedSumOfSquares) }
   }
-  
+
 #if canImport(Accelerate)
   func testvDSPDotPerformance() {
     measure { benchmarkReduction(floatData, vDSP.sumOfSquares) }
   }
 #endif
-  
+
   func testRelaxedArithmetic<T: FixedWidthFloatingPoint & Real>(_ type: T.Type) {
     // Relaxed add is still an add; it's just permitted to reorder relative
     // to other adds or form FMAs. So if we do one in isolation, it has to
@@ -114,7 +114,7 @@ final class RelaxedArithmeticTests: XCTestCase {
     bound = 2 * max(ref, tst).ulp * T(array.count)
     XCTAssertLessThanOrEqual(abs(ref - tst), bound)
   }
-  
+
   func testRelaxedArithmetic() {
 #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
     testRelaxedArithmetic(Float16.self)

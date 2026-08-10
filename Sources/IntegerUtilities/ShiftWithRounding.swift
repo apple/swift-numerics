@@ -135,7 +135,7 @@ extension BinaryInteger {
       return floor
     }
   }
-  
+
   /// `self` divided by 2^(`count`), rounding the result according to `rule`.
   ///
   /// The default rounding rule is ``RoundingRule/down``, which matches the

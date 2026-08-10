@@ -19,7 +19,7 @@ extension FixedWidthInteger {
   var signbit: Self {
     return self < .zero ? ~.zero : .zero
   }
-  
+
   /// Saturating integer addition
   ///
   /// `self + other` clamped to the representable range of the type. e.g.:
@@ -38,7 +38,7 @@ extension FixedWidthInteger {
     let (wrapped, overflow) = addingReportingOverflow(other)
     return overflow ? Self.max &- signbit : wrapped
   }
-  
+
   /// Saturating integer subtraction
   ///
   /// `self - other` clamped to the representable range of the type. e.g.:
@@ -62,7 +62,7 @@ extension FixedWidthInteger {
     if !overflow { return wrapped }
     return Self.isSigned ? Self.max &- signbit : 0
   }
-  
+
   /// Saturating integer negation
   ///
   /// For unsigned types, the result is always zero. This is not very
@@ -73,7 +73,7 @@ extension FixedWidthInteger {
   public func negatedWithSaturation() -> Self {
     Self.zero.subtractingWithSaturation(self)
   }
-  
+
   /// Saturating integer multiplication
   ///
   /// `self * other` clamped to the representable range of the type. e.g.:
@@ -94,7 +94,7 @@ extension FixedWidthInteger {
     if high == wrapped.signbit { return wrapped }
     return Self.max &- high.signbit
   }
-    
+
   /// Bitwise left shift with rounding and saturation.
   ///
   /// `self` multiplied by the rational number 2^(`count`), saturated to the
@@ -144,7 +144,7 @@ extension FixedWidthInteger {
     let complement = valueBits &- count
     return self &>> complement == signbit ? wrapped : clamped
   }
-  
+
   /// Bitwise left with rounding and saturation.
   ///
   /// `self` multiplied by the rational number 2^(`count`), saturated to the

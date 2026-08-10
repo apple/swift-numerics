@@ -49,7 +49,7 @@ extension Augmented {
     let tail = (-head).addingProduct(a, b)
     return (head, tail)
   }
-  
+
   /// The sum `a + b` represented as an implicit sum `head + tail`.
   ///
   /// - Parameters:
@@ -102,7 +102,7 @@ extension Augmented {
     let tail = a - head + b
     return (head, tail)
   }
-  
+
   /// The sum `a + b` represented as an implicit sum `head + tail`.
   ///
   /// `head` is the correctly rounded value of `a + b`. `tail` is the

@@ -81,7 +81,7 @@ public enum RoundingRule {
   /// - `5.shifted(rightBy: 1, rounding: .down)` is `2`, because 2 is the
   /// largest integer less than 5/2 = 2.5.
   case down
-  
+
   /// Produces the closest representable value that is greater than or equal
   /// to the value being rounded.
   ///
@@ -91,7 +91,7 @@ public enum RoundingRule {
   /// - `5.shifted(rightBy: 1, rounding: .up)` is `3`, because 3 is the
   /// smallest integer greater than 5/2 = 2.5.
   case up
-  
+
   /// Produces the closest representable value whose magnitude is less than
   /// or equal to that of the value being rounded.
   ///
@@ -101,7 +101,7 @@ public enum RoundingRule {
   /// - `5.shifted(rightBy: 1, rounding: .towardZero)` is `2`, because 2
   /// is the closest integer to 5/2 = 2.5 with smaller magnitude.
   case towardZero
-  
+
   /// Produces the closest representable value whose magnitude is greater
   /// than or equal to that of the value being rounded.
   ///
@@ -111,7 +111,7 @@ public enum RoundingRule {
   /// - `5.shifted(rightBy: 1, rounding: .awayFromZero)` is `3`, because 3
   /// is the closest integer to 5/2 = 2.5 with greater magnitude.
   case awayFromZero
-  
+
   /// If the value being rounded is representable, that value is returned.
   /// Otherwise, whichever of the two closest representable values has its
   /// least significant bit set is returned.
@@ -130,7 +130,7 @@ public enum RoundingRule {
   /// - `4.shifted(rightBy: 1, rounding: .toOdd)` is `2`,
   /// even though 2 is even, because 4/2 is exactly 2 and no rounding occurs.
   case toOdd
-  
+
   /// Produces the representable value that is closest to the value being
   /// rounded. If two values are equally close, the one that is less than
   /// the value being rounded is chosen.
@@ -142,7 +142,7 @@ public enum RoundingRule {
   /// - `5.shifted(rightBy: 1, rounding: .toNearestOrDown)` is `2`,
   /// because 5/2 = 2.5 is equally close to 2 and 3, and 2 is less.
   case toNearestOrDown
-  
+
   /// Produces the representable value that is closest to the value being
   /// rounded. If two values are equally close, the one that is greater than
   /// the value being rounded is chosen.
@@ -154,7 +154,7 @@ public enum RoundingRule {
   /// - `5.shifted(rightBy: 1, rounding: .toNearestOrUp)` is `3`,
   /// because 5/2 = 2.5 is equally close to 2 and 3, and 3 is greater.
   case toNearestOrUp
-  
+
   /// Produces the representable value that is closest to the value being
   /// rounded. If two values are equally close, the one that has smaller
   /// magnitude is returned.
@@ -166,7 +166,7 @@ public enum RoundingRule {
   /// - `5.shifted(rightBy: 1, rounding: .toNearestOrZero)` is `3`,
   /// because 5/2 = 2.5 is equally close to 2 and 3, and 2 is closer to zero.
   case toNearestOrZero
-  
+
   /// Produces the representable value that is closest to the value being
   /// rounded. If two values are equally close, the one that has greater
   /// magnitude is returned.
@@ -179,7 +179,7 @@ public enum RoundingRule {
   /// because 5/2 = 2.5 is equally close to 2 and 3, and 3 is further away
   /// from zero.
   case toNearestOrAway
-  
+
   /// Produces the representable value that is closest to the value being
   /// rounded. If two values are equally close, the one whose least
   /// significant bit is not set is returned.
@@ -191,7 +191,7 @@ public enum RoundingRule {
   /// - `5.shifted(rightBy: 1, rounding: .toNearestOrEven)` is `2`,
   /// because 5/2 = 2.5 is equally close to 2 and 3, and 2 is even.
   case toNearestOrEven
-  
+
   /// If the value being rounded is representable, that value is returned.
   /// Otherwise, a precondition failure occurs.
   ///

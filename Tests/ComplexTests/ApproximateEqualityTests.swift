@@ -14,7 +14,7 @@ import Numerics
 import XCTest
 
 final class ApproximateEqualityTests: XCTestCase {
-  
+
   func testSpecials<T: Real>(absolute tol: T) {
     let zero = Complex<T>.zero
     let inf = Complex<T>.infinity
@@ -28,7 +28,7 @@ final class ApproximateEqualityTests: XCTestCase {
     XCTAssertTrue((-inf).isApproximatelyEqual(to: inf, absoluteTolerance: tol))
     XCTAssertTrue((-inf).isApproximatelyEqual(to:-inf, absoluteTolerance: tol))
   }
-  
+
   func testSpecials<T: Real>(relative tol: T) {
     let zero = Complex<T>.zero
     let inf = Complex<T>.infinity
@@ -42,7 +42,7 @@ final class ApproximateEqualityTests: XCTestCase {
     XCTAssertTrue((-inf).isApproximatelyEqual(to: inf, relativeTolerance: tol))
     XCTAssertTrue((-inf).isApproximatelyEqual(to:-inf, relativeTolerance: tol))
   }
-  
+
   func testSpecials<T: Real>(_ type: T.Type) {
     XCTAssertTrue(Complex<T>.zero.isApproximatelyEqual(to: .zero))
     XCTAssertTrue(Complex<T>.zero.isApproximatelyEqual(to:-.zero))
@@ -51,15 +51,15 @@ final class ApproximateEqualityTests: XCTestCase {
     testSpecials(relative: T.ulpOfOne)
     testSpecials(relative: T(1))
   }
-  
+
   func testFloat() {
     testSpecials(Float.self)
   }
-  
+
   func testDouble() {
     testSpecials(Double.self)
   }
-  
+
   #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     testSpecials(Float80.self)

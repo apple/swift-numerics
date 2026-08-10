@@ -19,7 +19,7 @@ extension Complex: AlgebraicField {
   public static var one: Complex {
     Complex(1, 0)
   }
-  
+
   /// The [complex conjugate][conj] of this value.
   ///
   /// [conj]: https://en.wikipedia.org/wiki/Complex_conjugate
@@ -27,12 +27,12 @@ extension Complex: AlgebraicField {
   public var conjugate: Complex {
     Complex(x, -y)
   }
-  
+
   @_transparent
   public static func /=(z: inout Complex, w: Complex) {
     z = z / w
   }
-  
+
   @_transparent
   public static func /(z: Complex, w: Complex) -> Complex {
     // Try the naive expression z/w = z * (conj(w) / |w|^2); if we can
@@ -43,7 +43,7 @@ extension Complex: AlgebraicField {
     guard lenSq.isNormal else { return rescaledDivide(z, w) }
     return z * w.conjugate.divided(by: lenSq)
   }
-  
+
   @usableFromInline @_alwaysEmitIntoClient @inline(never)
   internal static func rescaledDivide(_ z: Complex, _ w: Complex) -> Complex {
     if w.isZero { return .infinity }
@@ -117,7 +117,7 @@ extension Complex: AlgebraicField {
     let zʹ = z.multiplied(by: s)
     return zʹ * wʹ.conjugate.divided(by: wʹ.lengthSquared)
   }
-  
+
   /// A normalized complex number with the same phase as this value.
   ///
   /// If such a value cannot be produced (because the phase of zero and
@@ -132,7 +132,7 @@ extension Complex: AlgebraicField {
     }
     return self.divided(by: magnitude).normalized
   }
-  
+
   /// The reciprocal of this value, if it can be computed without undue
   /// overflow or underflow.
   ///
@@ -166,12 +166,12 @@ extension Complex: AlgebraicField {
     }
     return nil
   }
-  
+
   @_transparent
   public static func _relaxedAdd(_ a: Self, _ b: Self) -> Self {
     Complex(Relaxed.sum(a.x, b.x), Relaxed.sum(a.y, b.y))
   }
-  
+
   @_transparent
   public static func _relaxedMul(_ a: Self, _ b: Self) -> Self {
     Complex(

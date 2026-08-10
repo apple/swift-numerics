@@ -90,7 +90,7 @@ extension DoubleWidth {
   //
   // For that reason, we'll include an internal initializer that takes two
   // separate arguments.
-  
+
   /// Creates a new instance from the given tuple of high and low parts.
   ///
   /// Equivalent to
@@ -100,7 +100,7 @@ extension DoubleWidth {
   internal init(_ _high: High, _ low: Low) {
     self.init((_high, low))
   }
-  
+
   /// Zero.
   public init() {
     self.init(0, 0)
@@ -167,7 +167,7 @@ extension DoubleWidth : Numeric {
   public init?<T : BinaryInteger>(exactly source: T) {
     // Can't represent a negative 'source' if Base is unsigned.
     guard DoubleWidth.isSigned || source >= 0 else { return nil }
-    
+
     // Is 'source' entirely representable in Low?
     if let low = Low(exactly: source.magnitude) {
       self.init(source < (0 as T) ? (~0, ~low &+ 1) : (0, low))
@@ -176,7 +176,7 @@ extension DoubleWidth : Numeric {
       // would've taken the first branch.
       let lowInT = source & T(~0 as Low)
       let highInT = source >> Low.bitWidth
-      
+
       let low = Low(lowInT)
       guard let high = High(exactly: highInT) else { return nil }
       self.init(high, low)
@@ -205,7 +205,7 @@ extension DoubleWidth {
 
 extension DoubleWidth.Words: RandomAccessCollection {
   public typealias Index = Int
-  
+
   public var startIndex: Index {
     return 0
   }
@@ -213,7 +213,7 @@ extension DoubleWidth.Words: RandomAccessCollection {
   public var endIndex: Index {
     return count
   }
-  
+
   public var count: Int {
     if Base.bitWidth < UInt.bitWidth { return 1 }
     return _low.count + _high.count
@@ -228,7 +228,7 @@ extension DoubleWidth.Words: RandomAccessCollection {
     if i < _low.count {
       return _low[i + _low.startIndex]
     }
-    
+
     return _high[i - _low.count + _high.startIndex]
   }
 }
@@ -325,7 +325,7 @@ extension DoubleWidth : FixedWidthInteger {
     if DoubleWidth.isSigned && other == -1 && self == .min { return (0, true) }
     return (quotientAndRemainder(dividingBy: other).remainder, false)
   }
-  
+
   // When using a pre-Swift 6.0 runtime, `&*` is not a protocol requirement of
   // FixedWidthInteger, which results in the default implementation of this
   // operation ending up recursively calling itself forever. In order to avoid
@@ -340,32 +340,32 @@ extension DoubleWidth : FixedWidthInteger {
       let (high, low) = x.multipliedFullWidth(by: y)
       return (low, high)
     }
-        
+
     func sum(_ x: Low, _ y: Low, _ z: Low) -> (partial: Low, carry: Low) {
       let (sum1, overflow1) = x.addingReportingOverflow(y)
       let (sum2, overflow2) = sum1.addingReportingOverflow(z)
       let carry: Low = (overflow1 ? 1 : 0) + (overflow2 ? 1 : 0)
       return (sum2, carry)
     }
-        
+
     let lhs = self.magnitude
     let rhs = other.magnitude
-        
+
     let a = mul(rhs._storage.low, lhs._storage.low)
     let b = mul(rhs._storage.low, lhs._storage.high)
     let c = mul(rhs._storage.high, lhs._storage.low)
     let d = mul(rhs._storage.high, lhs._storage.high)
-        
+
     let mid1 = sum(a.carry, b.partial, c.partial)
     let mid2 = sum(b.carry, c.carry, d.partial)
-        
+
     let low =
       DoubleWidth<Low>(mid1.partial, a.partial)
     let (sum_, overflow_) =
       mid1.carry.addingReportingOverflow(mid2.partial)
     let high =
       DoubleWidth(High(mid2.carry + d.carry + (overflow_ ? 1 : 0)), sum_)
-        
+
     if isNegative {
       let (lowComplement, overflow) = (~low).addingReportingOverflow(1)
       return (~high + (overflow ? 1 : 0 as DoubleWidth), lowComplement)
@@ -420,7 +420,7 @@ extension DoubleWidth : FixedWidthInteger {
       lhs >>= 0 - rhs
       return
     }
-    
+
     // Shift is larger than this type's bit width.
     if rhs._storage.high != (0 as High) ||
       rhs._storage.low >= DoubleWidth.bitWidth
@@ -431,7 +431,7 @@ extension DoubleWidth : FixedWidthInteger {
 
     lhs &<<= rhs
   }
-  
+
   public static func >>=(lhs: inout DoubleWidth, rhs: DoubleWidth) {
     if DoubleWidth.isSigned && rhs < (0 as DoubleWidth) {
       lhs <<= 0 - rhs
@@ -486,7 +486,7 @@ extension DoubleWidth : FixedWidthInteger {
         (Low(Base.bitWidth) &- rhs._storage.low))
     lhs._storage.low &<<= rhs._storage.low
   }
-  
+
   public static func &>>=(lhs: inout DoubleWidth, rhs: DoubleWidth) {
     let rhs = rhs._masked()
 
@@ -505,7 +505,7 @@ extension DoubleWidth : FixedWidthInteger {
         High(Low(Base.bitWidth) &- rhs._storage.low))
     lhs._storage.high &>>= High(rhs._storage.low)
   }
-  
+
 
   // FIXME(integers): remove this once the operators are back to Numeric
   public static func + (
@@ -591,7 +591,7 @@ extension DoubleWidth : FixedWidthInteger {
     precondition(!overflow, "Overflow in %=")
     lhs = result
   }
-  
+
   public static func &+(
     lhs: DoubleWidth, rhs: DoubleWidth
   ) -> DoubleWidth {
@@ -599,7 +599,7 @@ extension DoubleWidth : FixedWidthInteger {
     let high = lhs.high &+ rhs.high &+ (carry ? 1 : 0)
     return DoubleWidth(high, low)
   }
-  
+
   public static func &-(
     lhs: DoubleWidth, rhs: DoubleWidth
   ) -> DoubleWidth {
@@ -607,7 +607,7 @@ extension DoubleWidth : FixedWidthInteger {
     let high = lhs.high &- rhs.high &- (borrow ? 1 : 0)
     return DoubleWidth(high, low)
   }
-  
+
   public static func &*(
     lhs: DoubleWidth, rhs: DoubleWidth
   ) -> DoubleWidth {

@@ -66,34 +66,34 @@ final class IntegerUtilitiesRoundingTests: XCTestCase {
       ( inf,                   inf,    inf,    inf,    inf),
     ]
     for vector in vectors {
-      
+
       XCTAssertEqual(vector.input.rounding(.down), vector.down)
       if vector.down == 0 {
         XCTAssertEqual(vector.input.rounding(.down).sign, vector.input.sign)
       }
-      
+
       XCTAssertEqual(vector.input.rounding(.up), vector.up)
       if vector.up == 0 {
         XCTAssertEqual(vector.input.rounding(.up).sign, vector.input.sign)
       }
-      
+
       XCTAssertEqual(vector.input.rounding(.towardZero), vector.zero)
       if vector.zero == 0 {
         XCTAssertEqual(vector.input.rounding(.towardZero).sign, vector.input.sign)
       }
-      
+
       XCTAssertEqual(vector.input.rounding(.awayFromZero), vector.away)
       if vector.away == 0 {
         XCTAssertEqual(vector.input.rounding(.awayFromZero).sign, vector.input.sign)
       }
     }
   }
-  
+
   func testRoundingDirected() {
     testRoundingDirected(Float.self)
     testRoundingDirected(Double.self)
   }
-  
+
   func testRoundingNearest<T: BinaryFloatingPoint>(_ type: T.Type) {
     let inf = T.infinity
     let gfm = T.greatestFiniteMagnitude
@@ -145,39 +145,39 @@ final class IntegerUtilitiesRoundingTests: XCTestCase {
       ( inf,                   inf,    inf,    inf,    inf,    inf),
     ]
     for vector in vectors {
-      
+
       XCTAssertEqual(vector.input.rounding(.toNearestOrDown), vector.down, "\(vector.input).rounding(.toNearestOrDown)")
       if vector.down == 0 {
         XCTAssertEqual(vector.input.rounding(.toNearestOrDown).sign, vector.input.sign, "\(vector.input).rounding(.toNearestOrDown)")
       }
-      
+
       XCTAssertEqual(vector.input.rounding(.toNearestOrUp), vector.up, "\(vector.input).rounding(.toNearestOrUp)")
       if vector.up == 0 {
         XCTAssertEqual(vector.input.rounding(.toNearestOrUp).sign, vector.input.sign, "\(vector.input).rounding(.toNearestOrUp)")
       }
-      
+
       XCTAssertEqual(vector.input.rounding(.toNearestOrZero), vector.zero, "\(vector.input).rounding(.toNearestOrZero)")
       if vector.zero == 0 {
         XCTAssertEqual(vector.input.rounding(.toNearestOrZero).sign, vector.input.sign, "\(vector.input).rounding(.toNearestOrZero)")
       }
-      
+
       XCTAssertEqual(vector.input.rounding(.toNearestOrAway), vector.away, "\(vector.input).rounding(.toNearestOrAway)")
       if vector.away == 0 {
         XCTAssertEqual(vector.input.rounding(.toNearestOrAway).sign, vector.input.sign, "\(vector.input).rounding(.toNearestOrAway)")
       }
-      
+
       XCTAssertEqual(vector.input.rounding(.toNearestOrEven), vector.even, "\(vector.input).rounding(.toNearestOrEven)")
       if vector.even == 0 {
         XCTAssertEqual(vector.input.rounding(.toNearestOrEven).sign, vector.input.sign, "\(vector.input).rounding(.toNearestOrEven)")
       }
     }
   }
-  
+
   func testRoundingNearest() {
     testRoundingNearest(Float.self)
     testRoundingNearest(Double.self)
   }
-  
+
   func testRoundingOdd<T: BinaryFloatingPoint>(_ type: T.Type) {
     let inf = T.infinity
     let gfm = T.greatestFiniteMagnitude
@@ -235,7 +235,7 @@ final class IntegerUtilitiesRoundingTests: XCTestCase {
       }
     }
   }
-  
+
   func testRoundingOdd() {
     testRoundingOdd(Float.self)
     testRoundingOdd(Double.self)

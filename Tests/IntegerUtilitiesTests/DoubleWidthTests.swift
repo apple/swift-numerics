@@ -155,7 +155,7 @@ final class DoubleWidthTests: XCTestCase {
       let rhs = _UInt256("4646260627574879223760172113656436161581617773435991717024")!
       XCTAssertEqual(String(lhs / rhs), "20762331011904583253")
     }
-    
+
     XCTAssertTrue((0xff01 as _UInt16).multipliedFullWidth(by: 0x101) == (high: 256, low: 1))
   }
 
@@ -522,7 +522,7 @@ final class DoubleWidthTests: XCTestCase {
     checkUnsignedIntegerConformance(0 as _UInt128)
     checkUnsignedIntegerConformance(0 as _UInt1024)
   }
-  
+
   func testMultiplyOverflow() {
     XCTAssertFalse(_Int128(-1).multipliedReportingOverflow(by: 0).overflow)
   }

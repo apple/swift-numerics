@@ -24,7 +24,7 @@ extension FixedWidthInteger {
       bitPattern &>> count | bitPattern &<< countComplement
     )
   }
-  
+
   /// `self` rotated bitwise right by `count` bits.
   ///
   /// Equivalent to `rotated(left: 0 &- count)`.
@@ -32,7 +32,7 @@ extension FixedWidthInteger {
   public func rotated<Count: BinaryInteger>(right count: Count) -> Self {
     rotateImplementation(right: Int(truncatingIfNeeded: count))
   }
-  
+
   /// `self` rotated bitwise left by `count` bits.
   ///
   /// Equivalent to `rotated(right: 0 &- count)`.

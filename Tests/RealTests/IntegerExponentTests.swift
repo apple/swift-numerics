@@ -14,7 +14,7 @@ import RealModule
 import _TestSupport
 
 internal extension Real where Self: FixedWidthFloatingPoint {
-  
+
   static func testIntegerExponentCommon() {
     // TODO: replace with seedable generator, print seed.
     var g = SystemRandomNumberGenerator()
@@ -58,7 +58,7 @@ internal extension Real where Self: FixedWidthFloatingPoint {
       assertClose(-.infinity, Self.pow(-1/x, -odd))
     }
   }
-  
+
   static func testIntegerExponentDoubleAndSmaller() {
     // max/min exponents, these always saturate, but this will reveal
     // errors in some implementations that one could try.
@@ -173,7 +173,7 @@ extension Double {
 }
 
 final class IntegerExponentTests: XCTestCase {
-  
+
   #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
   func testFloat16() {
     if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
@@ -181,15 +181,15 @@ final class IntegerExponentTests: XCTestCase {
     }
   }
   #endif
-  
+
   func testFloat() {
     Float.testIntegerExponent()
   }
-  
+
   func testDouble() {
     Double.testIntegerExponent()
   }
-  
+
   #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     Float80.testIntegerExponentCommon()

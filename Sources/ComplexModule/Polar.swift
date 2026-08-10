@@ -41,7 +41,7 @@ extension Complex {
     guard naive.isNormal else { return carefulLength }
     return .sqrt(naive)
   }
-  
+
   //  Internal implementation detail of ``length``, moving slow path off
   //  of the inline function. Note that even `carefulLength` can overflow
   //  for finite inputs, but only when the result is outside the range
@@ -51,7 +51,7 @@ extension Complex {
     guard isFinite else { return .infinity }
     return .hypot(x, y)
   }
-  
+
   /// The squared length `(real*real + imaginary*imaginary)`.
   ///
   /// This property is more efficient to compute than ``length``, but is
@@ -71,7 +71,7 @@ extension Complex {
   public var lengthSquared: RealType {
     x*x + y*y
   }
-  
+
   /// The phase (angle, or "argument").
   ///
   /// - Returns: The angle (measured above the real axis) in radians. If
@@ -84,7 +84,7 @@ extension Complex {
     guard isFinite && !isZero else { return .nan }
     return .atan2(y: y, x: x)
   }
-  
+
   /// The length and phase (or polar coordinates) of this value.
   ///
   /// Edge cases:
@@ -95,7 +95,7 @@ extension Complex {
   public var polar: (length: RealType, phase: RealType) {
     (length, phase)
   }
-  
+
   /// Creates a complex value specified with polar coordinates.
   ///
   /// Edge cases:

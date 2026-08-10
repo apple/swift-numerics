@@ -67,45 +67,45 @@ extension BinaryInteger {
       // disagree, we have to adjust q downward and r to match.
       if other.signum() != r.signum() { return q-1 }
       return q
-      
+
     case .up:
       // For rounding up, we want to have r have the opposite sign of
       // other; if not, we adjust q upward and r to match.
       if other.signum() == r.signum() { return q+1 }
       return q
-      
+
     case .towardZero:
       // This is exactly what the `/` operator did for us.
       return q
-      
+
     case .awayFromZero:
       break
-      
+
     case .toNearestOrDown:
       if r.magnitude > other.magnitude.shifted(rightBy: 1, rounding: .down) ||
           2*r.magnitude == other.magnitude && other.signum() != r.signum() {
         break
       }
       return q
-      
+
     case .toNearestOrUp:
       if r.magnitude > other.magnitude.shifted(rightBy: 1, rounding: .down) ||
           2*r.magnitude == other.magnitude && other.signum() == r.signum() {
         break
       }
       return q
-      
+
     case .toNearestOrZero:
       if r.magnitude <= other.magnitude.shifted(rightBy: 1, rounding: .down) {
         return q
       }
       // Otherwise, round q away from zero.
-      
+
     case .toNearestOrAway:
       if r.magnitude < other.magnitude.shifted(rightBy: 1, rounding: .up) {
         return q
       }
-      
+
     case .toNearestOrEven:
       // First guarantee that |r| <= |other/2|; if not we have to round away
       // instead, so break to do that.
@@ -114,23 +114,23 @@ extension BinaryInteger {
         break
       }
       return q
-      
+
     case .toOdd:
       // If q is already odd, we have the correct result.
       if q._lowWord & 1 == 1 { return q }
-      
+
     case .requireExact:
       preconditionFailure("Division was not exact.")
     }
-    
+
     // We didn't have the right result, so round q away from zero.
     return other.signum() == r.signum() ? q+1 : q-1
   }
-  
+
   // TODO: make this API and make it possible to implement more efficiently.
   // Customization point on new/revised integer protocol? Shouldn't have to
   // go through .words.
-  
+
   /// The index of the most-significant set bit.
   ///
   /// - Precondition: self is assumed to be non-zero (should be changed
@@ -169,7 +169,7 @@ extension SignedInteger {
     if other == -1 { return 0 }
     return self.divided(by: other, rounding: rule).remainder
   }
-  
+
   /// Divides `self` by `other`, rounding the quotient according to `rule`,
   /// and returns both the quotient and remainder.
   ///
@@ -223,19 +223,19 @@ extension SignedInteger {
       // rather than self; this means that if the signs of r and other
       // disagree, we have to adjust q downward and r to match.
       return other.signum() == r.signum() ? (q, r) : (q-1, r+other)
-      
+
     case .up:
       // For rounding up, we want to have r have the opposite sign of
       // other; if not, we adjust q upward and r to match.
       return other.signum() == r.signum() ? (q+1, r-other) : (q, r)
-      
+
     case .towardZero:
       // This is exactly what the `/` operator did for us.
       return (q, r)
-      
+
     case .awayFromZero:
       break
-      
+
     case .toNearestOrDown:
       // If |r| < |other/2|, we already rounded q to nearest. If the are
       // equal and q is negative, then we already broke the tie in the right
@@ -246,7 +246,7 @@ extension SignedInteger {
          2*r.magnitude == other.magnitude && other.signum() == r.signum() {
         return (q, r)
       }
-      
+
     case .toNearestOrUp:
       // If |r| < |other/2|, we already rounded q to nearest. If the are
       // equal and q is non-negative, then we already broke the tie in the
@@ -255,7 +255,7 @@ extension SignedInteger {
          2*r.magnitude == other.magnitude && other.signum() != r.signum() {
         return (q, r)
       }
-      
+
     case .toNearestOrZero:
       // Check first if |r| <= |other/2|. If this holds, we have already
       // rounded q correctly. Because we're working with magnitudes, we can
@@ -265,14 +265,14 @@ extension SignedInteger {
       if 2*r.magnitude <= other.magnitude {
         return (q, r)
       }
-      
+
     case .toNearestOrAway:
       // Check first if |r| < |other/2|. If this holds, we already rounded
       // q to nearest.
       if 2*r.magnitude < other.magnitude {
         return (q, r)
       }
-      
+
     case .toNearestOrEven:
       // If |r| < |other/2|, we already rounded q to nearest. If the are
       // equal and q is even, then we already broke the tie in the right
@@ -281,15 +281,15 @@ extension SignedInteger {
          2*r.magnitude == other.magnitude && q.isMultiple(of: 2) {
         return (q, r)
       }
-      
+
     case .toOdd:
       // If q is already odd, we have the correct result.
       if q._lowWord & 1 == 1 { return (q, r) }
-      
+
     case .requireExact:
       preconditionFailure("Division was not exact.")
     }
-    
+
     // Fallthrough behavior is to round q away from zero and adjust r to
     // match.
     return other.signum() == r.signum() ? (q+1, r-other) : (q-1, r+other)

@@ -36,9 +36,9 @@
 import RealModule
 
 extension Complex: ElementaryFunctions {
-  
+
   // MARK: - exp-like functions
-  
+
   /// The complex exponential function e^z whose base `e` is the base of the
   /// natural logarithm.
   ///
@@ -66,7 +66,7 @@ extension Complex: ElementaryFunctions {
     }
     return Complex(.cos(z.y), .sin(z.y)).multiplied(by: .exp(z.x))
   }
-  
+
   @inlinable
   public static func expMinusOne(_ z: Complex) -> Complex {
     // exp(x + iy) - 1 = (exp(x) cos(y) - 1) + i exp(x) sin(y)
@@ -123,7 +123,7 @@ extension Complex: ElementaryFunctions {
       .exp(z.x) * .sin(z.y)
     )
   }
-  
+
   // cosh(x + iy) = cosh(x) cos(y) + i sinh(x) sin(y).
   //
   // Like exp, cosh is entire, so we do not need to worry about where
@@ -163,7 +163,7 @@ extension Complex: ElementaryFunctions {
       RealType.sinh(z.x) * RealType.sin(z.y)
     )
   }
-  
+
   // sinh(x + iy) = sinh(x) cos(y) + i cosh(x) sin(y)
   //
   // See cosh above for algorithm details.
@@ -181,7 +181,7 @@ extension Complex: ElementaryFunctions {
       RealType.cosh(z.x) * RealType.sin(z.y)
     )
   }
-  
+
   // tanh(z) = sinh(z) / cosh(z)
   @inlinable
   public static func tanh(_ z: Complex) -> Complex {
@@ -205,27 +205,27 @@ extension Complex: ElementaryFunctions {
     // scaled). This suffices to get us up and running.
     return sinh(z) / cosh(z)
   }
-  
+
   // cos(z) = cosh(iz)
   @inlinable
   public static func cos(_ z: Complex) -> Complex {
     return cosh(Complex(-z.y, z.x))
   }
-  
+
   // sin(z) = -i*sinh(iz)
   @inlinable
   public static func sin(_ z: Complex) -> Complex {
     let w = sinh(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
-  
+
   // tan(z) = -i*tanh(iz)
   @inlinable
   public static func tan(_ z: Complex) -> Complex {
     let w = tanh(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
-  
+
   // MARK: - log-like functions
   @inlinable
   public static func log(_ z: Complex) -> Complex {
@@ -326,7 +326,7 @@ extension Complex: ElementaryFunctions {
     s = (s + c) + e + b + d
     return Complex(.log(onePlus: s)/2, θ)
   }
-  
+
   @inlinable
   public static func log(onePlus z: Complex) -> Complex {
     // If either |x| or |y| is bounded away from the origin, we don't need
@@ -359,7 +359,7 @@ extension Complex: ElementaryFunctions {
     let s = (a.head + y².head + a.tail + y².tail).addingProduct(z.x, xp2.tail)
     return Complex(.log(onePlus: s)/2, θ)
   }
-  
+
   @inlinable
   public static func acos(_ z: Complex) -> Complex {
     Complex(
@@ -367,7 +367,7 @@ extension Complex: ElementaryFunctions {
       RealType.asinh((sqrt(1+z).conjugate * sqrt(1-z)).imaginary)
     )
   }
-  
+
   @inlinable
   public static func asin(_ z: Complex) -> Complex {
     Complex(
@@ -375,14 +375,14 @@ extension Complex: ElementaryFunctions {
       RealType.asinh((sqrt(1-z).conjugate * sqrt(1+z)).imaginary)
     )
   }
-  
+
   // atan(z) = -i*atanh(iz)
   @inlinable
   public static func atan(_ z: Complex) -> Complex {
     let w = atanh(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
-  
+
   @inlinable
   public static func acosh(_ z: Complex) -> Complex {
     Complex(
@@ -390,14 +390,14 @@ extension Complex: ElementaryFunctions {
       2*RealType.atan2(y: sqrt(z-1).imaginary, x: sqrt(z+1).real)
     )
   }
-  
+
   // asinh(z) = -i*asin(iz)
   @inlinable
   public static func asinh(_ z: Complex) -> Complex {
     let w = asin(Complex(-z.y, z.x))
     return Complex(w.y, -w.x)
   }
-  
+
   @inlinable
   public static func atanh(_ z: Complex) -> Complex {
     // TODO: Kahan uses a much more complicated expression here; possibly
@@ -411,7 +411,7 @@ extension Complex: ElementaryFunctions {
     // way to handle this case in Swift.
     (log(onePlus: z) - log(onePlus:-z))/2
   }
-  
+
   // MARK: - pow-like functions
   /// `exp(w*log(z))`
   ///
@@ -424,7 +424,7 @@ extension Complex: ElementaryFunctions {
     if z.isZero { return w.real > 0 ? zero : infinity }
     return exp(w * log(z))
   }
-  
+
   @inlinable
   public static func pow(_ z: Complex, _ n: Int) -> Complex {
     if z.isZero { return n < 0 ? infinity : n == 0 ? one : zero }
@@ -437,7 +437,7 @@ extension Complex: ElementaryFunctions {
     // parity/sign interaction in the complex plane.
     return exp(log(z).multiplied(by: RealType(n)))
   }
-  
+
   @inlinable
   public static func sqrt(_ z: Complex) -> Complex {
     let lengthSquared = z.lengthSquared
@@ -466,7 +466,7 @@ extension Complex: ElementaryFunctions {
     let scale = RealType.maximum(abs(z.x), abs(z.y))
     return Complex.sqrt(z.divided(by: scale)).multiplied(by: .sqrt(scale))
   }
-  
+
   @inlinable
   public static func root(_ z: Complex, _ n: Int) -> Complex {
     if z.isZero { return .zero }

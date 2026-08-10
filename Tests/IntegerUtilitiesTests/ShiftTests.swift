@@ -15,7 +15,7 @@ import XCTest
 import _TestSupport
 
 final class IntegerUtilitiesShiftTests: XCTestCase {
-  
+
   func testRoundingShift<T, C>(
     _ value: T, _ count: C, rounding rule: RoundingRule
   ) where T: FixedWidthInteger, C: BinaryInteger {
@@ -90,7 +90,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
       }
     }
   }
-    
+
     func testRoundingShift<T: FixedWidthInteger>(
       _ type: T.Type, rounding rule: RoundingRule
     ) {
@@ -101,12 +101,12 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
           testRoundingShift(T.random(in: .min ... .max), count, rounding: rule)
         }
       }
-      
+
       for count in Int8.min ... .max {
         testRoundingShift(T.random(in: .min ... .max), count, rounding: rule)
       }
     }
-    
+
     func testRoundingShifts() {
       testRoundingShift(Int8.self, rounding: .down)
       testRoundingShift(Int8.self, rounding: .up)
@@ -118,7 +118,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
       testRoundingShift(Int8.self, rounding: .toNearestOrAway)
       testRoundingShift(Int8.self, rounding: .toNearestOrEven)
       testRoundingShift(Int8.self, rounding: .toOdd)
-      
+
       testRoundingShift(UInt8.self, rounding: .down)
       testRoundingShift(UInt8.self, rounding: .up)
       testRoundingShift(UInt8.self, rounding: .towardZero)
@@ -129,7 +129,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
       testRoundingShift(UInt8.self, rounding: .toNearestOrAway)
       testRoundingShift(UInt8.self, rounding: .toNearestOrEven)
       testRoundingShift(UInt8.self, rounding: .toOdd)
-      
+
       testRoundingShift(Int.self, rounding: .down)
       testRoundingShift(Int.self, rounding: .up)
       testRoundingShift(Int.self, rounding: .towardZero)
@@ -140,7 +140,7 @@ final class IntegerUtilitiesShiftTests: XCTestCase {
       testRoundingShift(Int.self, rounding: .toNearestOrAway)
       testRoundingShift(Int.self, rounding: .toNearestOrEven)
       testRoundingShift(Int.self, rounding: .toOdd)
-      
+
       testRoundingShift(UInt.self, rounding: .down)
       testRoundingShift(UInt.self, rounding: .up)
       testRoundingShift(UInt.self, rounding: .towardZero)

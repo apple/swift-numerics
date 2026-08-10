@@ -43,7 +43,7 @@ extension Relaxed {
   public static func sum<T: AlgebraicField>(_ a: T, _ b: T) -> T {
     T._relaxedAdd(a, b)
   }
-  
+
   /// a*b, but grants the optimizer permission to reassociate expressions
   /// and form FMAs.
   ///

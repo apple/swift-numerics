@@ -74,12 +74,12 @@ func checkDivide<T>(
 }
 
 final class ArithmeticTests: XCTestCase {
-  
+
   struct Polar<T: Real> {
     let length: T
     let phase: T
   }
-  
+
   func testPolar<T>(_ type: T.Type)
   where T: BinaryFloatingPoint, T: Real,
         T.Exponent: FixedWidthInteger, T.RawSignificand: FixedWidthInteger {
@@ -95,7 +95,7 @@ final class ArithmeticTests: XCTestCase {
     XCTAssertEqual(Complex<T>(length:-.infinity, phase: .infinity), .infinity)
     XCTAssertEqual(Complex<T>(length:-.infinity, phase:-.infinity), .infinity)
     XCTAssertEqual(Complex<T>(length:-.infinity, phase: .nan     ), .infinity)
-    
+
     let exponentRange =
     T.leastNormalMagnitude.exponent ... T.greatestFiniteMagnitude.exponent
     let inputs = (0..<100).map { _ in
@@ -150,7 +150,7 @@ final class ArithmeticTests: XCTestCase {
         print("p = \(p)\nz = \(z)\nz.normalized = \(n)")
         XCTFail()
       }
-      
+
       // Now test multiplication and division using the polar inputs:
       for q in inputs {
         let w = Complex(length: q.length, phase: q.phase)
@@ -165,7 +165,7 @@ final class ArithmeticTests: XCTestCase {
       }
     }
   }
-  
+
   func testPolar() {
 #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64)) && LONG_TESTS
     if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
@@ -178,7 +178,7 @@ final class ArithmeticTests: XCTestCase {
     testPolar(Float80.self)
 #endif
   }
-  
+
   func testBaudinSmith() {
     // A struct representing a test case from Baudin & Smith's
     // "A Robust Complex Division in Scilab".
@@ -223,15 +223,15 @@ final class ArithmeticTests: XCTestCase {
       if checkMultiply(test.b, test.c, expected: test.a, ulps: 1.0) { XCTFail() }
     }
   }
-  
+
   func testDivisionByZero() {
     XCTAssertFalse((Complex(0, 0) / Complex(0, 0)).isFinite)
     XCTAssertFalse((Complex(1, 1) / Complex(0, 0)).isFinite)
     XCTAssertFalse((Complex.infinity / Complex(0, 0)).isFinite)
     XCTAssertFalse((Complex.i / Complex(0, 0)).isFinite)
-    
+
   }
-  
+
 #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64)) && LONG_TESTS
   @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
   func testFloat16DivisionSemiExhaustive() {

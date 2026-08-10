@@ -42,13 +42,13 @@
 ///
 /// [field]: https://en.wikipedia.org/wiki/Field_(mathematics)
 public protocol AlgebraicField: SignedNumeric where Magnitude: AlgebraicField {
-  
+
   /// Replaces a with the (approximate) quotient `a/b`.
   static func /=(a: inout Self, b: Self)
-  
+
   /// The (approximate) quotient `a/b`.
   static func /(a: Self, b: Self) -> Self
-  
+
   /// The (approximate) reciprocal (multiplicative inverse) of this number,
   /// if it is representable.
   ///
@@ -90,10 +90,10 @@ public protocol AlgebraicField: SignedNumeric where Magnitude: AlgebraicField {
   /// }
   /// ```
   var reciprocal: Self? { get }
-  
+
   /// `a + b`, with the optimizer licensed to reassociate and form FMAs.
   static func _relaxedAdd(_ a: Self, _ b: Self) -> Self
-  
+
   /// `a * b`, with the optimizer licensed to reassociate and form FMAs.
   static func _relaxedMul(_ a: Self, _ b: Self) -> Self
 }
@@ -105,7 +105,7 @@ extension AlgebraicField {
     result /= b
     return result
   }
-  
+
   // Implementations should be *conservative* with the reciprocal property;
   // it is OK to return `nil` even in cases where a reciprocal could be
   // represented. For this reason, a default implementation that simply
@@ -115,14 +115,14 @@ extension AlgebraicField {
   public var reciprocal: Self? {
     return nil
   }
-  
+
   // It's always OK to simply fall back on normal arithmetic, and for any
   // field with exact arithmetic, this is the correct definition.
   @_transparent
   public static func _relaxedAdd(_ a: Self, _ b: Self) -> Self {
     a + b
   }
-  
+
   // It's always OK to simply fall back on normal arithmetic, and for any
   // field with exact arithmetic, this is the correct definition.
   @_transparent

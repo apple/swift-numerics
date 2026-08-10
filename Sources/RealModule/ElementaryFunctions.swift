@@ -18,7 +18,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Exponential_function
   static func exp(_ x: Self) -> Self
-  
+
   /// exp(x) - 1, computed in such a way as to maintain accuracy for small x.
   ///
   /// When `x` is close to zero, the expression `.exp(x) - 1` suffers from
@@ -39,7 +39,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   /// For types that conform to ``RealFunctions`` see
   /// ``RealFunctions/exp2(_:)`` and ``RealFunctions/exp10(_:)``.
   static func expMinusOne(_ x: Self) -> Self
-  
+
   /// The [hyperbolic cosine][wiki] of `x`.
   /// ```
   ///            e^x + e^-x
@@ -51,7 +51,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Hyperbolic_function
   static func cosh(_ x: Self) -> Self
-  
+
   /// The [hyperbolic sine][wiki] of `x`.
   /// ```
   ///            e^x - e^-x
@@ -63,7 +63,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Hyperbolic_function
   static func sinh(_ x: Self) -> Self
-  
+
   /// The [hyperbolic tangent][wiki] of `x`.
   /// ```
   ///            sinh(x)
@@ -75,7 +75,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Hyperbolic_function
   static func tanh(_ x: Self) -> Self
-  
+
   /// The [cosine][wiki] of `x`.
   ///
   /// For real types, `x` may be interpreted as an angle measured in radians.
@@ -84,8 +84,8 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Cosine
   static func cos(_ x: Self) -> Self
-  
-  
+
+
   /// The [sine][wiki] of `x`.
   ///
   /// For real types, `x` may be interpreted as an angle measured in radians.
@@ -94,7 +94,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Sine
   static func sin(_ x: Self) -> Self
-  
+
   /// The [tangent][wiki] of `x`.
   ///
   /// For real types, `x` may be interpreted as an angle measured in radians.
@@ -103,7 +103,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Tangent
   static func tan(_ x: Self) -> Self
-  
+
   /// The [natural logarithm][wiki] of `x`.
   ///
   /// For types that conform to ``RealFunctions`` see also
@@ -111,13 +111,13 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Logarithm
   static func log(_ x: Self) -> Self
-  
+
   /// log(1 + x), computed in such a way as to maintain accuracy for small x.
   ///
   /// For types that conform to ``RealFunctions`` see also
   /// ``RealFunctions/log2(_:)`` and ``RealFunctions/log10(_:)``.
   static func log(onePlus x: Self) -> Self
-  
+
   /// The [inverse hyperbolic cosine][wiki] of `x`.
   ///
   /// ```
@@ -128,7 +128,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_hyperbolic_function
   static func acosh(_ x: Self) -> Self
-  
+
   /// The [inverse hyperbolic sine][wiki] of `x`.
   ///
   /// ```
@@ -139,7 +139,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_hyperbolic_function
   static func asinh(_ x: Self) -> Self
-  
+
   /// The [inverse hyperbolic tangent][wiki] of `x`.
   ///
   /// ```
@@ -150,7 +150,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_hyperbolic_function
   static func atanh(_ x: Self) -> Self
-  
+
   /// The [arccosine][wiki] (inverse cosine) of `x`.
   ///
   /// For real types, the result may be interpreted as an angle measured in
@@ -164,7 +164,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
   static func acos(_ x: Self) -> Self
-  
+
   /// The [arcsine][wiki]  (inverse sine) of `x`.
   ///
   /// For real types, the result may be interpreted as an angle measured in
@@ -178,7 +178,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
   static func asin(_ x: Self) -> Self
-  
+
   /// The [arctangent][wiki]  (inverse tangent) of `x`.
   ///
   /// For real types, the result may be interpreted as an angle measured in
@@ -194,7 +194,7 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
   static func atan(_ x: Self) -> Self
-  
+
   /// exp(y * log(x)) computed with additional internal precision.
   ///
   /// The edge-cases of this function are defined based on the behavior of the
@@ -206,19 +206,19 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   /// <doc:/documentation/RealModule/ElementaryFunctions/pow(_:_:)-9imp6>,
   /// whose behavior is defined in terms of repeated multiplication.
   static func pow(_ x: Self, _ y: Self) -> Self
-  
+
   /// `x` raised to the nth power.
   ///
   /// The edge-cases of this function are defined in terms of repeated
   /// multiplication or division, rather than exp(n log x). In particular,
   /// `Float.pow(0, 0)` is 1.
   static func pow(_ x: Self, _ n: Int) -> Self
-  
+
   /// The [square root][wiki] of `x`.
   ///
   /// [wiki]: https://en.wikipedia.org/wiki/Square_root
   static func sqrt(_ x: Self) -> Self
-  
+
   /// The nth root of `x`.
   static func root(_ x: Self, _ n: Int) -> Self
 }

@@ -33,7 +33,7 @@ final class IntegerUtilitiesRotateTests: XCTestCase {
     XCTAssertEqual(0b00111001, x.rotated(right: 7))
     XCTAssertEqual(0b10011100, x.rotated(right: 8))
   }
-  
+
   func testRotateInt16() {
     let x = Int16(bitPattern: 0b1001110000111110)
     XCTAssertEqual(Int16(bitPattern: 0b1001110000111110), x.rotated(left:-16))

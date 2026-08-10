@@ -16,7 +16,7 @@ import RealModule
 import _TestSupport
 
 final class ElementaryFunctionTests: XCTestCase {
-  
+
   func testExp<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     // exp(0) = 1
     XCTAssertEqual(1, Complex<T>.exp(Complex( 0, 0)))
@@ -71,7 +71,7 @@ final class ElementaryFunctionTests: XCTestCase {
       }
     }
   }
-  
+
   func testExpMinusOne<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     // expMinusOne(0) = 0
     XCTAssertEqual(0, Complex<T>.expMinusOne(Complex( 0, 0)))
@@ -111,7 +111,7 @@ final class ElementaryFunctionTests: XCTestCase {
       XCTAssert(z.isApproximatelyEqual(to: Complex.expMinusOne(z), relativeTolerance: 16 * .ulpOfOne))
     }
   }
-  
+
   func testLogOnePlus<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     // log(onePlus: 0) = 0
     XCTAssertEqual(0, Complex<T>.log(onePlus: Complex( 0, 0)))
@@ -150,7 +150,7 @@ final class ElementaryFunctionTests: XCTestCase {
       }
     }
   }
-  
+
   func testCosh<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     // cosh(0) = 1
     XCTAssertEqual(1, Complex<T>.cosh(Complex( 0, 0)))
@@ -182,7 +182,7 @@ final class ElementaryFunctionTests: XCTestCase {
     XCTAssert(huge.real.isApproximatelyEqual(to: mag))
     XCTAssert(huge.imaginary.isApproximatelyEqual(to: mag))
   }
-  
+
   func testSinh<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     // sinh(0) = 0
     XCTAssertEqual(0, Complex<T>.sinh(Complex( 0, 0)))
@@ -227,7 +227,7 @@ final class ElementaryFunctionTests: XCTestCase {
       XCTAssert((c*c - s*s).isApproximatelyEqual(to: 1))
     }
   }
-  
+
   func testAcos<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     // acos(1) = 0
     XCTAssertEqual(0, Complex<T>.acos(1))
@@ -264,7 +264,7 @@ final class ElementaryFunctionTests: XCTestCase {
       XCTAssert(w.isApproximatelyEqual(to: Complex(.pi) - .acos(-z)))
     }
   }
-  
+
   func testAsin<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     // asin(1) = π/2
     XCTAssert(Complex<T>.asin(1).real.isApproximatelyEqual(to: .pi/2))
@@ -301,7 +301,7 @@ final class ElementaryFunctionTests: XCTestCase {
       XCTAssert(w.isApproximatelyEqual(to: -.asin(-z)))
     }
   }
-  
+
   func testAcosh<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     // acosh(1) = 0
     XCTAssertEqual(0, Complex<T>.acosh(1))
@@ -337,7 +337,7 @@ final class ElementaryFunctionTests: XCTestCase {
       XCTAssert(Complex.cosh(w).isApproximatelyEqual(to: z))
     }
   }
-  
+
   func testAsinh<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     // asinh(1) = π/2
     XCTAssert(Complex<T>.asin(1).real.isApproximatelyEqual(to: .pi/2))
@@ -379,7 +379,7 @@ final class ElementaryFunctionTests: XCTestCase {
       }
     }
   }
-  
+
   func testAtanh<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     // For randomly-chosen well-scaled finite values, we expect to have
     // atanh(tanh(z)) ≈ z
@@ -399,19 +399,19 @@ final class ElementaryFunctionTests: XCTestCase {
       }
     }
   }
-  
+
   func testPowR<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     XCTAssertEqual(Complex<T>.pow(.zero, -.one),  .infinity)
     XCTAssertEqual(Complex<T>.pow(.zero,  .zero), .infinity)
     XCTAssertEqual(Complex<T>.pow(.zero, +.one),  .zero)
   }
-  
+
   func testPowN<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
     XCTAssertEqual(Complex<T>.pow(.zero, -1), .infinity)
     XCTAssertEqual(Complex<T>.pow(.zero,  0), .one)
     XCTAssertEqual(Complex<T>.pow(.zero, +1), .zero)
   }
-  
+
   func testFloat() {
     testExp(Float.self)
     testExpMinusOne(Float.self)
@@ -426,7 +426,7 @@ final class ElementaryFunctionTests: XCTestCase {
     testPowR(Float.self)
     testPowN(Float.self)
   }
-  
+
   func testDouble() {
     testExp(Double.self)
     testExpMinusOne(Double.self)
@@ -441,7 +441,7 @@ final class ElementaryFunctionTests: XCTestCase {
     testPowR(Double.self)
     testPowN(Double.self)
   }
-  
+
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     testExp(Float80.self)

@@ -15,7 +15,7 @@ import XCTest
 import _TestSupport
 
 final class ApproximateEqualityTests: XCTestCase {
-  
+
   func testSpecials<T: Real>(absolute tol: T) {
     let zero = T.zero
     let gfm = T.greatestFiniteMagnitude
@@ -29,7 +29,7 @@ final class ApproximateEqualityTests: XCTestCase {
     XCTAssertTrue(inf.isApproximatelyEqual(to: inf, absoluteTolerance: tol))
     XCTAssertFalse(nan.isApproximatelyEqual(to: nan, absoluteTolerance: tol))
   }
-  
+
   func testSpecials<T: Real>(relative tol: T) {
     let zero = T.zero
     let gfm = T.greatestFiniteMagnitude
@@ -43,7 +43,7 @@ final class ApproximateEqualityTests: XCTestCase {
     XCTAssertTrue(inf.isApproximatelyEqual(to: inf, relativeTolerance: tol))
     XCTAssertFalse(nan.isApproximatelyEqual(to: nan, relativeTolerance: tol))
   }
-  
+
   func testSpecials<T: Real>(_ type: T.Type) {
     XCTAssertTrue(T.zero.isApproximatelyEqual(to: .zero))
     XCTAssertTrue(T.zero.isApproximatelyEqual(to:-.zero))
@@ -63,7 +63,7 @@ final class ApproximateEqualityTests: XCTestCase {
     XCTAssertFalse(T(1).isApproximatelyEqual(to: 1 + 2*e))
     XCTAssertFalse(T(1).isApproximatelyEqual(to: 1 - 3*e/2))
   }
-  
+
   func testRandom<T>(_ type: T.Type) where T: FixedWidthFloatingPoint & Real {
     var g = SystemRandomNumberGenerator()
     // Generate a bunch of random values in a small interval and a tolerance
@@ -122,19 +122,19 @@ final class ApproximateEqualityTests: XCTestCase {
       }
     }
   }
-  
+
   func testFloat() {
     testSpecials(Float.self)
     testDefaults(Float.self)
     testRandom(Float.self)
   }
-  
+
   func testDouble() {
     testSpecials(Double.self)
     testDefaults(Double.self)
     testRandom(Double.self)
   }
-  
+
   #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     testSpecials(Float80.self)

@@ -11,7 +11,7 @@
 
 extension Complex: ExpressibleByIntegerLiteral {
   public typealias IntegerLiteralType = RealType.IntegerLiteralType
-  
+
   @inlinable
   public init(integerLiteral value: IntegerLiteralType) {
     self.init(RealType(integerLiteral: value))

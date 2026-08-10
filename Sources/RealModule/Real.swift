@@ -38,7 +38,7 @@ extension Real {
   public static func exp10(_ x: Self) -> Self {
     pow(10, x)
   }
-  
+
   /// cos(x) - 1, computed in such a way as to maintain accuracy for small x.
   ///
   /// See also ``ElementaryFunctions/expMinusOne(_:)``.
@@ -47,7 +47,7 @@ extension Real {
     let sinxOver2 = sin(x/2)
     return -2*sinxOver2*sinxOver2
   }
-  
+
   #if !os(Windows)
   public static func signGamma(_ x: Self) -> FloatingPointSign {
     // Gamma is strictly positive for x >= 0.
@@ -59,7 +59,7 @@ extension Real {
     // Otherwise, signGamma is .minus if the integral part of x is even.
     return trunc.isEven ? .minus : .plus
   }
-  
+
   //  Determines if this value is even, assuming that it is an integer.
   @inline(__always)
   private var isEven: Bool {
@@ -83,17 +83,17 @@ extension Real {
     }
   }
   #endif
-  
+
   @_transparent
   public static func _mulAdd(_ a: Self, _ b: Self, _ c: Self) -> Self {
     a*b + c
   }
-  
+
   @_transparent
   public static func sqrt(_ x: Self) -> Self {
     x.squareRoot()
   }
-  
+
   /// The (approximate) reciprocal (multiplicative inverse) of this number,
   /// if it is representable.
   ///

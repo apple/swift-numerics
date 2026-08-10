@@ -16,104 +16,104 @@ extension Double: Real {
   public static func cos(_ x: Double) -> Double {
     libm_cos(x)
   }
-  
+
   @_transparent
   public static func sin(_ x: Double) -> Double {
     libm_sin(x)
   }
-  
+
   @_transparent
   public static func tan(_ x: Double) -> Double {
     libm_tan(x)
   }
-  
+
   @_transparent
   public static func acos(_ x: Double) -> Double {
     libm_acos(x)
   }
-  
+
   @_transparent
   public static func asin(_ x: Double) -> Double {
     libm_asin(x)
   }
-  
+
   @_transparent
   public static func atan(_ x: Double) -> Double {
     libm_atan(x)
   }
-  
+
   @_transparent
   public static func cosh(_ x: Double) -> Double {
     libm_cosh(x)
   }
-  
+
   @_transparent
   public static func sinh(_ x: Double) -> Double {
     libm_sinh(x)
   }
-  
+
   @_transparent
   public static func tanh(_ x: Double) -> Double {
     libm_tanh(x)
   }
-  
+
   @_transparent
   public static func acosh(_ x: Double) -> Double {
     libm_acosh(x)
   }
-  
+
   @_transparent
   public static func asinh(_ x: Double) -> Double {
     libm_asinh(x)
   }
-  
+
   @_transparent
   public static func atanh(_ x: Double) -> Double {
     libm_atanh(x)
   }
-  
+
   @_transparent
   public static func exp(_ x: Double) -> Double {
     libm_exp(x)
   }
-  
+
   @_transparent
   public static func expMinusOne(_ x: Double) -> Double {
     libm_expm1(x)
   }
-  
+
   @_transparent
   public static func log(_ x: Double) -> Double {
     libm_log(x)
   }
-  
+
   @_transparent
   public static func log(onePlus x: Double) -> Double {
     libm_log1p(x)
   }
-  
+
   @_transparent
   public static func erf(_ x: Double) -> Double {
     libm_erf(x)
   }
-  
+
   @_transparent
   public static func erfc(_ x: Double) -> Double {
     libm_erfc(x)
   }
-  
+
   @_transparent
   public static func exp2(_ x: Double) -> Double {
     libm_exp2(x)
   }
-  
+
 #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
   @_transparent
   public static func exp10(_ x: Double) -> Double {
     libm_exp10(x)
   }
 #endif
-  
+
 #if os(macOS) && arch(x86_64)
   // Workaround for macOS bug (<rdar://problem/56844150>) where hypot can
   // overflow for values very close to the overflow boundary of the naive
@@ -131,29 +131,29 @@ extension Double: Real {
     libm_hypot(x, y)
   }
 #endif
-  
+
   @_transparent
   public static func gamma(_ x: Double) -> Double {
     libm_tgamma(x)
   }
-  
+
   @_transparent
   public static func log2(_ x: Double) -> Double {
     libm_log2(x)
   }
-  
+
   @_transparent
   public static func log10(_ x: Double) -> Double {
     libm_log10(x)
   }
-  
+
   @_transparent
   public static func pow(_ x: Double, _ y: Double) -> Double {
     guard x >= 0 else { return .nan }
     if x == 0 && y == 0 { return .nan }
     return libm_pow(x, y)
   }
-  
+
   @_transparent
   public static func pow(_ x: Double, _ n: Int) -> Double {
     // If n is exactly representable as Double, we can just call pow:
@@ -195,7 +195,7 @@ extension Double: Real {
     let low = n &- high
     return libm_pow(x, Double(low)) * libm_pow(x, Double(high))
   }
-  
+
   @_transparent
   public static func root(_ x: Double, _ n: Int) -> Double {
     guard x >= 0 || n % 2 != 0 else { return .nan }
@@ -206,12 +206,12 @@ extension Double: Real {
     // 1/n may be not be representable as Double.
     return Double(signOf: x, magnitudeOf: libm_pow(x.magnitude, 1/Double(n)))
   }
-  
+
   @_transparent
   public static func atan2(y: Double, x: Double) -> Double {
     libm_atan2(y, x)
   }
-  
+
 #if !os(Windows)
   @_transparent
   public static func logGamma(_ x: Double) -> Double {
@@ -219,12 +219,12 @@ extension Double: Real {
     return libm_lgamma(x, &dontCare)
   }
 #endif
-  
+
   @_transparent
   public static func _relaxedAdd(_ a: Double, _ b: Double) -> Double {
     _numerics_relaxed_add(a, b)
   }
-  
+
   @_transparent
   public static func _relaxedMul(_ a: Double, _ b: Double) -> Double {
     _numerics_relaxed_mul(a, b)

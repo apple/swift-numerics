@@ -29,51 +29,51 @@ public protocol RealFunctions: ElementaryFunctions {
   /// See also ``ElementaryFunctions/atan(_:)``, as well as the `phase` and
   /// `polar` properties defined on the `Complex` type.
   static func atan2(y: Self, x: Self) -> Self
-  
+
   /// The [error function](https://en.wikipedia.org/wiki/Error_function)
   /// evaluated at `x`.
   static func erf(_ x: Self) -> Self
-  
+
   /// The complimentary [error function](https://en.wikipedia.org/wiki/Error_function)
   /// evaluated at `x`.
   static func erfc(_ x: Self) -> Self
-  
+
   /// 2 raised to the power x.
   ///
   /// See also ``log2(_:)``, ``ElementaryFunctions/exp(_:)``,
   /// ``ElementaryFunctions/expMinusOne(_:)``
   /// and ``ElementaryFunctions/pow(_:_:)-2qmul``.
   static func exp2(_ x: Self) -> Self
-  
+
   /// 10 raised to the power x.
   ///
   /// See also ``log10(_:)``, ``ElementaryFunctions/exp(_:)``,
   /// ``ElementaryFunctions/expMinusOne(_:)``
   /// and ``ElementaryFunctions/pow(_:_:)-2qmul``.
   static func exp10(_ x: Self) -> Self
-  
+
   /// The length of the vector `(x,y)`, computed in a manner that avoids
   /// spurious overflow or underflow.
   ///
   /// See also the `length` and `polar` properties defined on the `Complex`
   /// type.
   static func hypot(_ x: Self, _ y: Self) -> Self
-  
+
   /// The [gamma function](https://en.wikipedia.org/wiki/Gamma_function) Γ(x).
   static func gamma(_ x: Self) -> Self
-  
+
   /// The base-2 logarithm of `x`.
   ///
   /// See also ``exp2(_:)``, ``ElementaryFunctions/log(_:)``,
   /// and ``ElementaryFunctions/log(onePlus:)``.
   static func log2(_ x: Self) -> Self
-  
+
   /// The base-10 logarithm of `x`.
   ///
   /// See also ``exp10(_:)``, ``ElementaryFunctions/log(_:)``,
   /// and ``ElementaryFunctions/log(onePlus:)``.
   static func log10(_ x: Self) -> Self
-  
+
 #if !os(Windows)
   /// The logarithm of the absolute value of the
   /// [gamma function](https://en.wikipedia.org/wiki/Gamma_function),
@@ -81,7 +81,7 @@ public protocol RealFunctions: ElementaryFunctions {
   ///
   /// Not available on Windows targets.
   static func logGamma(_ x: Self) -> Self
-  
+
   /// The sign of the
   /// [gamma function](https://en.wikipedia.org/wiki/Gamma_function), Γ(x).
   ///

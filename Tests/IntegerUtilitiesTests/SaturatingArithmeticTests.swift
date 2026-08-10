@@ -15,7 +15,7 @@ import XCTest
 import _TestSupport
 
 final class IntegerUtilitiesSaturatingTests: XCTestCase {
-  
+
   func testSaturatingAddSigned() {
     for a in Int8.min ... Int8.max {
       for b in Int8.min ... Int8.max {
@@ -31,7 +31,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
       }
     }
   }
-  
+
   func testSaturatingSubSigned() {
     for a in Int8.min ... Int8.max {
       for b in Int8.min ... Int8.max {
@@ -47,7 +47,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
       }
     }
   }
-  
+
   func testSaturatingNegSigned() {
     for a in Int8.min ... Int8.max {
       let expected = Int8(clamping: 0 - Int16(a))
@@ -61,7 +61,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
       }
     }
   }
-  
+
   func testSaturatingMulSigned() {
     for a in Int8.min ... Int8.max {
       for b in Int8.min ... Int8.max {
@@ -77,7 +77,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
       }
     }
   }
-  
+
   func testSaturatingAddUnsigned() {
     for a in UInt8.min ... UInt8.max {
       for b in UInt8.min ... UInt8.max {
@@ -93,7 +93,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
       }
     }
   }
-  
+
   func testSaturatingSubUnsigned() {
     for a in UInt8.min ... UInt8.max {
       for b in UInt8.min ... UInt8.max {
@@ -109,7 +109,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
       }
     }
   }
-  
+
   func testSaturatingNegUnsigned() {
     for a in UInt8.min ... UInt8.max {
       let observed = a.negatedWithSaturation()
@@ -122,7 +122,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
       }
     }
   }
-  
+
   func testSaturatingMulUnsigned() {
     for a in UInt8.min ... UInt8.max {
       for b in UInt8.min ... UInt8.max {
@@ -137,7 +137,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
       }
     }
   }
-  
+
   func testSaturatingShift<T, C>(
     _ value: T, _ count: C, rounding rule: RoundingRule
   ) where T: FixedWidthInteger, C: FixedWidthInteger {
@@ -163,7 +163,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
       return
     }
   }
-  
+
   func testSaturatingShift<T: FixedWidthInteger>(
     _ type: T.Type, rounding rule: RoundingRule
   ) {
@@ -177,16 +177,16 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
       }
     }
   }
-  
+
   func testSaturatingShifts() {
     testSaturatingShift(Int8.self, rounding: .toOdd)
     testSaturatingShift(UInt8.self, rounding: .toOdd)
     testSaturatingShift(Int.self, rounding: .toOdd)
     testSaturatingShift(UInt.self, rounding: .toOdd)
   }
-  
+
   func testEdgeCaseForNegativeCount() {
     XCTAssertEqual(1.shiftedWithSaturation(leftBy: Int.min), 0)
   }
-  
+
 }

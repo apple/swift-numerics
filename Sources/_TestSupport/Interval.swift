@@ -13,34 +13,34 @@
 // A not-particularly-clever floating-point iterval that is iterable for the
 // purposes of testing.
 public struct Interval<Element>: Sequence where Element: FloatingPoint {
-  
+
   let lower: Element
-  
+
   let upper: Element
-  
+
   public init(from: Element, through: Element) {
     precondition(from <= through)
     lower = from
     upper = through
   }
-  
+
   public init(from: Element, to: Element) {
     self.init(from: from, through: to.nextDown)
   }
-  
+
   public func makeIterator() -> Iterator {
     Iterator(self)
   }
-  
+
   public struct Iterator: IteratorProtocol {
     let interval: Interval
     var nextOutput: Element?
-    
+
     init(_ interval: Interval) {
       self.interval = interval
       self.nextOutput = interval.lower
     }
-    
+
     public mutating func next() -> Element? {
       let result = nextOutput
       if nextOutput == interval.upper { nextOutput = nil }

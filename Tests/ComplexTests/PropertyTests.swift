@@ -14,7 +14,7 @@ import ComplexModule
 import RealModule
 
 final class PropertyTests: XCTestCase {
-  
+
   func testProperties<T: Real>(_ type: T.Type) {
     // The real and imaginary parts of a non-finite value should be nan.
     XCTAssertTrue(Complex<T>.infinity.real.isNaN)
@@ -38,7 +38,7 @@ final class PropertyTests: XCTestCase {
     XCTAssertTrue(Complex<T>(.zero, -.zero).phase.isNaN)
     XCTAssertTrue(Complex<T>(-.zero,-.zero).phase.isNaN)
   }
-  
+
   func testProperties() {
     testProperties(Float.self)
     testProperties(Double.self)
@@ -46,7 +46,7 @@ final class PropertyTests: XCTestCase {
     testProperties(Float80.self)
     #endif
   }
-  
+
   func testEquatableHashable<T: Real>(_ type: T.Type) {
     // Validate that all zeros compare and hash equal, and all non-finites
     // do too.
@@ -94,7 +94,7 @@ final class PropertyTests: XCTestCase {
       XCTAssertEqual(infs[0].hashValue, i.hashValue)
     }
   }
-  
+
   func testEquatableHashable() {
     testEquatableHashable(Float.self)
     testEquatableHashable(Double.self)

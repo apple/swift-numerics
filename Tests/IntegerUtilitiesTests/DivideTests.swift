@@ -15,7 +15,7 @@ import _TestSupport
 import XCTest
 
 final class IntegerUtilitiesDivideTests: XCTestCase {
-  
+
   func divisionRuleHolds<T: BinaryInteger>(_ a: T, _ b: T, _ q: T, _ r: T) -> Bool {
     // Validate division rule holds: a = qb + r (have to be careful about
     // computing qb, though, to ensure it does not overflow due to
@@ -40,7 +40,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     }
     return true
   }
-  
+
   func testDivideDown<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -69,7 +69,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testDivideUp<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -98,7 +98,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testDivideTowardZero<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -127,7 +127,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testDivideAwayFromZero<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -156,7 +156,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testDivideToNearestOrDown<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -172,7 +172,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
           """)
           return
         }
-        
+
         XCTAssertEqual(q, justq)
         if divisionRuleHolds(a, b, q, r) {
           // We know a = bq + r with |r| < |b|. Now check |r| <= |b|/2
@@ -195,7 +195,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testDivideToNearestOrUp<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -232,7 +232,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testDivideToNearestOrZero<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -269,7 +269,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testDivideToNearestOrAway<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -306,7 +306,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testDivideToNearestOrEven<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -343,7 +343,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testDivideToOdd<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -373,7 +373,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testDivideExact<T: SignedInteger & FixedWidthInteger>(_ values: [T]) {
     for a in values {
       for b in values where b != 0 {
@@ -388,7 +388,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testDivideInt8() {
     let values = Array<Int8>(-128 ... 127)
     testDivideDown(values)
@@ -403,7 +403,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     testDivideToOdd(values)
     testDivideExact(values)
   }
-  
+
   func testDivideInt() {
     var values = [Int](repeating: 0, count: 64)
     for i in 0 ..< values.count {
@@ -443,7 +443,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
     testDivideToOdd(values)
     testDivideExact(values)
   }
-  
+
   func divideUInt8(_ a: UInt8, _ b: UInt8, rounding rule: RoundingRule) {
     let expected = UInt8(Int16(a).divided(by: Int16(b), rounding: rule).quotient)
     let observed = a.divided(by: b, rounding: rule)
@@ -456,7 +456,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       return
     }
   }
-  
+
   func testDivideUInt8() {
     let values = Array<UInt8>(0 ... 255)
     for a in values {
@@ -474,7 +474,7 @@ final class IntegerUtilitiesDivideTests: XCTestCase {
       }
     }
   }
-  
+
   func testRemainderByMinusOne() {
     // These would trap if implemented as a - bq or similar, even though
     // the remainder is well-defined.

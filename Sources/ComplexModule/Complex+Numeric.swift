@@ -10,17 +10,17 @@
 //===----------------------------------------------------------------------===//
 
 extension Complex: Numeric {
-  
+
   @_transparent
   public static func *(z: Complex, w: Complex) -> Complex {
     return Complex(z.x*w.x - z.y*w.y, z.x*w.y + z.y*w.x)
   }
-  
+
   @_transparent
   public static func *=(z: inout Complex, w: Complex) {
     z = z * w
   }
-  
+
   /// The complex number with specified real part and zero imaginary part.
   ///
   /// Equivalent to `Complex(RealType(real), 0)`.
@@ -28,7 +28,7 @@ extension Complex: Numeric {
   public init<Other: BinaryInteger>(_ real: Other) {
     self.init(RealType(real), 0)
   }
-  
+
   /// The complex number with specified real part and zero imaginary part,
   /// if it can be constructed without rounding.
   @inlinable
@@ -36,7 +36,7 @@ extension Complex: Numeric {
     guard let real = RealType(exactly: real) else { return nil }
     self.init(real, 0)
   }
-  
+
   /// The infinity-norm of the value (a.k.a. "maximum norm" or "Чебышёв
   /// [Chebyshev] norm").
   ///

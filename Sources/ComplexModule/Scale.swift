@@ -29,7 +29,7 @@ extension Complex {
   public func multiplied(by a: RealType) -> Complex {
     Complex(x*a, y*a)
   }
-  
+
   /// The result of dividing this value by the real number `a`.
   ///
   /// More efficient than `self / Complex(a)`. May not produce exactly the

@@ -21,15 +21,15 @@ public struct Complex<RealType> where RealType: Real {
   //  imaginary components of our complex number. We also provide public
   //  `.real` and `.imaginary` properties, which wrap this storage and
   //  fixup the semantics for non-finite values.
-  
+
   /// The storage for the real component of the value.
   @usableFromInline @inline(__always)
   internal var x: RealType
-  
+
   /// The storage for the imaginary part of the value.
   @usableFromInline @inline(__always)
   internal var y: RealType
-  
+
   /// A complex number constructed by specifying the real and imaginary parts.
   @_transparent
   public init(_ real: RealType, _ imaginary: RealType) {
@@ -52,7 +52,7 @@ extension Complex {
     @_transparent
     set { x = newValue }
   }
-  
+
   /// The imaginary part of this complex value.
   ///
   /// If `z` is not finite, `z.imaginary` is `.nan`.
@@ -63,7 +63,7 @@ extension Complex {
     @_transparent
     set { y = newValue }
   }
-  
+
   /// The raw representation of the value.
   ///
   /// Use this when you need the underlying RealType values,
@@ -74,18 +74,18 @@ extension Complex {
     @_transparent
     set { (x, y) = newValue }
   }
-  
+
   /// The raw representation of the real part of this value.
   @available(*, deprecated, message: "Use rawStorage")
   @_transparent
   public var _rawX: RealType { x }
-  
+
   /// The raw representation of the imaginary part of this value.
   @available(*, deprecated, message: "Use rawStorage")
   @_transparent
   public var _rawY: RealType { y }
 }
-  
+
 extension Complex {
   /// The imaginary unit.
   ///
@@ -94,7 +94,7 @@ extension Complex {
   public static var i: Complex {
     Complex(0, 1)
   }
-  
+
   /// The point at infinity.
   ///
   /// See also ``zero``, ``one`` and ``i``.
@@ -102,7 +102,7 @@ extension Complex {
   public static var infinity: Complex {
     Complex(.infinity, 0)
   }
-  
+
   /// True if this value is finite.
   ///
   /// A complex value is finite if neither component is an infinity or nan.
@@ -112,7 +112,7 @@ extension Complex {
   public var isFinite: Bool {
     x.isFinite && y.isFinite
   }
-  
+
   /// True if this value is normal.
   ///
   /// A complex number is normal if it is finite and *either* the real or
@@ -125,7 +125,7 @@ extension Complex {
   public var isNormal: Bool {
     isFinite && (x.isNormal || y.isNormal)
   }
-  
+
   /// True if this value is subnormal.
   ///
   /// A complex number is subnormal if it is finite, not normal, and not zero.
@@ -137,7 +137,7 @@ extension Complex {
   public var isSubnormal: Bool {
     isFinite && !isNormal && !isZero
   }
-  
+
   /// True if this value is zero.
   ///
   /// A complex number is zero if *both* the real and imaginary components
@@ -148,7 +148,7 @@ extension Complex {
   public var isZero: Bool {
     x == 0 && y == 0
   }
-  
+
   /// A "canonical" representation of the value.
   ///
   /// For normal complex numbers with a RealType conforming to
@@ -181,7 +181,7 @@ extension Complex {
   public init(_ real: RealType) {
     self.init(real, 0)
   }
-  
+
   /// The complex number with zero real part and specified imaginary part.
   ///
   /// Equivalent to `Complex(0, imaginary)`.
@@ -197,7 +197,7 @@ extension Complex where RealType: BinaryFloatingPoint {
   public init<Other: BinaryFloatingPoint>(_ other: Complex<Other>) {
     self.init(RealType(other.x), RealType(other.y))
   }
-  
+
   /// `other`, if it can be represented exactly in this type; otherwise `nil`.
   @inlinable
   public init?<Other: BinaryFloatingPoint>(exactly other: Complex<Other>) {

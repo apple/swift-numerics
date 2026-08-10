@@ -23,7 +23,7 @@ extension Complex: Hashable {
     // them explicitly.
     return a.x == b.x && a.y == b.y
   }
-  
+
   @_transparent
   public func hash(into hasher: inout Hasher) {
     // There are two equivalence classes to which we owe special attention:

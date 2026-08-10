@@ -145,7 +145,7 @@ extension Real {
 }
 
 final class ElementaryFunctionChecks: XCTestCase {
-  
+
 #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
   func testFloat16() {
     if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
@@ -155,19 +155,19 @@ final class ElementaryFunctionChecks: XCTestCase {
     }
   }
 #endif
-  
+
   func testFloat() {
     Float.elementaryFunctionChecks()
     Float.realFunctionChecks()
     Float.powZeroChecks()
   }
-  
+
   func testDouble() {
     Double.elementaryFunctionChecks()
     Double.realFunctionChecks()
     Double.powZeroChecks()
   }
-  
+
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     Float80.elementaryFunctionChecks()
