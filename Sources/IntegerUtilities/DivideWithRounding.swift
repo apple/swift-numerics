@@ -43,7 +43,7 @@ extension BinaryInteger {
     // "Normal divsion" rounds toward zero, so we get self = q*other + r
     // with |r| < |other| and r matching the sign of self.
     let q = self / other
-    let r = self - q*other
+    let r = self - q * other
     // In every rounding mode, the result is the same when the result is
     // exact.
     if r == 0 { return q }
@@ -55,7 +55,7 @@ extension BinaryInteger {
     // rounded toward zero.
     //
     // If we subtract 1 from q, we add other to r to compensate, because:
-    // 
+    //
     //   self = q*other + r
     //        = (q-1)*other + (r+other)
     //
@@ -65,13 +65,13 @@ extension BinaryInteger {
       // For rounding down, we want to have r match the sign of other
       // rather than self; this means that if the signs of r and other
       // disagree, we have to adjust q downward and r to match.
-      if other.signum() != r.signum() { return q-1 }
+      if other.signum() != r.signum() { return q - 1 }
       return q
 
     case .up:
       // For rounding up, we want to have r have the opposite sign of
       // other; if not, we adjust q upward and r to match.
-      if other.signum() == r.signum() { return q+1 }
+      if other.signum() == r.signum() { return q + 1 }
       return q
 
     case .towardZero:
@@ -82,15 +82,17 @@ extension BinaryInteger {
       break
 
     case .toNearestOrDown:
-      if r.magnitude > other.magnitude.shifted(rightBy: 1, rounding: .down) ||
-          2*r.magnitude == other.magnitude && other.signum() != r.signum() {
+      if r.magnitude > other.magnitude.shifted(rightBy: 1, rounding: .down)
+        || 2 * r.magnitude == other.magnitude && other.signum() != r.signum()
+      {
         break
       }
       return q
 
     case .toNearestOrUp:
-      if r.magnitude > other.magnitude.shifted(rightBy: 1, rounding: .down) ||
-          2*r.magnitude == other.magnitude && other.signum() == r.signum() {
+      if r.magnitude > other.magnitude.shifted(rightBy: 1, rounding: .down)
+        || 2 * r.magnitude == other.magnitude && other.signum() == r.signum()
+      {
         break
       }
       return q
@@ -99,7 +101,7 @@ extension BinaryInteger {
       if r.magnitude <= other.magnitude.shifted(rightBy: 1, rounding: .down) {
         return q
       }
-      // Otherwise, round q away from zero.
+    // Otherwise, round q away from zero.
 
     case .toNearestOrAway:
       if r.magnitude < other.magnitude.shifted(rightBy: 1, rounding: .up) {
@@ -109,8 +111,9 @@ extension BinaryInteger {
     case .toNearestOrEven:
       // First guarantee that |r| <= |other/2|; if not we have to round away
       // instead, so break to do that.
-      if r.magnitude > other.magnitude.shifted(rightBy: 1, rounding: .down) ||
-         2*r.magnitude == other.magnitude && !q.isMultiple(of: 2) {
+      if r.magnitude > other.magnitude.shifted(rightBy: 1, rounding: .down)
+        || 2 * r.magnitude == other.magnitude && !q.isMultiple(of: 2)
+      {
         break
       }
       return q
@@ -124,7 +127,7 @@ extension BinaryInteger {
     }
 
     // We didn't have the right result, so round q away from zero.
-    return other.signum() == r.signum() ? q+1 : q-1
+    return other.signum() == r.signum() ? q + 1 : q - 1
   }
 
   // TODO: make this API and make it possible to implement more efficiently.
@@ -200,7 +203,7 @@ extension SignedInteger {
     // "Normal divsion" rounds toward zero, so we get self = q*other + r
     // with |r| < |other| and r matching the sign of self.
     let q = self / other
-    let r = self - q*other
+    let r = self - q * other
     // In every rounding mode, the result is the same when the result is
     // exact.
     if r == 0 { return (q, r) }
@@ -222,12 +225,12 @@ extension SignedInteger {
       // For rounding down, we want to have r match the sign of other
       // rather than self; this means that if the signs of r and other
       // disagree, we have to adjust q downward and r to match.
-      return other.signum() == r.signum() ? (q, r) : (q-1, r+other)
+      return other.signum() == r.signum() ? (q, r) : (q - 1, r + other)
 
     case .up:
       // For rounding up, we want to have r have the opposite sign of
       // other; if not, we adjust q upward and r to match.
-      return other.signum() == r.signum() ? (q+1, r-other) : (q, r)
+      return other.signum() == r.signum() ? (q + 1, r - other) : (q, r)
 
     case .towardZero:
       // This is exactly what the `/` operator did for us.
@@ -242,8 +245,9 @@ extension SignedInteger {
       // direction. However, we don't have access to the before-rounding q,
       // which may have rounded up to zero, losing the sign information, so
       // we have to look at other and r instead.
-      if 2*r.magnitude  < other.magnitude ||
-         2*r.magnitude == other.magnitude && other.signum() == r.signum() {
+      if 2 * r.magnitude < other.magnitude
+        || 2 * r.magnitude == other.magnitude && other.signum() == r.signum()
+      {
         return (q, r)
       }
 
@@ -251,8 +255,9 @@ extension SignedInteger {
       // If |r| < |other/2|, we already rounded q to nearest. If the are
       // equal and q is non-negative, then we already broke the tie in the
       // right direction.
-      if 2*r.magnitude  < other.magnitude ||
-         2*r.magnitude == other.magnitude && other.signum() != r.signum() {
+      if 2 * r.magnitude < other.magnitude
+        || 2 * r.magnitude == other.magnitude && other.signum() != r.signum()
+      {
         return (q, r)
       }
 
@@ -262,14 +267,14 @@ extension SignedInteger {
       // safely compute 2r without worrying about overflow, even for fixed-
       // width types, because r cannot be .min (because |r| < |other| by
       // construction).
-      if 2*r.magnitude <= other.magnitude {
+      if 2 * r.magnitude <= other.magnitude {
         return (q, r)
       }
 
     case .toNearestOrAway:
       // Check first if |r| < |other/2|. If this holds, we already rounded
       // q to nearest.
-      if 2*r.magnitude < other.magnitude {
+      if 2 * r.magnitude < other.magnitude {
         return (q, r)
       }
 
@@ -277,8 +282,9 @@ extension SignedInteger {
       // If |r| < |other/2|, we already rounded q to nearest. If the are
       // equal and q is even, then we already broke the tie in the right
       // direction.
-      if 2*r.magnitude  < other.magnitude ||
-         2*r.magnitude == other.magnitude && q.isMultiple(of: 2) {
+      if 2 * r.magnitude < other.magnitude
+        || 2 * r.magnitude == other.magnitude && q.isMultiple(of: 2)
+      {
         return (q, r)
       }
 
@@ -292,7 +298,7 @@ extension SignedInteger {
 
     // Fallthrough behavior is to round q away from zero and adjust r to
     // match.
-    return other.signum() == r.signum() ? (q+1, r-other) : (q-1, r+other)
+    return other.signum() == r.signum() ? (q + 1, r - other) : (q - 1, r + other)
   }
 }
 
@@ -319,7 +325,6 @@ extension SignedInteger {
 ///
 /// - Returns: `(quotient, remainder)`, with `0 <= remainder < b.magnitude`.
 public func euclideanDivision<T>(_ a: T, _ b: T) -> (quotient: T, remainder: T)
-where T: SignedInteger
-{
+where T: SignedInteger {
   a.divided(by: b, rounding: a >= 0 ? .towardZero : .awayFromZero)
 }

@@ -29,12 +29,12 @@ extension Complex: AlgebraicField {
   }
 
   @_transparent
-  public static func /=(z: inout Complex, w: Complex) {
+  public static func /= (z: inout Complex, w: Complex) {
     z = z / w
   }
 
   @_transparent
-  public static func /(z: Complex, w: Complex) -> Complex {
+  public static func / (z: Complex, w: Complex) -> Complex {
     // Try the naive expression z/w = z * (conj(w) / |w|^2); if we can
     // compute this without over/underflow, everything is fine and the
     // result is correct. If not, we have to rescale and do the
@@ -59,7 +59,7 @@ extension Complex: AlgebraicField {
       //  after rescaling to avoid this, rather than falling through into the
       //  normal rescaling, because otherwise we might end up back in the
       //  situation where |w| ~ 1.
-      let s = 1/(RealType(RealType.radix) * .leastNormalMagnitude)
+      let s = 1 / (RealType(RealType.radix) * .leastNormalMagnitude)
       let wʹ = w.multiplied(by: s)
       let zʹ = z.multiplied(by: s)
       return zʹ / wʹ
@@ -110,7 +110,7 @@ extension Complex: AlgebraicField {
     //     rounding.
     let s = RealType(
       sign: .plus,
-      exponent: -3*w.magnitude.exponent/4,
+      exponent: -3 * w.magnitude.exponent / 4,
       significand: 1
     )
     let wʹ = w.multiplied(by: s)
@@ -160,7 +160,7 @@ extension Complex: AlgebraicField {
   /// reciprocal is non-nil, the two computations are always equivalent.
   @inlinable
   public var reciprocal: Complex? {
-    let recip = 1/self
+    let recip = 1 / self
     if recip.isNormal || isZero || !isFinite {
       return recip
     }
@@ -176,7 +176,7 @@ extension Complex: AlgebraicField {
   public static func _relaxedMul(_ a: Self, _ b: Self) -> Self {
     Complex(
       Relaxed.sum(Relaxed.product(a.x, b.x), -Relaxed.product(a.y, b.y)),
-      Relaxed.sum(Relaxed.product(a.x, b.y),  Relaxed.product(a.y, b.x))
+      Relaxed.sum(Relaxed.product(a.x, b.y), Relaxed.product(a.y, b.x))
     )
   }
 }

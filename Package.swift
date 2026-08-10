@@ -81,6 +81,6 @@ let package = Package(
       name: "RealTests",
       dependencies: ["_TestSupport"],
       exclude: ["CMakeLists.txt"]
-    )
+    ),
   ]
 )

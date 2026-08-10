@@ -230,18 +230,16 @@ extension AdditiveArithmetic {
   where Magnitude: FloatingPoint {
     assert(
       absoluteTolerance >= 0 && absoluteTolerance.isFinite,
-      "absoluteTolerance should be non-negative and finite, " +
-      "but is \(absoluteTolerance)."
+      "absoluteTolerance should be non-negative and finite, " + "but is \(absoluteTolerance)."
     )
     assert(
       relativeTolerance >= 0 && relativeTolerance <= 1,
-      "relativeTolerance should be non-negative and <= 1, " +
-      "but is \(relativeTolerance)."
+      "relativeTolerance should be non-negative and <= 1, " + "but is \(relativeTolerance)."
     )
     if self == other { return true }
     let delta = norm(self - other)
     let scale = max(norm(self), norm(other))
-    let bound = max(absoluteTolerance, scale*relativeTolerance)
+    let bound = max(absoluteTolerance, scale * relativeTolerance)
     return delta.isFinite && delta <= bound
   }
 }

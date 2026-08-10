@@ -107,14 +107,14 @@ extension Double: Real {
     libm_exp2(x)
   }
 
-#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+  #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
   @_transparent
   public static func exp10(_ x: Double) -> Double {
     libm_exp10(x)
   }
-#endif
+  #endif
 
-#if os(macOS) && arch(x86_64)
+  #if os(macOS) && arch(x86_64)
   // Workaround for macOS bug (<rdar://problem/56844150>) where hypot can
   // overflow for values very close to the overflow boundary of the naive
   // algorithm. Since this is only for macOS, we can just unconditionally
@@ -123,14 +123,14 @@ extension Double: Real {
     if x.isInfinite || y.isInfinite { return .infinity }
     let x80 = Float80(x)
     let y80 = Float80(y)
-    return Double(Float80.sqrt(x80*x80 + y80*y80))
+    return Double(Float80.sqrt(x80 * x80 + y80 * y80))
   }
-#else
+  #else
   @_transparent
   public static func hypot(_ x: Double, _ y: Double) -> Double {
     libm_hypot(x, y)
   }
-#endif
+  #endif
 
   @_transparent
   public static func gamma(_ x: Double) -> Double {
@@ -204,7 +204,7 @@ extension Double: Real {
     if n == 3 { return libm_cbrt(x) }
     // TODO: this implementation is not quite correct, because either n or
     // 1/n may be not be representable as Double.
-    return Double(signOf: x, magnitudeOf: libm_pow(x.magnitude, 1/Double(n)))
+    return Double(signOf: x, magnitudeOf: libm_pow(x.magnitude, 1 / Double(n)))
   }
 
   @_transparent
@@ -212,13 +212,13 @@ extension Double: Real {
     libm_atan2(y, x)
   }
 
-#if !os(Windows)
+  #if !os(Windows)
   @_transparent
   public static func logGamma(_ x: Double) -> Double {
     var dontCare: Int32 = 0
     return libm_lgamma(x, &dontCare)
   }
-#endif
+  #endif
 
   @_transparent
   public static func _relaxedAdd(_ a: Double, _ b: Double) -> Double {

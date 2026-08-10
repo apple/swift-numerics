@@ -66,13 +66,13 @@ final class DoubleWidthTests: XCTestCase {
     // _ = -1 as _UInt16
   }
 
-#if false // TODO: _ExpressibleByBuiltinIntegerLiteral
+  #if false  // TODO: _ExpressibleByBuiltinIntegerLiteral
 
   func testLiterals_LargeSigned() {
     let a: _Int256 =
-    0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+      0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     let b: _Int256 =
-    -0x8000000000000000000000000000000000000000000000000000000000000000
+      -0x8000000000000000000000000000000000000000000000000000000000000000
     XCTAssertEqual(a, _Int256.max)
     XCTAssertEqual(b, _Int256.min)
   }
@@ -91,7 +91,7 @@ final class DoubleWidthTests: XCTestCase {
 
   func testLiterals_LargeUnsigned() {
     let a: _UInt256 =
-    0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+      0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     let b: _UInt256 = 0
     XCTAssertEqual(a, _UInt256.max)
     XCTAssertEqual(b, _UInt256.min)
@@ -108,7 +108,7 @@ final class DoubleWidthTests: XCTestCase {
     // as _UInt256
   }
 
-#endif // TODO: _ExpressibleByBuiltinIntegerLiteral
+  #endif  // TODO: _ExpressibleByBuiltinIntegerLiteral
 
   func testArithmetic_Unsigned() {
     let x: _UInt16 = 1000
@@ -151,7 +151,8 @@ final class DoubleWidthTests: XCTestCase {
       XCTAssertEqual(String(lhs / rhs), "23051931251193218442")
     }
     do {
-      let lhs = _UInt256("96467201117289166187766181030232879447148862859323917044548749804018359008044")!
+      let lhs = _UInt256(
+        "96467201117289166187766181030232879447148862859323917044548749804018359008044")!
       let rhs = _UInt256("4646260627574879223760172113656436161581617773435991717024")!
       XCTAssertEqual(String(lhs / rhs), "20762331011904583253")
     }
@@ -240,7 +241,7 @@ final class DoubleWidthTests: XCTestCase {
 
     XCTAssertTrue(_Int16.min.magnitude == Int16.min.magnitude)
     XCTAssertTrue((-42 as _Int16).magnitude == (-42 as Int16).magnitude)
-    XCTAssertTrue(_Int16().magnitude == Int16(0).magnitude) // See SR-6602.
+    XCTAssertTrue(_Int16().magnitude == Int16(0).magnitude)  // See SR-6602.
     XCTAssertTrue((42 as _Int16).magnitude == (42 as Int16).magnitude)
     XCTAssertTrue(_Int16.max.magnitude == Int16.max.magnitude)
   }
@@ -416,7 +417,7 @@ final class DoubleWidthTests: XCTestCase {
     // _ = _UInt16(-1)
   }
 
-  func testConversions_ToAndFromString<Number: FixedWidthInteger>(
+  func testConversionsToAndFromString<Number: FixedWidthInteger>(
     _ expectedNumber: Number,
     _ expectedString: String,
     radix: Int,
@@ -430,7 +431,7 @@ final class DoubleWidthTests: XCTestCase {
   }
 
   func testConversions_ToAndFromString_Binary() {
-    testConversions_ToAndFromString(
+    testConversionsToAndFromString(
       _Int128.max,
       """
       111111111111111111111111111111111111111111111111111111111111111\
@@ -438,7 +439,7 @@ final class DoubleWidthTests: XCTestCase {
       """,
       radix: 2
     )
-    testConversions_ToAndFromString(
+    testConversionsToAndFromString(
       _Int128.min,
       """
       -1000000000000000000000000000000000000000000000000000000000000000\
@@ -449,7 +450,7 @@ final class DoubleWidthTests: XCTestCase {
   }
 
   func testConversions_ToAndFromString_Decimal() {
-    testConversions_ToAndFromString(
+    testConversionsToAndFromString(
       _Int256.max,
       """
       5789604461865809771178549250434395392663\
@@ -457,7 +458,7 @@ final class DoubleWidthTests: XCTestCase {
       """,
       radix: 10
     )
-    testConversions_ToAndFromString(
+    testConversionsToAndFromString(
       _Int256.min,
       """
       -5789604461865809771178549250434395392663\
@@ -468,7 +469,7 @@ final class DoubleWidthTests: XCTestCase {
   }
 
   func testConversions_ToAndFromString_Hexadecimal() {
-    testConversions_ToAndFromString(
+    testConversionsToAndFromString(
       _Int512.max,
       """
       7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\
@@ -476,7 +477,7 @@ final class DoubleWidthTests: XCTestCase {
       """,
       radix: 16
     )
-    testConversions_ToAndFromString(
+    testConversionsToAndFromString(
       _Int512.min,
       """
       -8000000000000000000000000000000000000000000000000000000000000000\

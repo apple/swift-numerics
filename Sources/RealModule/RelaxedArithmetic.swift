@@ -11,7 +11,7 @@
 
 import _NumericsShims
 
-public enum Relaxed { }
+public enum Relaxed {}
 
 extension Relaxed {
   /// a+b, but grants the optimizer permission to reassociate expressions

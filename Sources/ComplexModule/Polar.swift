@@ -69,7 +69,7 @@ extension Complex {
   /// for non-finite values.
   @_transparent
   public var lengthSquared: RealType {
-    x*x + y*y
+    x * x + y * y
   }
 
   /// The phase (angle, or "argument").

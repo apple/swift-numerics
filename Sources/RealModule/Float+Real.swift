@@ -177,7 +177,7 @@ extension Float: Real {
     if n == 3 { return libm_cbrtf(x) }
     // TODO: this implementation is not quite correct, because either n or
     // 1/n may be not be representable as Float.
-    return Float(signOf: x, magnitudeOf: libm_powf(x.magnitude, 1/Float(n)))
+    return Float(signOf: x, magnitudeOf: libm_powf(x.magnitude, 1 / Float(n)))
   }
 
   @_transparent

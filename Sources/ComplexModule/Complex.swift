@@ -38,7 +38,7 @@ public struct Complex<RealType> where RealType: Real {
   }
 }
 
-extension Complex: Sendable where RealType: Sendable { }
+extension Complex: Sendable where RealType: Sendable {}
 
 // MARK: - Basic properties
 extension Complex {
@@ -202,7 +202,8 @@ extension Complex where RealType: BinaryFloatingPoint {
   @inlinable
   public init?<Other: BinaryFloatingPoint>(exactly other: Complex<Other>) {
     guard let x = RealType(exactly: other.x),
-          let y = RealType(exactly: other.y) else { return nil }
+      let y = RealType(exactly: other.y)
+    else { return nil }
     self.init(x, y)
   }
 }

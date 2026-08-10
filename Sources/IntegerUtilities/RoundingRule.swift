@@ -18,7 +18,7 @@
 /// Examples using rounding to integer to illustrate the various options:
 /// ```
 ///                          Directed rounding rules
-/// 
+///
 ///  value |     down     |      up      |  towardZero  | awayFromZero |
 /// =======+==============+==============+==============+==============+
 ///  -1.5  |      -2      |      -1      |      -1      |      -2      |
@@ -73,7 +73,7 @@ public enum RoundingRule {
   /// to the value being rounded.
   ///
   /// This is the default rounding mode for integer shifts, including the
-  /// shift operators defined in the standard library. 
+  /// shift operators defined in the standard library.
   ///
   /// Examples:
   /// - `(-4).divided(by: 3, rounding: .down)` is `-2`, because –2 is the
@@ -234,17 +234,17 @@ extension FloatingPoint {
       // FP doesn't have toNearestOrDown, so round toNearestOrEven and fixup
       // any exact-halfway cases.
       let nearest = rounded(.toNearestOrEven)
-      return nearest - self == 1/2 ? rounded(.down) : nearest
+      return nearest - self == 1 / 2 ? rounded(.down) : nearest
     case .toNearestOrUp:
       // FP doesn't have toNearestOrUp, so round toNearestOrEven and fixup
       // any exact-halfway cases.
       let nearest = rounded(.toNearestOrEven)
-      return self - nearest == 1/2 ? rounded(.up) : nearest
+      return self - nearest == 1 / 2 ? rounded(.up) : nearest
     case .toNearestOrZero:
       // FP doesn't have toNearestOrZero, so round toNearestOrEven and fixup
       // any exact-halfway cases.
       let nearest = rounded(.toNearestOrEven)
-      return (self - nearest).magnitude == 1/2 ? rounded(.towardZero) : nearest
+      return (self - nearest).magnitude == 1 / 2 ? rounded(.towardZero) : nearest
     case .toNearestOrAway:
       return self.rounded(.toNearestOrAwayFromZero)
     case .toNearestOrEven:
@@ -255,7 +255,7 @@ extension FloatingPoint {
       let one = Self(signOf: self, magnitudeOf: 1)
       // We have eliminated all large values at this point; add ±0.5, and see
       // which way that rounds, then select the other value.
-      let even = (trunc + one/2).rounded(.toNearestOrEven)
+      let even = (trunc + one / 2).rounded(.toNearestOrEven)
       return trunc == even ? trunc + one : trunc
     case .requireExact:
       let trunc = rounded(.towardZero)

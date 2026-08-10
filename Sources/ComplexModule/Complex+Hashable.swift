@@ -13,7 +13,7 @@ import RealModule
 
 extension Complex: Hashable {
   @_transparent
-  public static func ==(a: Complex, b: Complex) -> Bool {
+  public static func == (a: Complex, b: Complex) -> Bool {
     // Identify all numbers with either component non-finite as a single
     // "point at infinity".
     guard a.isFinite || b.isFinite else { return true }

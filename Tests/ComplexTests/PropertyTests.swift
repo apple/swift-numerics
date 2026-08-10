@@ -32,11 +32,11 @@ final class PropertyTests: XCTestCase {
     // The length of a zero value should be zero.
     XCTAssertEqual(Complex<T>.zero.length, .zero)
     XCTAssertEqual(Complex<T>(.zero, -.zero).length, .zero)
-    XCTAssertEqual(Complex<T>(-.zero,-.zero).length, .zero)
+    XCTAssertEqual(Complex<T>(-.zero, -.zero).length, .zero)
     // The phase of a zero value should be nan.
     XCTAssertTrue(Complex<T>.zero.phase.isNaN)
     XCTAssertTrue(Complex<T>(.zero, -.zero).phase.isNaN)
-    XCTAssertTrue(Complex<T>(-.zero,-.zero).phase.isNaN)
+    XCTAssertTrue(Complex<T>(-.zero, -.zero).phase.isNaN)
   }
 
   func testProperties() {
@@ -51,43 +51,43 @@ final class PropertyTests: XCTestCase {
     // Validate that all zeros compare and hash equal, and all non-finites
     // do too.
     let zeros = [
-      Complex<T>( .zero, .zero),
+      Complex<T>(.zero, .zero),
       Complex<T>(-.zero, .zero),
-      Complex<T>(-.zero,-.zero),
-      Complex<T>( .zero,-.zero)
+      Complex<T>(-.zero, -.zero),
+      Complex<T>(.zero, -.zero),
     ]
     for z in zeros[1...] {
       XCTAssertEqual(zeros[0], z)
       XCTAssertEqual(zeros[0].hashValue, z.hashValue)
     }
     let infs = [
-      Complex<T>( .nan,      .nan),
+      Complex<T>(.nan, .nan),
       Complex<T>(-.infinity, .nan),
       Complex<T>(-.ulpOfOne, .nan),
-      Complex<T>( .zero,     .nan),
-      Complex<T>( .pi,       .nan),
-      Complex<T>( .infinity, .nan),
-      Complex<T>( .nan,     -.infinity),
-      Complex<T>(-.infinity,-.infinity),
-      Complex<T>(-.ulpOfOne,-.infinity),
-      Complex<T>( .zero,    -.infinity),
-      Complex<T>( .pi,      -.infinity),
-      Complex<T>( .infinity,-.infinity),
-      Complex<T>( .nan,     -.ulpOfOne),
-      Complex<T>(-.infinity,-.ulpOfOne),
-      Complex<T>( .infinity,-.ulpOfOne),
-      Complex<T>( .nan,      .zero),
+      Complex<T>(.zero, .nan),
+      Complex<T>(.pi, .nan),
+      Complex<T>(.infinity, .nan),
+      Complex<T>(.nan, -.infinity),
+      Complex<T>(-.infinity, -.infinity),
+      Complex<T>(-.ulpOfOne, -.infinity),
+      Complex<T>(.zero, -.infinity),
+      Complex<T>(.pi, -.infinity),
+      Complex<T>(.infinity, -.infinity),
+      Complex<T>(.nan, -.ulpOfOne),
+      Complex<T>(-.infinity, -.ulpOfOne),
+      Complex<T>(.infinity, -.ulpOfOne),
+      Complex<T>(.nan, .zero),
       Complex<T>(-.infinity, .zero),
-      Complex<T>( .infinity, .zero),
-      Complex<T>( .nan,      .pi),
+      Complex<T>(.infinity, .zero),
+      Complex<T>(.nan, .pi),
       Complex<T>(-.infinity, .pi),
-      Complex<T>( .infinity, .pi),
-      Complex<T>( .nan,      .infinity),
+      Complex<T>(.infinity, .pi),
+      Complex<T>(.nan, .infinity),
       Complex<T>(-.infinity, .infinity),
       Complex<T>(-.ulpOfOne, .infinity),
-      Complex<T>( .zero,     .infinity),
-      Complex<T>( .pi,       .infinity),
-      Complex<T>( .infinity, .infinity),
+      Complex<T>(.zero, .infinity),
+      Complex<T>(.pi, .infinity),
+      Complex<T>(.infinity, .infinity),
     ]
     for i in infs[1...] {
       XCTAssertEqual(infs[0], i)

@@ -24,7 +24,7 @@
 /// }
 /// ```
 /// See also `ElementaryFunctions`, `RealFunctions` and `AlgebraicField`.
-public protocol Real: FloatingPoint, RealFunctions, AlgebraicField { }
+public protocol Real: FloatingPoint, RealFunctions, AlgebraicField {}
 
 //  While `Real` does not provide any additional customization points,
 //  it does allow us to default the implementation of a few operations,
@@ -44,8 +44,8 @@ extension Real {
   /// See also ``ElementaryFunctions/expMinusOne(_:)``.
   @_transparent
   public static func cosMinusOne(_ x: Self) -> Self {
-    let sinxOver2 = sin(x/2)
-    return -2*sinxOver2*sinxOver2
+    let sinxOver2 = sin(x / 2)
+    return -2 * sinxOver2 * sinxOver2
   }
 
   #if !os(Windows)
@@ -66,7 +66,7 @@ extension Real {
     if Self.radix == 2 {
       // For binary types, we can just check if x/2 is an integer. This works
       // because x/2 is always computed exactly.
-      let half = self/2
+      let half = self / 2
       return half == half.rounded(.towardZero)
     } else {
       // For decimal types, it's not quite that simple, because x/2 is not
@@ -78,7 +78,7 @@ extension Real {
       // Instead, for decimal types, we check if 2*trunc(self/2) == self,
       // using an FMA; this is always correct; this approach works for any
       // radix, but the previous method is more efficient for radix == 2.
-      let half = self/2
+      let half = self / 2
       return self.addingProduct(-2, half.rounded(.towardZero)) == 0
     }
   }
@@ -86,7 +86,7 @@ extension Real {
 
   @_transparent
   public static func _mulAdd(_ a: Self, _ b: Self, _ c: Self) -> Self {
-    a*b + c
+    a * b + c
   }
 
   @_transparent
@@ -141,7 +141,7 @@ extension Real {
   /// results obtained using division, you should not use this.
   @inlinable
   public var reciprocal: Self? {
-    let recip = 1/self
+    let recip = 1 / self
     if recip.isNormal || isZero || !isFinite {
       return recip
     }

@@ -20,8 +20,9 @@ public func relativeError(_ tst: Float, _ ref: Double) -> Double {
 }
 
 public func componentwiseError(_ tst: Complex<Float>, _ ref: Complex<Double>) -> Double {
-  return max(relativeError(tst.real, ref.real),
-             relativeError(tst.imaginary, ref.imaginary))
+  return max(
+    relativeError(tst.real, ref.real),
+    relativeError(tst.imaginary, ref.imaginary))
 }
 
 public func relativeError(_ tst: Complex<Float>, _ ref: Complex<Double>) -> Double {

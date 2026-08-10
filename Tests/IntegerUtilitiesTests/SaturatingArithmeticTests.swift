@@ -17,8 +17,8 @@ import _TestSupport
 final class IntegerUtilitiesSaturatingTests: XCTestCase {
 
   func testSaturatingAddSigned() {
-    for a in Int8.min ... Int8.max {
-      for b in Int8.min ... Int8.max {
+    for a in Int8.min...Int8.max {
+      for b in Int8.min...Int8.max {
         let expected = Int8(clamping: Int16(a) + Int16(b))
         let observed = a.addingWithSaturation(b)
         if expected != observed {
@@ -33,8 +33,8 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
   }
 
   func testSaturatingSubSigned() {
-    for a in Int8.min ... Int8.max {
-      for b in Int8.min ... Int8.max {
+    for a in Int8.min...Int8.max {
+      for b in Int8.min...Int8.max {
         let expected = Int8(clamping: Int16(a) - Int16(b))
         let observed = a.subtractingWithSaturation(b)
         if expected != observed {
@@ -49,7 +49,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
   }
 
   func testSaturatingNegSigned() {
-    for a in Int8.min ... Int8.max {
+    for a in Int8.min...Int8.max {
       let expected = Int8(clamping: 0 - Int16(a))
       let observed = a.negatedWithSaturation()
       if expected != observed {
@@ -63,8 +63,8 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
   }
 
   func testSaturatingMulSigned() {
-    for a in Int8.min ... Int8.max {
-      for b in Int8.min ... Int8.max {
+    for a in Int8.min...Int8.max {
+      for b in Int8.min...Int8.max {
         let expected = Int8(clamping: Int16(a) * Int16(b))
         let observed = a.multipliedWithSaturation(by: b)
         if expected != observed {
@@ -79,8 +79,8 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
   }
 
   func testSaturatingAddUnsigned() {
-    for a in UInt8.min ... UInt8.max {
-      for b in UInt8.min ... UInt8.max {
+    for a in UInt8.min...UInt8.max {
+      for b in UInt8.min...UInt8.max {
         let expected = UInt8(clamping: UInt16(a) + UInt16(b))
         let observed = a.addingWithSaturation(b)
         if expected != observed {
@@ -95,8 +95,8 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
   }
 
   func testSaturatingSubUnsigned() {
-    for a in UInt8.min ... UInt8.max {
-      for b in UInt8.min ... UInt8.max {
+    for a in UInt8.min...UInt8.max {
+      for b in UInt8.min...UInt8.max {
         let expected = UInt8(clamping: Int16(a) - Int16(b))
         let observed = a.subtractingWithSaturation(b)
         if expected != observed {
@@ -111,7 +111,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
   }
 
   func testSaturatingNegUnsigned() {
-    for a in UInt8.min ... UInt8.max {
+    for a in UInt8.min...UInt8.max {
       let observed = a.negatedWithSaturation()
       if 0 != observed {
         print("Error found in (\(a)).negatedWithSaturation().")
@@ -124,8 +124,8 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
   }
 
   func testSaturatingMulUnsigned() {
-    for a in UInt8.min ... UInt8.max {
-      for b in UInt8.min ... UInt8.max {
+    for a in UInt8.min...UInt8.max {
+      for b in UInt8.min...UInt8.max {
         let expected = UInt8(clamping: UInt16(a) * UInt16(b))
         let observed = a.multipliedWithSaturation(by: b)
         if expected != observed {
@@ -148,8 +148,7 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
     } else {
       let multiplier: T = 1 << count
       if multiplier <= 0 {
-        expected = value == 0 ? 0 :
-        value  < 0 ? .min : .max
+        expected = value == 0 ? 0 : value < 0 ? .min : .max
       } else {
         expected = value.multipliedWithSaturation(by: multiplier)
       }
@@ -169,9 +168,9 @@ final class IntegerUtilitiesSaturatingTests: XCTestCase {
   ) {
     for count in Int8.min ... .max {
       testSaturatingShift(0, count, rounding: rule)
-      for bits in 0 ..< T.bitWidth {
+      for bits in 0..<T.bitWidth {
         let msb: T.Magnitude = 1 << bits
-        let value = T(truncatingIfNeeded: msb) | .random(in: 0 ... T(msb-1))
+        let value = T(truncatingIfNeeded: msb) | .random(in: 0...T(msb - 1))
         testSaturatingShift(value, count, rounding: rule)
         testSaturatingShift(0 &- value, count, rounding: rule)
       }

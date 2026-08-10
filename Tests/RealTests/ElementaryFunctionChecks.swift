@@ -49,22 +49,24 @@ internal func assertClose<T>(
   }
   if observed.isInfinite {
     return assertClose(
-      expected/2, topBinade(signOf: observed),
+      expected / 2, topBinade(signOf: observed),
       allowedError: allowedError, file: file, line: line
     )
   }
   if expectedT.isInfinite {
     return assertClose(
-      TestLiteralType(topBinade(signOf: expectedT)), observed/2,
+      TestLiteralType(topBinade(signOf: expectedT)), observed / 2,
       allowedError: allowedError, file: file, line: line
     )
   }
   // Compute error in ulp, compare to tolerance.
   let absoluteError = (TestLiteralType(observed) - expected).magnitude
   let scale = max(expectedT.magnitude, T.leastNormalMagnitude).ulp
-  let ulps = T(absoluteError/TestLiteralType(scale))
+  let ulps = T(absoluteError / TestLiteralType(scale))
   if ulps > allowedError {
-    print("ULP error was unacceptably large: expected \(expected) but saw \(observed) (\(ulps)-ulp error).")
+    print(
+      "ULP error was unacceptably large: expected \(expected) but saw \(observed) (\(ulps)-ulp error)."
+    )
     XCTFail(file: file, line: line)
   }
   return ulps
@@ -78,9 +80,11 @@ internal func assertClose<T>(
   file: StaticString = #file,
   line: UInt = #line
 ) where T: BinaryFloatingPoint {
-  worstError = max(worstError, assertClose(
-    expected, observed, allowedError: allowedError, file: file, line: line
-  ))
+  worstError = max(
+    worstError,
+    assertClose(
+      expected, observed, allowedError: allowedError, file: file, line: line
+    ))
 }
 
 internal extension ElementaryFunctions where Self: BinaryFloatingPoint {
@@ -120,11 +124,11 @@ internal extension Real where Self: BinaryFloatingPoint {
     assertClose(0.4041169094348222983238250859191217675, Self.erf(0.375))
     assertClose(0.5958830905651777016761749140808782324, Self.erfc(0.375))
     assertClose(2.3704361844166009086464735041766525098, Self.gamma(0.375))
-#if !os(Windows)
-    assertClose( -0.11775527074107877445136203331798850, Self.logGamma(1.375))
-    XCTAssertEqual(.plus,  Self.signGamma(1.375))
+    #if !os(Windows)
+    assertClose(-0.11775527074107877445136203331798850, Self.logGamma(1.375))
+    XCTAssertEqual(.plus, Self.signGamma(1.375))
     XCTAssertEqual(.minus, Self.signGamma(-2.375))
-#endif
+    #endif
   }
 }
 
@@ -135,18 +139,18 @@ extension Real {
     // is exp(0 * -infinity) = exp(nan) = nan.
     XCTAssertEqual(pow(0, -1 as Self), infinity)
     XCTAssert(pow(0, 0 as Self).isNaN)
-    XCTAssertEqual(pow(0,  1 as Self), zero)
+    XCTAssertEqual(pow(0, 1 as Self), zero)
     // pow(_:Self,_:Int) is defined by repeated multiplication or division,
     // and hence pow(0, 0) is 1.
     XCTAssertEqual(pow(0, -1), infinity)
-    XCTAssertEqual(pow(0,  0), 1)
-    XCTAssertEqual(pow(0,  1), zero)
+    XCTAssertEqual(pow(0, 0), 1)
+    XCTAssertEqual(pow(0, 1), zero)
   }
 }
 
 final class ElementaryFunctionChecks: XCTestCase {
 
-#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+  #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
   func testFloat16() {
     if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
       Float16.elementaryFunctionChecks()
@@ -154,7 +158,7 @@ final class ElementaryFunctionChecks: XCTestCase {
       Float16.powZeroChecks()
     }
   }
-#endif
+  #endif
 
   func testFloat() {
     Float.elementaryFunctionChecks()
@@ -168,11 +172,11 @@ final class ElementaryFunctionChecks: XCTestCase {
     Double.powZeroChecks()
   }
 
-#if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+  #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     Float80.elementaryFunctionChecks()
     Float80.realFunctionChecks()
     Float80.powZeroChecks()
   }
-#endif
+  #endif
 }

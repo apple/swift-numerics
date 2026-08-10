@@ -27,7 +27,7 @@ extension Complex {
   /// Equivalent to `self * Complex(a)`, but may be computed more efficiently.
   @inlinable @inline(__always)
   public func multiplied(by a: RealType) -> Complex {
-    Complex(x*a, y*a)
+    Complex(x * a, y * a)
   }
 
   /// The result of dividing this value by the real number `a`.
@@ -36,6 +36,6 @@ extension Complex {
   /// same result, but will always be more accurate if they differ.
   @inlinable @inline(__always)
   public func divided(by a: RealType) -> Complex {
-    Complex(x/a, y/a)
+    Complex(x / a, y / a)
   }
 }

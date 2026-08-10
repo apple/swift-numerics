@@ -152,7 +152,7 @@ extension Float80: Real {
     if n == 3 { return libm_cbrtl(x) }
     // TODO: this implementation is not quite correct, because either n or
     // 1/n may be not be representable as Float80.
-    return Float80(signOf: x, magnitudeOf: libm_powl(x.magnitude, 1/Float80(n)))
+    return Float80(signOf: x, magnitudeOf: libm_powl(x.magnitude, 1 / Float80(n)))
   }
 
   @_transparent

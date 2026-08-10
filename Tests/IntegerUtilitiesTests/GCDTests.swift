@@ -30,9 +30,9 @@ final class IntegerUtilitiesGCDTests: XCTestCase {
     XCTAssertEqual(gcd(51, 34), 17)
     XCTAssertEqual(gcd(64, 96), 32)
     XCTAssertEqual(gcd(-64, 96), 32)
-    XCTAssertEqual(gcd(4*7*19, 27*25), 1)
-    XCTAssertEqual(gcd(16*315, 11*315), 315)
-    XCTAssertEqual(gcd(97*67*53*27*8, 83*67*53*9*32), 67*53*9*8)
+    XCTAssertEqual(gcd(4 * 7 * 19, 27 * 25), 1)
+    XCTAssertEqual(gcd(16 * 315, 11 * 315), 315)
+    XCTAssertEqual(gcd(97 * 67 * 53 * 27 * 8, 83 * 67 * 53 * 9 * 32), 67 * 53 * 9 * 8)
     XCTAssertEqual(gcd(Int.min, 2), 2)
 
     // TODO: Enable these when version compatibility allows.

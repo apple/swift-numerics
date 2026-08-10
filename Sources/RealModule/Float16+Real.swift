@@ -121,7 +121,7 @@ extension Float16: Real {
     if x.isInfinite || y.isInfinite { return .infinity }
     let xf = Float(x)
     let yf = Float(y)
-    return Float16(.sqrt(xf*xf + yf*yf))
+    return Float16(.sqrt(xf * xf + yf * yf))
   }
 
   @_transparent

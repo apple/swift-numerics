@@ -9,7 +9,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-public enum Augmented { }
+public enum Augmented {}
 
 extension Augmented {
   /// The product `a * b` represented as an implicit sum `head + tail`.
@@ -39,10 +39,10 @@ extension Augmented {
   /// - If both `head` and `tail` are normal, then `a * b` is exactly
   ///   equal to `head + tail` when computed as real numbers.
   @_transparent
-  public static func product<T:FloatingPoint>(
+  public static func product<T: FloatingPoint>(
     _ a: T, _ b: T
   ) -> (head: T, tail: T) {
-    let head = a*b
+    let head = a * b
     // TODO: consider providing an FMA-less implementation for use when
     // targeting platforms without hardware FMA support. This works everywhere,
     // falling back on the C math.h fma funcions, but may be slow on older x86.

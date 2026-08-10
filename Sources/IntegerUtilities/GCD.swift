@@ -32,7 +32,7 @@ public func gcd<T: BinaryInteger>(_ a: T, _ b: T) -> T {
   // Euclidean algorithm for GCD. It's worth using Lehmer instead for larger
   // integer types, but for now this is good and dead-simple and faster than
   // the other obvious choice, the binary algorithm.
-  while y != 0 { (x, y) = (y, x%y) }
+  while y != 0 { (x, y) = (y, x % y) }
   // Try to convert result to T.
   if let result = T(exactly: x.magnitude) { return result }
   // If that fails, produce a diagnostic.

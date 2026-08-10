@@ -26,7 +26,7 @@ func relaxedSum<T: Real>(_ array: [T]) -> T {
 }
 
 func strictSumOfSquares<T: Real>(_ array: [T]) -> T {
-  array.reduce(0) { $0 + $1*$1 }
+  array.reduce(0) { $0 + $1 * $1 }
 }
 
 func relaxedSumOfSquares<T: Real>(_ array: [T]) -> T {
@@ -38,7 +38,7 @@ func relaxedSumOfSquares<T: Real>(_ array: [T]) -> T {
 func benchmarkReduction(_ data: [Float], _ reduction: ([Float]) -> Float) {
   var accum: Float = 0
   let iters = 100_000
-  for _ in 0 ..< iters {
+  for _ in 0..<iters {
     accum += reduction(data)
   }
   blackHole(accum)
@@ -50,7 +50,7 @@ final class RelaxedArithmeticTests: XCTestCase {
 
   override func setUp() {
     super.setUp()
-    floatData = (0 ..< 1024).map { _ in .random(in: .sqrt(1/2) ..< .sqrt(2)) }
+    floatData = (0..<1024).map { _ in .random(in: .sqrt(1 / 2) ..< .sqrt(2)) }
   }
 
   func testStrictSumPerformance() {
@@ -63,11 +63,11 @@ final class RelaxedArithmeticTests: XCTestCase {
     measure { benchmarkReduction(floatData, relaxedSum) }
   }
 
-#if canImport(Accelerate)
+  #if canImport(Accelerate)
   func testvDSPSumPerformance() {
     measure { benchmarkReduction(floatData, vDSP.sum) }
   }
-#endif
+  #endif
 
   func testStrictDotPerformance() {
     measure { benchmarkReduction(floatData, strictSumOfSquares) }
@@ -79,18 +79,18 @@ final class RelaxedArithmeticTests: XCTestCase {
     measure { benchmarkReduction(floatData, relaxedSumOfSquares) }
   }
 
-#if canImport(Accelerate)
+  #if canImport(Accelerate)
   func testvDSPDotPerformance() {
     measure { benchmarkReduction(floatData, vDSP.sumOfSquares) }
   }
-#endif
+  #endif
 
   func testRelaxedArithmetic<T: FixedWidthFloatingPoint & Real>(_ type: T.Type) {
     // Relaxed add is still an add; it's just permitted to reorder relative
     // to other adds or form FMAs. So if we do one in isolation, it has to
     // produce the same result as a normal addition.
-    let a = T.random(in: -1 ... 1)
-    let b = T.random(in: -1 ... 1)
+    let a = T.random(in: -1...1)
+    let b = T.random(in: -1...1)
     XCTAssertEqual(a + b, Relaxed.sum(a, b))
     // Same is true for mul.
     XCTAssertEqual(a * b, Relaxed.product(a, b))
@@ -103,7 +103,7 @@ final class RelaxedArithmeticTests: XCTestCase {
     // has to satisfy the usual error bound of 0.5 * sum.ulp * numberOfElements.
     // We don't have a golden reference, but we can compare two sums with twice
     // the bound for a basic check.
-    let array = (0 ..< 128).map { _ in T.random(in: 1 ..< 2) }
+    let array = (0..<128).map { _ in T.random(in: 1..<2) }
     var ref = strictSum(array)
     var tst = relaxedSum(array)
     var bound = max(ref, tst).ulp * T(array.count)
@@ -116,14 +116,14 @@ final class RelaxedArithmeticTests: XCTestCase {
   }
 
   func testRelaxedArithmetic() {
-#if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
+    #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
     testRelaxedArithmetic(Float16.self)
-#endif
+    #endif
     testRelaxedArithmetic(Float.self)
     testRelaxedArithmetic(Double.self)
-#if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
+    #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
     testRelaxedArithmetic(Float80.self)
-#endif
+    #endif
   }
 }
 #endif

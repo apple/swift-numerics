@@ -12,22 +12,24 @@
 import RealModule
 
 public protocol FixedWidthFloatingPoint: BinaryFloatingPoint
-where Exponent: FixedWidthInteger,
-      RawSignificand: FixedWidthInteger { }
+where
+  Exponent: FixedWidthInteger,
+  RawSignificand: FixedWidthInteger
+{}
 
 #if !((os(macOS) || targetEnvironment(macCatalyst)) && arch(x86_64))
 @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
-extension Float16: FixedWidthFloatingPoint { }
+extension Float16: FixedWidthFloatingPoint {}
 #endif
 
-extension Float: FixedWidthFloatingPoint { }
-extension Double: FixedWidthFloatingPoint { }
+extension Float: FixedWidthFloatingPoint {}
+extension Double: FixedWidthFloatingPoint {}
 #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
-extension Float80: FixedWidthFloatingPoint { }
+extension Float80: FixedWidthFloatingPoint {}
 #endif
 
 extension FloatingPointSign {
   static func random<G: RandomNumberGenerator>(using g: inout G) -> FloatingPointSign {
-    [.plus,.minus].randomElement(using: &g)!
+    [.plus, .minus].randomElement(using: &g)!
   }
 }

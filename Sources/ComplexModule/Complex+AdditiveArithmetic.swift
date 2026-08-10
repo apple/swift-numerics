@@ -21,22 +21,22 @@ extension Complex: AdditiveArithmetic {
   }
 
   @_transparent
-  public static func +(z: Complex, w: Complex) -> Complex {
+  public static func + (z: Complex, w: Complex) -> Complex {
     return Complex(z.x + w.x, z.y + w.y)
   }
 
   @_transparent
-  public static func -(z: Complex, w: Complex) -> Complex {
+  public static func - (z: Complex, w: Complex) -> Complex {
     return Complex(z.x - w.x, z.y - w.y)
   }
 
   @_transparent
-  public static func +=(z: inout Complex, w: Complex) {
+  public static func += (z: inout Complex, w: Complex) {
     z = z + w
   }
 
   @_transparent
-  public static func -=(z: inout Complex, w: Complex) {
+  public static func -= (z: inout Complex, w: Complex) {
     z = z - w
   }
 }

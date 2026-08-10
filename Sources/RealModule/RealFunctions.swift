@@ -74,7 +74,7 @@ public protocol RealFunctions: ElementaryFunctions {
   /// and ``ElementaryFunctions/log(onePlus:)``.
   static func log10(_ x: Self) -> Self
 
-#if !os(Windows)
+  #if !os(Windows)
   /// The logarithm of the absolute value of the
   /// [gamma function](https://en.wikipedia.org/wiki/Gamma_function),
   /// log(|Γ(x)|).
@@ -94,5 +94,5 @@ public protocol RealFunctions: ElementaryFunctions {
   ///
   /// Not available on Windows targets.
   static func signGamma(_ x: Self) -> FloatingPointSign
-#endif
+  #endif
 }

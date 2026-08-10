@@ -1,0 +1,7 @@
+{
+  "indentConditionalCompilationBlocks" : false,
+  "rules" : {
+    "IdentifiersMustBeASCII" : false
+  },
+  "version" : 1
+}

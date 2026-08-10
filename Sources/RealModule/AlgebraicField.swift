@@ -44,10 +44,10 @@
 public protocol AlgebraicField: SignedNumeric where Magnitude: AlgebraicField {
 
   /// Replaces a with the (approximate) quotient `a/b`.
-  static func /=(a: inout Self, b: Self)
+  static func /= (a: inout Self, b: Self)
 
   /// The (approximate) quotient `a/b`.
-  static func /(a: Self, b: Self) -> Self
+  static func / (a: Self, b: Self) -> Self
 
   /// The (approximate) reciprocal (multiplicative inverse) of this number,
   /// if it is representable.
@@ -100,7 +100,7 @@ public protocol AlgebraicField: SignedNumeric where Magnitude: AlgebraicField {
 
 extension AlgebraicField {
   @_transparent
-  public static func /(a: Self, b: Self) -> Self {
+  public static func / (a: Self, b: Self) -> Self {
     var result = a
     result /= b
     return result

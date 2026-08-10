@@ -85,7 +85,6 @@ public protocol ElementaryFunctions: AdditiveArithmetic {
   /// [wiki]: https://en.wikipedia.org/wiki/Cosine
   static func cos(_ x: Self) -> Self
 
-
   /// The [sine][wiki] of `x`.
   ///
   /// For real types, `x` may be interpreted as an angle measured in radians.

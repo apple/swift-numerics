@@ -20,8 +20,9 @@ extension FixedWidthInteger {
     // count using Self.bitWidth and not Magnitude.bitWidth or zero.
     let bitPattern = Magnitude(truncatingIfNeeded: self)
     let countComplement = Self.bitWidth &- count
-    return Self(truncatingIfNeeded:
-      bitPattern &>> count | bitPattern &<< countComplement
+    return Self(
+      truncatingIfNeeded:
+        bitPattern &>> count | bitPattern &<< countComplement
     )
   }
 

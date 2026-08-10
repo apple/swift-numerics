@@ -43,8 +43,7 @@ public struct Interval<Element>: Sequence where Element: FloatingPoint {
 
     public mutating func next() -> Element? {
       let result = nextOutput
-      if nextOutput == interval.upper { nextOutput = nil }
-      else { nextOutput = nextOutput?.nextUp }
+      if nextOutput == interval.upper { nextOutput = nil } else { nextOutput = nextOutput?.nextUp }
       return result
     }
   }
