@@ -163,7 +163,7 @@ public enum RoundingRule {
   /// - `(-4).divided(by: 3, rounding: .toNearestOrZero)`
   /// is `-1`, because –4/3 = –1.3̅ is closer to –1 than it is to –2.
   ///
-  /// - `5.shifted(rightBy: 1, rounding: .toNearestOrZero)` is `2`,
+  /// - `5.shifted(rightBy: 1, rounding: .toNearestOrZero)` is `3`,
   /// because 5/2 = 2.5 is equally close to 2 and 3, and 2 is closer to zero.
   case toNearestOrZero
   
