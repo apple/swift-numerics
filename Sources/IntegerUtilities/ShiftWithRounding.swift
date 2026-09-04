@@ -27,10 +27,6 @@ extension BinaryInteger {
   ///     // is odd.
   ///     3.shifted(rightBy: 1, rounding: .toOdd)
   ///
-  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, or 2
-  ///     // with probability 3/4.
-  ///     7.shifted(rightBy: 2, rounding: .stochastically)
-  ///
   ///     // 4/4 is exactly 1, so this does not trap.
   ///     4.shifted(rightBy: 2, rounding: .requireExact)
   ///
@@ -152,10 +148,6 @@ extension BinaryInteger {
   ///     // The two closest values are 1 and 2, 1 is returned because it
   ///     // is odd.
   ///     3.shifted(rightBy: 1, rounding: .toOdd)
-  ///
-  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, or 2
-  ///     // with probability 3/4.
-  ///     7.shifted(rightBy: 2, rounding: .stochastically)
   ///
   ///     // 4/4 is exactly 1, so this does not trap.
   ///     4.shifted(rightBy: 2, rounding: .requireExact)
