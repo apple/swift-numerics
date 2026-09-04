@@ -141,7 +141,8 @@ extension Complex: ElementaryFunctions {
   public static func cosh(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
     guard z.x.magnitude < -RealType.log(.ulpOfOne) else {
-      let phase = Complex(RealType.cos(z.y), RealType.sin(z.y))
+      let sign: RealType = z.x < 0 ? -1 : 1
+      let phase = Complex(RealType.cos(z.y), sign * RealType.sin(z.y))
       let firstScale = RealType.exp(z.x.magnitude/2)
       let secondScale = firstScale/2
       return phase.multiplied(by: firstScale).multiplied(by: secondScale)
@@ -171,9 +172,10 @@ extension Complex: ElementaryFunctions {
   public static func sinh(_ z: Complex) -> Complex {
     guard z.isFinite else { return z }
     guard z.x.magnitude < -RealType.log(.ulpOfOne) else {
-      let phase = Complex(RealType.cos(z.y), RealType.sin(z.y))
+      let sign: RealType = z.x < 0 ? -1 : 1
+      let phase = Complex(sign * RealType.cos(z.y), RealType.sin(z.y))
       let firstScale = RealType.exp(z.x.magnitude/2)
-      let secondScale = RealType(signOf: z.x, magnitudeOf: firstScale/2)
+      let secondScale = firstScale/2
       return phase.multiplied(by: firstScale).multiplied(by: secondScale)
     }
     return Complex(
