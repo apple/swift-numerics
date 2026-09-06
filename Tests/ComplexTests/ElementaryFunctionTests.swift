@@ -180,7 +180,7 @@ final class ElementaryFunctionTests: XCTestCase {
     XCTAssert(huge.imaginary.isApproximatelyEqual(to: mag))
     huge = Complex<T>.cosh(Complex(-x, .pi/4))
     XCTAssert(huge.real.isApproximatelyEqual(to: mag))
-    XCTAssert(huge.imaginary.isApproximatelyEqual(to: mag))
+    XCTAssert(huge.imaginary.isApproximatelyEqual(to: -mag))
   }
   
   func testSinh<T: Real & FixedWidthFloatingPoint>(_ type: T.Type) {
@@ -212,7 +212,7 @@ final class ElementaryFunctionTests: XCTestCase {
     XCTAssert(huge.imaginary.isApproximatelyEqual(to: mag))
     huge = Complex<T>.sinh(Complex(-x, .pi/4))
     XCTAssert(huge.real.isApproximatelyEqual(to: -mag))
-    XCTAssert(huge.imaginary.isApproximatelyEqual(to: -mag))
+    XCTAssert(huge.imaginary.isApproximatelyEqual(to: mag))
     // For randomly-chosen well-scaled finite values, we expect to have
     // cosh² - sinh² ≈ 1. Note that this test would break down due to
     // catastrophic cancellation as we get further away from the origin.
