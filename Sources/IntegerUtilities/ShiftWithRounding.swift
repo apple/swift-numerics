@@ -27,9 +27,8 @@ extension BinaryInteger {
   ///     // is odd.
   ///     3.shifted(rightBy: 1, rounding: .toOdd)
   ///
-  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, or 2
-  ///     // with probability 3/4.
-  ///     7.shifted(rightBy: 2, rounding: .stochastically)
+  ///     // 6/4 = 1.5, so the tie is broken in favor of the even value 2.
+  ///     6.shifted(rightBy: 2, rounding: .toNearestOrEven)
   ///
   ///     // 4/4 is exactly 1, so this does not trap.
   ///     4.shifted(rightBy: 2, rounding: .requireExact)
@@ -153,9 +152,8 @@ extension BinaryInteger {
   ///     // is odd.
   ///     3.shifted(rightBy: 1, rounding: .toOdd)
   ///
-  ///     // 7/4 = 1.75, so the result is 1 with probability 1/4, or 2
-  ///     // with probability 3/4.
-  ///     7.shifted(rightBy: 2, rounding: .stochastically)
+  ///     // 6/4 = 1.5, so the tie is broken in favor of the even value 2.
+  ///     6.shifted(rightBy: 2, rounding: .toNearestOrEven)
   ///
   ///     // 4/4 is exactly 1, so this does not trap.
   ///     4.shifted(rightBy: 2, rounding: .requireExact)
