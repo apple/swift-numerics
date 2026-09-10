@@ -155,9 +155,17 @@ extension Complex: AlgebraicField {
   ///
   /// Error Bounds:
   ///
-  /// Unlike real types, when working with complex types, multiplying by the
-  /// reciprocal instead of dividing cannot change the result. If the
-  /// reciprocal is non-nil, the two computations are always equivalent.
+  /// Unlike real types, with Complex types, _if no underflow occurs in
+  /// computing the reciprocal_, replacing division with multiplication by
+  /// this value does not perturb the result. Note that this condition is
+  /// not the same as `reciprocal` returning a non-nil value. If the `real`
+  /// and `imaginary` components are poorly scaled with respect to each other,
+  /// one component of `reciprocal` may underflow while the other component
+  /// is normal, resulting in a non-nil `reciprocal`.
+  ///
+  /// We return a non-nil reciprocal in this case because it still
+  /// satisfies the accuracy expectations of `reciprocal` in any Complex
+  /// norm (but not componentwise).
   @inlinable
   public var reciprocal: Complex? {
     let recip = 1/self
