@@ -31,6 +31,11 @@ internal extension Real where Self: FixedWidthFloatingPoint {
     XCTAssertEqual(Self.pow(-1,  Int.max), -1)
     XCTAssertEqual(Self.pow(-1, -Int.max), -1)
     XCTAssertEqual(Self.pow(-1,  Int.min),  1)
+  }
+
+  static func testIntegerExponentOverflowAndUnderflow() {
+    // TODO: replace with seedable generator, print seed.
+    var g = SystemRandomNumberGenerator()
     // Generate some random test values that definitely overflow or
     // underflow; we want to be sure that we get the right ±0 or ±∞
     // result.
@@ -82,6 +87,7 @@ internal extension Real where Self: FixedWidthFloatingPoint {
 extension Float16 {
   static func testIntegerExponent() {
     testIntegerExponentCommon()
+    testIntegerExponentOverflowAndUnderflow()
     testIntegerExponentDoubleAndSmaller()
     let u = Float16(1).nextUp
     let d = Float16(1).nextDown
@@ -109,6 +115,7 @@ extension Float16 {
 extension Float {
   static func testIntegerExponent() {
     testIntegerExponentCommon()
+    testIntegerExponentOverflowAndUnderflow()
     testIntegerExponentDoubleAndSmaller()
     let u = Float(1).nextUp
     let d = Float(1).nextDown
@@ -135,6 +142,7 @@ extension Float {
 extension Double {
   static func testIntegerExponent() {
     testIntegerExponentCommon()
+    testIntegerExponentOverflowAndUnderflow()
     // Following tests only make sense (and are only necessary) on 64b platforms.
 #if arch(arm64) || arch(x86_64)
     testIntegerExponentDoubleAndSmaller()
@@ -193,6 +201,10 @@ final class IntegerExponentTests: XCTestCase {
   #if (arch(i386) || arch(x86_64)) && !os(Windows) && !os(Android)
   func testFloat80() {
     Float80.testIntegerExponentCommon()
+    // FreeBSD's powl(3) has a bug where a minus sign is not perserved on overflow/underflow.
+    #if !os(FreeBSD)
+    Float80.testIntegerExponentOverflowAndUnderflow()
+    #endif
   }
   #endif
 }
