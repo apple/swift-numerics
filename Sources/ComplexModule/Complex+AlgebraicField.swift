@@ -157,9 +157,9 @@ extension Complex: AlgebraicField {
   ///
   /// Unlike real types, with Complex types, _if no underflow occurs in
   /// computing the reciprocal_, replacing division with multiplication by
-  /// does not perturb the result. Note that this condition is not the
-  /// same as `reciprocal` returning a non-nil value. If the `real` and
-  /// `imaginary` components are poorly scaled with respect to eachother,
+  /// this value does not perturb the result. Note that this condition is
+  /// not the same as `reciprocal` returning a non-nil value. If the `real`
+  /// and `imaginary` components are poorly scaled with respect to each other,
   /// one component of `reciprocal` may underflow while the other component
   /// is normal, resulting in a non-nil `reciprocal`.
   ///
