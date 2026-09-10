@@ -16,6 +16,8 @@ jobs:
       windows_exclude_swift_versions: '[{"swift_version": "5.9"}]'
       enable_wasm_sdk_build: true
       wasm_sdk_build_command: swift build --target Numerics
+      enable_android_sdk_build: true
+      enable_android_sdk_checks: true
   soundness:
     name: Soundness
     uses: swiftlang/github-workflows/.github/workflows/soundness.yml@main
