@@ -175,7 +175,7 @@ extension Complex: ElementaryFunctions {
     guard z.isFinite else { return z }
     guard z.x.magnitude < -RealType.log(.ulpOfOne) else {
       let phase = Complex(
-        RealType(signOf: z.x, magnitudeOf: RealType.cos(z.y)),
+        RealType(signOf: z.x, magnitudeOf: 1) * RealType.cos(z.y),
         RealType.sin(z.y)
       )
       let firstScale = RealType.exp(z.x.magnitude/2)

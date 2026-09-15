@@ -225,6 +225,19 @@ final class ElementaryFunctionTests: XCTestCase {
     huge = Complex<T>.sinh(Complex(x, -.pi/4))
     XCTAssert(huge.real.isApproximatelyEqual(to: mag))
     XCTAssert(huge.imaginary.isApproximatelyEqual(to: -mag))
+    // cos(y) is negative in these quadrants, for either sign of x.
+    for real in [x, -x] {
+      for imaginary in [3*T.pi/4, -3*T.pi/4] {
+        let expectedReal = real.sign == .plus ? -mag : mag
+        let expectedImaginary = imaginary.sign == .plus ? mag : -mag
+        let value = Complex<T>.sinh(Complex(real, imaginary))
+        XCTAssert(value.real.isApproximatelyEqual(to: expectedReal))
+        XCTAssert(value.imaginary.isApproximatelyEqual(to: expectedImaginary))
+        let sine = Complex<T>.sin(Complex(imaginary, -real))
+        XCTAssert(sine.real.isApproximatelyEqual(to: expectedImaginary))
+        XCTAssert(sine.imaginary.isApproximatelyEqual(to: -expectedReal))
+      }
+    }
     // For randomly-chosen well-scaled finite values, we expect to have
     // cosh² - sinh² ≈ 1. Note that this test would break down due to
     // catastrophic cancellation as we get further away from the origin.
