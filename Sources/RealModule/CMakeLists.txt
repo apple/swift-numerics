@@ -11,6 +11,7 @@ add_library(RealModule
   AlgebraicField.swift
   ApproximateEquality.swift
   AugmentedArithmetic.swift
+  Compound.swift
   Double+Real.swift
   ElementaryFunctions.swift
   Float+Real.swift
