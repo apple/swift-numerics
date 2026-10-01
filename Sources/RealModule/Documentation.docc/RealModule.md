@@ -26,3 +26,7 @@ The Real protocol is a convenient name for the intersection of `FloatingPoint`,
 `RealFunctions`, and `AlgebraicField`; this is the protocol that you are most
 likely to want to constrain to when writing generic "math" code that works
 with floating-point types.
+
+``RealModule`` also provides `isApproximatelyEqual` methods for comparing
+floating-point values up to a tolerance, which is almost always what you want
+instead of an exact `==` comparison. See <doc:ApproximateEquality> for details.
