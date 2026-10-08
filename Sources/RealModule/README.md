@@ -70,9 +70,6 @@ Not having this protocol is a significant missing feature for numerical computin
 
 ## Approximate equality
 
-Because floating-point arithmetic is inexact, two values that are
-mathematically equal often differ slightly once computed, so comparing them
-with `==` is usually a mistake.
 `RealModule` provides a family of `isApproximatelyEqual` methods that test
 whether two values agree up to a relative or absolute tolerance:
 
