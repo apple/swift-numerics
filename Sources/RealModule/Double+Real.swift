@@ -222,11 +222,19 @@ extension Double: Real {
   
   @_transparent
   public static func _relaxedAdd(_ a: Double, _ b: Double) -> Double {
+#if hasFeature(BuiltinRelaxedFP) // Swift 6.5 and later
+    Double(Builtin.fadd_relaxed_FPIEEE64(a._value, b._value))
+#else
     _numerics_relaxed_add(a, b)
+#endif
   }
   
   @_transparent
   public static func _relaxedMul(_ a: Double, _ b: Double) -> Double {
+#if hasFeature(BuiltinRelaxedFP) // Swift 6.5 and later
+    Double(Builtin.fmul_relaxed_FPIEEE64(a._value, b._value))
+#else
     _numerics_relaxed_mul(a, b)
+#endif
   }
 }

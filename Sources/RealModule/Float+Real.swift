@@ -195,11 +195,19 @@ extension Float: Real {
   
   @_transparent
   public static func _relaxedAdd(_ a: Float, _ b: Float) -> Float {
+#if hasFeature(BuiltinRelaxedFP) // Swift 6.5 and later
+    Float(Builtin.fadd_relaxed_FPIEEE32(a._value, b._value))
+#else
     _numerics_relaxed_addf(a, b)
+#endif
   }
   
   @_transparent
   public static func _relaxedMul(_ a: Float, _ b: Float) -> Float {
+#if hasFeature(BuiltinRelaxedFP) // Swift 6.5 and later
+    Float(Builtin.fmul_relaxed_FPIEEE32(a._value, b._value))
+#else
     _numerics_relaxed_mulf(a, b)
+#endif
   }
 }

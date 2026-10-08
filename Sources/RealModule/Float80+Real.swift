@@ -168,12 +168,20 @@ extension Float80: Real {
   
   @_transparent
   public static func _relaxedAdd(_ a: Float80, _ b: Float80) -> Float80 {
+#if hasFeature(BuiltinRelaxedFP) // Swift 6.5 and later
+    Float80(Builtin.fadd_relaxed_FPIEEE80(a._value, b._value))
+#else
     _numerics_relaxed_addl(a, b)
+#endif
   }
   
   @_transparent
   public static func _relaxedMul(_ a: Float80, _ b: Float80) -> Float80 {
+#if hasFeature(BuiltinRelaxedFP) // Swift 6.5 and later
+    Float80(Builtin.fmul_relaxed_FPIEEE80(a._value, b._value))
+#else
     _numerics_relaxed_mull(a, b)
+#endif
   }
 }
 #endif
