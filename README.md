@@ -137,3 +137,4 @@ Questions about how to use Swift Numerics modules, or issues that are not clearl
     Users may want to define their own `Real` type (and possibly re-export the `Real` module)--that is why the suffix is also applied there.
     New modules have to evaluate this decision carefully, but can err on the side of adding the suffix.
     It's expected that most users will simply `import Numerics`, so this isn't an issue for them.
+
