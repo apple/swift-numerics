@@ -173,18 +173,27 @@ extension Float16: Real {
   }
   #endif
   
-  #if !arch(wasm32)
+  #if !arch(wasm32) || hasFeature(BuiltinRelaxedFP)
   // WASM doesn't have _Float16 on the C side, so we can't define the C hooks
-  // that these use. TODO: implement these as Swift builtins instead.
+  // that these use. However, if we have BuiltinRelaxedFP we can use builtins
+  // to do this directly without needing the C hooks.
   
   @_transparent
   public static func _relaxedAdd(_ a: Float16, _ b: Float16) -> Float16 {
+    #if hasFeature(BuiltinRelaxedFP) // Swift 6.5 and later
+    Float16(Builtin.fadd_relaxed_FPIEEE16(a._value, b._value))
+    #else
     _numerics_relaxed_addf16(a, b)
+    #endif
   }
   
   @_transparent
   public static func _relaxedMul(_ a: Float16, _ b: Float16) -> Float16 {
+    #if hasFeature(BuiltinRelaxedFP) // Swift 6.5 and later
+    Float16(Builtin.fmul_relaxed_FPIEEE16(a._value, b._value))
+    #else
     _numerics_relaxed_mulf16(a, b)
+    #endif
   }
   #endif
 }
