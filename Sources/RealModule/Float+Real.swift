@@ -172,12 +172,8 @@ extension Float: Real {
   @_transparent
   public static func root(_ x: Float, _ n: Int) -> Float {
     guard x >= 0 || n % 2 != 0 else { return .nan }
-    // Workaround the issue mentioned below for the specific case of n = 3
-    // where we can fallback on cbrt.
-    if n == 3 { return libm_cbrtf(x) }
-    // TODO: this implementation is not quite correct, because either n or
-    // 1/n may be not be representable as Float.
-    return Float(signOf: x, magnitudeOf: libm_powf(x.magnitude, 1/Float(n)))
+    // Evaluated in Double and rounded once, as Float16.root defers to Float.
+    return Float(.root(Double(x), n))
   }
   
   @_transparent
