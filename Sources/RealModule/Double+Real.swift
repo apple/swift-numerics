@@ -10,6 +10,7 @@
 //===----------------------------------------------------------------------===//
 
 import _NumericsShims
+import Builtin
 
 extension Double: Real {
   @_transparent
