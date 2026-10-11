@@ -103,6 +103,10 @@ internal extension ElementaryFunctions where Self: BinaryFloatingPoint {
     assertClose(0.3184537311185346158102472135905995955, Self.log(onePlus: 0.375))
     assertClose(-0.7211247851537041911608191553900547941, Self.root(-0.375, 3))
     XCTAssertEqual(-10, Self.root(-1000, 3))
+    // Order three resolves to cbrt for either sign of n; testing n == 3 alone
+    // sent root(x, -3) down the pow path. RootTests covers exactness in full.
+    XCTAssertEqual(0.5, Self.root(8, -3))
+    XCTAssertEqual(-0.5, Self.root(-8, -3))
     assertClose(0.6123724356957945245493210186764728479, Self.sqrt(0.375))
     assertClose(0.54171335479545025876069682133938570, Self.pow(0.375, 0.625))
     assertClose(-0.052734375, Self.pow(-0.375, 3))
