@@ -205,7 +205,7 @@ extension Double: Real {
     var y = magnitudeOfN == 3
       ? libm_cbrt(a)
       : libm_pow(a, 1/Double(magnitudeOfN))
-    // pow(a, 1/n) is exact only when 1/n is representable, i.e. n a power of two.
+    // The estimate is not exact in general; one Newton step below corrects it.
     if let corrected = _correctedRoot(y, exponent: magnitudeOfN, of: a) {
       y = corrected
     }
