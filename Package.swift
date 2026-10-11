@@ -47,6 +47,9 @@ let package = Package(
       name: "RealModule",
       dependencies: ["_NumericsShims"],
       exclude: excludedFilenames,
+      swiftSettings: [
+        .enableExperimentalFeature("BuiltinModule")
+      ],
       linkerSettings: [
         .linkedLibrary("m", .when(platforms: [.linux, .android]))
       ]
