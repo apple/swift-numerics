@@ -92,6 +92,21 @@ extension Float: Real {
     libm_log1pf(x)
   }
   
+  //  Float values are exactly representable in Double, and Double carries
+  //  more than enough precision that the error of exp(n*log(1+x)), roughly
+  //  |n*log(1+x)| * 2⁻⁵³ with the argument bounded by Float's exponent
+  //  range, is negligible next to Float's ulp. This is much cheaper than the
+  //  generic double-Float implementation.
+  public static func pow(onePlus x: Float, _ n: Int) -> Float {
+    guard n != 0 else { return x >= -1 ? 1 : .nan }
+    return Float(Double.exp(Double(n) * Double.log(onePlus: Double(x))))
+  }
+  
+  public static func powMinusOne(onePlus x: Float, _ n: Int) -> Float {
+    guard n != 0 else { return x >= -1 ? 0 : .nan }
+    return Float(Double.expMinusOne(Double(n) * Double.log(onePlus: Double(x))))
+  }
+  
   @_transparent
   public static func erf(_ x: Float) -> Float {
     libm_erff(x)

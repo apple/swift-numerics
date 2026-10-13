@@ -93,40 +93,9 @@ private func _twoRecip<T: Real>(
 }
 
 extension Real {
-  /// (1+x) raised to the nth power.
-  ///
-  /// This operation computes simple compound interest: a principal of 1
-  /// earning a rate of `x` per period, held for `n` periods, grows to
-  /// `pow(onePlus: x, n)`.
-  ///
-  /// This is more accurate than `pow(1+x, n)` when `x` is small, because
-  /// `1+x` rounds away the low-order digits of `x` before the power is
-  /// taken, while this function does not. For example, at `Double`
-  /// precision, a rate so small that `1+x` rounds to exactly 1:
-  /// ```
-  /// let x = 0x1.0p-60         // a very small rate
-  /// Double.pow(1+x, 3650)     // 1.0, all information about x is lost
-  /// Double.pow(onePlus: x, 3650)
-  /// // 1.000000000000003, accurate
-  /// ```
-  ///
-  /// IEEE 754 calls this operation `compound`. See also
-  /// ``powMinusOne(onePlus:_:)``, which is more accurate still when the
-  /// result is close to 1, as well as
-  /// ``ElementaryFunctions/pow(_:_:)-9imp6`` and
-  /// ``ElementaryFunctions/log(onePlus:)``.
-  ///
-  /// Edge cases:
-  ///
-  /// - `pow(onePlus: x, 0)` is 1 for every `x >= -1`, including infinity.
-  /// - `pow(onePlus: -1, n)` is `+0` for `n > 0` and `+infinity` for `n < 0`,
-  ///   matching repeated multiplication or division by zero.
-  /// - `pow(onePlus: .infinity, n)` is `+infinity` for `n > 0` and `+0` for
-  ///   `n < 0`.
-  /// - The result is `NaN` if `x < -1` or `x` is `NaN`, for every `n`
-  ///   including zero. (1+x)ⁿ is not real-valued for `x < -1` and
-  ///   non-integral exponents, and IEEE 754 specifies a domain error for
-  ///   this case.
+  //  Default implementations of the `RealFunctions` requirements. Types that
+  //  have a wider native type to compute in (Float16, Float) override these.
+  //  See `RealFunctions` for documentation.
   public static func pow(onePlus x: Self, _ n: Int) -> Self {
     //  Exponent zero is 1 everywhere the operation is defined.
     guard n != 0 else { return x >= -1 ? 1 : .nan }
@@ -138,34 +107,6 @@ extension Real {
     return r.head + r.tail
   }
 
-  /// (1+x) raised to the nth power, minus 1.
-  ///
-  /// This operation computes the *interest earned* by a principal of 1
-  /// at a rate of `x` per period held for `n` periods, as opposed to
-  /// ``pow(onePlus:_:)``, which computes the resulting balance.
-  ///
-  /// When the result is close to zero--that is, when `x*n` is small--the
-  /// expression `pow(onePlus: x, n) - 1` suffers catastrophic cancellation
-  /// and loses accuracy. This function does not:
-  /// ```
-  /// let x = 0x1.0p-60
-  /// Double.pow(onePlus: x, 8) - 1  // 0.0, every digit is lost
-  /// Double.powMinusOne(onePlus: x, 8)
-  /// // 6.938893903907228e-18, accurate
-  /// ```
-  ///
-  /// See also ``pow(onePlus:_:)`` and
-  /// ``ElementaryFunctions/expMinusOne(_:)``.
-  ///
-  /// Edge cases:
-  ///
-  /// - `powMinusOne(onePlus: x, 0)` is 0 for every `x >= -1`.
-  /// - `powMinusOne(onePlus: -1, n)` is `-1` for `n > 0` and `+infinity`
-  ///   for `n < 0`.
-  /// - `powMinusOne(onePlus: .infinity, n)` is `+infinity` for `n > 0` and
-  ///   `-1` for `n < 0`.
-  /// - The result is `NaN` if `x < -1` or `x` is `NaN`, for every `n`
-  ///   including zero.
   public static func powMinusOne(onePlus x: Self, _ n: Int) -> Self {
     guard n != 0 else { return x >= -1 ? 0 : .nan }
     guard x >= -1 else { return .nan }
