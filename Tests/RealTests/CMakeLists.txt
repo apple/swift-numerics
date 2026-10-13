@@ -10,6 +10,7 @@ See https://swift.org/LICENSE.txt for license information
 add_library(RealTests
   ApproximateEqualityTests.swift
   AugmentedArithmeticTests.swift
+  CompoundTests.swift
   ElementaryFunctionChecks.swift
   IntegerExponentTests.swift
   RelaxedArithmeticTests.swift)
