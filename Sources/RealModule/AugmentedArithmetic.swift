@@ -145,4 +145,44 @@ extension Augmented {
     let tail = (a - x) + (b - y)
     return (head, tail)
   }
+  
+  /// `ab - cd` computed with extra care to avoid catastrophic cancellation.
+  ///
+  /// When the vectors `(a,c)` and `(d,b)` are nearly colinear, the expression
+  /// `ab - cd` will suffer from cancellation if computed naively, and the
+  /// relative error of the result may be quite large.
+  /// `fastDifferenceOfProducts` uses augmented arithmetic to avoid this and
+  /// produce a result that is guaranteed accurate to (1+radix)/2 ulp.¹
+  ///
+  /// For example:
+  ///
+  /// ```swift
+  /// let a: Float = 1
+  /// let b: Float = 1
+  /// let c: Float = 1 + .ulpOfOne
+  /// let d: Float = 1 - .ulpOfOne
+  /// let naive = a*b - c*d                           // 0, all bits were lost
+  /// let precise = fastDifferenceOfProducts(a,b,c,d) // 1.42108547E-14
+  /// ```
+  ///
+  /// Note that `fDOP(a,b,c,d)` is not generally equal to `-fDOP(c,d,-a,b)`;
+  /// it achieves a much better error bound than the naive expression at the
+  /// cost of this symmetry. This does not typically matter in practice, but
+  /// may occasionally be surprising.
+  ///
+  /// -----
+  ///
+  /// ¹ It is not immediately obvious that such a good bound can be achieved;
+  ///   see the following paper for proofs:
+  ///
+  ///  "Further analysis of Kahan's algorithm for the accurate computation
+  ///   of 2 x 2 determinants," Jeannerod, Claude-Pierre and Louvet, Nicolas
+  ///   and Muller, Jean-Michel, https://ens-lyon.hal.science/ensl-00649347
+  @_transparent
+  public static func fastDifferenceOfProducts<T: FloatingPoint>(
+    _ a: T, _ b: T, _ c: T, _ d: T
+  ) -> T {
+    let p = product(c, d)
+    return (-p.head).addingProduct(a, b) - p.tail
+  }
 }
