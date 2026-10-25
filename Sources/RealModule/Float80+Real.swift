@@ -145,15 +145,30 @@ extension Float80: Real {
     libm_powl(x, Float80(n))
   }
   
-  @_transparent
   public static func root(_ x: Float80, _ n: Int) -> Float80 {
     guard x >= 0 || n % 2 != 0 else { return .nan }
-    // Workaround the issue mentioned below for the specific case of n = 3
-    // where we can fallback on cbrt.
-    if n == 3 { return libm_cbrtl(x) }
-    // TODO: this implementation is not quite correct, because either n or
-    // 1/n may be not be representable as Float80.
-    return Float80(signOf: x, magnitudeOf: libm_powl(x.magnitude, 1/Float80(n)))
+    let magnitudeOfN = n.magnitude
+    let a = x.magnitude
+    // Order three takes cbrt for either sign of n; 1/3 is not representable.
+    // A negative order is refined on the reciprocal root directly, rather than
+    // dividing a rounded positive root and losing the accuracy the step bought.
+    var y: Float80
+    if n < 0 {
+      y = magnitudeOfN == 3
+        ? 1/libm_cbrtl(a)
+        : libm_powl(a, -1/Float80(magnitudeOfN))
+      if let corrected = _correctedInverseRoot(y, exponent: magnitudeOfN, of: a) {
+        y = corrected
+      }
+    } else {
+      y = magnitudeOfN == 3
+        ? libm_cbrtl(a)
+        : libm_powl(a, 1/Float80(magnitudeOfN))
+      if let corrected = _correctedRoot(y, exponent: magnitudeOfN, of: a) {
+        y = corrected
+      }
+    }
+    return Float80(signOf: x, magnitudeOf: y)
   }
   
   @_transparent
