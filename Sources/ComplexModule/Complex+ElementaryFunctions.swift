@@ -391,9 +391,14 @@ extension Complex: ElementaryFunctions {
   
   @inlinable
   public static func acosh(_ z: Complex) -> Complex {
-    Complex(
-      RealType.asinh((sqrt(z-1).conjugate * sqrt(z+1)).real),
-      2*RealType.atan2(y: sqrt(z-1).imaginary, x: sqrt(z+1).real)
+    // Form z ± 1 componentwise so that both terms keep the sign of a zero
+    // imaginary part; `z+1` would turn y = -0 into +0, putting the two
+    // square roots on opposite sides of the branch cut for x < -1.
+    let zm1 = Complex(z.x - 1, z.y)
+    let zp1 = Complex(z.x + 1, z.y)
+    return Complex(
+      RealType.asinh((sqrt(zm1).conjugate * sqrt(zp1)).real),
+      2*RealType.atan2(y: sqrt(zm1).imaginary, x: sqrt(zp1).real)
     )
   }
   
