@@ -323,6 +323,16 @@ final class ElementaryFunctionTests: XCTestCase {
     // acosh(-1) = iπ
     XCTAssert(Complex<T>.acosh(-1).imaginary.isApproximatelyEqual(to: .pi))
     XCTAssertEqual(Complex<T>.acosh(-1).real, 0)
+    // On the branch cut x < -1, the real part of acosh must be non-negative
+    // and the imaginary part ±π regardless of the sign of the zero
+    // imaginary part.
+    for x: T in [-2, -10] {
+      for y: T in [0, -0.0] {
+        let w = Complex<T>.acosh(Complex(x, y))
+        XCTAssert(w.real.isApproximatelyEqual(to: .acosh(-x)))
+        XCTAssert(w.imaginary.magnitude.isApproximatelyEqual(to: .pi))
+      }
+    }
     // acosh is the identity at infinity.
     XCTAssertFalse(Complex<T>.acosh(Complex( .infinity, 0)).isFinite)
     XCTAssertFalse(Complex<T>.acosh(Complex( .infinity, .infinity)).isFinite)
