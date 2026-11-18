@@ -1,0 +1,10 @@
+.gitignore
+**/.gitignore
+.licenseignore
+.spi.yml
+.github/*
+*.md
+*.txt
+*.yml
+*.cmake
+Package.swift
