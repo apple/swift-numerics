@@ -13,6 +13,10 @@ are primarily used with real numbers.
 - ``log2(_:)``
 - ``log10(_:)``
 
+### Compound interest
+- ``pow(onePlus:_:)``
+- ``powMinusOne(onePlus:_:)``
+
 ### Plane geometry
 - ``atan2(y:x:)``
 - ``hypot(_:_:)``

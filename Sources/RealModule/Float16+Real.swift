@@ -97,6 +97,19 @@ extension Float16: Real {
     Float16(.log(onePlus: Float(x)))
   }
   
+  //  Float carries far more precision than Float16 needs; see the note on
+  //  the Float implementation. The argument to exp is bounded by Float16's
+  //  exponent range, so the error is negligible next to Float16's ulp.
+  public static func pow(onePlus x: Float16, _ n: Int) -> Float16 {
+    guard n != 0 else { return x >= -1 ? 1 : .nan }
+    return Float16(Float.exp(Float(n) * Float.log(onePlus: Float(x))))
+  }
+  
+  public static func powMinusOne(onePlus x: Float16, _ n: Int) -> Float16 {
+    guard n != 0 else { return x >= -1 ? 0 : .nan }
+    return Float16(Float.expMinusOne(Float(n) * Float.log(onePlus: Float(x))))
+  }
+  
   @_transparent
   public static func erf(_ x: Float16) -> Float16 {
     Float16(.erf(Float(x)))
