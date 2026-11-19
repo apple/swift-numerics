@@ -12,7 +12,8 @@ add_library(RealTests
   AugmentedArithmeticTests.swift
   ElementaryFunctionChecks.swift
   IntegerExponentTests.swift
-  RelaxedArithmeticTests.swift)
+  RelaxedArithmeticTests.swift
+  RootTests.swift)
 target_compile_options(RealTests PRIVATE
   -enable-testing)
 target_link_libraries(RealTests PUBLIC

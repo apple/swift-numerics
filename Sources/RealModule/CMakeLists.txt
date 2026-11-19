@@ -18,7 +18,8 @@ add_library(RealModule
   Float80+Real.swift
   Real.swift
   RealFunctions.swift
-  RelaxedArithmetic.swift)
+  RelaxedArithmetic.swift
+  Root.swift)
 set_target_properties(RealModule PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
 target_link_libraries(RealModule PUBLIC
